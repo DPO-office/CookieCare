@@ -1,12 +1,14 @@
 import { IsaacusKanonClient, KanonStructureProvider, type EnrichmentClient } from "./kanon.js";
 import { DigitalOceanStructureClient } from "./do-structure.js";
 import { LlmStructureProvider, type LlmStructureClient } from "./llm-structure.js";
+import { nativeDoclingChunks, type NativeChunk } from "./docling-chunk-plan.js";
 import { StructureProviderConfigSchema, resolveStructureProviderConfig,
   type StructureProvider, type StructureProviderConfig } from "./structure-provider.js";
 
 export interface StructureProviderDependencies {
   kanonClient?: EnrichmentClient;
   llmClient?: LlmStructureClient;
+  chunker?: (document: unknown) => Promise<NativeChunk[]>;
 }
 
 export function createStructureProvider(raw: unknown,
@@ -16,7 +18,8 @@ export function createStructureProvider(raw: unknown,
     return new KanonStructureProvider(dependencies.kanonClient ?? new IsaacusKanonClient(), configuration);
   }
   return new LlmStructureProvider(configuration,
-    dependencies.llmClient ?? new DigitalOceanStructureClient());
+    dependencies.llmClient ?? new DigitalOceanStructureClient(),
+    dependencies.chunker ?? (dependencies.llmClient ? undefined : nativeDoclingChunks));
 }
 
 export function productionStructureProviderConfiguration(): StructureProviderConfig {

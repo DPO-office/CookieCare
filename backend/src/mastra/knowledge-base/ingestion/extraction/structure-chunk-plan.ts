@@ -6,6 +6,9 @@ export interface StructureSourceUnit {
   start: number;
   end: number;
   text: string;
+  fragmentOf?: string;
+  continuesBefore?: boolean;
+  continuesAfter?: boolean;
 }
 
 export interface StructureChunk {
@@ -16,6 +19,9 @@ export interface StructureChunk {
   contextBefore: string[];
   contextAfter: string[];
   assembledInputCharacters: number;
+  sourceUnits?: StructureSourceUnit[];
+  headingContext?: string[];
+  omittedContextIds?: string[];
 }
 
 export interface StructureChunkPlan {
@@ -25,6 +31,11 @@ export interface StructureChunkPlan {
   hardInputCharacters: number;
   fixedInputCharacters: number;
   chunks: StructureChunk[];
+  method?: "docling_hybrid_source_projection" | "source_map_blocks";
+  nativeChunkCount?: number;
+  nativeMaxTokens?: number;
+  tokenizer?: string;
+  warnings?: string[];
 }
 
 export function structureSourceUnits(map: SourceMap): StructureSourceUnit[] {
@@ -33,10 +44,15 @@ export function structureSourceUnits(map: SourceMap): StructureSourceUnit[] {
 }
 
 export function structureChunkPrompt(map: SourceMap, chunk: Omit<StructureChunk,
-  "inputHash" | "assembledInputCharacters">, units = structureSourceUnits(map)): string {
+  "inputHash" | "assembledInputCharacters">, units = chunk.sourceUnits ?? structureSourceUnits(map)): string {
   const wanted = new Set([...chunk.contextBefore, ...chunk.coreSourceIds, ...chunk.contextAfter]);
   const before = new Set(chunk.contextBefore), after = new Set(chunk.contextAfter);
   return JSON.stringify({ textHash: map.textHash, chunk: { chunkId: chunk.chunkId,
+    ...(chunk.headingContext ? { headingContext: chunk.headingContext } : {}),
+    sourceFragments: units.filter(unit => wanted.has(unit.id) && unit.fragmentOf).map(unit => ({
+      id: unit.id, originalSourceId: unit.fragmentOf,
+      continuesBefore: unit.continuesBefore, continuesAfter: unit.continuesAfter,
+    })),
     coreRange: chunk.coreRange, contextBefore: chunk.contextBefore, contextAfter: chunk.contextAfter },
   // Compact tuples avoid spending tens of thousands of input characters repeating JSON keys.
   // Tuple layout: [sourceId, role (c=core, b=context-before, a=context-after), exact source text].
@@ -48,13 +64,16 @@ function hash(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function materialize(map: SourceMap, chunkId: string, core: StructureSourceUnit[],
-  before: StructureSourceUnit[], after: StructureSourceUnit[], fixedCharacters: number): StructureChunk {
-  const lastIndex = Number(core.at(-1)!.id.slice("src:".length));
+export function materialize(map: SourceMap, chunkId: string, core: StructureSourceUnit[],
+  before: StructureSourceUnit[], after: StructureSourceUnit[], fixedCharacters: number,
+  headingContext?: string[], explicitUnits = false): StructureChunk {
   const partial = { chunkId, coreRange: { start: core[0]!.start,
-    end: map.spans[lastIndex + 1]?.start ?? map.text.length },
+    end: explicitUnits ? core.at(-1)!.end :
+      map.spans[Number(core.at(-1)!.id.slice("src:".length)) + 1]?.start ?? map.text.length },
     coreSourceIds: core.map(unit => unit.id), contextBefore: before.map(unit => unit.id),
-    contextAfter: after.map(unit => unit.id) };
+    contextAfter: after.map(unit => unit.id),
+    ...(explicitUnits ? { sourceUnits: [...before, ...core, ...after] } : {}),
+    ...(headingContext ? { headingContext } : {}) };
   const prompt = structureChunkPrompt(map, partial);
   return { ...partial, inputHash: hash(prompt), assembledInputCharacters: fixedCharacters + prompt.length };
 }
@@ -62,8 +81,10 @@ function materialize(map: SourceMap, chunkId: string, core: StructureSourceUnit[
 function boundaryScore(current: StructureSourceUnit, next: StructureSourceUnit | undefined): number {
   if (!next) return 1_000;
   const beginning = next.text.trimStart().slice(0, 120);
-  if (/^(CHAPTER|TITLE|PART|SECTION|ANNEX)\b/i.test(beginning)) return 500;
-  if (/^Article\s+\d+[a-z]?\b/i.test(beginning)) return 450;
+  if (/^(CHAPTER|TITLE|PART)\b/i.test(beginning)) return 550;
+  if (/^(SECTION|ANNEX|SCHEDULE)\b(?:\s+(?:\d+[a-z]?|[IVXLC]+|FIRST|SECOND|THIRD|FOURTH|FIFTH))?/i
+      .test(beginning)) return 500;
+  if (/^(?:Article|Rule)\s+\d+[a-z]?\b/i.test(beginning)) return 450;
   if (/^\(\d+\)\s/.test(beginning)) return 400;
   if (/^(Whereas|Having regard|HAS ADOPTED)\b/i.test(beginning)) return 350;
   return /[.!?;:]\s*$/.test(current.text) ? 100 : 10;
@@ -92,7 +113,7 @@ export function planStructureChunks(map: SourceMap, options: { targetInputCharac
       const unit = units[cursor]!;
       throw new Error(`Source block ${unit.id} cannot fit the ${hard}-character assembled input ceiling`);
     }
-    // Prefer a legal/document boundary anywhere in the 190k–200k window. A later boundary
+    // Prefer a document boundary in the configured window. A later boundary
     // wins only when boundary quality is equal. If the window is unreachable, use the last
     // complete source block before the ceiling rather than cutting a paragraph in half.
     const best = candidates.sort((a, b) => b.score - a.score || b.end - a.end)[0]?.end ?? lastWithinHard;
@@ -117,24 +138,35 @@ export function planStructureChunks(map: SourceMap, options: { targetInputCharac
     return chunk;
   });
   return { schemaVersion: 1, sourceTextHash: map.textHash, targetInputCharacters: target,
-    hardInputCharacters: hard, fixedInputCharacters: fixed, chunks };
+    hardInputCharacters: hard, fixedInputCharacters: fixed, method: "source_map_blocks", chunks };
 }
 
 export function splitStructureChunk(map: SourceMap, chunk: StructureChunk,
   fixedInputCharacters: number, hardInputCharacters = Number.MAX_SAFE_INTEGER): [StructureChunk, StructureChunk] {
-  const units = new Map(structureSourceUnits(map).map(unit => [unit.id, unit]));
+  const units = new Map((chunk.sourceUnits ?? structureSourceUnits(map)).map(unit => [unit.id, unit]));
   const core = chunk.coreSourceIds.map(id => units.get(id)).filter((unit): unit is StructureSourceUnit => !!unit);
   if (core.length < 2) throw new Error(`Chunk ${chunk.chunkId} cannot be split at a complete source-block boundary`);
-  const middle = Math.ceil(core.length / 2);
+  const lower = Math.max(1, Math.floor(core.length * 0.35));
+  const upper = Math.min(core.length - 1, Math.ceil(core.length * 0.65));
+  let middle = Math.ceil(core.length / 2), bestScore = -1, bestDistance = Number.MAX_SAFE_INTEGER;
+  for (let index = lower; index <= upper; index++) {
+    const score = boundaryScore(core[index - 1]!, core[index]);
+    const distance = Math.abs(index - core.length / 2);
+    if (score > bestScore || score === bestScore && distance < bestDistance) {
+      middle = index; bestScore = score; bestDistance = distance;
+    }
+  }
   const leftCore = core.slice(0, middle), rightCore = core.slice(middle);
   const fit = (id: string, owned: StructureSourceUnit[], before: StructureSourceUnit[],
     after: StructureSourceUnit[]) => {
-    let result = materialize(map, id, owned, before, after, fixedInputCharacters);
+    const make = (b: StructureSourceUnit[], a: StructureSourceUnit[]) => materialize(map, id,
+      owned, b, a, fixedInputCharacters, chunk.headingContext, !!chunk.sourceUnits);
+    let result = make(before, after);
     if (result.assembledInputCharacters > hardInputCharacters && after.length) {
-      result = materialize(map, id, owned, before, [], fixedInputCharacters);
+      result = make(before, []);
     }
     if (result.assembledInputCharacters > hardInputCharacters && before.length) {
-      result = materialize(map, id, owned, [], [], fixedInputCharacters);
+      result = make([], []);
     }
     if (result.assembledInputCharacters > hardInputCharacters) {
       throw new Error(`Split chunk ${id} exceeds the hard input ceiling`);

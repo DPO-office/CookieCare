@@ -184,6 +184,7 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
           const sourceMap = await artifacts.readVerified(inputData.mapArtifact) as SourceMap;
           const provider = providerFactory(inputData.providerConfiguration);
           const response = await provider.extract({ canonicalText: sourceMap.text,
+            doclingDocument: await artifacts.readVerified(inputData.rawArtifact),
             textHash: sourceMap.textHash, sourceMap,
             configuration: inputData.providerConfiguration,
             checkpoints: {

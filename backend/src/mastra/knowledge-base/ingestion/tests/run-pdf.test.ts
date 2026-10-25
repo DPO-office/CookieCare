@@ -450,7 +450,73 @@ test("confirm no GDPR path or extracted GDPR text is required", async () => {
       assert.equal(manifest.pdfFileName, "cookiecare-internal-policy.pdf");
       assert.equal(manifest.pipelineVersion, "kb-run-pdf-v1");
       assert.ok(!manifest.pdfPath.includes("CELEX"));
+      assert.equal(manifest.datasetId, null);
+      const runResultsText = await readFile(path.join(result.result.outputDir, "run-results.json"), "utf8");
+      const runResults = JSON.parse(runResultsText);
+      assert.equal(runResults.dataset_id, null);
+      assert.deepEqual(runResults.results, []);
+      assert.equal(runResults.metrics.estimated_cost_usd, null);
+      assert.ok(!runResultsText.includes("GDPR"));
     }
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("Kanon runs use provider-managed planning and the Kanon model default", async () => {
+  const tempDir = path.join(os.tmpdir(), `kb-test-${randomUUID()}`);
+  await mkdir(tempDir, { recursive: true });
+  try {
+    const pdfPath = path.join(tempDir, "short-law.pdf");
+    await writeFile(pdfPath, samplePdf("Short law"));
+    const outputDir = path.join(tempDir, "run");
+    let observedModel = "";
+    const workflow = createRunPdfWorkflow(() => ({
+      extractor: { extract: async () => mockDoclingDocument("Section 1 Scope") },
+      providerFactory: configuration => ({ configuration, extract: async input => {
+        observedModel = configuration.model;
+        const span = { start: 0, end: input.canonicalText.length };
+        return { candidate: { schemaVersion: 1, textHash: input.textHash, provider: "kanon", model: configuration.model,
+          promptVersion: null, processingStrategy: configuration.processingStrategy, segments: [{ id: "s1", kind: "unit",
+            type: "section", category: "main", parent: null, children: [], span, code: null, title: null,
+            sourceSpans: sourceLocations(input.sourceMap, span) }], references: [], unresolvedItems: [], warnings: [] },
+          rawResponse: { provider: "kanon" }, usage: null, durationMs: 1 };
+      } }),
+    }));
+    const run = await workflow.createRun();
+    const result = await run.start({ inputData: { pdfPath, provider: "kanon", outputDir } });
+    assert.equal(result.status, "success");
+    assert.equal(observedModel, "kanon-2-enricher");
+    const planning = JSON.parse(await readFile(path.join(outputDir, "chunk-plan.json"), "utf8"));
+    assert.equal(planning.strategy, "provider_managed");
+    assert.equal(planning.provider, "kanon");
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("a downstream reconstruction failure marks the saved manifest failed", async () => {
+  const tempDir = path.join(os.tmpdir(), `kb-test-${randomUUID()}`);
+  await mkdir(tempDir, { recursive: true });
+  try {
+    const pdfPath = path.join(tempDir, "broken-candidate.pdf");
+    await writeFile(pdfPath, samplePdf("Broken candidate"));
+    const outputDir = path.join(tempDir, "run");
+    const workflow = createRunPdfWorkflow(() => ({
+      extractor: { extract: async () => mockDoclingDocument("Article 1 Scope") },
+      providerFactory: configuration => ({ configuration, extract: async input => {
+        const valid = await mockStructureProvider(input.sourceMap, configuration).extract(input);
+        return { ...valid, candidate: { ...valid.candidate, textHash: "0".repeat(64) } };
+      } }),
+    }));
+    const run = await workflow.createRun();
+    const result = await run.start({ inputData: { pdfPath, provider: "llm", outputDir } });
+    assert.equal(result.status, "failed");
+    const manifest = JSON.parse(await readFile(path.join(outputDir, "manifest.json"), "utf8"));
+    assert.equal(manifest.status, "failed");
+    assert.equal(manifest.currentStage, "S3");
+    const failure = JSON.parse(await readFile(path.join(outputDir, "stage-s3-error.json"), "utf8"));
+    assert.equal(failure.phase, "reconstruction");
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

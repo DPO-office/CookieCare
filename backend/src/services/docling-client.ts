@@ -5,6 +5,35 @@ export interface DoclingConversion { status: "success" | "partial_success" | "fa
 const MAX_INPUT_BYTES = 25 * 1024 * 1024;
 const MAX_RESPONSE_BYTES = 100 * 1024 * 1024;
 
+export async function chunkWithDoclingService(document: unknown, maxTokens: number): Promise<
+  Array<{ text: string; docItems: string[]; headings?: string[] }>> {
+  const { url, token } = doclingServiceSettings();
+  const body = JSON.stringify({ document, maxTokens });
+  if (Buffer.byteLength(body) > MAX_INPUT_BYTES) throw new Error("Docling chunk request exceeds size limit");
+  const response = await fetch(url.replace(/\/convert$/, "/chunk"), {
+    method: "POST", body, signal: AbortSignal.timeout(120_000),
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  if (!response.ok) throw new Error(`Docling chunk service returned HTTP ${response.status}`);
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Missing Docling chunk response");
+  const pieces: Uint8Array[] = []; let size = 0;
+  while (true) {
+    const { done, value } = await reader.read(); if (done) break;
+    size += value.byteLength;
+    if (size > MAX_RESPONSE_BYTES) { await reader.cancel(); throw new Error("Docling chunk response exceeds size limit"); }
+    pieces.push(value);
+  }
+  const result = JSON.parse(Buffer.concat(pieces).toString("utf8"));
+  if (!Array.isArray(result.chunks) || result.chunks.some((chunk: any) => typeof chunk.text !== "string" ||
+      !Array.isArray(chunk.docItems) || chunk.docItems.some((id: unknown) => typeof id !== "string") ||
+      (chunk.headings !== undefined && (!Array.isArray(chunk.headings) ||
+        chunk.headings.some((heading: unknown) => typeof heading !== "string"))))) {
+    throw new Error("Invalid Docling chunk response");
+  }
+  return result.chunks;
+}
+
 export function doclingServiceConfigured(): boolean {
   return Boolean(process.env.DOCLING_SERVICE_URL?.trim());
 }

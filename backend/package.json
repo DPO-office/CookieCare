@@ -12,6 +12,8 @@
     "kb:evaluate-dataset": "tsx src/mastra/knowledge-base/ingestion/evaluation/run-review-dataset.ts",
     "kb:evaluate-gdpr": "tsx scripts/run-gdpr-eval.ts",
     "kb:seed-gdpr-dataset": "tsx scripts/seed-gdpr-mastra-dataset.ts",
+    "kb:seed-dpdpa-dataset": "tsx scripts/seed-dpdpa-mastra-dataset.ts",
+    "kb:visualize-graph": "tsx scripts/generate-kb-graph-visualization.ts",
     "kb:run-pdf": "tsx scripts/run-kb-pdf.ts",
     "test:kb": "node --import tsx --test src/mastra/knowledge-base/ingestion/tests/*.test.ts",
     "lint:kb": "tsc --noEmit --project tsconfig.mastra.json",

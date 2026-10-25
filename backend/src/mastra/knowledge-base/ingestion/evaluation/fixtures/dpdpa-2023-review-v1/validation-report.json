@@ -1,0 +1,16 @@
+{
+  "status": "automatic_source_checks_passed_human_review_pending",
+  "meaning": "The extracted selected passages and graph-edge anchors are present in this PDF. This does not prove legal interpretation or whole-Act completeness.",
+  "pdf_sha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "case_count": 19,
+  "all_source_refs_resolved": true,
+  "graph_nodes_checked": 63,
+  "graph_edge_source_anchors_checked": 34,
+  "act_section_starts_located": 44,
+  "chapter_starts_located": 9,
+  "schedule_rows_cell_checked": 7,
+  "cross_page_sections": [
+    "Section 8(7): physical pages 7–8",
+    "Section 33(1): physical pages 16–17"
+  ]
+}

@@ -16,7 +16,8 @@ export const ReviewDatasetCaseSchema = z.object({
 }).passthrough();
 
 export const ReviewDatasetSchema = z.object({
-  schema_version: z.enum(["gdpr-review-dataset/1.0", "gdpr-review-dataset/1.1"]),
+  schema_version: z.enum(["gdpr-review-dataset/1.0", "gdpr-review-dataset/1.1",
+    "dpdpa-review-dataset/1.0"]),
   dataset_id: Id, source_family: Id,
   split: z.enum(["development", "calibration", "held_out"]),
   source: z.object({ sha256: Sha256Schema, page_count: z.number().int().positive(),

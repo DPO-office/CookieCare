@@ -48,7 +48,8 @@ export interface ReconstructionDraft {
 }
 
 const KINDS = new Set(["article", "paragraph", "point", "table", "footnote", "annex",
-  "definition", "rule", "schedule", "recital", "chapter", "section", "illustration"]);
+  "definition", "rule", "schedule", "recital", "chapter", "section", "illustration",
+  "subsection", "subparagraph", "list_item", "table_row", "part", "title"]);
 
 function labelOf(segment: CandidateSegment, text: string): string | null {
   const range = segment.code ?? segment.title;
@@ -70,17 +71,39 @@ function uncoveredText(text: string, intervals: Array<{ start: number; end: numb
   return gaps;
 }
 
+interface CitationPath {
+  kind: "article" | "rule" | "section" | "schedule";
+  number: string;
+  subpoints: string[];
+}
+
+const ORDINALS: Record<string, string> = {
+  first: "1", second: "2", third: "3", fourth: "4", fifth: "5", sixth: "6",
+  seventh: "7", eighth: "8", ninth: "9", tenth: "10",
+};
+
+function citationPath(value: string): CitationPath | null {
+  const normalized = value.toLocaleLowerCase("en").replace(/\s+/g, " ").trim();
+  const ordinalSchedule = /\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+schedule\b/iu.exec(normalized);
+  if (ordinalSchedule) return { kind: "schedule", number: ORDINALS[ordinalSchedule[1]!.toLocaleLowerCase("en")]!,
+    subpoints: [] };
+  const match = /\b(article|rule|section|schedule)\s+(\d+[a-z]?|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b((?:\s*\([a-z0-9ivxlcdm]+\))*)/iu.exec(normalized);
+  if (!match) return null;
+  const rawNumber = match[2]!.toLocaleLowerCase("en");
+  return { kind: match[1]!.toLocaleLowerCase("en") as CitationPath["kind"],
+    number: ORDINALS[rawNumber] ?? rawNumber,
+    subpoints: [...match[3]!.matchAll(/\(([a-z0-9ivxlcdm]+)\)/giu)].map(item => item[1]!.toLocaleLowerCase("en")) };
+}
+
 function targetCandidates(mention: string, provisions: DraftProvision[]): DraftProvision[] {
-  const normalized = mention.toLocaleLowerCase("en").replace(/\s+/g, " ").trim();
-  if (!normalized) return [];
-  const schedule = normalized.includes("schedule");
-  const kind = schedule ? "schedule" : normalized.split(" ")[0]!.replace(/s$/, "");
-  const exact = provisions.filter(provision => provision.kind === kind &&
-    [provision.label, provision.text.split("\n", 1)[0]].some(value => value &&
-      value.toLocaleLowerCase("en").replace(/\s+/g, " ").includes(normalized)));
-  if (exact.length) return exact;
-  return provisions.filter(provision => provision.kind === kind && provision.label &&
-    normalized.includes(provision.label.toLocaleLowerCase("en").replace(/\s+/g, " ")));
+  const citation = citationPath(mention);
+  if (!citation) return [];
+  return provisions.filter(provision => {
+    if (provision.kind !== citation.kind) return false;
+    const candidate = citationPath(provision.label ?? provision.text.split("\n", 1)[0] ?? "");
+    return candidate?.kind === citation.kind && candidate.number === citation.number &&
+      candidate.subpoints.join(".") === citation.subpoints.join(".");
+  });
 }
 
 function containingProvision(start: number, end: number, provisions: DraftProvision[]): DraftProvision | null {
@@ -89,16 +112,25 @@ function containingProvision(start: number, end: number, provisions: DraftProvis
 }
 
 function referencedRange(mention: string, provisions: DraftProvision[]) {
+  mention = mention.replace(/[\u2010-\u2015]/gu, "-");
   const match = /\b(articles?|rules?|sections?)\s+(\d+)\s*[-–—]\s*(\d+)/iu.exec(mention);
   if (!match) return null;
   const kind = match[1]!.toLocaleLowerCase("en").replace(/s$/, "") as "article" | "rule" | "section";
   const from = Number(match[2]), to = Number(match[3]);
   if (to < from || to - from > 500) return null;
-  const candidates = provisions.filter(provision => provision.kind === kind && provision.label && (() => {
-    const value = new RegExp(`\\b${kind}\\s+(\\d+)`, "iu").exec(provision.label!);
-    return value ? Number(value[1]) >= from && Number(value[1]) <= to : false;
-  })());
-  return { kind, from, to, candidates, complete: candidates.length === to - from + 1 };
+  const byNumber = new Map<number, DraftProvision[]>();
+  for (const provision of provisions) {
+    const citation = citationPath(provision.label ?? provision.text.split("\n", 1)[0] ?? "");
+    if (citation?.kind !== kind || citation.subpoints.length) continue;
+    const value = Number(citation.number);
+    if (Number.isInteger(value) && value >= from && value <= to) {
+      byNumber.set(value, [...(byNumber.get(value) ?? []), provision]);
+    }
+  }
+  const expected = Array.from({ length: to - from + 1 }, (_, index) => from + index);
+  const candidates = expected.flatMap(value => byNumber.get(value) ?? []);
+  return { kind, from, to, candidates,
+    complete: expected.every(value => byNumber.get(value)?.length === 1) };
 }
 
 function relativeTargets(mention: string, owner: DraftProvision | null,
@@ -112,10 +144,12 @@ function relativeTargets(mention: string, owner: DraftProvision | null,
   }
   if (!container) return [];
   const token = match[2]!.toLocaleLowerCase("en");
+  const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const localLabel = new RegExp(`^(?:paragraph|subparagraph|point)?\\s*\\(${escapedToken}\\)(?:\\s|$)`, "iu");
   return provisions.filter(provision => provision.id !== owner.id &&
     (provision.parentId === container!.id || provision.inheritedParentIds.includes(container!.id)) &&
     ["paragraph", "point"].includes(provision.kind) &&
-    (provision.label ?? provision.text.slice(0, 60)).toLocaleLowerCase("en").includes(token));
+    localLabel.test((provision.label ?? provision.text.slice(0, 60)).trim()));
 }
 
 function structuralPaths(provisions: DraftProvision[]): void {
@@ -140,9 +174,10 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
   if (candidate.textHash !== map.textHash || detection.textHash !== map.textHash ||
       detection.sourceVersionId.length === 0) throw new Error("Reconstruction inputs refer to different text");
   const sourceVersionId = detection.sourceVersionId;
-  const warnings = [...map.warnings, ...candidate.warnings, ...detection.warnings];
+  const warnings = [...map.warnings, ...candidate.warnings, ...candidate.unresolvedItems, ...detection.warnings];
   const bySegment = new Map(candidate.segments.map(segment => [segment.id,
-    hashRevision({ sourceVersionId, segmentId: segment.id })]));
+    hashRevision({ sourceVersionId, textHash: map.textHash, kind: segment.kind,
+      type: segment.type, category: segment.category, start: segment.span.start, end: segment.span.end })]));
   const provisions = candidate.segments.map(segment => {
     const sourceSpans = segment.sourceSpans;
     const hasLocation = sourceSpans.length > 0 && sourceSpans.every(location => location.physicalPage !== null);
@@ -156,7 +191,8 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
       childIds: [], structuralPath: [], inheritedParentIds: [],
       boundaryStatus: segment.startsBeforeChunk || segment.continuesAfterChunk ? "cross_chunk" as const :
         sourceSpans.length ? "complete" as const : "uncertain" as const,
-      status: hasLocation && kind !== "unknown" ? "candidate" as const : "needs_review" as const };
+      status: hasLocation && kind !== "unknown" && !segment.startsBeforeChunk && !segment.continuesAfterChunk ?
+        "candidate" as const : "needs_review" as const };
   });
   structuralPaths(provisions);
   const unresolvedText = uncoveredText(map.text, candidate.segments.map(segment => segment.span));
@@ -185,7 +221,30 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
     if (existing) {
       if (!existing.detectedBy.includes(detectedBy)) existing.detectedBy.push(detectedBy);
       existing.targetProvisionIds = [...new Set([...existing.targetProvisionIds, ...candidates.map(item => item.id)])];
-      if (!existing.targetProvisionId && target) { existing.targetProvisionId = target.id; existing.status = "proposed"; }
+      if (external && !existing.externalTarget) {
+        existing.externalTarget = { instrumentHint: occurrence.externalInstrumentHint ??
+          occurrence.targetHint ?? occurrence.exactMention, provisionHint: null,
+          versionStatus: "unresolved", availability: "unavailable" };
+      }
+      if (range && !existing.rangeTarget) {
+        existing.rangeTarget = { kind: range.kind, from: range.from, to: range.to, complete: range.complete };
+      }
+      if (existing.externalTarget) {
+        existing.status = "external_unavailable";
+        existing.targetProvisionId = null;
+      } else if (existing.rangeTarget) {
+        existing.status = existing.rangeTarget.complete ? "proposed" : "unresolved";
+        existing.targetProvisionId = null;
+      } else if (existing.targetProvisionIds.length === 1) {
+        existing.targetProvisionId = existing.targetProvisionIds[0]!;
+        existing.status = "proposed";
+      } else if (existing.targetProvisionIds.length > 1) {
+        existing.targetProvisionId = null;
+        existing.status = "ambiguous";
+      } else {
+        existing.targetProvisionId = null;
+        existing.status = "unresolved";
+      }
       return;
     }
     relationships.push({ id: identity, occurrenceId: occurrence.id, sourceProvisionId: owner?.id ?? null,

@@ -1,0 +1,185 @@
+{
+  "dataset_id": "dpdpa-gazette-2023-en-review-v1",
+  "source_sha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "run_id": null,
+  "provider": null,
+  "model": null,
+  "prompt_version": null,
+  "pipeline_version": null,
+  "reasoning_setting": null,
+  "model_assignments": [],
+  "artifacts": {},
+  "results": [
+    {
+      "case_id": "DPDPA-S1-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S1-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S2-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S2-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S2-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S2-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S3-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S3-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S3-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S3-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S4-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S4-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S4-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S5-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S5-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S6-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S6-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S7-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "DPDPA-S7-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    }
+  ]
+}

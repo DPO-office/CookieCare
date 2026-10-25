@@ -5,6 +5,27 @@ import { createDoclingServer } from "./server.mjs";
 const token = "test-token-with-at-least-thirty-two-characters";
 const document = { body: { self_ref: "#/body", children: [] }, texts: [] };
 
+test("chunk endpoint authenticates, validates budget, and preserves native item references", async t => {
+  let calls = 0;
+  const base = await fixture(t, async () => ({ status: "success", document }), {
+    chunkDocument: async (value, maxTokens) => {
+      calls++; assert.deepEqual(value, document); assert.equal(maxTokens, 2048);
+      return [{ text: "Rule 8", docItems: ["#/texts/0"], headings: ["Chapter II"] }];
+    },
+  });
+  const requestChunks = (maxTokens, authenticated = true) => fetch(`${base}/v1/chunk`, {
+    method: "POST", headers: { "Content-Type": "application/json",
+      ...(authenticated ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify({ document, maxTokens }),
+  });
+  assert.equal((await requestChunks(2048, false)).status, 401);
+  assert.equal((await requestChunks(100000)).status, 400);
+  const response = await requestChunks(2048);
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).chunks[0].docItems, ["#/texts/0"]);
+  assert.equal(calls, 1);
+});
+
 async function fixture(t, convert, options = {}) {
   const server = createDoclingServer({ token, convert, ...options });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));

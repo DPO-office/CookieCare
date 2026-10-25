@@ -1,0 +1,2315 @@
+{
+  "schema_version": "dpdpa-review-dataset/1.0",
+  "dataset_id": "dpdpa-gazette-2023-en-review-v1",
+  "source_family": "DPDPA-Act-22-of-2023",
+  "status": "draft_for_human_review",
+  "split": "development",
+  "source": {
+    "sha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+    "byte_size": 182082,
+    "page_count": 21,
+    "filename": "DPDPA-2023 Act.pdf",
+    "local_path": "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPDPA-2023 Act.pdf",
+    "source_type": "original 11 August 2023 Gazette publication of Act 22 of 2023",
+    "edition_note": "This PDF alone does not establish commencement of each provision or later Rules/amendments.",
+    "official_reference_url": "https://www.meity.gov.in/writereaddata/files/Digital%20Personal%20Data%20Protection%20Act%202023.pdf"
+  },
+  "stages": {
+    "S1": "Source identity and classification",
+    "S2": "Text extraction and complete boundaries",
+    "S3": "Document tree and relationships",
+    "S4": "Legal meaning",
+    "S5": "Generated module guidance",
+    "S6": "Retrieval and publication",
+    "S7": "Use in analysis, drafting and Q&A"
+  },
+  "coverage_policy": "Selected passages are complete within their stated scope. This development set does not certify all 44 sections or current law.",
+  "cases": [
+    {
+      "id": "DPDPA-S1-01",
+      "stage": "S1",
+      "title": "Identify this exact Gazette Act and its commencement limitation",
+      "scope": "source_native",
+      "challenge_type": "source_identity",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "page:1",
+        "section:1"
+      ],
+      "physical_pages": [
+        1
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Identify this exact Gazette Act and its commencement limitation",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "document_identity": {
+          "act_number": "22 of 2023",
+          "title": "The Digital Personal Data Protection Act, 2023",
+          "publication_date_on_pdf": "11 August 2023",
+          "pdf_sha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15"
+        },
+        "exact_commencement_text": "(2) It shall come into force on such date as the Central Government may, by notification\nin the Official Gazette, appoint and different dates may be appointed for different provisions\nof this Act and any reference in any such provision to the commencement of this Act shall\nbe construed as a reference to the coming into force of that provision.",
+        "commencement_status_from_this_pdf": "Different provisions may commence on different notified dates; this PDF does not contain those notifications."
+      },
+      "must_not": [
+        "Claiming every provision commenced on 11 August 2023.",
+        "Treating this source as the 2025 Rules or as a current consolidated edition."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S1-02",
+      "stage": "S1",
+      "title": "Account for all physical pages and classify the Schedule separately",
+      "scope": "source_native",
+      "challenge_type": "document_classification",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "page:1",
+        "page:21",
+        "schedule"
+      ],
+      "physical_pages": [
+        1,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Account for all physical pages and classify the Schedule separately",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "physical_page_inventory": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "schedule_heading_exact_text": "THE SCHEDULE\n[See section 33 (1)]",
+        "schedule_type": "penalty table referenced by section 33(1), not seven numbered Act sections",
+        "page_1_matter": "Gazette metadata, Act title and beginning of Chapter I; the Gazette masthead is not an operative obligation."
+      },
+      "must_not": [
+        "Dropping page 21 as footer material.",
+        "Treating Schedule rows 1–7 as Sections 1–7."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S2-01",
+      "stage": "S2",
+      "title": "Reconstruct the complete Section 8(7) across pages 7–8",
+      "scope": "source_native",
+      "challenge_type": "cross_page_boundary",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "page:7",
+        "page:8"
+      ],
+      "physical_pages": [
+        7,
+        8
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Reconstruct the complete Section 8(7) across pages 7–8",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "exact_subsection_text": "(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—\n(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and\n(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.\nIllustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period.",
+        "point_a_exact_text": "(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and",
+        "point_b_exact_text": "(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.",
+        "boundary": "Begins on page 7 and continues on page 8; ends immediately before Section 8(8).",
+        "condition": "The opening exception for retention necessary to comply with law governs both (a) and (b)."
+      },
+      "must_not": [
+        "Stopping point (a) at the page break.",
+        "Attaching the page-8 continuation to a new section.",
+        "Dropping point (b) or the opening retention exception."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S2-02",
+      "stage": "S2",
+      "title": "Reconstruct Section 33(1) across pages 16–17",
+      "scope": "source_native",
+      "challenge_type": "cross_page_boundary",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:33",
+        "page:16",
+        "page:17"
+      ],
+      "physical_pages": [
+        16,
+        17
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Reconstruct Section 33(1) across pages 16–17",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "exact_subsection_text": "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule.",
+        "boundary": "The phrase beginning 'person an opportunity of being heard' continues Section 33(1) on page 17.",
+        "required_facts": [
+          "Board concludes an inquiry",
+          "significant breach",
+          "opportunity of being heard",
+          "may impose a monetary penalty specified in the Schedule"
+        ]
+      },
+      "must_not": [
+        "Ending the sentence at the page-16 footer.",
+        "Treating the page-17 continuation as Section 33(2)."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S2-03",
+      "stage": "S2",
+      "title": "Extract all seven Schedule rows with their own penalty cells",
+      "scope": "source_native",
+      "challenge_type": "table_structure",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "schedule",
+        "schedule:row:1",
+        "schedule:row:2",
+        "schedule:row:3",
+        "schedule:row:4",
+        "schedule:row:5",
+        "schedule:row:6",
+        "schedule:row:7"
+      ],
+      "physical_pages": [
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Extract all seven Schedule rows with their own penalty cells",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "table_heading_exact_text": "THE SCHEDULE\n[See section 33 (1)]",
+        "column_headers": [
+          "Sl. No.",
+          "Breach of provisions of this Act or rules made thereunder",
+          "Penalty"
+        ],
+        "rows": [
+          {
+            "row": 1,
+            "breach_exact_text": "Breach in observing the obligation of Data Fiduciary to\ntake reasonable security safeguards to prevent personal\ndata breach under sub-section (5) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred and fifty\ncrore rupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 2,
+            "breach_exact_text": "Breach in observing the obligation to give the Board or\naffected Data Principal notice of a personal data breach\nunder sub-section (6) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred crore\nrupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 3,
+            "breach_exact_text": "Breach in observance of additional obligations in relation\nto children under section 9.",
+            "penalty_exact_text": "May extend to two\nhundred crore\nrupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 4,
+            "breach_exact_text": "Breach in observance of additional obligations of\nSignificant Data Fiduciary under section 10.",
+            "penalty_exact_text": "May extend to one\nhundred and fifty\ncrore rupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 5,
+            "breach_exact_text": "Breach in observance of the duties under section 15.",
+            "penalty_exact_text": "May extend to ten\nthousand rupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 6,
+            "breach_exact_text": "Breach of any term of voluntary undertaking accepted by\nthe Board under section 32.",
+            "penalty_exact_text": "Up to the extent\napplicable for the\nbreach in respect\nof which the\nproceedings under\nsection 28 were\ninstituted.",
+            "physical_page": 21
+          },
+          {
+            "row": 7,
+            "breach_exact_text": "Breach of any other provision of this Act or the rules\nmade thereunder.",
+            "penalty_exact_text": "May extend to fifty\ncrore rupees.",
+            "physical_page": 21
+          }
+        ],
+        "row_count": 7
+      },
+      "must_not": [
+        "Pairing a breach description with the following row's penalty.",
+        "Interpreting 'May extend to' as a fixed automatic penalty.",
+        "Inventing a fixed amount for Schedule row 6."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S2-04",
+      "stage": "S2",
+      "title": "Locate all 44 Act sections and nine chapter starts without dropping the Schedule",
+      "scope": "source_native",
+      "challenge_type": "full_document_map_inventory",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "page:1",
+        "page:2",
+        "page:3",
+        "page:4",
+        "page:5",
+        "page:6",
+        "page:7",
+        "page:8",
+        "page:9",
+        "page:10",
+        "page:11",
+        "page:12",
+        "page:13",
+        "page:14",
+        "page:15",
+        "page:16",
+        "page:17",
+        "page:18",
+        "page:19",
+        "page:20",
+        "page:21"
+      ],
+      "physical_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Locate all 44 Act sections and nine chapter starts without dropping the Schedule",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "section_starts": [
+          {
+            "section": 1,
+            "physical_page": 1,
+            "first_line_exact_text": "1. (1) This Act may be called the Digital Personal Data Protection Act, 2023."
+          },
+          {
+            "section": 2,
+            "physical_page": 2,
+            "first_line_exact_text": "2. In this Act, unless the context otherwise requires,—"
+          },
+          {
+            "section": 3,
+            "physical_page": 3,
+            "first_line_exact_text": "3. Subject to the provisions of this Act, it shall—"
+          },
+          {
+            "section": 4,
+            "physical_page": 4,
+            "first_line_exact_text": "4. (1) A person may process the personal data of a Data Principal only in accordance"
+          },
+          {
+            "section": 5,
+            "physical_page": 4,
+            "first_line_exact_text": "5. (1) Every request made to a Data Principal under section 6 for consent shall be"
+          },
+          {
+            "section": 6,
+            "physical_page": 5,
+            "first_line_exact_text": "6. (1) The consent given by the Data Principal shall be free, specific, informed,"
+          },
+          {
+            "section": 7,
+            "physical_page": 6,
+            "first_line_exact_text": "7. A Data Fiduciary may process personal data of a Data Principal for any of following"
+          },
+          {
+            "section": 8,
+            "physical_page": 7,
+            "first_line_exact_text": "8. (1) A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of"
+          },
+          {
+            "section": 9,
+            "physical_page": 8,
+            "first_line_exact_text": "9. (1) The Data Fiduciary shall, before processing any personal data of a child or a"
+          },
+          {
+            "section": 10,
+            "physical_page": 8,
+            "first_line_exact_text": "10. (1) The Central Government may notify any Data Fiduciary or class of Data"
+          },
+          {
+            "section": 11,
+            "physical_page": 9,
+            "first_line_exact_text": "11. (1) The Data Principal shall have the right to obtain from the Data Fiduciary to"
+          },
+          {
+            "section": 12,
+            "physical_page": 10,
+            "first_line_exact_text": "12. (1) A Data Principal shall have the right to correction, completion, updating and"
+          },
+          {
+            "section": 13,
+            "physical_page": 10,
+            "first_line_exact_text": "13. (1) A Data Principal shall have the right to have readily available means of grievance"
+          },
+          {
+            "section": 14,
+            "physical_page": 10,
+            "first_line_exact_text": "14. (1) A Data Principal shall have the right to nominate, in such manner as may be"
+          },
+          {
+            "section": 15,
+            "physical_page": 10,
+            "first_line_exact_text": "15. A Data Principal shall perform the following duties, namely:—"
+          },
+          {
+            "section": 16,
+            "physical_page": 11,
+            "first_line_exact_text": "16. (1) The Central Government may, by notification, restrict the transfer of personal"
+          },
+          {
+            "section": 17,
+            "physical_page": 11,
+            "first_line_exact_text": "17. (1) The provisions of Chapter II, except sub-sections (1) and (5) of section 8, and"
+          },
+          {
+            "section": 18,
+            "physical_page": 12,
+            "first_line_exact_text": "18. (1) With effect from such date as the Central Government may, by notification,"
+          },
+          {
+            "section": 19,
+            "physical_page": 12,
+            "first_line_exact_text": "19. (1) The Board shall consist of a Chairperson and such number of other Members"
+          },
+          {
+            "section": 20,
+            "physical_page": 12,
+            "first_line_exact_text": "20. (1) The salary, allowances and other terms and conditions of service of the"
+          },
+          {
+            "section": 21,
+            "physical_page": 13,
+            "first_line_exact_text": "21. (1) A person shall be disqualified for being appointed and continued as the"
+          },
+          {
+            "section": 22,
+            "physical_page": 13,
+            "first_line_exact_text": "22. (1) The Chairperson or any other Member may give notice in writing to the Central"
+          },
+          {
+            "section": 23,
+            "physical_page": 13,
+            "first_line_exact_text": "23. (1) The Board shall observe such procedure in regard to the holding of and"
+          },
+          {
+            "section": 24,
+            "physical_page": 13,
+            "first_line_exact_text": "24. The Board may, with previous approval of the Central Government, appoint such"
+          },
+          {
+            "section": 25,
+            "physical_page": 13,
+            "first_line_exact_text": "25. The Chairperson, Members, officers and employees of the Board shall be deemed,"
+          },
+          {
+            "section": 26,
+            "physical_page": 14,
+            "first_line_exact_text": "26. The Chairperson shall exercise the following powers, namely:—"
+          },
+          {
+            "section": 27,
+            "physical_page": 14,
+            "first_line_exact_text": "27. (1) The Board shall exercise and perform the following powers and functions,"
+          },
+          {
+            "section": 28,
+            "physical_page": 14,
+            "first_line_exact_text": "28. (1) The Board shall function as an independent body and shall, as far as practicable,"
+          },
+          {
+            "section": 29,
+            "physical_page": 15,
+            "first_line_exact_text": "29. (1) Any person aggrieved by an order or direction made by the Board under this"
+          },
+          {
+            "section": 30,
+            "physical_page": 16,
+            "first_line_exact_text": "30. (1) An order passed by the Appellate Tribunal under this Act shall be executable"
+          },
+          {
+            "section": 31,
+            "physical_page": 16,
+            "first_line_exact_text": "31. If the Board is of the opinion that any complaint may be resolved by mediation, it"
+          },
+          {
+            "section": 32,
+            "physical_page": 16,
+            "first_line_exact_text": "32. (1) The Board may accept a voluntary undertaking in respect of any matter related"
+          },
+          {
+            "section": 33,
+            "physical_page": 16,
+            "first_line_exact_text": "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions"
+          },
+          {
+            "section": 34,
+            "physical_page": 17,
+            "first_line_exact_text": "34. All sums realised by way of penalties imposed by the Board under this Act, shall"
+          },
+          {
+            "section": 35,
+            "physical_page": 17,
+            "first_line_exact_text": "35. No suit, prosecution or other legal proceedings shall lie against the Central"
+          },
+          {
+            "section": 36,
+            "physical_page": 17,
+            "first_line_exact_text": "36. The Central Government may, for the purposes of this Act, require the Board and"
+          },
+          {
+            "section": 37,
+            "physical_page": 17,
+            "first_line_exact_text": "37. (1) The Central Government or any of its officers specially authorised by it in this"
+          },
+          {
+            "section": 38,
+            "physical_page": 18,
+            "first_line_exact_text": "38. (1) The provisions of this Act shall be in addition to and not in derogation of any"
+          },
+          {
+            "section": 39,
+            "physical_page": 18,
+            "first_line_exact_text": "39. No civil court shall have the jurisdiction to entertain any suit or proceeding in"
+          },
+          {
+            "section": 40,
+            "physical_page": 18,
+            "first_line_exact_text": "40. (1) The Central Government may, by notification, and subject to the condition of"
+          },
+          {
+            "section": 41,
+            "physical_page": 19,
+            "first_line_exact_text": "41. Every rule made and every notification issued under section 16 and section 42 of"
+          },
+          {
+            "section": 42,
+            "physical_page": 19,
+            "first_line_exact_text": "42. (1) The Central Government may, by notification, amend the Schedule, subject to"
+          },
+          {
+            "section": 43,
+            "physical_page": 19,
+            "first_line_exact_text": "43. (1) If any difficulty arises in giving effect to the provisions of this Act, the Central"
+          },
+          {
+            "section": 44,
+            "physical_page": 19,
+            "first_line_exact_text": "44. (1) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in"
+          }
+        ],
+        "chapter_markers": [
+          {
+            "heading_exact_text": "CHAPTER I",
+            "physical_page": 1
+          },
+          {
+            "heading_exact_text": "CHAPTER II",
+            "physical_page": 4
+          },
+          {
+            "heading_exact_text": "CHAPTER III",
+            "physical_page": 9
+          },
+          {
+            "heading_exact_text": "CHAPTER IV",
+            "physical_page": 11
+          },
+          {
+            "heading_exact_text": "CHAPTER V",
+            "physical_page": 12
+          },
+          {
+            "heading_exact_text": "CHAPTER VI",
+            "physical_page": 14
+          },
+          {
+            "heading_exact_text": "CHAPTER VII",
+            "physical_page": 15
+          },
+          {
+            "heading_exact_text": "CHAPTER VIII",
+            "physical_page": 16
+          },
+          {
+            "heading_exact_text": "CHAPTER IX",
+            "physical_page": 17
+          }
+        ],
+        "act_section_count": 44,
+        "chapter_count": 9,
+        "schedule_presence": {
+          "physical_page": 21,
+          "heading_exact_text": "THE SCHEDULE"
+        }
+      },
+      "must_not": [
+        "Missing a section whose number and start line are printed in the PDF.",
+        "Treating Schedule rows as Sections 45–51.",
+        "Using the printed Gazette page number as the physical PDF page number."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S3-01",
+      "stage": "S3",
+      "title": "Build the complete Section 8 tree and local reference graph",
+      "scope": "source_native",
+      "challenge_type": "complete_subgraph",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "definition:breach",
+        "page:7",
+        "page:8"
+      ],
+      "physical_pages": [
+        7,
+        8
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Build the complete Section 8 tree and local reference graph",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 8",
+              "parent": "Chapter II",
+              "kind": "section",
+              "exact_source_text": "8. (1) A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of\na Data Principal to carry out the duties provided under this Act, be responsible for complying\nwith the provisions of this Act and the rules made thereunder in respect of any processing\nundertaken by it or on its behalf by a Data Processor.\n(2) A Data Fiduciary may engage, appoint, use or otherwise involve a Data Processor\nto process personal data on its behalf for any activity related to offering of goods or\nservices to Data Principals only under a valid contract.\n(3) Where personal data processed by a Data Fiduciary is likely to be—\n(a) used to make a decision that affects the Data Principal; or\n(b) disclosed to another Data Fiduciary,\nthe Data Fiduciary processing such personal data shall ensure its completeness,\naccuracy and consistency.\n(4) A Data Fiduciary shall implement appropriate technical and organisational measures\nto ensure effective observance of the provisions of this Act and the rules made thereunder.\n(5) A Data Fiduciary shall protect personal data in its possession or under its control,\nincluding in respect of any processing undertaken by it or on its behalf by a Data Processor,\nby taking reasonable security safeguards to prevent personal data breach.\n(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed.\n(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—\n(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and\n(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.\nIllustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period.\n(8) The purpose referred to in clause (a) of sub-section (7) shall be deemed to no\nlonger be served, if the Data Principal does not––\n(a) approach the Data Fiduciary for the performance of the specified purpose;\nand\n(b) exercise any of her rights in relation to such processing,\nfor such time period as may be prescribed, and different time periods may be prescribed for\ndifferent classes of Data Fiduciaries and for different purposes.\n(9) A Data Fiduciary shall publish, in such manner as may be prescribed, the business\ncontact information of a Data Protection Officer, if applicable, or a person who is able to\nanswer on behalf of the Data Fiduciary, the questions, if any, raised by the Data Principal\nabout the processing of her personal data.\n(10) A Data Fiduciary shall establish an effective mechanism to redress the grievances\nof Data Principals.\n(11) For the purposes of this section, it is hereby clarified that a Data Principal shall be\nconsidered as not having approached the Data Fiduciary for the performance of the specified\npurpose, in any period during which she has not initiated contact with the Data Fiduciary\nfor such performance, in person or by way of communication in electronic or physical form."
+            },
+            {
+              "id": "Section 8(1)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "8. (1) A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of\na Data Principal to carry out the duties provided under this Act, be responsible for complying\nwith the provisions of this Act and the rules made thereunder in respect of any processing\nundertaken by it or on its behalf by a Data Processor."
+            },
+            {
+              "id": "Section 8(2)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(2) A Data Fiduciary may engage, appoint, use or otherwise involve a Data Processor\nto process personal data on its behalf for any activity related to offering of goods or\nservices to Data Principals only under a valid contract."
+            },
+            {
+              "id": "Section 8(3)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(3) Where personal data processed by a Data Fiduciary is likely to be—\n(a) used to make a decision that affects the Data Principal; or\n(b) disclosed to another Data Fiduciary,\nthe Data Fiduciary processing such personal data shall ensure its completeness,\naccuracy and consistency."
+            },
+            {
+              "id": "Section 8(4)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(4) A Data Fiduciary shall implement appropriate technical and organisational measures\nto ensure effective observance of the provisions of this Act and the rules made thereunder."
+            },
+            {
+              "id": "Section 8(5)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(5) A Data Fiduciary shall protect personal data in its possession or under its control,\nincluding in respect of any processing undertaken by it or on its behalf by a Data Processor,\nby taking reasonable security safeguards to prevent personal data breach."
+            },
+            {
+              "id": "Section 8(6)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed."
+            },
+            {
+              "id": "Section 8(7)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—\n(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and\n(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.\nIllustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period."
+            },
+            {
+              "id": "Section 8(8)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(8) The purpose referred to in clause (a) of sub-section (7) shall be deemed to no\nlonger be served, if the Data Principal does not––\n(a) approach the Data Fiduciary for the performance of the specified purpose;\nand\n(b) exercise any of her rights in relation to such processing,\nfor such time period as may be prescribed, and different time periods may be prescribed for\ndifferent classes of Data Fiduciaries and for different purposes."
+            },
+            {
+              "id": "Section 8(9)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(9) A Data Fiduciary shall publish, in such manner as may be prescribed, the business\ncontact information of a Data Protection Officer, if applicable, or a person who is able to\nanswer on behalf of the Data Fiduciary, the questions, if any, raised by the Data Principal\nabout the processing of her personal data."
+            },
+            {
+              "id": "Section 8(10)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(10) A Data Fiduciary shall establish an effective mechanism to redress the grievances\nof Data Principals."
+            },
+            {
+              "id": "Section 8(11)",
+              "parent": "Section 8",
+              "kind": "subsection",
+              "exact_source_text": "(11) For the purposes of this section, it is hereby clarified that a Data Principal shall be\nconsidered as not having approached the Data Fiduciary for the performance of the specified\npurpose, in any period during which she has not initiated contact with the Data Fiduciary\nfor such performance, in person or by way of communication in electronic or physical form."
+            },
+            {
+              "id": "Section 8(3)(a)",
+              "parent": "Section 8(3)",
+              "kind": "point",
+              "exact_source_text": "(a) used to make a decision that affects the Data Principal; or"
+            },
+            {
+              "id": "Section 8(3)(b)",
+              "parent": "Section 8(3)",
+              "kind": "point",
+              "exact_source_text": "(b) disclosed to another Data Fiduciary,"
+            },
+            {
+              "id": "Section 8(7)(a)",
+              "parent": "Section 8(7)",
+              "kind": "point",
+              "exact_source_text": "(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and"
+            },
+            {
+              "id": "Section 8(7)(b)",
+              "parent": "Section 8(7)",
+              "kind": "point",
+              "exact_source_text": "(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor."
+            },
+            {
+              "id": "Section 8(8)(a)",
+              "parent": "Section 8(8)",
+              "kind": "point",
+              "exact_source_text": "(a) approach the Data Fiduciary for the performance of the specified purpose;\nand"
+            },
+            {
+              "id": "Section 8(8)(b)",
+              "parent": "Section 8(8)",
+              "kind": "point",
+              "exact_source_text": "(b) exercise any of her rights in relation to such processing,"
+            },
+            {
+              "id": "Section 8(3) shared consequence",
+              "parent": "Section 8(3)",
+              "kind": "shared_text",
+              "exact_source_text": "the Data Fiduciary processing such personal data shall ensure its completeness,\naccuracy and consistency."
+            },
+            {
+              "id": "Section 8(7) illustrations",
+              "parent": "Section 8(7)",
+              "kind": "illustration",
+              "exact_source_text": "Illustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period."
+            },
+            {
+              "id": "Section 8(8) shared time condition",
+              "parent": "Section 8(8)",
+              "kind": "shared_text",
+              "exact_source_text": "for such time period as may be prescribed, and different time periods may be prescribed for\ndifferent classes of Data Fiduciaries and for different purposes."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 8(8)",
+            "to": "Section 8(7)(a)",
+            "relation": "explicit_reference",
+            "source_words": "clause (a) of sub-section (7)"
+          },
+          {
+            "from": "Section 8(11)",
+            "to": "Section 8",
+            "relation": "explicit_relative_reference",
+            "source_words": "this section"
+          },
+          {
+            "from": "Section 8(5)",
+            "to": "Section 2(u)",
+            "relation": "defined_term",
+            "source_words": "personal data breach",
+            "explanation": "The term is defined in section 2(u); this is a term-use link, not a printed citation."
+          },
+          {
+            "from": "Section 8(6)",
+            "to": "Section 2(u)",
+            "relation": "defined_term",
+            "source_words": "personal data breach",
+            "explanation": "The term is defined in section 2(u); this is a term-use link, not a printed citation."
+          }
+        ],
+        "inherited_conditions": [
+          {
+            "children": [
+              "Section 8(3)(a)",
+              "Section 8(3)(b)"
+            ],
+            "parent_text": "(3) Where personal data processed by a Data Fiduciary is likely to be—"
+          },
+          {
+            "children": [
+              "Section 8(7)(a)",
+              "Section 8(7)(b)"
+            ],
+            "parent_text": "(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—"
+          }
+        ],
+        "paragraph_count": 11,
+        "lettered_points": [
+          "Section 8(3)(a)",
+          "Section 8(3)(b)",
+          "Section 8(7)(a)",
+          "Section 8(7)(b)",
+          "Section 8(8)(a)",
+          "Section 8(8)(b)"
+        ]
+      },
+      "must_not": [
+        "Eleven unrelated rules without Section 8 parent context.",
+        "Treating a defined-term link as a printed section citation.",
+        "Attaching the page-8 continuation of Section 8(7)(a) to Section 8(8)."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S3-02",
+      "stage": "S3",
+      "title": "Connect Section 33(1), the Schedule and each referenced obligation",
+      "scope": "source_native",
+      "challenge_type": "multi_hop_graph",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:33",
+        "schedule",
+        "schedule:row:1",
+        "schedule:row:2",
+        "schedule:row:3",
+        "schedule:row:4",
+        "schedule:row:5",
+        "schedule:row:6",
+        "schedule:row:7",
+        "section:8",
+        "section:9"
+      ],
+      "physical_pages": [
+        7,
+        8,
+        16,
+        17,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Connect Section 33(1), the Schedule and each referenced obligation",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 33",
+              "parent": "Chapter VIII",
+              "kind": "section",
+              "exact_source_text": "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule.\n(2) While determining the amount of monetary penalty to be imposed under\nsub-section (1), the Board shall have regard to the following matters, namely:—\n(a) the nature, gravity and duration of the breach;\n(b) the type and nature of the personal data affected by the breach;\n(c) repetitive nature of the breach;\n(d) whether the person, as a result of the breach, has realised a gain or avoided\nany loss;\n(e) whether the person took any action to mitigate the effects and consequences\nof the breach, and the timeliness and effectiveness of such action;\n(f) whether the monetary penalty to be imposed is proportionate and effective,\nhaving regard to the need to secure observance of and deter breach of the provisions\nof this Act; and\n(g) the likely impact of the imposition of the monetary penalty on the person."
+            },
+            {
+              "id": "Section 33(1)",
+              "parent": "Section 33",
+              "kind": "subsection",
+              "exact_source_text": "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule."
+            },
+            {
+              "id": "Section 33(2)",
+              "parent": "Section 33",
+              "kind": "subsection",
+              "exact_source_text": "(2) While determining the amount of monetary penalty to be imposed under\nsub-section (1), the Board shall have regard to the following matters, namely:—\n(a) the nature, gravity and duration of the breach;\n(b) the type and nature of the personal data affected by the breach;\n(c) repetitive nature of the breach;\n(d) whether the person, as a result of the breach, has realised a gain or avoided\nany loss;\n(e) whether the person took any action to mitigate the effects and consequences\nof the breach, and the timeliness and effectiveness of such action;\n(f) whether the monetary penalty to be imposed is proportionate and effective,\nhaving regard to the need to secure observance of and deter breach of the provisions\nof this Act; and\n(g) the likely impact of the imposition of the monetary penalty on the person."
+            },
+            {
+              "id": "Section 33(2)(a)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(a) the nature, gravity and duration of the breach;"
+            },
+            {
+              "id": "Section 33(2)(b)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(b) the type and nature of the personal data affected by the breach;"
+            },
+            {
+              "id": "Section 33(2)(c)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(c) repetitive nature of the breach;"
+            },
+            {
+              "id": "Section 33(2)(d)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(d) whether the person, as a result of the breach, has realised a gain or avoided\nany loss;"
+            },
+            {
+              "id": "Section 33(2)(e)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(e) whether the person took any action to mitigate the effects and consequences\nof the breach, and the timeliness and effectiveness of such action;"
+            },
+            {
+              "id": "Section 33(2)(f)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(f) whether the monetary penalty to be imposed is proportionate and effective,\nhaving regard to the need to secure observance of and deter breach of the provisions\nof this Act; and"
+            },
+            {
+              "id": "Section 33(2)(g)",
+              "parent": "Section 33(2)",
+              "kind": "point",
+              "exact_source_text": "(g) the likely impact of the imposition of the monetary penalty on the person."
+            },
+            {
+              "id": "The Schedule",
+              "parent": "Act",
+              "kind": "schedule",
+              "exact_source_text": "THE SCHEDULE\n[See section 33 (1)]\nSl. No. Breach of provisions of this Act or rules made thereunder Penalty\n(1) (2) (3)\n1. Breach in observing the obligation of Data Fiduciary to May extend to two\ntake reasonable security safeguards to prevent personal hundred and fifty\ndata breach under sub-section (5) of section 8. crore rupees.\n2. Breach in observing the obligation to give the Board or May extend to two\naffected Data Principal notice of a personal data breach hundred crore\nunder sub-section (6) of section 8. rupees.\n3. Breach in observance of additional obligations in relation May extend to two\nto children under section 9. hundred crore\nrupees.\n4. Breach in observance of additional obligations of May extend to one\nSignificant Data Fiduciary under section 10. hundred and fifty\ncrore rupees.\n5. Breach in observance of the duties under section 15. May extend to ten\nthousand rupees.\n6. Breach of any term of voluntary undertaking accepted by Up to the extent\nthe Board under section 32. applicable for the\nbreach in respect\nof which the\nproceedings under\nsection 28 were\ninstituted.\n7. Breach of any other provision of this Act or the rules May extend to fifty\nmade thereunder. crore rupees."
+            },
+            {
+              "id": "Schedule row 1",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach in observing the obligation of Data Fiduciary to\ntake reasonable security safeguards to prevent personal\ndata breach under sub-section (5) of section 8.\nMay extend to two\nhundred and fifty\ncrore rupees."
+            },
+            {
+              "id": "Schedule row 2",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach in observing the obligation to give the Board or\naffected Data Principal notice of a personal data breach\nunder sub-section (6) of section 8.\nMay extend to two\nhundred crore\nrupees."
+            },
+            {
+              "id": "Schedule row 3",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach in observance of additional obligations in relation\nto children under section 9.\nMay extend to two\nhundred crore\nrupees."
+            },
+            {
+              "id": "Schedule row 4",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach in observance of additional obligations of\nSignificant Data Fiduciary under section 10.\nMay extend to one\nhundred and fifty\ncrore rupees."
+            },
+            {
+              "id": "Schedule row 5",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach in observance of the duties under section 15.\nMay extend to ten\nthousand rupees."
+            },
+            {
+              "id": "Schedule row 6",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach of any term of voluntary undertaking accepted by\nthe Board under section 32.\nUp to the extent\napplicable for the\nbreach in respect\nof which the\nproceedings under\nsection 28 were\ninstituted."
+            },
+            {
+              "id": "Schedule row 7",
+              "parent": "The Schedule",
+              "kind": "table_row",
+              "exact_source_text": "Breach of any other provision of this Act or the rules\nmade thereunder.\nMay extend to fifty\ncrore rupees."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 33(1)",
+            "to": "The Schedule",
+            "relation": "explicit_reference",
+            "source_words": "Schedule"
+          },
+          {
+            "from": "Section 33(2)",
+            "to": "Section 33(1)",
+            "relation": "explicit_relative_reference",
+            "source_words": "sub-section (1)"
+          },
+          {
+            "from": "Schedule row 1",
+            "to": "Section 8(5)",
+            "relation": "explicit_reference",
+            "source_words": "sub-section (5) of section 8"
+          },
+          {
+            "from": "Schedule row 2",
+            "to": "Section 8(6)",
+            "relation": "explicit_reference",
+            "source_words": "sub-section (6) of section 8"
+          },
+          {
+            "from": "Schedule row 3",
+            "to": "Section 9",
+            "relation": "explicit_reference",
+            "source_words": "section 9"
+          },
+          {
+            "from": "Schedule row 4",
+            "to": "Section 10",
+            "relation": "explicit_reference",
+            "source_words": "section 10"
+          },
+          {
+            "from": "Schedule row 5",
+            "to": "Section 15",
+            "relation": "explicit_reference",
+            "source_words": "section 15"
+          },
+          {
+            "from": "Schedule row 6",
+            "to": "Section 32",
+            "relation": "explicit_reference",
+            "source_words": "section 32"
+          },
+          {
+            "from": "Schedule row 6",
+            "to": "Section 28",
+            "relation": "explicit_procedural_reference",
+            "source_words": "section 28",
+            "explanation": "This citation is in the penalty cell and concerns the proceedings, not the breached obligation."
+          }
+        ],
+        "multi_hop_paths": [
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 1",
+              "Section 8(5)"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Security safeguard breach category; possible penalty up to 250 crore rupees, subject to Section 33 conditions."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 2",
+              "Section 8(6)"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Breach-intimation category; possible penalty up to 200 crore rupees, subject to Section 33 conditions."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 3",
+              "Section 9"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Children's obligations category; possible penalty up to 200 crore rupees, subject to Section 33 conditions."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 4",
+              "Section 10"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Significant Data Fiduciary category; possible penalty up to 150 crore rupees, subject to Section 33 conditions."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 5",
+              "Section 15"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Data Principal duty category; possible penalty up to ten thousand rupees, subject to Section 33 conditions."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 6",
+              "Section 32"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_reference"
+            ],
+            "meaning": "Voluntary-undertaking breach category; cap depends on the underlying breach for which Section 28 proceedings were instituted."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 6",
+              "Section 28"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains",
+              "explicit_procedural_reference"
+            ],
+            "meaning": "Section 28 is referenced by the row's penalty cell as proceedings context, not as the breached duty."
+          },
+          {
+            "path": [
+              "Section 33(1)",
+              "The Schedule",
+              "Schedule row 7"
+            ],
+            "relation_sequence": [
+              "explicit_reference",
+              "contains"
+            ],
+            "meaning": "Residual breach category; possible penalty up to 50 crore rupees, subject to Section 33 conditions."
+          }
+        ]
+      },
+      "must_not": [
+        "Inventing a direct printed citation from Section 8(5) to the Schedule.",
+        "Calling a Schedule ceiling an automatically imposed penalty.",
+        "Conflating Schedule row 1 security and row 2 breach notice."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S3-03",
+      "stage": "S3",
+      "title": "Model Section 17 exemptions and their retained duties",
+      "scope": "source_native",
+      "challenge_type": "exception_scope",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:17",
+        "section:8",
+        "page:11",
+        "page:12"
+      ],
+      "physical_pages": [
+        7,
+        8,
+        11,
+        12
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Model Section 17 exemptions and their retained duties",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 17",
+              "parent": "Chapter IV",
+              "kind": "section",
+              "exact_source_text": "17. (1) The provisions of Chapter II, except sub-sections (1) and (5) of section 8, and\nthose of Chapter III and section 16 shall not apply where—\n(a) the processing of personal data is necessary for enforcing any legal right or\nclaim;\n(b) the processing of personal data by any court or tribunal or any other body\nin India which is entrusted by law with the performance of any judicial or quasi-judicial\nor regulatory or supervisory function, where such processing is necessary for the\nperformance of such function;\n(c) personal data is processed in the interest of prevention, detection,\ninvestigation or prosecution of any offence or contravention of any law for the time\nbeing in force in India;\n(d) personal data of Data Principals not within the territory of India is processed\npursuant to any contract entered into with any person outside the territory of India\nby any person based in India;\n(e) the processing is necessary for a scheme of compromise or arrangement or\nmerger or amalgamation of two or more companies or a reconstruction by way of\ndemerger or otherwise of a company, or transfer of undertaking of one or more company\nto another company, or involving division of one or more companies, approved by a\ncourt or tribunal or other authority competent to do so by any law for the time being\nin force; and\n(f) the processing is for the purpose of ascertaining the financial information\nand assets and liabilities of any person who has defaulted in payment due on account\nof a loan or advance taken from a financial institution, subject to such processing\nbeing in accordance with the provisions regarding disclosure of information or data\nin any other law for the time being in force.\nExplanation.—For the purposes of this clause, the expressions “default” and\n“financial institution” shall have the meanings respectively assigned to them in\nsub-sections (12) and (14) of section 3 of the Insolvency and Bankruptcy Code, 2016.\nIllustration.\nX, an individual, takes a loan from Y, a bank. X defaults in paying her monthly loan\nrepayment instalment on the date on which it falls due. Y may process the personal data of\nX for ascertaining her financial information and assets and liabilities.\n(2) The provisions of this Act shall not apply in respect of the processing of personal\ndata—\n(a) by such instrumentality of the State as the Central Government may notify,\nin the interests of sovereignty and integrity of India, security of the State, friendly\nrelations with foreign States, maintenance of public order or preventing incitement to\nany cognizable offence relating to any of these, and the processing by the Central\nGovernment of any personal data that such instrumentality may furnish to it; and\n(b) necessary for research, archiving or statistical purposes if the personal data\nis not to be used to take any decision specific to a Data Principal and such processing\nis carried on in accordance with such standards as may be prescribed.\n(3) The Central Government may, having regard to the volume and nature of personal\ndata processed, notify certain Data Fiduciaries or class of Data Fiduciaries, including startups,\nas Data Fiduciaries to whom the provisions of section 5, sub-sections (3) and (7) of\nsection 8 and sections 10 and 11 shall not apply.\nExplanation.—For the purposes of this sub-section, the term “startup” means a\nprivate limited company or a partnership firm or a limited liability partnership incorporated\nin India, which is eligible to be and is recognised as such in accordance with the criteria and\nprocess notified by the department to which matters relating to startups are allocated in the\nCentral Government.\n(4) In respect of processing by the State or any instrumentality of the State, the\nprovisions of sub-section (7) of section 8 and sub-section (3) of section 12 and, where such\nprocessing is for a purpose that does not include making of a decision that affects the Data\nPrincipal, sub-section (2) of section 12 shall not apply.\n(5) The Central Government may, before expiry of five years from the date of\ncommencement of this Act, by notification, declare that any provision of this Act shall not\napply to such Data Fiduciary or classes of Data Fiduciaries for such period as may be\nspecified in the notification."
+            },
+            {
+              "id": "Section 17(1)",
+              "parent": "Section 17",
+              "kind": "subsection",
+              "exact_source_text": "17. (1) The provisions of Chapter II, except sub-sections (1) and (5) of section 8, and\nthose of Chapter III and section 16 shall not apply where—\n(a) the processing of personal data is necessary for enforcing any legal right or\nclaim;\n(b) the processing of personal data by any court or tribunal or any other body\nin India which is entrusted by law with the performance of any judicial or quasi-judicial\nor regulatory or supervisory function, where such processing is necessary for the\nperformance of such function;\n(c) personal data is processed in the interest of prevention, detection,\ninvestigation or prosecution of any offence or contravention of any law for the time\nbeing in force in India;\n(d) personal data of Data Principals not within the territory of India is processed\npursuant to any contract entered into with any person outside the territory of India\nby any person based in India;\n(e) the processing is necessary for a scheme of compromise or arrangement or\nmerger or amalgamation of two or more companies or a reconstruction by way of\ndemerger or otherwise of a company, or transfer of undertaking of one or more company\nto another company, or involving division of one or more companies, approved by a\ncourt or tribunal or other authority competent to do so by any law for the time being\nin force; and\n(f) the processing is for the purpose of ascertaining the financial information\nand assets and liabilities of any person who has defaulted in payment due on account\nof a loan or advance taken from a financial institution, subject to such processing\nbeing in accordance with the provisions regarding disclosure of information or data\nin any other law for the time being in force.\nExplanation.—For the purposes of this clause, the expressions “default” and\n“financial institution” shall have the meanings respectively assigned to them in\nsub-sections (12) and (14) of section 3 of the Insolvency and Bankruptcy Code, 2016.\nIllustration.\nX, an individual, takes a loan from Y, a bank. X defaults in paying her monthly loan\nrepayment instalment on the date on which it falls due. Y may process the personal data of\nX for ascertaining her financial information and assets and liabilities."
+            },
+            {
+              "id": "Section 17(2)",
+              "parent": "Section 17",
+              "kind": "subsection",
+              "exact_source_text": "(2) The provisions of this Act shall not apply in respect of the processing of personal\ndata—\n(a) by such instrumentality of the State as the Central Government may notify,\nin the interests of sovereignty and integrity of India, security of the State, friendly\nrelations with foreign States, maintenance of public order or preventing incitement to\nany cognizable offence relating to any of these, and the processing by the Central\nGovernment of any personal data that such instrumentality may furnish to it; and\n(b) necessary for research, archiving or statistical purposes if the personal data\nis not to be used to take any decision specific to a Data Principal and such processing\nis carried on in accordance with such standards as may be prescribed."
+            },
+            {
+              "id": "Section 17(3)",
+              "parent": "Section 17",
+              "kind": "subsection",
+              "exact_source_text": "(3) The Central Government may, having regard to the volume and nature of personal\ndata processed, notify certain Data Fiduciaries or class of Data Fiduciaries, including startups,\nas Data Fiduciaries to whom the provisions of section 5, sub-sections (3) and (7) of\nsection 8 and sections 10 and 11 shall not apply.\nExplanation.—For the purposes of this sub-section, the term “startup” means a\nprivate limited company or a partnership firm or a limited liability partnership incorporated\nin India, which is eligible to be and is recognised as such in accordance with the criteria and\nprocess notified by the department to which matters relating to startups are allocated in the\nCentral Government."
+            },
+            {
+              "id": "Section 17(4)",
+              "parent": "Section 17",
+              "kind": "subsection",
+              "exact_source_text": "(4) In respect of processing by the State or any instrumentality of the State, the\nprovisions of sub-section (7) of section 8 and sub-section (3) of section 12 and, where such\nprocessing is for a purpose that does not include making of a decision that affects the Data\nPrincipal, sub-section (2) of section 12 shall not apply."
+            },
+            {
+              "id": "Section 17(5)",
+              "parent": "Section 17",
+              "kind": "subsection",
+              "exact_source_text": "(5) The Central Government may, before expiry of five years from the date of\ncommencement of this Act, by notification, declare that any provision of this Act shall not\napply to such Data Fiduciary or classes of Data Fiduciaries for such period as may be\nspecified in the notification."
+            },
+            {
+              "id": "Section 17(1)(a)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(a) the processing of personal data is necessary for enforcing any legal right or\nclaim;"
+            },
+            {
+              "id": "Section 17(1)(b)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(b) the processing of personal data by any court or tribunal or any other body\nin India which is entrusted by law with the performance of any judicial or quasi-judicial\nor regulatory or supervisory function, where such processing is necessary for the\nperformance of such function;"
+            },
+            {
+              "id": "Section 17(1)(c)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(c) personal data is processed in the interest of prevention, detection,\ninvestigation or prosecution of any offence or contravention of any law for the time\nbeing in force in India;"
+            },
+            {
+              "id": "Section 17(1)(d)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(d) personal data of Data Principals not within the territory of India is processed\npursuant to any contract entered into with any person outside the territory of India\nby any person based in India;"
+            },
+            {
+              "id": "Section 17(1)(e)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(e) the processing is necessary for a scheme of compromise or arrangement or\nmerger or amalgamation of two or more companies or a reconstruction by way of\ndemerger or otherwise of a company, or transfer of undertaking of one or more company\nto another company, or involving division of one or more companies, approved by a\ncourt or tribunal or other authority competent to do so by any law for the time being\nin force; and"
+            },
+            {
+              "id": "Section 17(1)(f)",
+              "parent": "Section 17(1)",
+              "kind": "point",
+              "exact_source_text": "(f) the processing is for the purpose of ascertaining the financial information\nand assets and liabilities of any person who has defaulted in payment due on account\nof a loan or advance taken from a financial institution, subject to such processing\nbeing in accordance with the provisions regarding disclosure of information or data\nin any other law for the time being in force."
+            },
+            {
+              "id": "Section 17(2)(a)",
+              "parent": "Section 17(2)",
+              "kind": "point",
+              "exact_source_text": "(a) by such instrumentality of the State as the Central Government may notify,\nin the interests of sovereignty and integrity of India, security of the State, friendly\nrelations with foreign States, maintenance of public order or preventing incitement to\nany cognizable offence relating to any of these, and the processing by the Central\nGovernment of any personal data that such instrumentality may furnish to it; and"
+            },
+            {
+              "id": "Section 17(2)(b)",
+              "parent": "Section 17(2)",
+              "kind": "point",
+              "exact_source_text": "(b) necessary for research, archiving or statistical purposes if the personal data\nis not to be used to take any decision specific to a Data Principal and such processing\nis carried on in accordance with such standards as may be prescribed."
+            },
+            {
+              "id": "Section 17(1)(f) explanation",
+              "parent": "Section 17(1)(f)",
+              "kind": "explanation",
+              "exact_source_text": "Explanation.—For the purposes of this clause, the expressions “default” and\n“financial institution” shall have the meanings respectively assigned to them in\nsub-sections (12) and (14) of section 3 of the Insolvency and Bankruptcy Code, 2016."
+            },
+            {
+              "id": "Section 17(1)(f) illustration",
+              "parent": "Section 17(1)(f)",
+              "kind": "illustration",
+              "exact_source_text": "Illustration.\nX, an individual, takes a loan from Y, a bank. X defaults in paying her monthly loan\nrepayment instalment on the date on which it falls due. Y may process the personal data of\nX for ascertaining her financial information and assets and liabilities."
+            },
+            {
+              "id": "Section 17(3) explanation",
+              "parent": "Section 17(3)",
+              "kind": "explanation",
+              "exact_source_text": "Explanation.—For the purposes of this sub-section, the term “startup” means a\nprivate limited company or a partnership firm or a limited liability partnership incorporated\nin India, which is eligible to be and is recognised as such in accordance with the criteria and\nprocess notified by the department to which matters relating to startups are allocated in the\nCentral Government."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 17(1)",
+            "to": "Chapter II",
+            "relation": "conditional_exemption",
+            "source_words": "Chapter II"
+          },
+          {
+            "from": "Section 17(1)",
+            "to": "Chapter III",
+            "relation": "conditional_exemption",
+            "source_words": "Chapter III"
+          },
+          {
+            "from": "Section 17(1)",
+            "to": "Section 16",
+            "relation": "conditional_exemption",
+            "source_words": "section 16"
+          },
+          {
+            "from": "Section 17(1)",
+            "to": "Section 8(1)",
+            "relation": "exception_to_exemption",
+            "source_words": "sub-sections (1) and (5) of section 8"
+          },
+          {
+            "from": "Section 17(1)",
+            "to": "Section 8(5)",
+            "relation": "exception_to_exemption",
+            "source_words": "sub-sections (1) and (5) of section 8"
+          },
+          {
+            "from": "Section 17(3)",
+            "to": "Section 5",
+            "relation": "notification_dependent_exemption",
+            "source_words": "section 5"
+          },
+          {
+            "from": "Section 17(3)",
+            "to": "Section 8(3)",
+            "relation": "notification_dependent_exemption",
+            "source_words": "sub-sections (3) and (7) of"
+          },
+          {
+            "from": "Section 17(3)",
+            "to": "Section 8(7)",
+            "relation": "notification_dependent_exemption",
+            "source_words": "sub-sections (3) and (7) of"
+          },
+          {
+            "from": "Section 17(3)",
+            "to": "Section 10",
+            "relation": "notification_dependent_exemption",
+            "source_words": "sections 10 and 11"
+          },
+          {
+            "from": "Section 17(3)",
+            "to": "Section 11",
+            "relation": "notification_dependent_exemption",
+            "source_words": "sections 10 and 11"
+          },
+          {
+            "from": "Section 17(4)",
+            "to": "Section 8(7)",
+            "relation": "conditional_exemption",
+            "source_words": "sub-section (7) of section 8"
+          },
+          {
+            "from": "Section 17(4)",
+            "to": "Section 12(3)",
+            "relation": "conditional_exemption",
+            "source_words": "sub-section (3) of section 12"
+          },
+          {
+            "from": "Section 17(4)",
+            "to": "Section 12(2)",
+            "relation": "conditional_exemption",
+            "source_words": "sub-section (2) of section 12"
+          },
+          {
+            "from": "Section 17(1)(f) explanation",
+            "to": "Insolvency and Bankruptcy Code 2016 Section 3(12)",
+            "relation": "external_defined_term_reference",
+            "source_words": "sub-sections (12) and (14) of section 3"
+          },
+          {
+            "from": "Section 17(1)(f) explanation",
+            "to": "Insolvency and Bankruptcy Code 2016 Section 3(14)",
+            "relation": "external_defined_term_reference",
+            "source_words": "sub-sections (12) and (14) of section 3"
+          }
+        ],
+        "exemption_scope": {
+          "section_17_1": "In the listed situations, Chapter II except Section 8(1) and 8(5), Chapter III and Section 16 are excluded.",
+          "section_17_3": "Only notified Data Fiduciaries or classes receive the listed exemptions; notification is a condition, not a fact established by this Act."
+        }
+      },
+      "must_not": [
+        "Exempting Section 8(1) or 8(5) through Section 17(1).",
+        "Applying Section 17(3) to all startups without a notification.",
+        "Treating the different Section 17 subsections as one blanket exemption."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S3-04",
+      "stage": "S3",
+      "title": "Model Section 9 child duties, definition and exceptions",
+      "scope": "source_native",
+      "challenge_type": "definitions_and_exception_scope",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:9",
+        "definition:child",
+        "schedule:row:3"
+      ],
+      "physical_pages": [
+        2,
+        8,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Model Section 9 child duties, definition and exceptions",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 9",
+              "parent": "Chapter II",
+              "kind": "section",
+              "exact_source_text": "9. (1) The Data Fiduciary shall, before processing any personal data of a child or a\nperson with disability who has a lawful guardian obtain verifiable consent of the parent of\nsuch child or the lawful guardian, as the case may be, in such manner as may be prescribed.\nExplanation.—For the purpose of this sub-section, the expression “consent of the\nparent” includes the consent of lawful guardian, wherever applicable.\n(2) A Data Fiduciary shall not undertake such processing of personal data that is\nlikely to cause any detrimental effect on the well-being of a child.\n(3) A Data Fiduciary shall not undertake tracking or behavioural monitoring of children\nor targeted advertising directed at children.\n(4) The provisions of sub-sections (1) and (3) shall not be applicable to processing of\npersonal data of a child by such classes of Data Fiduciaries or for such purposes, and\nsubject to such conditions, as may be prescribed.\n(5) The Central Government may, if satisfied that a Data Fiduciary has ensured that its\nprocessing of personal data of children is done in a manner that is verifiably safe, notify for\nsuch processing by such Data Fiduciary the age above which that Data Fiduciary shall be\nexempt from the applicability of all or any of the obligations under sub-sections (1) and (3)\nin respect of processing by that Data Fiduciary as the notification may specify."
+            },
+            {
+              "id": "Section 9(1)",
+              "parent": "Section 9",
+              "kind": "subsection",
+              "exact_source_text": "9. (1) The Data Fiduciary shall, before processing any personal data of a child or a\nperson with disability who has a lawful guardian obtain verifiable consent of the parent of\nsuch child or the lawful guardian, as the case may be, in such manner as may be prescribed.\nExplanation.—For the purpose of this sub-section, the expression “consent of the\nparent” includes the consent of lawful guardian, wherever applicable."
+            },
+            {
+              "id": "Section 9(2)",
+              "parent": "Section 9",
+              "kind": "subsection",
+              "exact_source_text": "(2) A Data Fiduciary shall not undertake such processing of personal data that is\nlikely to cause any detrimental effect on the well-being of a child."
+            },
+            {
+              "id": "Section 9(3)",
+              "parent": "Section 9",
+              "kind": "subsection",
+              "exact_source_text": "(3) A Data Fiduciary shall not undertake tracking or behavioural monitoring of children\nor targeted advertising directed at children."
+            },
+            {
+              "id": "Section 9(4)",
+              "parent": "Section 9",
+              "kind": "subsection",
+              "exact_source_text": "(4) The provisions of sub-sections (1) and (3) shall not be applicable to processing of\npersonal data of a child by such classes of Data Fiduciaries or for such purposes, and\nsubject to such conditions, as may be prescribed."
+            },
+            {
+              "id": "Section 9(5)",
+              "parent": "Section 9",
+              "kind": "subsection",
+              "exact_source_text": "(5) The Central Government may, if satisfied that a Data Fiduciary has ensured that its\nprocessing of personal data of children is done in a manner that is verifiably safe, notify for\nsuch processing by such Data Fiduciary the age above which that Data Fiduciary shall be\nexempt from the applicability of all or any of the obligations under sub-sections (1) and (3)\nin respect of processing by that Data Fiduciary as the notification may specify."
+            },
+            {
+              "id": "Section 9(1) explanation",
+              "parent": "Section 9(1)",
+              "kind": "explanation",
+              "exact_source_text": "Explanation.—For the purpose of this sub-section, the expression “consent of the\nparent” includes the consent of lawful guardian, wherever applicable."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 9(1)",
+            "to": "Section 2(f)",
+            "relation": "defined_term",
+            "source_words": "child",
+            "explanation": "The child definition appears in section 2(f); the section does not cite it by number."
+          },
+          {
+            "from": "Section 9(4)",
+            "to": "Section 9(1)",
+            "relation": "explicit_reference",
+            "source_words": "sub-sections (1) and (3)"
+          },
+          {
+            "from": "Section 9(4)",
+            "to": "Section 9(3)",
+            "relation": "explicit_reference",
+            "source_words": "sub-sections (1) and (3)"
+          },
+          {
+            "from": "Section 9(5)",
+            "to": "Section 9(1)",
+            "relation": "explicit_reference",
+            "source_words": "sub-sections (1) and (3)"
+          },
+          {
+            "from": "Section 9(5)",
+            "to": "Section 9(3)",
+            "relation": "explicit_reference",
+            "source_words": "sub-sections (1) and (3)"
+          },
+          {
+            "from": "Schedule row 3",
+            "to": "Section 9",
+            "relation": "explicit_reference",
+            "source_words": "section 9"
+          }
+        ],
+        "definition_exact_text": "(f) “child” means an individual who has not completed the age of eighteen\nyears;",
+        "schedule_row_3": {
+          "row": 3,
+          "breach_exact_text": "Breach in observance of additional obligations in relation\nto children under section 9.",
+          "penalty_exact_text": "May extend to two\nhundred crore\nrupees.",
+          "physical_page": 21
+        },
+        "exception_scope": "Sections 9(4) and 9(5) concern duties in 9(1) and 9(3); neither says Section 9(2) disappears."
+      },
+      "must_not": [
+        "Treating Section 9(4) as exempting the harm restriction in Section 9(2).",
+        "Treating an unissued class/purpose notification as already applicable."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S4-01",
+      "stage": "S4",
+      "title": "Interpret Section 8(7) erasure and Section 8(8) timing faithfully",
+      "scope": "source_native",
+      "challenge_type": "legal_meaning",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "clause:6(4)",
+        "clause:6(6)"
+      ],
+      "physical_pages": [
+        5,
+        7,
+        8
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Interpret Section 8(7) erasure and Section 8(8) timing faithfully",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "source_text": [
+          "(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—\n(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and\n(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.\nIllustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period.",
+          "(8) The purpose referred to in clause (a) of sub-section (7) shall be deemed to no\nlonger be served, if the Data Principal does not––\n(a) approach the Data Fiduciary for the performance of the specified purpose;\nand\n(b) exercise any of her rights in relation to such processing,\nfor such time period as may be prescribed, and different time periods may be prescribed for\ndifferent classes of Data Fiduciaries and for different purposes.",
+          "(4) Where consent given by the Data Principal is the basis of processing of personal\ndata, such Data Principal shall have the right to withdraw her consent at any time, with the\nease of doing so being comparable to the ease with which such consent was given.",
+          "(6) If a Data Principal withdraws her consent to the processing of personal data under\nsub-section (5), the Data Fiduciary shall, within a reasonable time, cease and cause its Data\nProcessors to cease processing the personal data of such Data Principal unless such\nprocessing without her consent is required or authorised under the provisions of this Act\nor the rules made thereunder or any other law for the time being in force in India."
+        ],
+        "actor": "Data Fiduciary",
+        "trigger": "Consent withdrawal or reasonable assumption specified purpose no longer served, whichever earlier.",
+        "condition": "Retention necessary to comply with law is an exception.",
+        "duties": [
+          "Erase applicable personal data",
+          "Cause Data Processor to erase data made available to it for processing"
+        ],
+        "section_8_8": "Deemed purpose-completion period is to be prescribed; the Act PDF states no numeric period.",
+        "relationship_to_section_6": "Section 6(4) allows withdrawal; Section 6(6) separately requires cessation within a reasonable time subject to its legal exceptions."
+      },
+      "must_not": [
+        "Inventing a fixed retention period from this Act PDF.",
+        "Ignoring the legal-retention exception.",
+        "Calling erasure and cessation identical duties."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S4-02",
+      "stage": "S4",
+      "title": "Interpret Section 17(1) without losing Section 8(1) and 8(5)",
+      "scope": "source_native",
+      "challenge_type": "legal_meaning",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:17",
+        "section:8"
+      ],
+      "physical_pages": [
+        7,
+        11,
+        12
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Interpret Section 17(1) without losing Section 8(1) and 8(5)",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "source_text": "17. (1) The provisions of Chapter II, except sub-sections (1) and (5) of section 8, and\nthose of Chapter III and section 16 shall not apply where—\n(a) the processing of personal data is necessary for enforcing any legal right or\nclaim;\n(b) the processing of personal data by any court or tribunal or any other body\nin India which is entrusted by law with the performance of any judicial or quasi-judicial\nor regulatory or supervisory function, where such processing is necessary for the\nperformance of such function;\n(c) personal data is processed in the interest of prevention, detection,\ninvestigation or prosecution of any offence or contravention of any law for the time\nbeing in force in India;\n(d) personal data of Data Principals not within the territory of India is processed\npursuant to any contract entered into with any person outside the territory of India\nby any person based in India;\n(e) the processing is necessary for a scheme of compromise or arrangement or\nmerger or amalgamation of two or more companies or a reconstruction by way of\ndemerger or otherwise of a company, or transfer of undertaking of one or more company\nto another company, or involving division of one or more companies, approved by a\ncourt or tribunal or other authority competent to do so by any law for the time being\nin force; and\n(f) the processing is for the purpose of ascertaining the financial information\nand assets and liabilities of any person who has defaulted in payment due on account\nof a loan or advance taken from a financial institution, subject to such processing\nbeing in accordance with the provisions regarding disclosure of information or data\nin any other law for the time being in force.\nExplanation.—For the purposes of this clause, the expressions “default” and\n“financial institution” shall have the meanings respectively assigned to them in\nsub-sections (12) and (14) of section 3 of the Insolvency and Bankruptcy Code, 2016.\nIllustration.\nX, an individual, takes a loan from Y, a bank. X defaults in paying her monthly loan\nrepayment instalment on the date on which it falls due. Y may process the personal data of\nX for ascertaining her financial information and assets and liabilities.",
+        "conditional_scope": "Only the situations listed in 17(1)(a)–(f) qualify.",
+        "removed_within_scope": [
+          "Chapter II except Section 8(1) and 8(5)",
+          "Chapter III",
+          "Section 16"
+        ],
+        "retained": [
+          "Section 8(1)",
+          "Section 8(5)"
+        ],
+        "subsection_3_dependency": "Separate exemption under 17(3) requires a Central Government notification."
+      },
+      "must_not": [
+        "Saying all Section 8 duties disappear under 17(1).",
+        "Combining 17(1) and 17(3) into one unconditional exemption."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S4-03",
+      "stage": "S4",
+      "title": "Interpret significant breach penalties without inventing automatic amounts",
+      "scope": "source_native",
+      "challenge_type": "legal_meaning",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:33",
+        "schedule",
+        "schedule:row:1",
+        "schedule:row:2"
+      ],
+      "physical_pages": [
+        16,
+        17,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Interpret significant breach penalties without inventing automatic amounts",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "source_text": [
+          "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule.",
+          "(2) While determining the amount of monetary penalty to be imposed under\nsub-section (1), the Board shall have regard to the following matters, namely:—\n(a) the nature, gravity and duration of the breach;\n(b) the type and nature of the personal data affected by the breach;\n(c) repetitive nature of the breach;\n(d) whether the person, as a result of the breach, has realised a gain or avoided\nany loss;\n(e) whether the person took any action to mitigate the effects and consequences\nof the breach, and the timeliness and effectiveness of such action;\n(f) whether the monetary penalty to be imposed is proportionate and effective,\nhaving regard to the need to secure observance of and deter breach of the provisions\nof this Act; and\n(g) the likely impact of the imposition of the monetary penalty on the person.",
+          "Breach in observing the obligation of Data Fiduciary to\ntake reasonable security safeguards to prevent personal\ndata breach under sub-section (5) of section 8.\nMay extend to two\nhundred and fifty\ncrore rupees.",
+          "Breach in observing the obligation to give the Board or\naffected Data Principal notice of a personal data breach\nunder sub-section (6) of section 8.\nMay extend to two\nhundred crore\nrupees."
+        ],
+        "conditions": [
+          "Board concludes inquiry",
+          "breach is significant",
+          "opportunity of being heard"
+        ],
+        "modality": "Board may impose a monetary penalty; Schedule values are maxima for the listed breach categories.",
+        "determination_factors": [
+          "Section 33(2)(a)",
+          "Section 33(2)(b)",
+          "Section 33(2)(c)",
+          "Section 33(2)(d)",
+          "Section 33(2)(e)",
+          "Section 33(2)(f)",
+          "Section 33(2)(g)"
+        ],
+        "row_1_ceiling": "250 crore rupees",
+        "row_2_ceiling": "200 crore rupees"
+      },
+      "must_not": [
+        "Automatic fine whenever a breach occurs.",
+        "Confusing row 1 and row 2 ceilings.",
+        "Omitting the hearing or significant-breach condition."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S5-01",
+      "stage": "S5",
+      "title": "Generate source-backed analysis guidance for security and breach",
+      "scope": "source_plus_authored_guidance",
+      "challenge_type": "generated_analysis_guidance",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "section:33",
+        "schedule:row:1",
+        "schedule:row:2",
+        "definition:breach"
+      ],
+      "physical_pages": [
+        3,
+        7,
+        16,
+        17,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Generate source-backed analysis guidance for security and breach",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "legal_source": [
+          "(5) A Data Fiduciary shall protect personal data in its possession or under its control,\nincluding in respect of any processing undertaken by it or on its behalf by a Data Processor,\nby taking reasonable security safeguards to prevent personal data breach.",
+          "(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed.",
+          "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule.",
+          {
+            "row": 1,
+            "breach_exact_text": "Breach in observing the obligation of Data Fiduciary to\ntake reasonable security safeguards to prevent personal\ndata breach under sub-section (5) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred and fifty\ncrore rupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 2,
+            "breach_exact_text": "Breach in observing the obligation to give the Board or\naffected Data Principal notice of a personal data breach\nunder sub-section (6) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred crore\nrupees.",
+            "physical_page": 21
+          }
+        ],
+        "analysis_checks": [
+          {
+            "rule": "Section 8(5)",
+            "question": "What safeguards protected data held or controlled by the fiduciary, including processing by its processor?",
+            "proof_examples": [
+              "security policy",
+              "control records",
+              "incident prevention evidence"
+            ]
+          },
+          {
+            "rule": "Section 8(6)",
+            "question": "Was the Board and each affected Data Principal informed of a personal data breach in the prescribed form and manner?",
+            "proof_examples": [
+              "incident record",
+              "notice to Board",
+              "affected-principal notices"
+            ]
+          }
+        ],
+        "unknown_from_act_alone": "A specific notification hour or prescribed form cannot be concluded from this Act PDF alone; look up the applicable rules/version."
+      },
+      "must_not": [
+        "Demanding a 72-hour deadline from this Act PDF.",
+        "Treating an example proof document as a statutory form required by the Act."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S5-02",
+      "stage": "S5",
+      "title": "Generate drafting guidance for processor contract without inventing statutory terms",
+      "scope": "source_plus_authored_guidance",
+      "challenge_type": "generated_drafting_guidance",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "definition:processor"
+      ],
+      "physical_pages": [
+        2,
+        7
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Generate drafting guidance for processor contract without inventing statutory terms",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "legal_source": [
+          "8. (1) A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of\na Data Principal to carry out the duties provided under this Act, be responsible for complying\nwith the provisions of this Act and the rules made thereunder in respect of any processing\nundertaken by it or on its behalf by a Data Processor.",
+          "(2) A Data Fiduciary may engage, appoint, use or otherwise involve a Data Processor\nto process personal data on its behalf for any activity related to offering of goods or\nservices to Data Principals only under a valid contract.",
+          "(k) “Data Processor” means any person who processes personal data on behalf\nof a Data Fiduciary;"
+        ],
+        "mandatory_from_act": "Processing on behalf of a Data Fiduciary for the stated activity involves a Data Processor only under a valid contract; the fiduciary remains responsible under Section 8(1).",
+        "drafting_guidance": [
+          "Define fiduciary and processor roles",
+          "Identify the processing activity",
+          "Address security and breach cooperation as risk-based drafting recommendations"
+        ],
+        "preference_label": "Terms beyond the Act's stated contract requirement must be labelled drafting recommendations or sourced to another instrument."
+      },
+      "must_not": [
+        "Presenting a GDPR Article 28-style list as mandatory wording of this Act.",
+        "Claiming a contract removes the Data Fiduciary's Section 8(1) responsibility."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S6-01",
+      "stage": "S6",
+      "title": "Retrieve complete security-breach and penalty context",
+      "scope": "source_plus_authored_query",
+      "challenge_type": "retrieval_and_context",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "section:33",
+        "schedule:row:1",
+        "schedule:row:2",
+        "definition:breach"
+      ],
+      "physical_pages": [
+        3,
+        7,
+        16,
+        17,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Retrieve complete security-breach and penalty context",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "query": "What are a Data Fiduciary's security and breach-notice duties and the possible penalties?",
+        "direct_retrieval": {
+          "required_source_passages": [
+            "Section 8(5)",
+            "Section 8(6)",
+            "Section 33(1)",
+            "Schedule row 1",
+            "Schedule row 2"
+          ],
+          "match_by": "actual returned passage coverage, not chunk IDs"
+        },
+        "context_expansion": [
+          "definition of personal data breach in Section 2(u)",
+          "Section 33(2) factors for determining amount"
+        ],
+        "source_text": [
+          "(5) A Data Fiduciary shall protect personal data in its possession or under its control,\nincluding in respect of any processing undertaken by it or on its behalf by a Data Processor,\nby taking reasonable security safeguards to prevent personal data breach.",
+          "(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed.",
+          "33. (1) If the Board determines on conclusion of an inquiry that breach of the provisions\nof this Act or the rules made thereunder by a person is significant, it may, after giving the\nperson an opportunity of being heard, impose such monetary penalty specified in the\nSchedule.",
+          {
+            "row": 1,
+            "breach_exact_text": "Breach in observing the obligation of Data Fiduciary to\ntake reasonable security safeguards to prevent personal\ndata breach under sub-section (5) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred and fifty\ncrore rupees.",
+            "physical_page": 21
+          },
+          {
+            "row": 2,
+            "breach_exact_text": "Breach in observing the obligation to give the Board or\naffected Data Principal notice of a personal data breach\nunder sub-section (6) of section 8.",
+            "penalty_exact_text": "May extend to two\nhundred crore\nrupees.",
+            "physical_page": 21
+          }
+        ]
+      },
+      "must_not": [
+        "Returning Schedule row 7 alone as if it were the specific security penalty.",
+        "Reporting a direct Section 8(5) to Schedule citation that is absent from source."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_query",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S6-02",
+      "stage": "S6",
+      "title": "Keep source edition and commencement status visible in retrieval",
+      "scope": "source_plus_authored_query",
+      "challenge_type": "source_version_retrieval",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1",
+        "page:1"
+      ],
+      "physical_pages": [
+        1
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Keep source edition and commencement status visible in retrieval",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "query": "As of today, are all DPDPA duties in force?",
+        "source_identity": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+        "this_pdf_supports": "Section 1(2) permits different notified commencement dates for different provisions.",
+        "this_pdf_does_not_supply": "The later notifications or consolidated current commencement status.",
+        "retrieval_action": "Locate the applicable official commencement notifications or return that current status cannot be established from this PDF alone."
+      },
+      "must_not": [
+        "Answering that every duty commenced when this Gazette Act was published.",
+        "Silently using model memory without identifying an external versioned source."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_query",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S7-01",
+      "stage": "S7",
+      "title": "Answer a breach deadline question with the correct source limit",
+      "scope": "source_plus_authored_question",
+      "challenge_type": "legal_qa",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "section:33",
+        "schedule:row:2"
+      ],
+      "physical_pages": [
+        7,
+        16,
+        17,
+        21
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Answer a breach deadline question with the correct source limit",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "user_question": "The Act PDF is uploaded. Within how many hours must we notify a breach?",
+        "answer_requirements": [
+          "Cite Section 8(6)",
+          "State that this Act requires notice to the Board and each affected Data Principal in the prescribed form and manner",
+          "State that this Act PDF itself gives no hour count",
+          "Check applicable rules and commencement/version before giving a current deadline"
+        ],
+        "supporting_exact_text": "(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed.",
+        "answer_status": "Needs an additional current legal source for a current numeric deadline."
+      },
+      "must_not": [
+        "Inventing a 72-hour deadline from this Act PDF.",
+        "Claiming no deadline exists anywhere in Indian law merely because this PDF has no hour count."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_question",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "DPDPA-S7-02",
+      "stage": "S7",
+      "title": "Analyse a processor contract without losing fiduciary responsibility",
+      "scope": "source_plus_authored_scenario",
+      "challenge_type": "analysis_use",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:8",
+        "definition:processor"
+      ],
+      "physical_pages": [
+        2,
+        7
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Analyse a processor contract without losing fiduciary responsibility",
+        "source_boundary": "The ingestion model receives only the PDF and its workflow instructions; it never receives expected results, forbidden results, or review notes."
+      },
+      "expected": {
+        "scenario": "A Data Fiduciary uses a processor. A contract exists, but the review has no evidence of safeguards or breach cooperation.",
+        "required_conclusion": [
+          "Check whether the contract is valid for Section 8(2)",
+          "Keep fiduciary responsibility under Section 8(1)",
+          "Treat compliance with Section 8(5) and 8(6) as unproven from this limited record"
+        ],
+        "supporting_exact_text": [
+          "8. (1) A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of\na Data Principal to carry out the duties provided under this Act, be responsible for complying\nwith the provisions of this Act and the rules made thereunder in respect of any processing\nundertaken by it or on its behalf by a Data Processor.",
+          "(2) A Data Fiduciary may engage, appoint, use or otherwise involve a Data Processor\nto process personal data on its behalf for any activity related to offering of goods or\nservices to Data Principals only under a valid contract.",
+          "(5) A Data Fiduciary shall protect personal data in its possession or under its control,\nincluding in respect of any processing undertaken by it or on its behalf by a Data Processor,\nby taking reasonable security safeguards to prevent personal data breach.",
+          "(6) In the event of a personal data breach, the Data Fiduciary shall give the Board and\neach affected Data Principal, intimation of such breach in such form and manner as may be\nprescribed."
+        ]
+      },
+      "must_not": [
+        "Concluding the processor contract transfers all statutory responsibility.",
+        "Calling absence of supplied evidence proof of a real-world breach."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Check every named expected node, source text, condition and edge separately. Match legal wording after harmless PDF line-wrap normalization; retain negations, AND/OR, numbers, actors, exceptions and modality. Return missing, wrong, unsupported or uncertain items with source evidence. Internal IDs may differ.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_scenario",
+      "evaluation_scope": "Only this complete selected source passage and the named dependent passages are scored; passing does not certify the whole Act.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    }
+  ]
+}

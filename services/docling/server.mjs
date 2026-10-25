@@ -19,7 +19,7 @@ function send(res, status, body) {
   res.end(bytes);
 }
 
-export function createDoclingServer({ token, convert, maxConcurrent = 1, timeoutMs = 120_000 }) {
+export function createDoclingServer({ token, convert, chunkDocument, maxConcurrent = 1, timeoutMs = 120_000 }) {
   if (!token || token.length < 32) throw new Error("DOCLING_SERVICE_TOKEN must be at least 32 characters");
   if (!Number.isInteger(maxConcurrent) || maxConcurrent < 1 || maxConcurrent > 4) {
     throw new Error("DOCLING_MAX_CONCURRENT must be between 1 and 4");
@@ -28,17 +28,18 @@ export function createDoclingServer({ token, convert, maxConcurrent = 1, timeout
   return http.createServer(async (req, res) => {
     if (!authenticated(req.headers.authorization, token)) return send(res, 401, { error: "unauthorized" });
     if (req.method === "GET" && req.url === "/healthz") return send(res, 200, { status: "ok" });
-    if (req.method !== "POST" || req.url !== "/v1/convert") return send(res, 404, { error: "not_found" });
+    const chunkRequest = req.url === "/v1/chunk";
+    if (req.method !== "POST" || !["/v1/convert", "/v1/chunk"].includes(req.url)) return send(res, 404, { error: "not_found" });
     if (active >= maxConcurrent) return send(res, 503, { error: "busy" });
     const mode = req.headers["x-docling-mode"];
     const format = req.headers["x-docling-format"];
     let name;
     try { name = decodeURIComponent(String(req.headers["x-docling-name"] ?? "")); }
     catch { return send(res, 400, { error: "invalid_name" }); }
-    if (!MODES.has(mode) || typeof format !== "string" || !/^[a-z0-9]{1,12}$/.test(format) ||
+    if (!chunkRequest && (!MODES.has(mode) || typeof format !== "string" || !/^[a-z0-9]{1,12}$/.test(format) ||
         !name || name.length > 255 || /[\\/\r\n]/.test(name) ||
         req.headers["content-type"] !== "application/octet-stream" ||
-        ((mode === "kb-pdf" || mode === "analysis-pdf" || mode === "analysis-recovery") && format !== "pdf")) {
+        ((mode === "kb-pdf" || mode === "analysis-pdf" || mode === "analysis-recovery") && format !== "pdf"))) {
       return send(res, 400, { error: "invalid_request" });
     }
     if (Number(req.headers["content-length"]) > MAX_BYTES) return send(res, 413, { error: "too_large" });
@@ -55,6 +56,19 @@ export function createDoclingServer({ token, convert, maxConcurrent = 1, timeout
         chunks.push(chunk);
       }
       if (!size) return send(res, 400, { error: "empty_document" });
+      if (chunkRequest) {
+        if (!chunkDocument) return send(res, 503, { error: "chunker_unavailable" });
+        let body;
+        try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
+        catch { return send(res, 400, { error: "invalid_json" }); }
+        if (req.headers["content-type"] !== "application/json" || !body.document?.body ||
+            !Number.isInteger(body.maxTokens) || body.maxTokens < 256 || body.maxTokens > 8192) {
+          return send(res, 400, { error: "invalid_chunk_request" });
+        }
+        const result = await chunkDocument(body.document, body.maxTokens);
+        if (!res.headersSent && !res.destroyed) send(res, 200, { chunks: result });
+        return;
+      }
       const result = await convert({ bytes: Buffer.concat(chunks), name, format, mode });
       if (res.headersSent) return;
       if (!result || !["success", "partial_success"].includes(result.status) ||
@@ -94,9 +108,18 @@ export async function createNativeConverter() {
   };
 }
 
+export async function createNativeChunker() {
+  const { chunkDocumentAsync } = await import("docling.rs");
+  return (document, maxTokens) => chunkDocumentAsync(JSON.stringify(document), {
+    chunker: "hybrid", maxTokens, mergePeers: true,
+    ...(process.env.DOCLING_CHUNK_TOKENIZER ? { tokenizer: process.env.DOCLING_CHUNK_TOKENIZER } : {}),
+  });
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const token = process.env.DOCLING_SERVICE_TOKEN;
   const convert = await createNativeConverter();
-  createDoclingServer({ token, convert, maxConcurrent: Number(process.env.DOCLING_MAX_CONCURRENT ?? 1) })
+  const chunkDocument = await createNativeChunker();
+  createDoclingServer({ token, convert, chunkDocument, maxConcurrent: Number(process.env.DOCLING_MAX_CONCURRENT ?? 1) })
     .listen(Number(process.env.PORT ?? 8090), "0.0.0.0");
 }

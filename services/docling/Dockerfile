@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
 # PDFium and model files are baked only into this image.
 RUN curl -fsSL https://raw.githubusercontent.com/docling-project/docling.rs/v1.41.0/scripts/install/download_dependencies.sh \
-  | sh -s -- --no-asr --no-chunk
+  | sh -s -- --no-asr
 COPY server.mjs ./
 ENV NODE_ENV=production DOCLING_RS_HOME=/service PDFIUM_DYNAMIC_LIB_PATH=/service/.pdfium/lib
 ENV LD_LIBRARY_PATH=/service/.pdfium/lib:/service/node_modules/docling.rs:/service/node_modules/docling.rs-linux-x64-gnu

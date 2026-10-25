@@ -77,6 +77,7 @@ test("document model preserves all nine structural risk categories across chunk 
   assert.deepEqual(document.tables[0]?.headerCells.map(cell => cell.text), ["controller", "Meaning"]);
   assert.equal(document.tables[0]?.continuationStatus, "continued");
   assert.equal(document.definitionScopes[0]?.scopeStatus, "structural_parent");
+  assert.equal(document.definitionScopes[0]?.reviewStatus, "needs_review");
   assert.ok(document.inferredLinkCandidates.length > 0);
   assert.ok(document.relationships.some(relation => relation.status === "external_unavailable" &&
     relation.externalTarget?.versionStatus === "unresolved"));
@@ -87,6 +88,7 @@ test("document model preserves all nine structural risk categories across chunk 
   assert.ok(report.issues.some(issue => issue.code === "unknown_structure"));
   assert.ok(report.issues.some(issue => issue.code === "unavailable_external_source"));
   assert.ok(report.issues.some(issue => issue.code === "damaged_table"));
+  assert.ok(report.issues.some(issue => issue.code === "heuristic_relationship"));
 });
 
 test("document directory resolves relative and ranged references without collapsing their targets", () => {
@@ -117,4 +119,53 @@ test("document directory resolves relative and ranged references without collaps
   assert.equal(ranged.rangeTarget?.complete, true);
   assert.equal(ranged.targetProvisionIds.length, 2);
   assert.equal(ranged.targetProvisionId, null);
+});
+
+test("citation resolution uses exact provision numbers and keeps incomplete ranges unresolved", () => {
+  const text = "Rule 1\nSee Rule 8 and Articles 4\u20136.\nRule 8\nTarget.\nRule 80\nOther.\nArticle 4\nA.\nArticle 6\nB.";
+  const starts = ["Rule 1", "Rule 8\n", "Rule 80", "Article 4", "Article 6"].map(label => text.indexOf(label));
+  const map: SourceMap = { schemaVersion: 1, text, textHash: createHash("sha256").update(text).digest("hex"),
+    spans: [{ start: 0, end: text.length, itemRef: "doc", page: 1, provenance: [{ page_no: 1 }],
+      kind: "text", blockType: "paragraph", extractionWarnings: [] }],
+    pages: [{ physicalPage: 1, printedPageLabel: null, width: 1, height: 1, itemCount: 1, status: "mapped" }],
+    warnings: [], status: "mapped" };
+  const labels = ["Rule 1", "Rule 8", "Rule 80", "Article 4", "Article 6"];
+  const types = ["rule", "rule", "rule", "article", "article"];
+  const segments = starts.map((start, index) => {
+    const end = starts[index + 1] ?? text.length;
+    return { id: `s${index}`, kind: "unit", type: types[index]!, category: "main", parent: null,
+      children: [], span: { start, end }, code: { start, end: start + labels[index]!.length },
+      title: null, sourceSpans: sourceLocations(map, { start, end }) };
+  });
+  const candidate: CandidateStructure = { schemaVersion: 1, textHash: map.textHash, provider: "llm", model: "test",
+    promptVersion: "test", processingStrategy: "chunks", segments, references: [], unresolvedItems: [], warnings: [] };
+  const draft = reconstructSource(map, candidate, detectReferences(map, "version"));
+  const rule8 = draft.provisions.find(provision => provision.label === "Rule 8")!;
+  const rule80 = draft.provisions.find(provision => provision.label === "Rule 80")!;
+  const ruleReference = draft.relationships.find(relation => relation.exactMention === "Rule 8")!;
+  assert.deepEqual(ruleReference.targetProvisionIds, [rule8.id]);
+  assert.ok(!ruleReference.targetProvisionIds.includes(rule80.id));
+  const rangeReference = draft.relationships.find(relation => relation.rangeTarget)!;
+  assert.equal(rangeReference.rangeTarget?.complete, false);
+  assert.equal(rangeReference.status, "unresolved");
+});
+
+test("separate Docling table items remain separate under one schedule", () => {
+  const text = "Schedule 1\nPeriod\nCategory";
+  const schedule = range(text, "Schedule 1"), period = range(text, "Period"), category = range(text, "Category");
+  const tableSpan = (span: { start: number; end: number }, itemRef: string) => ({ ...span, itemRef, page: 1,
+    provenance: [{ page_no: 1 }], kind: "table_cell" as const, blockType: "table_cell",
+    extractionWarnings: [] as string[], row: 0, column: 0, rowSpan: 1, columnSpan: 1, isHeader: true });
+  const map: SourceMap = { schemaVersion: 1, text, textHash: createHash("sha256").update(text).digest("hex"),
+    spans: [{ ...schedule, itemRef: "heading", page: 1, provenance: [{ page_no: 1 }], kind: "text",
+      blockType: "heading", extractionWarnings: [] }, tableSpan(period, "table-a"), tableSpan(category, "table-b")],
+    pages: [{ physicalPage: 1, printedPageLabel: null, width: 1, height: 1, itemCount: 3, status: "mapped" }],
+    warnings: [], status: "mapped" };
+  const candidate: CandidateStructure = { schemaVersion: 1, textHash: map.textHash, provider: "llm", model: "test",
+    promptVersion: "test", processingStrategy: "chunks", segments: [{ id: "schedule", kind: "unit", type: "schedule",
+      category: "main", parent: null, children: [], span: { start: 0, end: text.length }, code: schedule, title: null,
+      sourceSpans: sourceLocations(map, { start: 0, end: text.length }) }], references: [], unresolvedItems: [], warnings: [] };
+  const document = buildDocumentModel(map, reconstructSource(map, candidate, detectReferences(map, "version")));
+  assert.equal(document.tables.length, 2);
+  assert.deepEqual(document.tables.map(table => table.sourceItemRefs), [["table-a"], ["table-b"]]);
 });

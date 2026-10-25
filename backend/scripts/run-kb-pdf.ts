@@ -16,7 +16,8 @@ async function main() {
     options: {
       pdf: { type: "string" },
       provider: { type: "string", default: "llm" },
-      model: { type: "string", default: "glm-5.3" },
+      model: { type: "string" },
+      "dataset-id": { type: "string" },
       "run-id": { type: "string" },
       "output-dir": { type: "string" },
       "timeout-ms": { type: "string" },
@@ -33,7 +34,10 @@ async function main() {
   }
 
   const provider = values.provider === "kanon" ? "kanon" : "llm";
-  const model = typeof values.model === "string" ? values.model.trim() : "glm-5.3";
+  const model = typeof values.model === "string" ? values.model.trim() : undefined;
+  const datasetId = typeof values["dataset-id"] === "string" ? values["dataset-id"].trim() : undefined;
+  const displayedModel = model || (provider === "kanon" ? "kanon-2-enricher" :
+    process.env.KB_STRUCTURE_LLM_MODEL || process.env.DO_LLM_REASONING_MODEL || "glm-5.3");
   const runId = typeof values["run-id"] === "string" ? values["run-id"].trim() : undefined;
   const outputDir = typeof values["output-dir"] === "string" ? values["output-dir"].trim() : undefined;
 
@@ -50,7 +54,7 @@ async function main() {
     process.stdout.write(`============================================================\n`);
     process.stdout.write(`PDF File : ${pdfPath}\n`);
     process.stdout.write(`Provider : ${provider}\n`);
-    process.stdout.write(`Model    : ${model}\n`);
+    process.stdout.write(`Model    : ${displayedModel}\n`);
     if (process.env.DO_INFERENCE_TIMEOUT_MS) {
       process.stdout.write(`Timeout  : ${process.env.DO_INFERENCE_TIMEOUT_MS} ms\n`);
     }
@@ -65,7 +69,8 @@ async function main() {
     inputData: {
       pdfPath,
       provider,
-      model,
+      ...(model ? { model } : {}),
+      ...(datasetId ? { datasetId } : {}),
       ...(runId ? { runId } : {}),
       ...(outputDir ? { outputDir } : {}),
     },

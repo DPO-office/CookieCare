@@ -130,6 +130,8 @@ export class KanonStructureProvider implements StructureProvider {
     const usage = record(usageValue);
     const tokens = typeof usage?.input_tokens === "number" ? usage.input_tokens : null;
     return { candidate, rawResponse, durationMs: Date.now() - started,
-      usage: usage ? { inputTokens: tokens, outputTokens: null, totalTokens: tokens } : null };
+      usage: usage ? { inputTokens: tokens, outputTokens: null, totalTokens: tokens } : null,
+      usageAccounting: { status: usage ? "partial" : "unavailable", attemptedCalls: 1,
+        callsWithUsage: usage ? 1 : 0, includesDiscardedAttempts: true } };
   }
 }

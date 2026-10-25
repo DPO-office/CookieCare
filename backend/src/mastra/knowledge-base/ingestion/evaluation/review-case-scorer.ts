@@ -9,3 +9,11 @@ export const gdprProvisionalAccuracyScorer = createScorer({
 }).generateScore(({ run }) => run.output.status === "pass" ? 1 :
   run.output.status === "fail" ? 0 : notScorable(`Case ${run.output.status}`))
   .generateReason(({ run }) => `Case ${run.output.caseId}: ${run.output.status}. Human review: ${run.output.humanReviewStatus}. ${run.output.reasons.join(" ")}`);
+
+export const dpdpaProvisionalAccuracyScorer = createScorer({
+  id: "kb-dpdpa-provisional-accuracy-v1",
+  description: "Scores saved DPDPA ingestion outputs against source-backed draft expectations; human legal review remains separate.",
+  type: { input: reviewCaseInputSchema, output: reviewCaseOutputSchema },
+}).generateScore(({ run }) => run.output.status === "pass" ? 1 :
+  run.output.status === "fail" ? 0 : notScorable(`Case ${run.output.status}`))
+  .generateReason(({ run }) => `Case ${run.output.caseId}: ${run.output.status}. Human review: ${run.output.humanReviewStatus}. ${run.output.reasons.join(" ")}`);

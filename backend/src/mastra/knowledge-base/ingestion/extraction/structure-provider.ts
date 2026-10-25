@@ -3,10 +3,11 @@ import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
 import type { StructureChunk, StructureChunkPlan } from "./structure-chunk-plan.js";
 
-export const STRUCTURE_PROMPT_VERSION = "legal-structure-v3";
-export const LLM_PROCESSING_STRATEGY = "document_chunks_reconcile-v3";
-export const LLM_TARGET_INPUT_CHARACTERS = 190_000;
-export const LLM_MAX_INPUT_CHARACTERS = 200_000;
+export const STRUCTURE_PROMPT_VERSION = "legal-structure-v4";
+export const LLM_PROCESSING_STRATEGY = "docling_small_chunks_reconcile-v4";
+// Safety limits on the source-preserving serialization, not model token counts.
+export const LLM_TARGET_INPUT_CHARACTERS = 12_000;
+export const LLM_MAX_INPUT_CHARACTERS = 24_000;
 
 export const StructureProviderNameSchema = z.enum(["kanon", "llm"]);
 export type StructureProviderName = z.infer<typeof StructureProviderNameSchema>;
@@ -51,6 +52,7 @@ export interface CandidateSegment {
   startsBeforeChunk?: boolean;
   continuesAfterChunk?: boolean;
   parentHint?: string | null;
+  reconciliation?: { basis: "matching_label_and_contiguous_source"; fragmentIds: string[] };
 }
 export interface CandidateReference {
   start: number;
@@ -78,13 +80,34 @@ export interface StructureProviderUsage {
   outputTokens: number | null;
   totalTokens: number | null;
 }
+export interface StructureExtractionAttempt {
+  attemptId: string;
+  chunk: StructureChunk;
+  status: "completed" | "truncated" | "failed" | "split" | "checkpoint_reused";
+  usage: StructureProviderUsage | null;
+  finishReason: string | null;
+  durationMs: number;
+  error: string | null;
+  childChunkIds: string[];
+}
 export interface StructureProviderResult {
   candidate: CandidateStructure;
   rawResponse: unknown;
   usage: StructureProviderUsage | null;
   durationMs: number;
+  usageAccounting?: {
+    status: "complete" | "partial" | "unavailable";
+    attemptedCalls: number;
+    callsWithUsage: number;
+    includesDiscardedAttempts: boolean;
+  };
 }
 export interface StructureChunkCheckpoint {
+  checkpointSchemaVersion: 1;
+  sourceTextHash: string;
+  configurationHash: string;
+  promptVersion: string | null;
+  processingStrategy: string;
   chunk: StructureChunk;
   candidate: CandidateStructure;
   rawResponse: unknown;
@@ -96,11 +119,13 @@ export interface StructureProviderCheckpoints {
   savePlan(plan: StructureChunkPlan): Promise<void>;
   loadChunk(chunk: StructureChunk): Promise<StructureChunkCheckpoint | null>;
   saveChunk(checkpoint: StructureChunkCheckpoint): Promise<void>;
+  saveAttempt?(attempt: StructureExtractionAttempt): Promise<void>;
 }
 export interface StructureProviderInput {
   canonicalText: string;
   textHash: string;
   sourceMap: SourceMap;
+  doclingDocument?: unknown;
   configuration: StructureProviderConfig;
   checkpoints?: StructureProviderCheckpoints;
   signal?: AbortSignal;

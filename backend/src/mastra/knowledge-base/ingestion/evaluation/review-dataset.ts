@@ -5,8 +5,10 @@ import { ReviewDatasetSchema, ReviewRunSchema, SourcePackSchema,
 
 export const JudgeDecisionSchema = z.object({
   fields: z.array(z.object({ field: z.string().min(1), verdict: z.enum(["pass", "fail", "needs_review"]),
-    reason: z.string().min(1) })),
-  forbidden: z.array(z.object({ claim: z.string().min(1), found: z.boolean(), reason: z.string().min(1) })),
+    reason: z.string().min(1).max(1_000) })),
+  forbidden: z.array(z.object({ claim: z.string().min(1), found: z.boolean(),
+    verdict: z.enum(["pass", "fail", "needs_review"]).optional(),
+    reason: z.string().min(1).max(1_000) })),
 }).strict();
 export type JudgeDecision = z.infer<typeof JudgeDecisionSchema>;
 export interface JudgeInput {
@@ -32,7 +34,7 @@ export interface ReviewCaseResult {
 }
 
 /** Expand graph fixtures so a missing node or edge is reported by its own name. */
-function expectedForJudge(expected: Record<string, unknown>): Record<string, unknown> {
+export function expectedForJudge(expected: Record<string, unknown>): Record<string, unknown> {
   const checks: Record<string, unknown> = {};
   const add = (key: string, value: unknown) => {
     if (Object.hasOwn(checks, key)) throw new Error(`Duplicate evaluation graph check: ${key}`);
@@ -45,7 +47,8 @@ function expectedForJudge(expected: Record<string, unknown>): Record<string, unk
       for (const node of (value as { nodes: Array<{ id: string }> }).nodes) {
         add(`node:${node.id}`, node);
       }
-    } else if ((key === "explicit_reference_edges" || key === "article_32_explicit_reference_edges") &&
+    } else if ((key === "explicit_reference_edges" || key === "article_32_explicit_reference_edges" ||
+                key === "reference_edges") &&
         Array.isArray(value)) {
       for (const edge of value as Array<{ from: string; to: string }>) {
         add(`edge:${edge.from} -> ${edge.to}`, edge);
@@ -54,6 +57,17 @@ function expectedForJudge(expected: Record<string, unknown>): Record<string, unk
       for (const path of value as Array<{ path: string[] }>) {
         add(`path:${path.path.join(" -> ")}`, path);
       }
+    } else if (key === "rows" && Array.isArray(value)) {
+      for (const row of value as Array<{ row: number }>) add(`schedule-row:${row.row}`, row);
+    } else if (key === "inherited_conditions" && Array.isArray(value)) {
+      for (const condition of value as Array<{ children: string[] }>)
+        add(`inherited-condition:${condition.children.join(",")}`, condition);
+    } else if (key === "section_starts" && Array.isArray(value)) {
+      for (const section of value as Array<{ section: number }>)
+        add(`section-start:${section.section}`, section);
+    } else if (key === "chapter_markers" && Array.isArray(value)) {
+      for (const chapter of value as Array<{ heading_exact_text: string }>)
+        add(`chapter:${chapter.heading_exact_text}`, chapter);
     } else {
       add(key, value);
     }
@@ -219,11 +233,16 @@ export async function evaluateReviewDataset(datasetInput: unknown, runInput: unk
       needsReview: decision.fields.filter(field => field.verdict === "needs_review").length,
       total: decision.fields.length,
     };
-    result.forbiddenClaimsFound = decision.forbidden.filter(claim => claim.found).map(claim => claim.claim);
+    const forbiddenVerdict = (claim: JudgeDecision["forbidden"][number]) =>
+      claim.found ? "fail" : claim.verdict ?? "pass";
+    result.forbiddenClaimsFound = decision.forbidden.filter(claim => claim.found ||
+      forbiddenVerdict(claim) === "fail").map(claim => claim.claim);
     result.reasons = [...decision.fields.filter(field => field.verdict !== "pass").map(field => `${field.field}: ${field.reason}`),
-      ...decision.forbidden.filter(claim => claim.found).map(claim => `Forbidden: ${claim.reason}`)];
+      ...decision.forbidden.filter(claim => forbiddenVerdict(claim) !== "pass")
+        .map(claim => `${forbiddenVerdict(claim) === "fail" ? "Forbidden" : "Forbidden check needs review"}: ${claim.reason}`)];
     result.preliminaryVerdict = result.failedExpectedFields.length || result.forbiddenClaimsFound.length ? "fail" :
-      decision.fields.some(field => field.verdict === "needs_review") ? "needs_review" : "pass";
+      decision.fields.some(field => field.verdict === "needs_review") ||
+      decision.forbidden.some(claim => forbiddenVerdict(claim) === "needs_review") ? "needs_review" : "pass";
     result.status = result.preliminaryVerdict;
     if (row.human_review.status !== "approved") result.reasons.push("Expected answer awaits human approval");
   }

@@ -1,6 +1,5 @@
 import { DigitalOceanInferenceClient } from "../../../../llm/provider/digitalocean-client.js";
-import { StructureOutputTruncatedError, type LlmStructureClient,
-  type LlmStructureCompletion } from "./llm-structure.js";
+import { type LlmStructureClient, type LlmStructureCompletion } from "./llm-structure.js";
 
 export class DigitalOceanStructureClient implements LlmStructureClient {
   constructor(private readonly client = new DigitalOceanInferenceClient()) {}
@@ -13,8 +12,12 @@ export class DigitalOceanStructureClient implements LlmStructureClient {
     const response = await this.client.chat({ ...input, temperature: 0,
       maxCompletionTokens: 16_384,
       timeoutMs,
+      retryOnTimeout: false,
       ...(reasoningEffort ? { reasoningEffort } : {}) });
-    if (response.finishReason?.toLowerCase() === "length") throw new StructureOutputTruncatedError();
+    if (response.finishReason?.toLowerCase() === "length") {
+      return { output: null, rawResponse: response.rawResponse, usage: response.usage,
+        finishReason: response.finishReason };
+    }
     let output: unknown;
     try { output = JSON.parse(response.text); }
     catch { throw new Error("DigitalOcean returned invalid JSON for structure extraction"); }

@@ -9,8 +9,10 @@ export interface DoChatRequest {
   maxCompletionTokens?: number;
   reasoningEffort?: "low" | "high" | "max";
   responseSchema?: unknown;
+  responseSchemaStrict?: boolean;
   signal?: AbortSignal;
   timeoutMs?: number;
+  retryOnTimeout?: boolean;
 }
 
 export interface DoChatResult {
@@ -38,7 +40,8 @@ export class DigitalOceanInferenceClient {
       // Existing task schemas include bounds and optional properties beyond the strict subset.
       // Their callers retain the final Zod checks; use the schema to guide generation here.
       ...(input.responseSchema === undefined ? {} : { response_format: { type: "json_schema",
-        json_schema: { name: "structured_output", strict: false, schema: input.responseSchema } } }),
+        json_schema: { name: "structured_output", strict: input.responseSchemaStrict ?? false,
+          schema: input.responseSchema } } }),
     };
     const defaultTimeout = process.env.DO_INFERENCE_TIMEOUT_MS ? Number(process.env.DO_INFERENCE_TIMEOUT_MS) : 600_000;
     const maxRetries = 3;
@@ -103,10 +106,11 @@ export class DigitalOceanInferenceClient {
       } catch (err: unknown) {
         lastError = err;
         if (input.signal?.aborted) throw err;
+        const isTimeout = err instanceof Error && err.name === "TimeoutError";
         const isNetworkOrTransient =
           err instanceof TypeError ||
           (err instanceof Error && (
-            err.name === "TimeoutError" ||
+            (isTimeout && input.retryOnTimeout !== false) ||
             err.message.includes("fetch failed") ||
             err.message.includes("ECONNRESET") ||
             err.message.includes("ETIMEDOUT") ||

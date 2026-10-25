@@ -6,8 +6,8 @@ import { sourceIntakeWorkflow } from "./knowledge-base/ingestion/workflows/sourc
 import { processIngestionWorkflow } from "./knowledge-base/ingestion/workflows/process-ingestion-workflow.js";
 import { prepareSourceWorkflow } from "./knowledge-base/ingestion/workflows/prepare-source-workflow.js";
 import { runPdfWorkflow } from "./knowledge-base/ingestion/workflows/run-pdf-workflow.js";
-import { reviewCaseWorkflow } from "./knowledge-base/ingestion/evaluation/review-case-workflow.js";
-import { gdprProvisionalAccuracyScorer } from "./knowledge-base/ingestion/evaluation/review-case-scorer.js";
+import { reviewCaseWorkflow, reviewDpdpaCaseWorkflow } from "./knowledge-base/ingestion/evaluation/review-case-workflow.js";
+import { gdprProvisionalAccuracyScorer, dpdpaProvisionalAccuracyScorer } from "./knowledge-base/ingestion/evaluation/review-case-scorer.js";
 
 loadDotEnv({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
 
@@ -18,6 +18,7 @@ export const mastra = new Mastra({
   storage: process.env.DATABASE_URL
     ? new PostgresStore({ id: "cookiecare-kb-workflows", connectionString: process.env.DATABASE_URL })
     : undefined,
-  workflows: { sourceIntakeWorkflow, processIngestionWorkflow, prepareSourceWorkflow, reviewCaseWorkflow, runPdfWorkflow },
-  scorers: { gdprProvisionalAccuracyScorer },
+  workflows: { sourceIntakeWorkflow, processIngestionWorkflow, prepareSourceWorkflow, reviewCaseWorkflow,
+    reviewDpdpaCaseWorkflow, runPdfWorkflow },
+  scorers: { gdprProvisionalAccuracyScorer, dpdpaProvisionalAccuracyScorer },
 });

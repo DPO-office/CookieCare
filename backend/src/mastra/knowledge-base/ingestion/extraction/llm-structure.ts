@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { projectDoclingChunks, type NativeChunk } from "./docling-chunk-plan.js";
+import { reconcileBoundaries } from "./reconcile-boundaries.js";
 import type { SourceMap } from "./source-map.js";
 import { LLM_MAX_INPUT_CHARACTERS, LLM_TARGET_INPUT_CHARACTERS, STRUCTURE_PROMPT_VERSION, assertProviderInput,
   sourceLocations, type CandidateStructure, type StructureProvider,
-  type StructureChunkCheckpoint, type StructureProviderConfig, type StructureProviderInput, type StructureProviderResult,
+  type StructureChunkCheckpoint, type StructureExtractionAttempt, type StructureProviderConfig,
+  type StructureProviderInput, type StructureProviderResult,
   type TextRange } from "./structure-provider.js";
 import { planStructureChunks, splitStructureChunk, structureChunkPrompt, structureSourceUnits,
   type StructureChunk } from "./structure-chunk-plan.js";
@@ -70,14 +73,19 @@ export interface LlmStructureClient {
 }
 type SourceUnit = ReturnType<typeof structureSourceUnits>[number];
 
+export class StructureGroundingError extends Error {
+  constructor(message: string) { super(message); this.name = "StructureGroundingError"; }
+}
+
 function locate(anchor: z.infer<typeof AnchorSchema>, units: Map<string, SourceUnit>): TextRange {
   const unit = units.get(anchor.sourceId);
-  if (!unit) throw new Error(`LLM invented source ID: ${anchor.sourceId}`);
+  if (!unit) throw new StructureGroundingError(`LLM invented source ID: ${anchor.sourceId}`);
   let from = 0;
   let index = -1;
   for (let occurrence = 0; occurrence <= anchor.occurrence; occurrence++) {
     index = unit.text.indexOf(anchor.exactQuote, from);
-    if (index < 0) throw new Error(`LLM quote is absent or occurrence is invalid: ${anchor.sourceId}`);
+    if (index < 0) throw new StructureGroundingError(
+      `LLM quote is absent or occurrence is invalid: ${anchor.sourceId}`);
     from = index + Math.max(1, anchor.exactQuote.length);
   }
   return { start: unit.start + index, end: unit.start + index + anchor.exactQuote.length };
@@ -88,44 +96,74 @@ function normalize(raw: unknown, map: SourceMap, configuration: StructureProvide
   const parsed = LlmOutputSchema.parse(raw);
   const includedIds = new Set([...chunk.contextBefore, ...chunk.coreSourceIds, ...chunk.contextAfter]);
   const coreIds = new Set(chunk.coreSourceIds);
-  const units = new Map(structureSourceUnits(map).filter(unit => includedIds.has(unit.id)).map(unit => [unit.id, unit]));
-  const ids = new Set(parsed.segments.map(segment => segment.id));
-  if (ids.size !== parsed.segments.length) throw new Error("LLM returned duplicate segment IDs");
-  const children = new Map<string, string[]>();
+  const units = new Map((chunk.sourceUnits ?? structureSourceUnits(map)).filter(unit => includedIds.has(unit.id)).map(unit => [unit.id, unit]));
+  const allIds = new Set(parsed.segments.map(segment => segment.id));
+  if (allIds.size !== parsed.segments.length) throw new Error("LLM returned duplicate segment IDs");
+  // Reject invented IDs even in discarded records, but validate quotes only when
+  // they contribute to retained output. Context-only duplicates are not evidence.
+  const assertKnownSource = (anchor: z.infer<typeof AnchorSchema>) => {
+    if (!units.has(anchor.sourceId)) throw new StructureGroundingError(`LLM invented source ID: ${anchor.sourceId}`);
+  };
   for (const segment of parsed.segments) {
-    if (segment.parent && !ids.has(segment.parent)) throw new Error(`LLM returned unknown parent: ${segment.parent}`);
-    if (segment.parent) children.set(segment.parent, [...(children.get(segment.parent) ?? []), segment.id]);
+    segment.sourceAnchors.forEach(assertKnownSource);
+    if (segment.codeAnchor) assertKnownSource(segment.codeAnchor);
+    if (segment.titleAnchor) assertKnownSource(segment.titleAnchor);
   }
-  const segments = parsed.segments.map(segment => {
+  const ownedSegments = parsed.segments.filter(segment => segment.sourceAnchors.some(anchor => coreIds.has(anchor.sourceId)));
+  const ids = new Set(ownedSegments.map(segment => segment.id));
+  const warnings = [...parsed.warnings];
+  const discardedSegments = parsed.segments.length - ownedSegments.length;
+  if (discardedSegments) warnings.push(`Ignored ${discardedSegments} context-only segments in ${chunk.chunkId}`);
+  const children = new Map<string, string[]>();
+  for (const segment of ownedSegments) {
+    if (segment.parent && !ids.has(segment.parent)) {
+      warnings.push(`Cross-chunk parent left pending for ${segment.id}: ${segment.parent}`);
+    } else if (segment.parent) children.set(segment.parent, [...(children.get(segment.parent) ?? []), segment.id]);
+  }
+  const segments = ownedSegments.map(segment => {
     const anchors = segment.sourceAnchors.map(anchor => locate(anchor, units));
-    if (!segment.sourceAnchors.some(anchor => coreIds.has(anchor.sourceId))) {
-      throw new Error(`LLM returned a context-only segment in ${chunk.chunkId}: ${segment.id}`);
-    }
     const start = Math.min(...anchors.map(anchor => anchor.start));
     const end = Math.max(...anchors.map(anchor => anchor.end));
     const span = { start, end };
+    const localParent = segment.parent && ids.has(segment.parent) ? segment.parent : null;
     return { id: segment.id, kind: segment.kind, type: segment.type, category: segment.category,
-      parent: segment.parent, children: children.get(segment.id) ?? [], span,
+      parent: localParent, children: children.get(segment.id) ?? [], span,
       code: segment.codeAnchor ? locate(segment.codeAnchor, units) : null,
       title: segment.titleAnchor ? locate(segment.titleAnchor, units) : null,
-      sourceSpans: sourceLocations(map, span), startsBeforeChunk: segment.startsBeforeChunk,
-      continuesAfterChunk: segment.continuesAfterChunk, parentHint: segment.parentHint };
+      sourceSpans: sourceLocations(map, span), startsBeforeChunk: segment.startsBeforeChunk ||
+        [...units.values()].some(unit => unit.start === start && unit.continuesBefore),
+      continuesAfterChunk: segment.continuesAfterChunk ||
+        [...units.values()].some(unit => unit.end === end && unit.continuesAfter),
+      parentHint: segment.parentHint ?? (localParent ? null : (() => {
+        const contextParent = parsed.segments.find(s => s.id === segment.parent);
+        const anchor = contextParent?.codeAnchor ?? contextParent?.titleAnchor;
+        return anchor ? map.text.slice(locate(anchor, units).start, locate(anchor, units).end) : segment.parent;
+      })()) };
   });
-  const references = parsed.references.map(reference => {
-    if (reference.targetSegmentIds.some(id => !ids.has(id))) {
-      throw new Error("LLM reference points to an unknown segment");
+  const references = parsed.references.filter(reference => {
+    assertKnownSource(reference.mention);
+    return coreIds.has(reference.mention.sourceId);
+  }).map(reference => {
+    const localTargets = reference.targetSegmentIds.filter(id => ids.has(id));
+    if (localTargets.length !== reference.targetSegmentIds.length) {
+      warnings.push(`Cross-chunk reference targets left pending: ${reference.targetSegmentIds
+        .filter(id => !ids.has(id)).join(", ")}`);
     }
     const span = locate(reference.mention, units);
     if (!coreIds.has(reference.mention.sourceId)) {
       throw new Error(`LLM returned a context-only reference in ${chunk.chunkId}`);
     }
     return { ...span, exactMention: map.text.slice(span.start, span.end),
-      targetSegmentIds: [...new Set(reference.targetSegmentIds)], sourceSpans: sourceLocations(map, span),
-      targetHint: reference.targetHint, resolutionStatus: reference.resolutionStatus };
+      targetSegmentIds: [...new Set(localTargets)], sourceSpans: sourceLocations(map, span),
+      targetHint: reference.targetHint,
+      resolutionStatus: localTargets.length ? reference.resolutionStatus :
+        reference.resolutionStatus === "external" ? "external" as const : "pending" as const };
   });
+  const discardedReferences = parsed.references.length - references.length;
+  if (discardedReferences) warnings.push(`Ignored ${discardedReferences} context-only references in ${chunk.chunkId}`);
   return { schemaVersion: 1, textHash: map.textHash, provider: "llm", model: configuration.model,
     promptVersion: configuration.promptVersion, processingStrategy: configuration.processingStrategy,
-    segments, references, unresolvedItems: parsed.unresolvedItems, warnings: parsed.warnings };
+    segments, references, unresolvedItems: parsed.unresolvedItems, warnings };
 }
 
 export function buildStructurePrompt(map: SourceMap, chunk?: StructureChunk): string {
@@ -142,6 +180,10 @@ b means context before, and a means context after.
 Return provisions and hierarchy, original labels, explicit reference mentions, possible targets,
 and uncertainty. Extract only structures whose boundary anchors include a source unit marked core;
 neighboring context is interpretation support and must not be emitted on its own.
+Heading context is a navigation hint, not proof of legal scope. A request can contain only
+part of a provision. Mark continuations explicitly. Use first AND last exact anchors for
+each complete provision, not a short quote from its middle. Preserve text after lists that
+qualifies the list. Do not turn a processing chunk into a legal provision.
 Every boundary must use supplied sourceId and a short exactQuote copied verbatim (500 characters maximum).
 Use occurrence=0 for the first exact match within that source unit. Do not infer obligations,
 proof standards, compliance conclusions, drafting guidance, or legal advice. Do not invent source IDs.
@@ -156,6 +198,13 @@ Record unclassified material in unresolvedItems. The output must follow the supp
 
 export class StructureOutputTruncatedError extends Error {
   constructor(message = "Structure model output was truncated") { super(message); this.name = "StructureOutputTruncatedError"; }
+}
+
+function shouldSplitFailedChunk(error: unknown): boolean {
+  if (error instanceof StructureOutputTruncatedError || error instanceof StructureGroundingError) return true;
+  if (!(error instanceof Error)) return false;
+  return error.name === "TimeoutError" ||
+    /timed?\s*out|timeout|HTTP\s+(408|413)|context length|too many tokens|request.{0,20}too large/i.test(error.message);
 }
 
 function mergeCandidates(map: SourceMap, configuration: StructureProviderConfig,
@@ -194,8 +243,8 @@ function mergeCandidates(map: SourceMap, configuration: StructureProviderConfig,
     if (segment.parent || !segment.parentHint) return segment;
     const hint = normalized(segment.parentHint);
     const matches = finalSegments.filter(candidate => candidate.id !== segment.id &&
-      ["container", "chapter", "section", "title", "part"].includes(candidate.type ?? candidate.kind) &&
-      label(candidate) === hint && candidate.span.start < segment.span.start)
+      ["container", "chapter", "section", "title", "part", "article", "rule", "paragraph", "schedule", "annex"].includes(candidate.type ?? candidate.kind) &&
+      label(candidate) === hint && candidate.span.start <= segment.span.start && candidate.span.end >= segment.span.end)
       .sort((a, b) => b.span.start - a.span.start);
     if (matches.length === 1) return { ...segment, parent: matches[0]!.id };
     warnings.push(`${segment.id}: unresolved parent hint ${segment.parentHint}`);
@@ -227,7 +276,8 @@ function mergeCandidates(map: SourceMap, configuration: StructureProviderConfig,
 
 export class LlmStructureProvider implements StructureProvider {
   constructor(readonly configuration: StructureProviderConfig,
-    private readonly client: LlmStructureClient) {
+    private readonly client: LlmStructureClient,
+    private readonly chunker?: (document: unknown) => Promise<NativeChunk[]>) {
     if (configuration.provider !== "llm" || configuration.promptVersion !== STRUCTURE_PROMPT_VERSION) {
       throw new Error("LLM structure provider configuration is invalid");
     }
@@ -239,24 +289,41 @@ export class LlmStructureProvider implements StructureProvider {
       throw new Error("LLM job configuration does not match this provider");
     }
     const fixedInputCharacters = LLM_STRUCTURE_SYSTEM_PROMPT.length + JSON.stringify(LLM_STRUCTURE_RESPONSE_SCHEMA).length;
-    const plan = planStructureChunks(input.sourceMap, { targetInputCharacters: LLM_TARGET_INPUT_CHARACTERS,
-      hardInputCharacters: LLM_MAX_INPUT_CHARACTERS, fixedInputCharacters });
+    if (this.chunker && !input.doclingDocument) throw new Error("Native chunking requires the frozen Docling document");
+    const plan = this.chunker
+      ? projectDoclingChunks(input.sourceMap, await this.chunker(input.doclingDocument), fixedInputCharacters)
+      : planStructureChunks(input.sourceMap, { targetInputCharacters: LLM_TARGET_INPUT_CHARACTERS,
+        hardInputCharacters: LLM_MAX_INPUT_CHARACTERS, fixedInputCharacters });
     await input.checkpoints?.savePlan(plan);
     process.stdout.write(`      ✓ Structure plan: ${plan.chunks.length} chunk(s) created (target <= ${LLM_MAX_INPUT_CHARACTERS.toLocaleString()} chars)\n`);
     const started = Date.now();
     const completed: StructureChunkCheckpoint[] = [];
-    let chunkIndex = 0;
+    const attempts: StructureExtractionAttempt[] = [];
+    const saveAttempt = async (attempt: StructureExtractionAttempt) => {
+      attempts.push(attempt);
+      await input.checkpoints?.saveAttempt?.(attempt);
+    };
     const extractChunk = async (chunk: StructureChunk): Promise<void> => {
-      chunkIndex++;
       const prompt = buildStructurePrompt(input.sourceMap, chunk);
       if (fixedInputCharacters + prompt.length > LLM_MAX_INPUT_CHARACTERS) {
         throw new Error(`Assembled structure input ${chunk.chunkId} exceeds ${LLM_MAX_INPUT_CHARACTERS} characters`);
       }
+      const attemptStarted = Date.now();
+      let receivedUsage: StructureExtractionAttempt["usage"] = null;
+      let receivedFinishReason: string | null = null;
       try {
         const cached = await input.checkpoints?.loadChunk(chunk);
-        if (cached) {
+        const cacheMatches = cached?.checkpointSchemaVersion === 1 &&
+          cached.sourceTextHash === input.textHash && cached.chunk.inputHash === chunk.inputHash &&
+          cached.configurationHash === this.configuration.configurationHash &&
+          cached.promptVersion === this.configuration.promptVersion &&
+          cached.processingStrategy === this.configuration.processingStrategy;
+        if (cached && cacheMatches) {
           process.stdout.write(`      ✓ Chunk ${chunk.chunkId} loaded from checkpoint cache (reused completed extraction)\n`);
           completed.push(cached);
+          await saveAttempt({ attemptId: `${chunk.chunkId}:cache:${attempts.length + 1}`, chunk,
+            status: "checkpoint_reused", usage: null, finishReason: cached.finishReason,
+            durationMs: 0, error: null, childChunkIds: [] });
           return;
         }
         const chunkStarted = Date.now();
@@ -264,30 +331,66 @@ export class LlmStructureProvider implements StructureProvider {
         const response = await this.client.generate({ model: this.configuration.model,
           systemInstruction: LLM_STRUCTURE_SYSTEM_PROMPT, prompt,
           responseSchema: LLM_STRUCTURE_RESPONSE_SCHEMA, signal: input.signal });
-        if (response.finishReason?.toLowerCase() === "length") throw new StructureOutputTruncatedError();
-        const checkpoint: StructureChunkCheckpoint = { chunk,
+        receivedUsage = response.usage;
+        receivedFinishReason = response.finishReason ?? null;
+        if (response.finishReason?.toLowerCase() === "length") {
+          const truncated = new StructureOutputTruncatedError();
+          Object.assign(truncated, { usage: response.usage, finishReason: response.finishReason });
+          throw truncated;
+        }
+        const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1,
+          sourceTextHash: input.textHash, configurationHash: this.configuration.configurationHash,
+          promptVersion: this.configuration.promptVersion,
+          processingStrategy: this.configuration.processingStrategy, chunk,
           candidate: normalize(response.output, input.sourceMap, this.configuration, chunk),
           rawResponse: response.rawResponse, usage: response.usage,
           finishReason: response.finishReason ?? null, durationMs: Date.now() - chunkStarted };
         await input.checkpoints?.saveChunk(checkpoint);
         completed.push(checkpoint);
+        await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
+          status: "completed", usage: response.usage, finishReason: response.finishReason ?? null,
+          durationMs: checkpoint.durationMs, error: null, childChunkIds: [] });
         process.stdout.write(`      ✓ Chunk ${chunk.chunkId} completed in ${((Date.now() - chunkStarted) / 1000).toFixed(1)}s\n`);
       } catch (error) {
-        if (!(error instanceof StructureOutputTruncatedError)) throw error;
-        process.stdout.write(`      ⚠ Chunk ${chunk.chunkId} output truncated; splitting chunk...\n`);
+        const durationMs = Date.now() - attemptStarted;
+        const usage = error instanceof Error && "usage" in error ?
+          (error as Error & { usage?: StructureExtractionAttempt["usage"] }).usage ?? receivedUsage : receivedUsage;
+        const finishReason = error instanceof Error && "finishReason" in error ?
+          String((error as Error & { finishReason?: unknown }).finishReason ?? "") || receivedFinishReason : receivedFinishReason;
+        if (!shouldSplitFailedChunk(error) || chunk.coreSourceIds.length < 2) {
+          await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
+            status: "failed", usage, finishReason, durationMs,
+            error: error instanceof Error ? error.message : String(error), childChunkIds: [] });
+          throw error;
+        }
+        const reason = error instanceof StructureOutputTruncatedError ? "output truncated" :
+          error instanceof StructureGroundingError ? `returned an invalid source anchor (${error.message})` :
+          `request failed (${error instanceof Error ? error.message : String(error)})`;
+        process.stdout.write(`      ⚠ Chunk ${chunk.chunkId} ${reason}; splitting at a complete source-block boundary...\n`);
         const children = splitStructureChunk(input.sourceMap, chunk, fixedInputCharacters,
           LLM_MAX_INPUT_CHARACTERS);
+        await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
+          status: error instanceof StructureOutputTruncatedError ? "truncated" : "split",
+          usage, finishReason, durationMs, error: error instanceof Error ? error.message : String(error),
+          childChunkIds: children.map(child => child.chunkId) });
         for (const child of children) await extractChunk(child);
       }
     };
     for (const chunk of plan.chunks) await extractChunk(chunk);
-    const usageRows = completed.map(row => row.usage).filter((row): row is NonNullable<typeof row> => !!row);
+    const modelAttempts = attempts.filter(row => row.status !== "checkpoint_reused");
+    const usageRows = modelAttempts.map(row => row.usage).filter((row): row is NonNullable<typeof row> => !!row);
     const sum = (key: "inputTokens" | "outputTokens" | "totalTokens") =>
       usageRows.some(row => row[key] === null) ? null : usageRows.reduce((total, row) => total + row[key]!, 0);
-    const candidate = mergeCandidates(input.sourceMap, this.configuration, completed);
-    return { candidate, rawResponse: { chunkPlan: plan, chunks: completed.map(row => ({ chunk: row.chunk,
+    const candidate = reconcileBoundaries(input.sourceMap, mergeCandidates(input.sourceMap, this.configuration, completed));
+    return { candidate, rawResponse: { chunkPlan: plan, attempts,
+      chunks: completed.map(row => ({ chunk: row.chunk,
       rawResponse: row.rawResponse, finishReason: row.finishReason })) },
     usage: usageRows.length ? { inputTokens: sum("inputTokens"), outputTokens: sum("outputTokens"),
-      totalTokens: sum("totalTokens") } : null, durationMs: Date.now() - started };
+      totalTokens: sum("totalTokens") } : null, durationMs: Date.now() - started,
+    usageAccounting: { status: !usageRows.length ? "unavailable" :
+      usageRows.length === modelAttempts.length && usageRows.every(row =>
+        row.inputTokens !== null && row.outputTokens !== null && row.totalTokens !== null) ? "complete" : "partial",
+      attemptedCalls: modelAttempts.length, callsWithUsage: usageRows.length,
+      includesDiscardedAttempts: true } };
   }
 }

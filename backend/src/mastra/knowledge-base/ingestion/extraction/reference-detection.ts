@@ -25,6 +25,9 @@ export interface ReferenceDetection {
 const ORDINAL = "(?:First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)";
 const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> = [
   { kind: "schedule", expression: new RegExp(`\\b(?:${ORDINAL}\\s+Schedule|Schedule\\s+(?:[IVX]+|\\d+))\\b`, "giu") },
+  { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
+  { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
+  { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*[-–—]\s*\d+[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
@@ -52,7 +55,9 @@ export function detectReferences(map: SourceMap, sourceVersionId: string): Refer
         sourceSpans, resolutionStatus: "unresolved" });
     }
   }
-  references.sort((a, b) => a.start - b.start || a.end - b.end || a.kind.localeCompare(b.kind));
+  const completeReferences = references.filter(reference => !references.some(other =>
+    other !== reference && other.kind === reference.kind && other.start === reference.start && other.end > reference.end));
+  completeReferences.sort((a, b) => a.start - b.start || a.end - b.end || a.kind.localeCompare(b.kind));
   return { schemaVersion: 1, sourceVersionId, textHash: map.textHash,
-    detectorVersion: "2", references, warnings };
+    detectorVersion: "2", references: completeReferences, warnings };
 }

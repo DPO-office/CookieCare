@@ -6,7 +6,8 @@ export interface SourceValidationIssue {
   code: "missing_page" | "unmapped_source" | "unclassified_text" |
     "invalid_provision_span" | "invalid_source_location" | "unresolved_reference" | "missing_structure" |
     "unknown_structure" | "hierarchy_cycle" | "invalid_parent_containment" | "damaged_table" |
-    "unresolved_footnote" | "unavailable_external_source" | "incomplete_context" | "source_quality";
+    "unresolved_footnote" | "unavailable_external_source" | "incomplete_context" | "source_quality" |
+    "unreconciled_boundary" | "heuristic_relationship";
   detail: string;
 }
 
@@ -44,6 +45,9 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
       add("invalid_provision_span", `Provision ${provision.id} does not preserve source wording`);
     }
     if (provision.kind === "unknown") add("unknown_structure", `Provision ${provision.id} is preserved as unknown`);
+    if (provision.boundaryStatus !== "complete") {
+      add("unreconciled_boundary", `Provision ${provision.id} has ${provision.boundaryStatus} boundaries`);
+    }
     if (provision.parentId) {
       const parent = draft.provisions.find(item => item.id === provision.parentId);
       if (!parent || parent.start > provision.start || parent.end < provision.end) {
@@ -85,7 +89,10 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     }
   }
   for (const relation of draft.relationships) {
-    if (relation.status !== "proposed" || !relation.sourceProvisionId || !relation.targetProvisionId) {
+    const completeRange = relation.status === "proposed" && relation.rangeTarget?.complete === true &&
+      relation.targetProvisionIds.length === relation.rangeTarget.to - relation.rangeTarget.from + 1;
+    if (relation.status !== "proposed" || !relation.sourceProvisionId ||
+        (!relation.targetProvisionId && !completeRange)) {
       add("unresolved_reference", `Reference ${relation.exactMention} needs review`);
     }
   }
@@ -96,8 +103,12 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     for (const table of document.tables) for (const issue of table.issues) {
       add("damaged_table", `${table.id}: ${issue}`);
     }
-    for (const footnote of document.footnotes) if (footnote.status === "unresolved") {
-      add("unresolved_footnote", `Footnote ${footnote.footnoteProvisionId} is unattached`);
+    for (const footnote of document.footnotes) {
+      if (footnote.status === "unresolved") add("unresolved_footnote", `Footnote ${footnote.footnoteProvisionId} is unattached`);
+      else add("heuristic_relationship", `Footnote ${footnote.footnoteProvisionId} has a provisional attachment`);
+    }
+    for (const definition of document.definitionScopes) {
+      add("heuristic_relationship", `Definition ${definition.definitionProvisionId} has a provisional scope`);
     }
     for (const relation of document.relationships) if (relation.status === "external_unavailable") {
       add("unavailable_external_source", `External target unavailable for ${relation.exactMention}`);

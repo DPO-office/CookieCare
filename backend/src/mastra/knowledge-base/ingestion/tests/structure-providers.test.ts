@@ -126,6 +126,56 @@ test("LLM adapter splits a truncated chunk and reconciles original offsets", asy
   assert.ok(result.candidate.segments.every(segment => segment.id.startsWith("chunk_001")));
 });
 
+test("LLM adapter splits a timed-out large chunk at complete source blocks", async () => {
+  const raw = { ...document, body: { self_ref: "#/body",
+    children: [{ $ref: "#/texts/0" }, { $ref: "#/texts/1" }] },
+  texts: ["Article 1 Scope", "Article 2 Definitions"].map((text, index) => ({
+    self_ref: `#/texts/${index}`, text, label: "paragraph", prov: [{ page_no: 1 }] })) };
+  const map = buildSourceMap(raw, 1);
+  const configuration = resolveStructureProviderConfig({ KB_STRUCTURE_PROVIDER: "llm" });
+  let calls = 0;
+  const provider = new LlmStructureProvider(configuration, { generate: async input => {
+    calls++;
+    const parsed = JSON.parse(input.prompt) as { sourceUnits: Array<[string, string, string]> };
+    const core = parsed.sourceUnits.filter(unit => unit[1] === "c");
+    if (calls === 1) throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+    return { output: { segments: core.map((unit, index) => ({ id: `s${index}`, kind: "unit",
+      type: "article", category: "main", parent: null,
+      sourceAnchors: [{ sourceId: unit[0], exactQuote: unit[2], occurrence: 0 }],
+      codeAnchor: null, titleAnchor: null })), references: [], unresolvedItems: [], warnings: [] },
+    rawResponse: {}, usage: null, finishReason: "stop" };
+  } });
+  const result = await provider.extract({ canonicalText: map.text, textHash: map.textHash,
+    sourceMap: map, configuration });
+  assert.equal(calls, 3);
+  assert.equal(result.candidate.segments.length, 2);
+});
+
+test("LLM adapter splits and retries a chunk with an invalid quote anchor", async () => {
+  const raw = { ...document, body: { self_ref: "#/body",
+    children: [{ $ref: "#/texts/0" }, { $ref: "#/texts/1" }] },
+  texts: ["Section 1 Scope", "Section 2 Definitions"].map((text, index) => ({
+    self_ref: `#/texts/${index}`, text, label: "paragraph", prov: [{ page_no: 1 }] })) };
+  const map = buildSourceMap(raw, 1);
+  const configuration = resolveStructureProviderConfig({ KB_STRUCTURE_PROVIDER: "llm" });
+  let calls = 0;
+  const provider = new LlmStructureProvider(configuration, { generate: async input => {
+    calls++;
+    const parsed = JSON.parse(input.prompt) as { sourceUnits: Array<[string, string, string]> };
+    const core = parsed.sourceUnits.filter(unit => unit[1] === "c");
+    return { output: { segments: core.map((unit, index) => ({ id: `s${index}`, kind: "unit",
+      type: "section", category: "main", parent: null,
+      sourceAnchors: [{ sourceId: unit[0], exactQuote: calls === 1 ? "invented wording" : unit[2],
+        occurrence: 0 }], codeAnchor: null, titleAnchor: null })),
+    references: [], unresolvedItems: [], warnings: [] }, rawResponse: {}, usage: null,
+    finishReason: "stop" };
+  } });
+  const result = await provider.extract({ canonicalText: map.text, textHash: map.textHash,
+    sourceMap: map, configuration });
+  assert.equal(calls, 3);
+  assert.equal(result.candidate.segments.length, 2);
+});
+
 test("LLM chunk checkpoints resume without repeating completed model calls", async () => {
   const map = buildSourceMap(document, 1);
   const configuration = resolveStructureProviderConfig({ KB_STRUCTURE_PROVIDER: "llm" });
@@ -151,4 +201,8 @@ test("LLM chunk checkpoints resume without repeating completed model calls", asy
   await provider.extract(input);
   assert.equal(calls, 1);
   assert.equal(saved.size, 1);
+  const checkpoint = saved.values().next().value!;
+  saved.set(checkpoint.chunk.inputHash, { ...checkpoint, configurationHash: "0".repeat(64) });
+  await provider.extract(input);
+  assert.equal(calls, 2, "a checkpoint with a different configuration identity must not be reused");
 });

@@ -34,7 +34,8 @@ import { inspectOriginalPdf, MAX_PDF_PAGES } from "../storage/pdf-metadata.js";
 export const RunPdfInputSchema = z.object({
   pdfPath: z.string().min(1),
   provider: StructureProviderNameSchema.default("llm"),
-  model: z.string().trim().min(1).default("glm-5.3"),
+  model: z.string().trim().min(1).optional(),
+  datasetId: z.string().trim().min(1).optional(),
   runId: z.string().min(1).optional(),
   outputDir: z.string().min(1).optional(),
 });
@@ -53,7 +54,7 @@ export const RunPdfOutputSchema = z.object({
 });
 export type RunPdfOutput = z.infer<typeof RunPdfOutputSchema>;
 
-export function buildStructureConfig(provider: StructureProviderName, model: string): StructureProviderConfig {
+export function buildStructureConfig(provider: StructureProviderName, model?: string): StructureProviderConfig {
   const base = provider === "kanon"
     ? {
         provider: "kanon" as const,
@@ -64,7 +65,8 @@ export function buildStructureConfig(provider: StructureProviderName, model: str
       }
     : {
         provider: "llm" as const,
-        model: model || "glm-5.3",
+        model: model || process.env.KB_STRUCTURE_LLM_MODEL?.trim() ||
+          process.env.DO_LLM_REASONING_MODEL?.trim() || "glm-5.3",
         promptVersion: STRUCTURE_PROMPT_VERSION,
         processingStrategy: LLM_PROCESSING_STRATEGY,
         configurationVersion: "llm-digitalocean-v3",
@@ -90,6 +92,33 @@ export interface RunPdfWorkflowServices {
   providerFactory?: (configuration: StructureProviderConfig) => StructureProvider;
 }
 
+async function withStageFailure<T>(inputData: { outputDir?: string }, stage: "S1" | "S2" | "S3",
+  phase: string, operation: () => Promise<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (inputData.outputDir) {
+      const failedAt = new Date().toISOString();
+      const failure = { stage, phase, status: "failed", error: {
+        name: error instanceof Error ? error.name : "Error",
+        message: error instanceof Error ? error.message : String(error),
+      }, failedAt };
+      await mkdir(inputData.outputDir, { recursive: true });
+      await writeFile(path.join(inputData.outputDir, `stage-${stage.toLocaleLowerCase("en")}-error.json`),
+        `${JSON.stringify(failure, null, 2)}\n`);
+      const manifestPath = path.join(inputData.outputDir, "manifest.json");
+      let manifest: Record<string, unknown> = {};
+      if (existsSync(manifestPath)) {
+        try { manifest = JSON.parse(await readFile(manifestPath, "utf8")); } catch { /* retain failure */ }
+      }
+      const stages = typeof manifest.stages === "object" && manifest.stages ? manifest.stages : {};
+      await writeFile(manifestPath, `${JSON.stringify({ ...manifest, status: "failed", currentStage: stage,
+        stages: { ...stages, [stage]: "failed" }, error: failure.error, failedAt }, null, 2)}\n`);
+    }
+    throw error;
+  }
+}
+
 export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServices = () => ({})) {
   const verifyPdf = createStep({
     id: "verify-pdf-input-v1",
@@ -102,11 +131,12 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
       pageCount: z.number(),
       provider: StructureProviderNameSchema,
       model: z.string(),
+      datasetId: z.string().nullable(),
       runId: z.string(),
       outputDir: z.string(),
       startedAt: z.number(),
     }),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S1", "pdf_verification", async () => {
       const resolvedPath = path.resolve(inputData.pdfPath);
       if (!existsSync(resolvedPath)) {
         throw new Error(`PDF file not found: ${inputData.pdfPath}`);
@@ -136,7 +166,8 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         ? path.resolve(inputData.outputDir)
         : resolveDefaultOutputDir(pdfFileName, runId);
       const provider = inputData.provider ?? "llm";
-      const model = inputData.model ?? "glm-5.3";
+      const configuration = buildStructureConfig(provider, inputData.model);
+      const model = configuration.model;
 
       process.stdout.write(`[1/8] Verifying PDF: ${pdfFileName} (${(bytes.length / 1024 / 1024).toFixed(2)} MB, ${inspection.pageCount} pages)...\n`);
       process.stdout.write(`      ✓ Valid PDF verified (SHA-256: ${pdfHash.slice(0, 16)}...)\n`);
@@ -153,6 +184,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         readability: inspection.readability,
         provider,
         model,
+        datasetId: inputData.datasetId ?? null,
         runId,
         outputDir,
         startedAt: new Date().toISOString(),
@@ -168,6 +200,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         pageCount: inspection.pageCount,
         provider,
         model,
+        datasetId: inputData.datasetId ?? null,
         outputDir,
         status: "in_progress",
         currentStage: "S1",
@@ -191,18 +224,19 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         pageCount: inspection.pageCount,
         provider,
         model,
+        datasetId: inputData.datasetId ?? null,
         runId,
         outputDir,
         startedAt: Date.now(),
       };
-    },
+    }),
   });
 
   const extractDocling = createStep({
     id: "extract-docling-source-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S2", "docling_extraction", async () => {
       const started = Date.now();
       process.stdout.write(`[2/8] Extracting text and layout with Docling (${inputData.pageCount} pages)...\n`);
       const { extractor = new DoclingPdfExtractor() } = resolveServices();
@@ -219,14 +253,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         ...inputData,
         doclingDocument,
       };
-    },
+    }),
   });
 
   const mapSource = createStep({
     id: "build-source-map-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S2", "source_mapping", async () => {
       const started = Date.now();
       process.stdout.write(`[3/8] Building canonical source map and text offsets...\n`);
       const sourceMap = buildSourceMap(inputData.doclingDocument, inputData.pageCount);
@@ -248,62 +282,108 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         writeFile(path.join(inputData.outputDir, "source-map.json"), `${JSON.stringify(sourceMap, null, 2)}\n`),
         writeFile(path.join(inputData.outputDir, "stage-s2.json"), `${JSON.stringify(stageS2, null, 2)}\n`),
       ]);
+      const manifestPath = path.join(inputData.outputDir, "manifest.json");
+      const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+      await writeFile(manifestPath, `${JSON.stringify({ ...manifest, status: "in_progress",
+        currentStage: "S2", stages: { ...manifest.stages, S2: "completed" } }, null, 2)}\n`);
       process.stdout.write(`      ✓ Saved S2 artifacts (source-map.json, stage-s2.json) to ${inputData.outputDir}\n`);
 
       return {
         ...inputData,
         sourceMap,
       };
-    },
+    }),
   });
 
   const extractStructure = createStep({
     id: "extract-structure-chunks-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "structure_extraction", async () => {
       process.stdout.write(`[4/8] Extracting legal structure (${inputData.provider} / ${inputData.model})...\n`);
       const { providerFactory = createAuthorizedProductionStructureProvider } = resolveServices();
       const sourceMap: SourceMap = inputData.sourceMap;
       const configuration = buildStructureConfig(inputData.provider, inputData.model);
       const providerInstance = providerFactory(configuration);
 
-      let chunkPlan: StructureChunkPlan | null = null;
+      let chunkPlan: StructureChunkPlan | { schemaVersion: 1; strategy: "provider_managed";
+        provider: "kanon"; processingStrategy: string } | null = null;
+      const extractionAttempts: unknown[] = [];
       const fixedInputCharacters =
         LLM_STRUCTURE_SYSTEM_PROMPT.length + JSON.stringify(LLM_STRUCTURE_RESPONSE_SCHEMA).length;
 
-      const providerResult = await providerInstance.extract({
-        canonicalText: sourceMap.text,
-        textHash: sourceMap.textHash,
-        sourceMap,
-        configuration,
-        checkpoints: {
-          savePlan: async plan => {
-            chunkPlan = plan;
-          },
-          loadChunk: async chunk => {
-            const checkpointPath = path.join(inputData.outputDir, "checkpoints", `${chunk.chunkId}.json`);
-            if (existsSync(checkpointPath)) {
-              try {
-                return JSON.parse(await readFile(checkpointPath, "utf8"));
-              } catch {
-                return null;
+      let providerResult;
+      try {
+        providerResult = await providerInstance.extract({
+          doclingDocument: inputData.doclingDocument,
+          canonicalText: sourceMap.text,
+          textHash: sourceMap.textHash,
+          sourceMap,
+          configuration,
+          checkpoints: {
+            savePlan: async plan => {
+              chunkPlan = plan;
+              await writeFile(path.join(inputData.outputDir, "chunk-plan.json"),
+                `${JSON.stringify(plan, null, 2)}\n`);
+            },
+            loadChunk: async chunk => {
+              const checkpointPath = path.join(inputData.outputDir, "checkpoints", `${chunk.chunkId}.json`);
+              if (existsSync(checkpointPath)) {
+                try {
+                  const checkpoint = JSON.parse(await readFile(checkpointPath, "utf8"));
+                  if (checkpoint?.checkpointSchemaVersion !== 1 ||
+                      checkpoint.sourceTextHash !== sourceMap.textHash ||
+                      checkpoint.chunk?.inputHash !== chunk.inputHash ||
+                      checkpoint.configurationHash !== configuration.configurationHash ||
+                      checkpoint.promptVersion !== configuration.promptVersion ||
+                      checkpoint.processingStrategy !== configuration.processingStrategy) return null;
+                  return checkpoint;
+                } catch {
+                  return null;
+                }
               }
-            }
-            return null;
+              return null;
+            },
+            saveChunk: async checkpoint => {
+              const checkpointDir = path.join(inputData.outputDir, "checkpoints");
+              await mkdir(checkpointDir, { recursive: true });
+              const checkpointPath = path.join(checkpointDir, `${checkpoint.chunk.chunkId}.json`);
+              await writeFile(checkpointPath, `${JSON.stringify(checkpoint, null, 2)}\n`);
+            },
+            saveAttempt: async attempt => {
+              extractionAttempts.push(attempt);
+              await writeFile(path.join(inputData.outputDir, "structure-attempts.json"),
+                `${JSON.stringify(extractionAttempts, null, 2)}\n`);
+            },
           },
-          saveChunk: async checkpoint => {
-            const checkpointDir = path.join(inputData.outputDir, "checkpoints");
-            await mkdir(checkpointDir, { recursive: true });
-            const checkpointPath = path.join(checkpointDir, `${checkpoint.chunk.chunkId}.json`);
-            await writeFile(checkpointPath, `${JSON.stringify(checkpoint, null, 2)}\n`);
+        });
+      } catch (error) {
+        const failure = {
+          stage: "S3",
+          stageName: "Document tree and relationships",
+          phase: "structure_extraction",
+          status: "failed",
+          error: {
+            name: error instanceof Error ? error.name : "Error",
+            message: error instanceof Error ? error.message : String(error),
           },
-        },
-      });
+          failedAt: new Date().toISOString(),
+        };
+        await writeFile(path.join(inputData.outputDir, "stage-s3-error.json"),
+          `${JSON.stringify(failure, null, 2)}\n`);
+        const manifestPath = path.join(inputData.outputDir, "manifest.json");
+        const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+        await writeFile(manifestPath, `${JSON.stringify({ ...manifest, status: "failed",
+          currentStage: "S3", stages: { ...manifest.stages, S3: "failed" }, error: failure.error,
+          failedAt: failure.failedAt }, null, 2)}\n`);
+        throw error;
+      }
 
       if (!chunkPlan) {
-        chunkPlan =
-          (providerResult.rawResponse as { chunkPlan?: StructureChunkPlan } | null | undefined)?.chunkPlan ??
+        chunkPlan = inputData.provider === "kanon" ? {
+          schemaVersion: 1, strategy: "provider_managed", provider: "kanon",
+          processingStrategy: configuration.processingStrategy,
+        } : (providerResult.rawResponse as { chunkPlan?: StructureChunkPlan } | null | undefined)?.chunkPlan ??
           planStructureChunks(sourceMap, {
             targetInputCharacters: LLM_TARGET_INPUT_CHARACTERS,
             hardInputCharacters: LLM_MAX_INPUT_CHARACTERS,
@@ -327,15 +407,18 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         candidate: providerResult.candidate,
         structureResponse: providerResult.rawResponse,
         structureUsage: providerResult.usage,
+        structureUsageAccounting: providerResult.usageAccounting ?? { status: "unavailable",
+          attemptedCalls: 0, callsWithUsage: 0, includesDiscardedAttempts: false },
+        structureConfiguration: configuration,
       };
-    },
+    }),
   });
 
   const detectStructureReferences = createStep({
     id: "detect-structure-references-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reference_detection", async () => {
       const started = Date.now();
       process.stdout.write(`[5/8] Detecting legal references and cross-references...\n`);
       const sourceVersionId = `pdf-${inputData.pdfHash.slice(0, 16)}`;
@@ -352,14 +435,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         sourceVersionId,
         references,
       };
-    },
+    }),
   });
 
   const reconstructStructure = createStep({
     id: "reconstruct-source-structure-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reconstruction", async () => {
       const started = Date.now();
       process.stdout.write(`[6/8] Reconstructing legal provisions and relationships...\n`);
       const reconstruction = reconstructSource(inputData.sourceMap, inputData.candidate, inputData.references);
@@ -374,14 +457,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         ...inputData,
         reconstruction,
       };
-    },
+    }),
   });
 
   const modelDocumentStructure = createStep({
     id: "build-document-model-structure-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "document_model", async () => {
       const started = Date.now();
       process.stdout.write(`[7/8] Building document hierarchy model and tables...\n`);
       const documentModel = buildDocumentModel(inputData.sourceMap, inputData.reconstruction);
@@ -411,14 +494,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         ...inputData,
         documentModel,
       };
-    },
+    }),
   });
 
   const validateReconstructionStructure = createStep({
     id: "validate-reconstruction-structure-v1",
     inputSchema: z.any(),
     outputSchema: z.any(),
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "validation", async () => {
       const started = Date.now();
       process.stdout.write(`[8/8] Validating reconstructed provisions and coverage...\n`);
       const validation = validateReconstruction(
@@ -438,14 +521,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         ...inputData,
         validation,
       };
-    },
+    }),
   });
 
   const saveRunOutput = createStep({
     id: "save-run-output-v1",
     inputSchema: z.any(),
     outputSchema: RunPdfOutputSchema,
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "finalization", async () => {
       const outputDir = inputData.outputDir;
       process.stdout.write(`[✓] Finalizing run bundle and evaluation manifest in: ${outputDir}...\n`);
       await mkdir(outputDir, { recursive: true });
@@ -456,6 +539,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
       const sourceMapPath = path.join(outputDir, "source-map.json");
       const chunkPlanPath = path.join(outputDir, "chunk-plan.json");
       const structureResponsePath = path.join(outputDir, "structure-response.json");
+      const structureAttemptsPath = path.join(outputDir, "structure-attempts.json");
       const structureCandidatePath = path.join(outputDir, "structure-candidate.json");
       const referencesPath = path.join(outputDir, "references.json");
       const reconstructionPath = path.join(outputDir, "reconstruction.json");
@@ -477,7 +561,11 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         pageCount: inputData.pageCount,
         provider: inputData.provider,
         model: inputData.model,
+        datasetId: inputData.datasetId,
+        structureConfiguration: inputData.structureConfiguration,
         outputDir,
+        status: "completed",
+        currentStage: "S3",
         stages: {
           S1: "completed",
           S2: "completed",
@@ -486,7 +574,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         stageArtifacts: {
           S1: ["original.pdf", "stage-s1.json"],
           S2: ["docling.json", "source-map.json", "stage-s2.json"],
-          S3: ["chunk-plan.json", "structure-response.json", "structure-candidate.json", "references.json", "reconstruction.json", "document-model.json", "stage-s3.json", "validation.json"],
+          S3: ["chunk-plan.json", "structure-attempts.json", "structure-response.json", "structure-candidate.json", "references.json", "reconstruction.json", "document-model.json", "stage-s3.json", "validation.json"],
         },
         provisionCount: inputData.reconstruction.provisions.length,
         relationshipCount: inputData.reconstruction.relationships.length,
@@ -499,7 +587,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
 
       // Produce standardized evaluation run-results.json format compatible with review dataset
       const unicodeSpans = inputData.sourceMap.spans
-        .filter((span: { page: number | null }) => span.page !== null && [33, 34, 35].includes(span.page))
+        .filter((span: { page: number | null }) => span.page !== null)
         .map((span: { page: number | null; itemRef: string; start: number; end: number }) => ({
           page: span.page,
           itemRef: span.itemRef,
@@ -507,18 +595,23 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         }));
 
       const runResults = {
-        dataset_id: "gdpr-oj-2016-en-review-v1",
+        dataset_id: inputData.datasetId ?? null,
         source_sha256: inputData.pdfHash,
         run_id: inputData.runId,
         provider: inputData.provider,
         model: inputData.model,
-        prompt_version: STRUCTURE_PROMPT_VERSION,
+        prompt_version: inputData.structureConfiguration.promptVersion,
         pipeline_version: "kb-run-pdf-v1",
         reasoning_setting: process.env.KB_STRUCTURE_REASONING_EFFORT ?? "low",
         model_assignments: [
           { stage: "S1", task: "verify_identity", provider: "native", model: "sha256", reasoning_setting: null, prompt_version: null },
           { stage: "S2", task: "text_extraction", provider: "docling", model: "docling.rs-1.41.0", reasoning_setting: null, prompt_version: null },
-          { stage: "S3", task: "structure_extraction", provider: inputData.provider, model: inputData.model, reasoning_setting: process.env.KB_STRUCTURE_REASONING_EFFORT ?? "low", prompt_version: STRUCTURE_PROMPT_VERSION },
+          { stage: "S3", task: "structure_extraction", provider: inputData.structureConfiguration.provider,
+            model: inputData.structureConfiguration.model,
+            reasoning_setting: inputData.provider === "llm" ? process.env.KB_STRUCTURE_REASONING_EFFORT ?? "low" : null,
+            prompt_version: inputData.structureConfiguration.promptVersion,
+            processing_strategy: inputData.structureConfiguration.processingStrategy,
+            configuration_hash: inputData.structureConfiguration.configurationHash },
         ],
         artifacts: {
           page_inventory: { pages: inputData.sourceMap.pages },
@@ -536,12 +629,11 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
           duration_ms: durationMs,
           input_tokens: inputData.structureUsage?.inputTokens ?? null,
           output_tokens: inputData.structureUsage?.outputTokens ?? null,
-          estimated_cost_usd: 0,
+          total_tokens: inputData.structureUsage?.totalTokens ?? null,
+          usage_accounting: inputData.structureUsageAccounting,
+          estimated_cost_usd: null,
         },
-        results: [
-          { case_id: "GDPR-S1-02", status: "completed", observed: null, evidence_refs: ["page_inventory#"], failed_expected_fields: [], forbidden_claims_found: [], reviewer_notes: "" },
-          { case_id: "GDPR-S2-10", status: "completed", observed: null, evidence_refs: ["unicode_source_output#"], failed_expected_fields: [], forbidden_claims_found: [], reviewer_notes: "" },
-        ],
+        results: [],
       };
 
       await Promise.all([
@@ -550,6 +642,8 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         writeFile(sourceMapPath, `${JSON.stringify(inputData.sourceMap, null, 2)}\n`),
         writeFile(chunkPlanPath, `${JSON.stringify(inputData.chunkPlan, null, 2)}\n`),
         writeFile(structureResponsePath, `${JSON.stringify(inputData.structureResponse, null, 2)}\n`),
+        writeFile(structureAttemptsPath, `${JSON.stringify(
+          (inputData.structureResponse as { attempts?: unknown[] } | null)?.attempts ?? [], null, 2)}\n`),
         writeFile(structureCandidatePath, `${JSON.stringify(inputData.candidate, null, 2)}\n`),
         writeFile(referencesPath, `${JSON.stringify(inputData.references, null, 2)}\n`),
         writeFile(reconstructionPath, `${JSON.stringify(inputData.reconstruction, null, 2)}\n`),
@@ -572,7 +666,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         validationIssueCount: inputData.validation.issues.length,
         manifestPath,
       };
-    },
+    }),
   });
 
   return createWorkflow({

@@ -28,7 +28,7 @@ Phase 0 contracts and evaluation examples live here. Phase 1 adds database and a
 - Jobs can wait without occupying a worker or consuming a retry. They resume after the dependency or review state changes. Failed or cancelled prerequisite jobs fail dependent queued jobs explicitly. Job reads and cancellation check permission across every source in the job scope.
 - A checkpointed JSON artifact store writes raw future step outputs under immutable private object keys. PostgreSQL records their exact hashes, sizes and locations with the step checkpoint. A retry verifies the bytes and reuses a matching object; a lost lease cannot commit artifact metadata.
 - Intake atomically queues `prepare_source` for readable English pilot PDFs, including sources whose legal authority still needs review. The fixed `kb-prepare-source-v2` Mastra workflow verifies the original checksum, converts it with pinned `docling.rs` 1.41.0, stores the complete Docling JSON, then stores a separate canonical text and source map. Each mapped span points to its Docling item and physical PDF page; table cells keep their row, column, spans, header role, box and extraction warnings. Printed page labels remain unknown until verified. Unmapped pages or unreferenced items produce explicit review warnings. The extraction run records the raw artifact; the completed job result points to both artifacts. A completed preparation job means extraction and mapping only, not approved legal structure.
-- Preparation uses one provider-neutral Mastra workflow. `KB_STRUCTURE_PROVIDER` defaults to `kanon`; each job freezes the provider, model, prompt version, strategy and configuration hash. The Kanon adapter sends unchanged canonical text with provider-managed chunk overflow. `KB_STRUCTURE_PROVIDER=llm` uses DigitalOcean Inference with `DO_MODEL_ACCESS_KEY` and a configurable GLM model. Its document planner counts the complete assembled request, begins looking for a legal boundary at 190,000 characters, and never exceeds the 200,000-character hard ceiling. It preserves complete Docling source blocks, prefers Article, Recital, Chapter and Section boundaries, saves the plan and every completed chunk separately, splits a chunk at a complete source-block boundary if model output is truncated, and reconciles the successful chunk candidates using original document offsets. Both adapters then build one document model; chunk IDs never define the final knowledge structure.
+- Preparation uses one provider-neutral Mastra workflow. `KB_STRUCTURE_PROVIDER` defaults to `kanon`; each job freezes the provider, model, prompt version, strategy and configuration hash. The Kanon adapter sends unchanged canonical text with provider-managed chunk overflow. `KB_STRUCTURE_PROVIDER=llm` uses DigitalOcean Inference with `DO_MODEL_ACCESS_KEY` and a configurable GLM model. Its v4 planner uses native Docling HybridChunker (2,048 tokens with the configured Docling tokenizer), then projects groups onto exact original source spans with a 12,000-character packing target and 24,000-character assembled-request safety ceiling. This is not an exact GLM-token limit; tokenization and output density still require calibration. It preserves original source text and locations, splits oversized blocks into marked source fragments, retains blocks omitted by native chunking, and saves the plan and every completed chunk separately. Failed requests can be split into smaller source-unit groups. Successful candidates are reconciled using original document offsets; only compatible, explicitly marked continuations are joined, and uncertain boundaries remain flagged. Both adapters then build one document model; chunk IDs never define the final knowledge structure.
 - The document model preserves unfamiliar structures as `unknown`, complete structural paths, inherited parents, cross-chunk boundary status, table headings and merged-cell spans, proposed footnote attachments and definition scope. It combines model references with an independent detector, records detector agreement, resolves internal, relative and ranged references against the complete directory, and distinguishes unavailable external instruments from unidentified references. Inferred recital links remain review-required candidates.
 - Every reconstructed provision gets a multi-hop context manifest. It follows explicit targets and parent conditions, records selection reasons, prevents cycles, deduplicates provisions, records unresolved and unavailable dependencies, and reports character-limit omissions instead of silently cutting context. Table headings remain attached in the document model. Interpretation helpers can either fail on a limit or return a limited manifest for staged processing. They validate exact support quotes and evaluate applicability as true, false or unknown. A model cannot approve its own proposal.
 - An authorized reviewer can append an exact-hash decision through `POST /api/knowledge-base/reviews`. The review service rejects stale revisions and leaves old decisions intact. The publication preflight requires verified source readiness, latest exact approvals and independently verified lexical and dense indexes. It does not activate a publication by itself.
@@ -65,19 +65,22 @@ Optional configuration:
 npm run kb:run-pdf -- `
   --pdf "C:\documents\rules.pdf" `
   --provider llm `
-  --model glm-5.3
+  --model glm-5.3 `
+  --dataset-id "optional-evaluation-dataset-id"
 ```
 
 - Default provider: `llm` (uses DigitalOcean Inference with `DO_MODEL_ACCESS_KEY` and GLM model)
-- Default model: `glm-5.3`
+- Provider-specific model defaults: `glm-5.3` for `llm` and `kanon-2-enricher` for `kanon`.
+- Dataset binding is optional. Without `--dataset-id`, `run-results.json` has `dataset_id: null` and no fabricated case results.
 - Every execution creates a distinct run directory without inserting records into approved KB database tables.
-- All 11 stage artifacts are saved locally under:
+- Stage artifacts are saved locally under:
   ```text
   backend/evaluation-runs/<pdf-filename>/<runId>/
     original.pdf
     docling.json
     source-map.json
     chunk-plan.json
+    structure-attempts.json
     structure-response.json
     structure-candidate.json
     references.json
@@ -85,6 +88,7 @@ npm run kb:run-pdf -- `
     document-model.json
     validation.json
     manifest.json
+    run-results.json
   ```
 - Output prints the Run ID, PDF hash, Output directory, Number of pages, Number of provisions and relationships, and Validation status and issue count.
 
