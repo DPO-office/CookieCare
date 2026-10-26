@@ -1,0 +1,609 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024ab",
+    "coreRange": {
+      "start": 62497,
+      "end": 63204
+    },
+    "coreSourceIds": [
+      "src:459",
+      "src:460",
+      "src:461",
+      "src:462",
+      "src:463",
+      "src:464",
+      "src:465",
+      "src:466",
+      "src:467",
+      "src:468",
+      "src:469"
+    ],
+    "contextBefore": [
+      "src:458"
+    ],
+    "contextAfter": [
+      "src:470"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:458",
+        "start": 62468,
+        "end": 62496,
+        "text": "Amendments to  certain Acts.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:459",
+        "start": 62497,
+        "end": 62499,
+        "text": "20",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:460",
+        "start": 62500,
+        "end": 62534,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:461",
+        "start": 62535,
+        "end": 62544,
+        "text": "[PART II-",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:462",
+        "start": 62545,
+        "end": 62618,
+        "text": "'( i ) the Appellate Tribunal under the Information Technology Act, 2000;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:463",
+        "start": 62619,
+        "end": 62722,
+        "text": "( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:464",
+        "start": 62723,
+        "end": 62736,
+        "text": "21  of  2000.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:465",
+        "start": 62737,
+        "end": 62750,
+        "text": "27  of  2008.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:466",
+        "start": 62751,
+        "end": 62845,
+        "text": "( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:467",
+        "start": 62846,
+        "end": 62953,
+        "text": "( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:468",
+        "start": 62954,
+        "end": 62989,
+        "text": "( a ) section 43A shall be omitted;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:469",
+        "start": 62990,
+        "end": 63204,
+        "text": "( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:470",
+        "start": 63205,
+        "end": 63279,
+        "text": "( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "89f663a4189dbdb205f82671134e03f361ba020ce85d91bb49b6920890c93526",
+    "assembledInputCharacters": 4893
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "sg_001",
+        "kind": "container",
+        "type": "sub-section (2) - amendment direction",
+        "category": "amendment-provision",
+        "parent": null,
+        "children": [
+          "sg_002",
+          "sg_003"
+        ],
+        "span": {
+          "start": 62846,
+          "end": 62953
+        },
+        "code": {
+          "start": 62846,
+          "end": 62953
+        },
+        "title": {
+          "start": 62846,
+          "end": 62953
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/463",
+            "physicalPage": 20,
+            "start": 62846,
+            "end": 62953,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 667.68,
+                  "r": 532.25,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  107
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "sg_000"
+      },
+      {
+        "id": "sg_002",
+        "kind": "item",
+        "type": "clause (a) - omission",
+        "category": "amendment-list-item",
+        "parent": "sg_001",
+        "children": [],
+        "span": {
+          "start": 62954,
+          "end": 62989
+        },
+        "code": {
+          "start": 62954,
+          "end": 62989
+        },
+        "title": {
+          "start": 62954,
+          "end": 62989
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/464",
+            "physicalPage": 20,
+            "start": 62954,
+            "end": 62989,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 638.08,
+                  "r": 296.34,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "sg_003",
+        "kind": "item",
+        "type": "clause (b) - insertion",
+        "category": "amendment-list-item",
+        "parent": "sg_001",
+        "children": [],
+        "span": {
+          "start": 62990,
+          "end": 63204
+        },
+        "code": {
+          "start": 62990,
+          "end": 63204
+        },
+        "title": {
+          "start": 62990,
+          "end": 63032
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/465",
+            "physicalPage": 20,
+            "start": 62990,
+            "end": 63204,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 619.99,
+                  "r": 532.25,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  214
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [
+      {
+        "start": 62960,
+        "end": 62971,
+        "exactMention": "section 43A",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/464",
+            "physicalPage": 20,
+            "start": 62960,
+            "end": 62971,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 638.08,
+                  "r": 296.34,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Information Technology Act, 2000, section 43A",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 63001,
+        "end": 63012,
+        "exactMention": "section  81",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/465",
+            "physicalPage": 20,
+            "start": 63001,
+            "end": 63012,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 619.99,
+                  "r": 532.25,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  214
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Information Technology Act, 2000, section 81",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 63068,
+        "end": 63090,
+        "exactMention": "the  Patents Act, 1970",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/465",
+            "physicalPage": 20,
+            "start": 63068,
+            "end": 63090,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 619.99,
+                  "r": 532.25,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  214
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Patents Act, 1970 (external law)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 62852,
+        "end": 62888,
+        "exactMention": "The Information Technology Act, 2000",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/463",
+            "physicalPage": 20,
+            "start": 62852,
+            "end": 62888,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 667.68,
+                  "r": 532.25,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  107
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Information Technology Act, 2000 (21 of 2000)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 62792,
+        "end": 62842,
+        "exactMention": "the  Digital  Personal  Data  Protection Act, 2023",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/462",
+            "physicalPage": 20,
+            "start": 62792,
+            "end": 62842,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 697.28,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Digital Personal Data Protection Act, 2023 (external law)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 62655,
+        "end": 62717,
+        "exactMention": "the Airports Economic Regulatory Authority of  India Act, 2008",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/459",
+            "physicalPage": 20,
+            "start": 62655,
+            "end": 62717,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 728.53,
+                  "r": 477.63,
+                  "b": 705.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  103
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Airports Economic Regulatory Authority of India Act, 2008 (27 of 2008)",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [],
+    "warnings": [
+      "Sub-section (1) or a preceding clause introducing the insertion list at src:462-src:466 ('( i ) the Appellate Tribunal...') starts before the supplied core range; its introductory text (e.g., 'after the words and figures ...' or 'in clause (za) of section 3') is not present in the supplied units and cannot be reconstructed.",
+      "The core range ends mid-provision: sub-section (2) continues after the chunk with clause (c) at src:470; no closing text is present.",
+      "src:459-src:465 contain fragmentary page/footnote material ('20', 'THE GAZETTE OF INDIA EXTRAORDINARY', '[PART II-', '21 of 2000.', '27 of 2008.') that appears to be publication header and statute-number footnotes rather than provision text; retained for review.",
+      "The list items (i)-(iii) at src:462-src:466 appear to be words to be inserted into an earlier act (likely the Tribunal Reforms or Tribunal legislation); target provision is unknown without the missing introductory text.",
+      "Ignored 1 context-only segments in chunk_024ab",
+      "Cross-chunk parent left pending for sg_001: sg_000"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[{\"mention\":{\"exactQuote\":\"section 43A\",\"occurrence\":0,\"sourceId\":\"src:468\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Information Technology Act, 2000, section 43A\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"section 81\",\"occurrence\":0,\"sourceId\":\"src:469\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Information Technology Act, 2000, section 81\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"the Patents Act, 1970\",\"occurrence\":0,\"sourceId\":\"src:469\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Patents Act, 1970 (external law)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"The Information Technology Act, 2000\",\"occurrence\":0,\"sourceId\":\"src:467\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Information Technology Act, 2000 (21 of 2000)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"the Digital Personal Data Protection Act, 2023\",\"occurrence\":0,\"sourceId\":\"src:466\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Digital Personal Data Protection Act, 2023 (external law)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"the Airports Economic Regulatory Authority of  India Act, 2008\",\"occurrence\":0,\"sourceId\":\"src:463\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"Airports Economic Regulatory Authority of India Act, 2008 (27 of 2008)\",\"targetSegmentIds\":[]}],\"segments\":[{\"category\":\"amendment-provision\",\"codeAnchor\":{\"exactQuote\":\"( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.\",\"occurrence\":0,\"sourceId\":\"src:467\"},\"continuesAfterChunk\":true,\"id\":\"sg_001\",\"kind\":\"container\",\"parent\":\"sg_000\",\"parentHint\":null,\"sourceAnchors\":[ {\"exactQuote\":\"( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.\",\"occurrence\":0,\"sourceId\":\"src:467\"} ],\"startsBeforeChunk\":false,\"titleAnchor\":{\"exactQuote\":\"( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.\",\"occurrence\":0,\"sourceId\":\"src:467\"},\"type\":\"sub-section (2) - amendment direction\"},{\"category\":\"amendment-list-item\",\"codeAnchor\":{\"exactQuote\":\"( a ) section 43A shall be omitted;\",\"occurrence\":0,\"sourceId\":\"src:468\"},\"continuesAfterChunk\":false,\"id\":\"sg_002\",\"kind\":\"item\",\"parent\":\"sg_001\",\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"( a ) section 43A shall be omitted;\",\"occurrence\":0,\"sourceId\":\"src:468\"}],\"startsBeforeChunk\":false,\"titleAnchor\":{\"exactQuote\":\"( a ) section 43A shall be omitted;\",\"occurrence\":0,\"sourceId\":\"src:468\"},\"type\":\"clause (a) - omission\"},{\"category\":\"amendment-list-item\",\"codeAnchor\":{\"exactQuote\":\"( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.\",\"occurrence\":0,\"sourceId\":\"src:469\"},\"continuesAfterChunk\":true,\"id\":\"sg_003\",\"kind\":\"item\",\"parent\":\"sg_001\",\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.\",\"occurrence\":0,\"sourceId\":\"src:469\"}],\"startsBeforeChunk\":false,\"titleAnchor\":{\"exactQuote\":\"( b )  in  section  81,  in  the  proviso,\",\"occurrence\":0,\"sourceId\":\"src:469\"},\"type\":\"clause (b) - insertion\"},{\"category\":\"amendment-list-item\",\"codeAnchor\":{\"exactQuote\":\"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\"occurrence\":0,\"sourceId\":\"src:470\"},\"continuesAfterChunk\":true,\"id\":\"sg_004\",\"kind\":\"item\",\"parent\":\"sg_001\",\"parentHint\":\"continuation into context-after unit\",\"sourceAnchors\":[{\"exactQuote\":\"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\"occurrence\":0,\"sourceId\":\"src:470\"}],\"startsBeforeChunk\":false,\"titleAnchor\":{\"exactQuote\":\"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\"occurrence\":0,\"sourceId\":\"src:470\"},\"type\":\"clause (c) - omission (continuation beyond core range)\"}],\"unresolvedItems\":[],\"warnings\":[\"Sub-section (1) or a preceding clause introducing the insertion list at src:462-src:466 ('( i ) the Appellate Tribunal...') starts before the supplied core range; its introductory text (e.g., 'after the words and figures ...' or 'in clause (za) of section 3') is not present in the supplied units and cannot be reconstructed.\",\"The core range ends mid-provision: sub-section (2) continues after the chunk with clause (c) at src:470; no closing text is present.\",\"src:459-src:465 contain fragmentary page/footnote material ('20', 'THE GAZETTE OF INDIA EXTRAORDINARY', '[PART II-', '21 of 2000.', '27 of 2008.') that appears to be publication header and statute-number footnotes rather than provision text; retained for review.\",\"The list items (i)-(iii) at src:462-src:466 appear to be words to be inserted into an earlier act (likely the Tribunal Reforms or Tribunal legislation); target provision is unknown without the missing introductory text.\"]}",
+          "reasoning_content": "Amendment provision: clause amending IT Act. Core units 459-469. Likely provision: \"(2) The Information Technology Act, 2000 shall be amended...\" with clauses (a),(b); (c) is context after — continuation. Also earlier list \"(i)...(iii)\" part of sub-clause (1)? The list \"(i)-(iii)\" appears to be insertion of new clauses somewhere (likely in clause (2) of section... tribunal definitions) — part of sub-section (1)? We have partial. Emit provisions with continuations.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952220,
+    "id": "chatcmpl-901e2712-3682-4386-90af-e7affba0910b",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 1523,
+      "prompt_tokens": 854,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 2377
+    }
+  },
+  "usage": {
+    "inputTokens": 854,
+    "outputTokens": 1523,
+    "totalTokens": 2377
+  },
+  "finishReason": "stop",
+  "durationMs": 36228
+}

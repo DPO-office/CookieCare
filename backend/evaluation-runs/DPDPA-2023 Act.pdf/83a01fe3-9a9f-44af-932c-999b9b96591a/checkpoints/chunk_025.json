@@ -1,0 +1,896 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_025",
+    "coreRange": {
+      "start": 64136,
+      "end": 64993
+    },
+    "coreSourceIds": [
+      "src:490",
+      "src:491",
+      "src:492",
+      "src:493",
+      "src:494",
+      "src:495",
+      "src:496",
+      "src:497",
+      "src:498",
+      "src:499",
+      "src:500",
+      "src:501",
+      "src:502",
+      "src:503",
+      "src:504",
+      "src:505",
+      "src:506"
+    ],
+    "contextBefore": [
+      "src:489",
+      "src:476",
+      "src:477",
+      "src:478"
+    ],
+    "contextAfter": [],
+    "sourceUnits": [
+      {
+        "id": "src:489",
+        "start": 64048,
+        "end": 64135,
+        "text": "Breach in observance of additional obligations in relation to children under section 9.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:476",
+        "start": 63550,
+        "end": 63557,
+        "text": "Sl. No.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:477",
+        "start": 63558,
+        "end": 63615,
+        "text": "Breach of provisions of this Act or rules made thereunder",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:478",
+        "start": 63616,
+        "end": 63623,
+        "text": "Penalty",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:490",
+        "start": 64136,
+        "end": 64175,
+        "text": "May extend to two hundred crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:491",
+        "start": 64176,
+        "end": 64178,
+        "text": "4.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:492",
+        "start": 64179,
+        "end": 64273,
+        "text": "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:493",
+        "start": 64274,
+        "end": 64323,
+        "text": "May extend to one hundred and fifty crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:494",
+        "start": 64324,
+        "end": 64326,
+        "text": "5.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:495",
+        "start": 64327,
+        "end": 64379,
+        "text": "Breach in observance of the duties under section 15.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:496",
+        "start": 64380,
+        "end": 64414,
+        "text": "May extend to ten thousand rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:497",
+        "start": 64415,
+        "end": 64417,
+        "text": "6.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:498",
+        "start": 64418,
+        "end": 64501,
+        "text": "Breach of any term of voluntary undertaking accepted by the Board under section 32.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:499",
+        "start": 64502,
+        "end": 64614,
+        "text": "Up to the extent applicable for the breach in respect of which the proceedings under section 28 were instituted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:500",
+        "start": 64615,
+        "end": 64617,
+        "text": "7.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:501",
+        "start": 64618,
+        "end": 64689,
+        "text": "Breach of any other provision of this Act or the rules made thereunder.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:502",
+        "start": 64690,
+        "end": 64723,
+        "text": "May extend to fifty crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:503",
+        "start": 64724,
+        "end": 64761,
+        "text": "THE  SCHEDULE [ See section 33 ( 1 )]",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:504",
+        "start": 64762,
+        "end": 64820,
+        "text": "---- DR. REETA VASISHTA, Secretary to the Govt. of  India.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:505",
+        "start": 64821,
+        "end": 64966,
+        "text": "UPLOADED BY THE MANAGER, GOVERNMENT OF INDIA PRESS, MINTO ROAD,  NEW DELHI-110002 AND PUBLISHED BY THE CONTROLLER OF  PUBLICATIONS, DELHI-110054.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:506",
+        "start": 64967,
+        "end": 64993,
+        "text": "MGIPMRND-288GI-11-08-2023.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "10986772fdc74eb4b504079e9b0183d62aedbd8a4577160e59759ccb74d207f3",
+    "assembledInputCharacters": 5264,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_list_penalty_row_4",
+        "kind": "item",
+        "type": "list_point",
+        "category": "list_point",
+        "parent": "seg_table_penalty_schedule",
+        "children": [],
+        "span": {
+          "start": 64176,
+          "end": 64323
+        },
+        "code": {
+          "start": 64179,
+          "end": 64273
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64176,
+            "end": 64178,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 5,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64179,
+            "end": 64273,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 5,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64274,
+            "end": 64323,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 5,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_list_penalty_row_5",
+        "kind": "item",
+        "type": "list_point",
+        "category": "list_point",
+        "parent": "seg_table_penalty_schedule",
+        "children": [],
+        "span": {
+          "start": 64324,
+          "end": 64414
+        },
+        "code": {
+          "start": 64327,
+          "end": 64379
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64324,
+            "end": 64326,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 6,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64327,
+            "end": 64379,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 6,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64380,
+            "end": 64414,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 6,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_list_penalty_row_6",
+        "kind": "item",
+        "type": "list_point",
+        "category": "list_point",
+        "parent": "seg_table_penalty_schedule",
+        "children": [],
+        "span": {
+          "start": 64415,
+          "end": 64614
+        },
+        "code": {
+          "start": 64418,
+          "end": 64501
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64415,
+            "end": 64417,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 7,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64418,
+            "end": 64501,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 7,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64502,
+            "end": 64614,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 7,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_list_penalty_row_7",
+        "kind": "item",
+        "type": "list_point",
+        "category": "list_point",
+        "parent": "seg_table_penalty_schedule",
+        "children": [],
+        "span": {
+          "start": 64615,
+          "end": 64723
+        },
+        "code": {
+          "start": 64618,
+          "end": 64689
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64615,
+            "end": 64617,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 8,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64618,
+            "end": 64689,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 8,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64690,
+            "end": 64723,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 8,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_table_penalty_schedule",
+        "kind": "item",
+        "type": "table",
+        "category": "table",
+        "parent": null,
+        "children": [
+          "seg_list_penalty_row_4",
+          "seg_list_penalty_row_5",
+          "seg_list_penalty_row_6",
+          "seg_list_penalty_row_7"
+        ],
+        "span": {
+          "start": 64690,
+          "end": 64723
+        },
+        "code": {
+          "start": 64179,
+          "end": 64273
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64690,
+            "end": 64723,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 8,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_schedule_1",
+        "kind": "item",
+        "type": "annex",
+        "category": "annex",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 64967,
+          "end": 64993
+        },
+        "code": {
+          "start": 64724,
+          "end": 64761
+        },
+        "title": {
+          "start": 64724,
+          "end": 64761
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/475",
+            "physicalPage": 21,
+            "start": 64967,
+            "end": 64993,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 88.8,
+                  "r": 177.8,
+                  "b": 78.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  26
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_footer",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "The penalty table (rows 4-7) is a continuation of a table whose header ('Sl. No.', 'Breach of provisions of this Act or rules made thereunder', 'Penalty') appears in contextBefore units src:476-src:478 and is not emitted on its own; the table's start lies outside the supplied core range.",
+      "src:489 and src:504 (DR. REETA VASISHTA... signature/authentication block) and src:505 (printing/publication imprint) are end-matter associated with the Schedule/Act; retained as authentication and production information, not substantive provisions.",
+      "The table rows are numbered 4-7, implying rows 1-3 precede this chunk and are outside the supplied core range."
+    ],
+    "warnings": [
+      "Structure seg_table_penalty_schedule starts before the supplied chunk (continuation from earlier table rows); heading context 'CHAPTER IX MISCELLANEOUS' is treated as a navigation hint only, not as proof of scope.",
+      "Rows 1-3 of the penalty table and the table's opening boundary are not present in the core range; the table boundary here is anchored on its core-range portion only."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach in observance of additional obligations of Significant Data Fiduciary under section 10.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:492\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_list_penalty_row_4\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_table_penalty_schedule\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"4.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:491\"\n        },\n        {\n          \"exactQuote\": \"May extend to one hundred and fifty crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:493\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": null\n    ,\n      \"type\": \"list_point\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach in observance of the duties under section 15.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:495\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_list_penalty_row_5\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_table_penalty_schedule\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"5.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:494\"\n        },\n        {\n          \"exactQuote\": \"May extend to ten thousand rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:496\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": null,\n      \"type\": \"list_point\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach of any term of voluntary undertaking accepted by the Board under section 32.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:498\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_list_penalty_row_6\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_table_penalty_schedule\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"6.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:497\"\n        },\n        {\n          \"exactQuote\": \"Up to the extent applicable for the breach in respect of which the proceedings under section 28 were instituted.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:499\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": null,\n      \"type\": \"list_point\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach of any other provision of this Act or the rules made thereunder.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:501\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_list_penalty_row_7\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_table_penalty_schedule\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"7.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:500\"\n        },\n        {\n          \"exactQuote\": \"May extend to fifty crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:502\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": null,\n      \"type\": \"list_point\"\n    },\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach in observance of additional obligations of Significant Data Fiduciary under section 10.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:492\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_table_penalty_schedule\",\n      \"kind\": \"item\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"May extend to fifty crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:502\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": null,\n      \"type\": \"table\"\n    },\n    {\n      \"category\": \"annex\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"THE  SCHEDULE [ See section 33 ( 1 )]\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:503\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_schedule_1\",\n      \"kind\": \"item\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"MGIPMRND-288GI-11-08-2023.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:506\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"THE  SCHEDULE [ See section 33 ( 1 )]\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:503\"\n      },\n      \"type\": \"annex\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"The penalty table (rows 4-7) is a continuation of a table whose header ('Sl. No.', 'Breach of provisions of this Act or rules made thereunder', 'Penalty') appears in contextBefore units src:476-src:478 and is not emitted on its own; the table's start lies outside the supplied core range.\",\n    \"src:489 and src:504 (DR. REETA VASISHTA... signature/authentication block) and src:505 (printing/publication imprint) are end-matter associated with the Schedule/Act; retained as authentication and production information, not substantive provisions.\",\n    \"The table rows are numbered 4-7, implying rows 1-3 precede this chunk and are outside the supplied core range.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Structure seg_table_penalty_schedule starts before the supplied chunk (continuation from earlier table rows); heading context 'CHAPTER IX MISCELLANEOUS' is treated as a navigation hint only, not as proof of scope.\",\n    \"Rows 1-3 of the penalty table and the table's opening boundary are not present in the core range; the table boundary here is anchored on its core-range portion only.\"\n  ]\n}",
+          "reasoning_content": "Table continuation from earlier chunk (penalty table rows 4-7), then THE SCHEDULE signature/production notes. Extract rows as list items, continuations, references to sections 10, 15, 32, 28, 33(1).",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952388,
+    "id": "chatcmpl-e4b0a00a-919a-9066-a556-ea6862ebf764",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 1576,
+      "prompt_tokens": 953,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 2529
+    }
+  },
+  "usage": {
+    "inputTokens": 953,
+    "outputTokens": 1576,
+    "totalTokens": 2529
+  },
+  "finishReason": "stop",
+  "durationMs": 30593
+}

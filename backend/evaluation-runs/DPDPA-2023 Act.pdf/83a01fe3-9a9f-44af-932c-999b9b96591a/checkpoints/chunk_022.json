@@ -1,0 +1,1493 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_022",
+    "coreRange": {
+      "start": 52789,
+      "end": 55643
+    },
+    "coreSourceIds": [
+      "src:389",
+      "src:390",
+      "src:391",
+      "src:392",
+      "src:393",
+      "src:394",
+      "src:395",
+      "src:396",
+      "src:397",
+      "src:398",
+      "src:399",
+      "src:400",
+      "src:401",
+      "src:402",
+      "src:403",
+      "src:404",
+      "src:405",
+      "src:406",
+      "src:407",
+      "src:408",
+      "src:409"
+    ],
+    "contextBefore": [
+      "src:388"
+    ],
+    "contextAfter": [
+      "src:410"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:388",
+        "start": 52621,
+        "end": 52788,
+        "text": "( 2 )  While  determining  the  amount  of  monetary  penalty  to  be  imposed  under sub-section ( 1 ), the Board shall have regard to the following matters, namely:-",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:389",
+        "start": 52789,
+        "end": 52842,
+        "text": "( a ) the nature, gravity and duration of the breach;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:390",
+        "start": 52843,
+        "end": 52913,
+        "text": "( b ) the type and nature of the personal data affected by the breach;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:391",
+        "start": 52914,
+        "end": 52952,
+        "text": "( c ) repetitive nature of the breach;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:392",
+        "start": 52953,
+        "end": 53046,
+        "text": "( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:393",
+        "start": 53047,
+        "end": 53196,
+        "text": "( e ) whether the person took any action to mitigate the effects and consequences of the breach, and the timeliness and effectiveness of such action;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:394",
+        "start": 53197,
+        "end": 53379,
+        "text": "( f ) whether the monetary penalty to be imposed is proportionate and effective, having regard to the need to secure observance of and deter breach of the provisions of this Act; and",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:395",
+        "start": 53380,
+        "end": 53460,
+        "text": "( g ) the likely impact of the imposition of the monetary penalty on the person.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:396",
+        "start": 53461,
+        "end": 53592,
+        "text": "34. All sums realised by way of penalties imposed by the Board under this Act, shall be credited to the Consolidated Fund of India.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:397",
+        "start": 53593,
+        "end": 53603,
+        "text": "CHAPTER IX",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:398",
+        "start": 53604,
+        "end": 53617,
+        "text": "MISCELLANEOUS",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:399",
+        "start": 53618,
+        "end": 53919,
+        "text": "35. No suit,  prosecution  or  other  legal  proceedings  shall  lie  against  the  Central Government, the Board, its Chairperson and any Member, officer or employee thereof for anything which is done or intended to be done in good faith under the provisions of this Act or the rules made thereunder.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:400",
+        "start": 53920,
+        "end": 54086,
+        "text": "36. The Central Government may, for the purposes of this Act, require the Board and any Data Fiduciary or intermediary to furnish such information as it may call for.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:401",
+        "start": 54087,
+        "end": 54249,
+        "text": "37. ( 1 ) The Central Government or any of its officers specially authorised by it in this behalf may, upon receipt of a reference in writing from the Board that-",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:402",
+        "start": 54250,
+        "end": 54363,
+        "text": "( a ) intimates the imposition of monetary penalty by the Board on a Data Fiduciary in two or more instances; and",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:403",
+        "start": 54364,
+        "end": 55089,
+        "text": "( b ) advises, in the interests of the general public, the blocking for access by the public to any information generated, transmitted, received, stored or hosted, in any computer resource that enables such Data Fiduciary to carry on any activity relating to offering of goods or services to Data Principals within the territory of India, after giving an opportunity of being heard to that Data Fiduciary, on being satisfied that it is necessary or expedient so to do, in the interests of the general public, for reasons to be recorded in writing, by order, direct any agency of the Central Government or any intermediary to block for access by the public or cause to be blocked for access by the public any such information.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:404",
+        "start": 55090,
+        "end": 55210,
+        "text": "( 2 ) Every intermediary who receives a direction issued under sub-section ( 1 ) shall be bound to comply with the same.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:405",
+        "start": 55211,
+        "end": 55438,
+        "text": "( 3 ) For  the  purposes  of  this  section,  the  expressions  'computer  resource', 'information' and 'intermediary' shall have the meanings respectively assigned to them in the Information Technology Act, 2000. 21  of  2000.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:406",
+        "start": 55439,
+        "end": 55516,
+        "text": "Crediting  sums realised  by way of penalties  to Consolidated Fund of India.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:407",
+        "start": 55517,
+        "end": 55562,
+        "text": "Protection  of action  taken in  good  faith.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:408",
+        "start": 55563,
+        "end": 55593,
+        "text": "Power to call for information.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:409",
+        "start": 55594,
+        "end": 55643,
+        "text": "Power of Central Government to  issue directions.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:410",
+        "start": 55644,
+        "end": 55646,
+        "text": "18",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "b48c7dd4678e02e4dc102dc38da8b08cfe4f2624b9ab3e24b83e26cf391a577b",
+    "assembledInputCharacters": 7285,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_a",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 52789,
+          "end": 52842
+        },
+        "code": {
+          "start": 52789,
+          "end": 52842
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/385",
+            "physicalPage": 17,
+            "start": 52789,
+            "end": 52842,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 685.77,
+                  "r": 366.06,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  53
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_b",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 52843,
+          "end": 52913
+        },
+        "code": {
+          "start": 52843,
+          "end": 52913
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/386",
+            "physicalPage": 17,
+            "start": 52843,
+            "end": 52913,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 667.68,
+                  "r": 435.79,
+                  "b": 656.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  70
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_c",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 52914,
+          "end": 52952
+        },
+        "code": {
+          "start": 52914,
+          "end": 52952
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/387",
+            "physicalPage": 17,
+            "start": 52914,
+            "end": 52952,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 649.59,
+                  "r": 303.31,
+                  "b": 639.72,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  38
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_d",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 52953,
+          "end": 53046
+        },
+        "code": {
+          "start": 52953,
+          "end": 53046
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/388",
+            "physicalPage": 17,
+            "start": 52953,
+            "end": 53046,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 631.5,
+                  "r": 477.63,
+                  "b": 608.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  93
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_e",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 53047,
+          "end": 53196
+        },
+        "code": {
+          "start": 53047,
+          "end": 53143
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/389",
+            "physicalPage": 17,
+            "start": 53047,
+            "end": 53196,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 601.9,
+                  "r": 477.63,
+                  "b": 578.88,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  149
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_f",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 53197,
+          "end": 53379
+        },
+        "code": {
+          "start": 53197,
+          "end": 53277
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/390",
+            "physicalPage": 17,
+            "start": 53197,
+            "end": 53379,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 572.3,
+                  "r": 477.63,
+                  "b": 536.12,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  182
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s33_2_list_g",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 53380,
+          "end": 53460
+        },
+        "code": {
+          "start": 53380,
+          "end": 53460
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/391",
+            "physicalPage": 17,
+            "start": 53380,
+            "end": 53460,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 529.54,
+                  "r": 474.14,
+                  "b": 519.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  80
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 33(2) list (clause intro in context before, src:388)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s34",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": "act:dpdp:mainAct:chIX",
+        "children": [],
+        "span": {
+          "start": 53461,
+          "end": 53592
+        },
+        "code": {
+          "start": 53461,
+          "end": 53464
+        },
+        "title": {
+          "start": 55439,
+          "end": 55516
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/392",
+            "physicalPage": 17,
+            "start": 53461,
+            "end": 53592,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 511.45,
+                  "r": 477.63,
+                  "b": 488.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  131
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter IX"
+      },
+      {
+        "id": "act:dpdp:mainAct:chIX",
+        "kind": "item",
+        "type": "chapter",
+        "category": "chapter",
+        "parent": null,
+        "children": [
+          "act:dpdp:mainAct:s34",
+          "act:dpdp:mainAct:s35",
+          "act:dpdp:mainAct:s36",
+          "act:dpdp:mainAct:s37"
+        ],
+        "span": {
+          "start": 53593,
+          "end": 53603
+        },
+        "code": {
+          "start": 53593,
+          "end": 53603
+        },
+        "title": {
+          "start": 53604,
+          "end": 53617
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/393",
+            "physicalPage": 17,
+            "start": 53593,
+            "end": 53603,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 269.61,
+                  "t": 445.67,
+                  "r": 325.39,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  10
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Main Act"
+      },
+      {
+        "id": "act:dpdp:mainAct:s35",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": "act:dpdp:mainAct:chIX",
+        "children": [],
+        "span": {
+          "start": 53618,
+          "end": 53919
+        },
+        "code": {
+          "start": 53618,
+          "end": 53621
+        },
+        "title": {
+          "start": 55517,
+          "end": 55562
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/395",
+            "physicalPage": 17,
+            "start": 53618,
+            "end": 53919,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 409.49,
+                  "r": 477.63,
+                  "b": 363.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  301
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter IX"
+      },
+      {
+        "id": "act:dpdp:mainAct:s36",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": "act:dpdp:mainAct:chIX",
+        "children": [],
+        "span": {
+          "start": 53920,
+          "end": 54086
+        },
+        "code": {
+          "start": 53920,
+          "end": 53923
+        },
+        "title": {
+          "start": 55563,
+          "end": 55593
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/396",
+            "physicalPage": 17,
+            "start": 53920,
+            "end": 54086,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 355.22,
+                  "r": 477.63,
+                  "b": 332.2,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  166
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter IX"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": "act:dpdp:mainAct:chIX",
+        "children": [
+          "act:dpdp:mainAct:s37_1",
+          "act:dpdp:mainAct:s37_2",
+          "act:dpdp:mainAct:s37_3"
+        ],
+        "span": {
+          "start": 54087,
+          "end": 55438
+        },
+        "code": {
+          "start": 54087,
+          "end": 54090
+        },
+        "title": {
+          "start": 55594,
+          "end": 55643
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/397",
+            "physicalPage": 17,
+            "start": 54087,
+            "end": 54249,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 317.39,
+                  "r": 477.63,
+                  "b": 294.37,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  162
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/398",
+            "physicalPage": 17,
+            "start": 54250,
+            "end": 54363,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 286.15,
+                  "r": 477.63,
+                  "b": 263.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  113
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/399",
+            "physicalPage": 17,
+            "start": 54364,
+            "end": 55089,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 258.19,
+                  "r": 477.63,
+                  "b": 210.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  725
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/400",
+            "physicalPage": 17,
+            "start": 55090,
+            "end": 55210,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 139.79,
+                  "r": 477.63,
+                  "b": 116.76,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  120
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/401",
+            "physicalPage": 17,
+            "start": 55211,
+            "end": 55438,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 58.11,
+                  "t": 110.18,
+                  "r": 477.63,
+                  "b": 75.65,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  227
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter IX"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37_1",
+        "kind": "item",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "act:dpdp:mainAct:s37",
+        "children": [
+          "act:dpdp:mainAct:s37_1_list_a",
+          "act:dpdp:mainAct:s37_1_list_b"
+        ],
+        "span": {
+          "start": 54091,
+          "end": 55089
+        },
+        "code": {
+          "start": 54091,
+          "end": 54249
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/397",
+            "physicalPage": 17,
+            "start": 54091,
+            "end": 54249,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 317.39,
+                  "r": 477.63,
+                  "b": 294.37,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  162
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/398",
+            "physicalPage": 17,
+            "start": 54250,
+            "end": 54363,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 286.15,
+                  "r": 477.63,
+                  "b": 263.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  113
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/399",
+            "physicalPage": 17,
+            "start": 54364,
+            "end": 55089,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 258.19,
+                  "r": 477.63,
+                  "b": 210.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  725
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 37"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37_1_list_a",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "act:dpdp:mainAct:s37_1",
+        "children": [],
+        "span": {
+          "start": 54250,
+          "end": 54363
+        },
+        "code": {
+          "start": 54250,
+          "end": 54363
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/398",
+            "physicalPage": 17,
+            "start": 54250,
+            "end": 54363,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 286.15,
+                  "r": 477.63,
+                  "b": 263.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  113
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 37(1)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37_1_list_b",
+        "kind": "item",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "act:dpdp:mainAct:s37_1",
+        "children": [],
+        "span": {
+          "start": 54364,
+          "end": 54702
+        },
+        "code": {
+          "start": 54364,
+          "end": 54475
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/399",
+            "physicalPage": 17,
+            "start": 54364,
+            "end": 54702,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 258.19,
+                  "r": 477.63,
+                  "b": 210.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  725
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 37(1)"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37_2",
+        "kind": "item",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "act:dpdp:mainAct:s37",
+        "children": [],
+        "span": {
+          "start": 55090,
+          "end": 55210
+        },
+        "code": {
+          "start": 55090,
+          "end": 55210
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/400",
+            "physicalPage": 17,
+            "start": 55090,
+            "end": 55210,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 139.79,
+                  "r": 477.63,
+                  "b": 116.76,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  120
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 37"
+      },
+      {
+        "id": "act:dpdp:mainAct:s37_3",
+        "kind": "item",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "act:dpdp:mainAct:s37",
+        "children": [],
+        "span": {
+          "start": 55211,
+          "end": 55438
+        },
+        "code": {
+          "start": 55211,
+          "end": 55273
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/401",
+            "physicalPage": 17,
+            "start": 55211,
+            "end": 55438,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 58.11,
+                  "t": 110.18,
+                  "r": 477.63,
+                  "b": 75.65,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  227
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 37"
+      }
+    ],
+    "references": [
+      {
+        "start": 53524,
+        "end": 53538,
+        "exactMention": "under this Act",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/392",
+            "physicalPage": 17,
+            "start": 53524,
+            "end": 53538,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 511.45,
+                  "r": 477.63,
+                  "b": 488.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  131
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "this Act (DPDP Act)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 53857,
+        "end": 53919,
+        "exactMention": "under the provisions of this Act or the rules made thereunder.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/395",
+            "physicalPage": 17,
+            "start": 53857,
+            "end": 53919,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 409.49,
+                  "r": 477.63,
+                  "b": 363.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  301
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "this Act or the rules made thereunder",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 53956,
+        "end": 53980,
+        "exactMention": "the purposes of this Act",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/396",
+            "physicalPage": 17,
+            "start": 53956,
+            "end": 53980,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 355.22,
+                  "r": 477.63,
+                  "b": 332.2,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  166
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "this Act (DPDP Act)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 55387,
+        "end": 55438,
+        "exactMention": "the Information Technology Act, 2000. 21  of  2000.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/401",
+            "physicalPage": 17,
+            "start": 55387,
+            "end": 55438,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 58.11,
+                  "t": 110.18,
+                  "r": 477.63,
+                  "b": 75.65,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  227
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Information Technology Act, 2000 (Act 21 of 2000)",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [
+      "Section 33(2) list parent segment id is a placeholder because the opening clause appears only in context-before (src:388) and not within core units.",
+      "src:406, src:407, src:408, src:409 treated as section margin headings following the section bodies, and src:410 ('18') as a page number.",
+      "Reference 'act:dpdp:rules:overallObjectRef_1' is a placeholder for 'the rules made thereunder'; no rule instrument is supplied in this chunk."
+    ],
+    "warnings": [
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_a: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_b: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_c: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_d: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_e: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_f: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:s33_2_list_g: act:dpdp:mainAct:s33_2",
+      "Cross-chunk parent left pending for act:dpdp:mainAct:chIX: act:dpdp:mainAct",
+      "Cross-chunk reference targets left pending: act:dpdp:mainAct:overallObjectRef_1",
+      "Cross-chunk reference targets left pending: act:dpdp:mainAct:overallObjectRef_1, act:dpdp:rules:overallObjectRef_1",
+      "Cross-chunk reference targets left pending: act:dpdp:mainAct:overallObjectRef_1",
+      "Cross-chunk reference targets left pending: act:it:2000:mainAct:overallObjectRef_1"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [\n    {\n      \"mention\": {\n        \"exactQuote\": \"under this Act\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:396\"\n      },\n      \"targetHint\": \"this Act (DPDP Act)\",\n      \"targetSegmentIds\": [\"act:dpdp:mainAct:overallObjectRef_1\"]\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"under the provisions of this Act or the rules made thereunder.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:399\"\n      },\n      \"targetHint\": \"this Act or the rules made thereunder\",\n      \"targetSegmentIds\": [\"act:dpdp:mainAct:overallObjectRef_1\", \"act:dpdp:rules:overallObjectRef_1\"]\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the purposes of this Act\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:400\"\n      },\n      \"targetHint\": \"this Act (DPDP Act)\",\n      \"targetSegmentIds\": [\"act:dpdp:mainAct:overallObjectRef_1\"]\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the Information Technology Act, 2000. 21  of  2000.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:405\"\n      },\n      \"targetHint\": \"Information Technology Act, 2000 (Act 21 of 2000)\",\n      \"targetSegmentIds\": [\"act:it:2000:mainAct:overallObjectRef_1\"]\n    }\n  ],\n  \"segments\": [\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) the nature, gravity and duration of the breach;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:389\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_a\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) the nature, gravity and duration of the breach;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:389\"\n        }\n      ],\n      \"startsBeforeChunk\": false\n    ,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) the type and nature of the personal data affected by the breach;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:390\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_b\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) the type and nature of the personal data affected by the breach;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:390\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) repetitive nature of the breach;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:391\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_c\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) repetitive nature of the breach;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:391\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:392\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_d\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:392\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( e ) whether the person took any action to mitigate the effects and consequences of the breach,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:393\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_e\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( e ) whether the person took any action to mitigate the effects and consequences of the breach, and the timeliness and effectiveness of such action;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:393\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( f ) whether the monetary penalty to be imposed is proportionate and effective,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:394\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_f\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( f ) whether the monetary penalty to be imposed is proportionate and effective, having regard to the need to secure observance of and deter breach of the provisions of this Act; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:394\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( g ) the likely impact of the imposition of the monetary penalty on the person.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:395\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s33_2_list_g\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s33_2\",\n      \"parentHint\": \"Section 33(2) list (clause intro in context before, src:388)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( g ) the likely impact of the imposition of the monetary penalty on the person.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:395\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"34.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:396\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s34\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:chIX\",\n      \"parentHint\": \"Chapter IX\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"34.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:396\"\n        },\n        {\n          \"exactQuote\": \"34. All sums realised by way of penalties imposed by the Board under this Act, shall be credited to the Consolidated Fund of India.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:396\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Crediting  sums realised  by way of penalties  to Consolidated Fund of India.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:406\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"chapter\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"CHAPTER IX\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:397\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:chIX\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct\",\n      \"parentHint\": \"Main Act\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER IX\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:397\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"MISCELLANEOUS\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:398\"\n      },\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"35.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:399\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s35\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:chIX\",\n      \"parentHint\": \"Chapter IX\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"35.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:399\"\n        },\n        {\n          \"exactQuote\": \"35. No suit,  prosecution  or  other  legal  proceedings  shall  lie  against  the  Central Government, the Board, its Chairperson and any Member, officer or employee thereof for anything which is done or intended to be done in good faith under the provisions of this Act or the rules made thereunder.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:399\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Protection  of action  taken in  good  faith.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:407\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"36.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:400\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s36\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:chIX\",\n      \"parentHint\": \"Chapter IX\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"36.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:400\"\n        },\n        {\n          \"exactQuote\": \"36. The Central Government may, for the purposes of this Act, require the Board and any Data Fiduciary or intermediary to furnish such information as it may call for.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:400\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Power to call for information.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:408\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"37.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:401\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:chIX\",\n      \"parentHint\": \"Chapter IX\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"37.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:401\"\n        },\n        {\n          \"exactQuote\": \"( 3 ) For  the  purposes  of  this  section,  the  expressions  'computer  resource', 'information' and 'intermediary' shall have the meanings respectively assigned to them in the Information Technology Act, 2000. 21  of  2000.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:405\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Power of Central Government to  issue directions.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:409\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 1 ) The Central Government or any of its officers specially authorised by it in this behalf may, upon receipt of a reference in writing from the Board that-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:401\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37_1\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s37\",\n      \"parentHint\": \"Section 37\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 1 ) The Central Government or any of its officers specially authorised by it in this behalf may, upon receipt of a reference in writing from the Board that-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:401\"\n        },\n        {\n          \"exactQuote\": \"on being satisfied that it is necessary or expedient so to do, in the interests of the general public, for reasons to be recorded in writing, by order, direct any agency of the Central Government or any intermediary to block for access by the public or cause to be blocked for access by the public any such information.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:403\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) intimates the imposition of monetary penalty by the Board on a Data Fiduciary in two or more instances; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:402\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37_1_list_a\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s37_1\",\n      \"parentHint\": \"Section 37(1)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) intimates the imposition of monetary penalty by the Board on a Data Fiduciary in two or more instances; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:402\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) advises, in the interests of the general public, the blocking for access by the public to any information\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:403\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37_1_list_b\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s37_1\",\n      \"parentHint\": \"Section 37(1)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) advises, in the interests of the general public, the blocking for access by the public to any information generated, transmitted, received, stored or hosted, in any computer resource that enables such Data Fiduciary to carry on any activity relating to offering of goods or services to Data Principals within the territory of India,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:403\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) Every intermediary who receives a direction issued under sub-section ( 1 ) shall be bound to comply with the same.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:404\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37_2\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s37\",\n      \"parentHint\": \"Section 37\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) Every intermediary who receives a direction issued under sub-section ( 1 ) shall be bound to comply with the same.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:404\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) For  the  purposes  of  this  section,  the  expressions\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:405\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"act:dpdp:mainAct:s37_3\",\n      \"kind\": \"item\",\n      \"parent\": \"act:dpdp:mainAct:s37\",\n      \"parentHint\": \"Section 37\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) For  the  purposes  of  this  section,  the  expressions  'computer  resource', 'information' and 'intermediary' shall have the meanings respectively assigned to them in the Information Technology Act, 2000. 21  of  2000.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:405\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"Section 33(2) list parent segment id is a placeholder because the opening clause appears only in context-before (src:388) and not within core units.\",\n    \"src:406, src:407, src:408, src:409 treated as section margin headings following the section bodies, and src:410 ('18') as a page number.\",\n    \"Reference 'act:dpdp:rules:overallObjectRef_1' is a placeholder for 'the rules made thereunder'; no rule instrument is supplied in this chunk.\"\n  ]\n  ,\n  \"warnings\": []\n}",
+          "reasoning_content": "Extract provisions: list points under section 33(2), sections 34, 35, 36, 37(1)(a),(b),(2),(3), chapter headings, side headings. References: \"this Act\", \"rules made thereunder\", \"Information Technology Act, 2000 (21 of 2000)\". Boundaries: list a–g under src:388 context (parent is section 33(2) not in core). List continuation startsBeforeChunk: yes.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951862,
+    "id": "chatcmpl-699026d3-6e7c-4aeb-a445-62f506fedf9d",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 4701,
+      "prompt_tokens": 1356,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 6057
+    }
+  },
+  "usage": {
+    "inputTokens": 1356,
+    "outputTokens": 4701,
+    "totalTokens": 6057
+  },
+  "finishReason": "stop",
+  "durationMs": 96313
+}

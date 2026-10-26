@@ -1,0 +1,1977 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_014",
+    "coreRange": {
+      "start": 24196,
+      "end": 27595
+    },
+    "coreSourceIds": [
+      "src:190",
+      "src:191",
+      "src:192",
+      "src:193",
+      "src:194",
+      "src:195",
+      "src:196",
+      "src:197",
+      "src:198",
+      "src:199",
+      "src:200",
+      "src:201",
+      "src:202",
+      "src:203",
+      "src:204",
+      "src:205",
+      "src:206",
+      "src:207",
+      "src:208",
+      "src:209",
+      "src:210",
+      "src:211",
+      "src:212",
+      "src:213",
+      "src:214",
+      "src:215",
+      "src:216",
+      "src:217",
+      "src:218",
+      "src:219"
+    ],
+    "contextBefore": [
+      "src:189"
+    ],
+    "contextAfter": [
+      "src:220"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:189",
+        "start": 24043,
+        "end": 24195,
+        "text": "Explanation. - For the purpose of this sub-section, the expression 'consent of the parent' includes the consent of lawful guardian, wherever applicable.",
+        "group": "native:11",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:190",
+        "start": 24196,
+        "end": 24348,
+        "text": "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that is likely to cause any detrimental effect on the well-being of a child.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:191",
+        "start": 24349,
+        "end": 24485,
+        "text": "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring of children or targeted advertising directed at children.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:192",
+        "start": 24486,
+        "end": 24716,
+        "text": "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to processing of personal data of a child by such classes of Data Fiduciaries or for such purposes, and subject to such conditions, as may be prescribed.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:193",
+        "start": 24717,
+        "end": 25169,
+        "text": "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured that its processing of personal data of children is done in a manner that is verifiably safe, notify for such processing by such Data Fiduciary the age above which that Data Fiduciary shall be exempt from the applicability of all or any of the obligations under sub-sections ( 1 ) and ( 3 ) in respect of processing by that Data Fiduciary as the notification may specify.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:194",
+        "start": 25170,
+        "end": 25380,
+        "text": "10. ( 1 )  The Central Government may notify any Data Fiduciary or class of Data Fiduciaries as Significant Data Fiduciary, on the basis of an assessment of such relevant factors as it may determine, including-",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:195",
+        "start": 25381,
+        "end": 25382,
+        "text": "9",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:196",
+        "start": 25383,
+        "end": 25390,
+        "text": "SEC. 1]",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:197",
+        "start": 25391,
+        "end": 25425,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:198",
+        "start": 25426,
+        "end": 25486,
+        "text": "( a ) the volume and sensitivity of personal data processed;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:199",
+        "start": 25487,
+        "end": 25531,
+        "text": "( b ) risk to the rights of  Data Principal;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:200",
+        "start": 25532,
+        "end": 25597,
+        "text": "( c ) potential impact on the sovereignty and integrity of India;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:201",
+        "start": 25598,
+        "end": 25632,
+        "text": "( d ) risk to electoral democracy;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:202",
+        "start": 25633,
+        "end": 25665,
+        "text": "( e ) security of the State; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:203",
+        "start": 25666,
+        "end": 25685,
+        "text": "( f ) public order.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:204",
+        "start": 25686,
+        "end": 25729,
+        "text": "( 2 ) The Significant Data Fiduciary shall-",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:205",
+        "start": 25730,
+        "end": 25780,
+        "text": "( a ) appoint a Data Protection Officer who shall-",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:206",
+        "start": 25781,
+        "end": 25861,
+        "text": "( i ) represent the Significant Data Fiduciary under the provisions of this Act;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:207",
+        "start": 25862,
+        "end": 25887,
+        "text": "( ii ) be based in India;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:208",
+        "start": 25888,
+        "end": 26016,
+        "text": "( iii )  be an individual responsible to the Board of Directors or similar governing body of the Significant Data Fiduciary; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:209",
+        "start": 26017,
+        "end": 26119,
+        "text": "( iv ) be the point of contact for the grievance redressal mechanism under the provisions of this Act;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:210",
+        "start": 26120,
+        "end": 26317,
+        "text": "( b )  appoint  an  independent  data  auditor  to  carry  out  data  audit,  who  shall evaluate the compliance of the Significant Data Fiduciary in accordance with the provisions of this Act; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:211",
+        "start": 26318,
+        "end": 26372,
+        "text": "( c ) undertake the following other measures, namely:-",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:212",
+        "start": 26373,
+        "end": 26703,
+        "text": "( i ) periodic Data Protection Impact Assessment, which shall be a process comprising a description of the rights of Data Principals and the purpose of processing of their personal data, assessment and management of the risk to the rights of the Data Principals, and such other matters regarding such process as may be prescribed;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:213",
+        "start": 26704,
+        "end": 26730,
+        "text": "( ii ) periodic audit; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:214",
+        "start": 26731,
+        "end": 26825,
+        "text": "( iii ) such other measures, consistent with the provisions of this Act, as may be prescribed.",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:215",
+        "start": 26826,
+        "end": 26837,
+        "text": "CHAPTER III",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:216",
+        "start": 26838,
+        "end": 26873,
+        "text": "RIGHTS AND DUTIES OF DATA PRINCIPAL",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:217",
+        "start": 26874,
+        "end": 27214,
+        "text": "11. ( 1 ) The Data Principal shall have the right to obtain from the Data Fiduciary to whom she has previously given consent, including consent as referred to in clause ( a ) of section 7 (hereinafter referred to as the said Data Fiduciary), for processing of personal data, upon making to it a request in such manner as may be prescribed,-",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:218",
+        "start": 27215,
+        "end": 27395,
+        "text": "( a ) a summary of personal data which is being processed by such Data Fiduciary and the processing activities undertaken by that Data Fiduciary with respect to such personal data;",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:219",
+        "start": 27396,
+        "end": 27595,
+        "text": "( b ) the identities of all other Data Fiduciaries and Data Processors with whom the personal data has been shared by such Data Fiduciary, along with a description of the personal data so shared; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:220",
+        "start": 27596,
+        "end": 27717,
+        "text": "( c ) any other information related to the personal data of such Data Principal and its processing, as may be prescribed.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER III"
+    ],
+    "inputHash": "c2e074e63cdbcabc954c20d5ce7c0bc15359e02f543b9e8d193be1862d48c528",
+    "assembledInputCharacters": 8081,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_002",
+          "seg_003",
+          "seg_004"
+        ],
+        "span": {
+          "start": 24196,
+          "end": 24716
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/186",
+            "physicalPage": 8,
+            "start": 24196,
+            "end": 24348,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 271.35,
+                  "r": 477.63,
+                  "b": 248.32,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  152
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/187",
+            "physicalPage": 8,
+            "start": 24349,
+            "end": 24485,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 243.39,
+                  "r": 477.63,
+                  "b": 222.01,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  136
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/188",
+            "physicalPage": 8,
+            "start": 24486,
+            "end": 24716,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 217.08,
+                  "r": 477.63,
+                  "b": 182.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  230
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_002",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 24349,
+          "end": 24485
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/187",
+            "physicalPage": 8,
+            "start": 24349,
+            "end": 24485,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 243.39,
+                  "r": 477.63,
+                  "b": 222.01,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  136
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_003",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 24486,
+          "end": 24716
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/188",
+            "physicalPage": 8,
+            "start": 24486,
+            "end": 24716,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 217.08,
+                  "r": 477.63,
+                  "b": 182.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  230
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_004",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 24717,
+          "end": 25169
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/189",
+            "physicalPage": 8,
+            "start": 24717,
+            "end": 25169,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 179.25,
+                  "r": 477.63,
+                  "b": 121.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  452
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_006",
+        "kind": "unit",
+        "type": "section",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_007",
+          "seg_008"
+        ],
+        "span": {
+          "start": 25170,
+          "end": 25685
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/190",
+            "physicalPage": 8,
+            "start": 25170,
+            "end": 25380,
+            "provenance": [
+              {
+                "page_no": 8,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 116.76,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  210
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/191",
+            "physicalPage": 9,
+            "start": 25381,
+            "end": 25382,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 472.98,
+                  "t": 776.22,
+                  "r": 477.63,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  1
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/192",
+            "physicalPage": 9,
+            "start": 25383,
+            "end": 25390,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 776.22,
+                  "r": 145.26,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  7
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/193",
+            "physicalPage": 9,
+            "start": 25391,
+            "end": 25425,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 201.04,
+                  "t": 776.22,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/194",
+            "physicalPage": 9,
+            "start": 25426,
+            "end": 25486,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 746.62,
+                  "r": 400.93,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  60
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/195",
+            "physicalPage": 9,
+            "start": 25487,
+            "end": 25531,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 728.53,
+                  "r": 319.58,
+                  "b": 717.02,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  44
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/196",
+            "physicalPage": 9,
+            "start": 25532,
+            "end": 25597,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 710.44,
+                  "r": 412.55,
+                  "b": 698.93,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  65
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/197",
+            "physicalPage": 9,
+            "start": 25598,
+            "end": 25632,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 692.35,
+                  "r": 290.53,
+                  "b": 680.84,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/198",
+            "physicalPage": 9,
+            "start": 25633,
+            "end": 25665,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 674.26,
+                  "r": 280.07,
+                  "b": 662.75,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  32
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/199",
+            "physicalPage": 9,
+            "start": 25666,
+            "end": 25685,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 656.17,
+                  "r": 226.61,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  19
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_007",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_006",
+        "children": [],
+        "span": {
+          "start": 25426,
+          "end": 25685
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/194",
+            "physicalPage": 9,
+            "start": 25426,
+            "end": 25486,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 746.62,
+                  "r": 400.93,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  60
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/195",
+            "physicalPage": 9,
+            "start": 25487,
+            "end": 25531,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 728.53,
+                  "r": 319.58,
+                  "b": 717.02,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  44
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/196",
+            "physicalPage": 9,
+            "start": 25532,
+            "end": 25597,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 710.44,
+                  "r": 412.55,
+                  "b": 698.93,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  65
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/197",
+            "physicalPage": 9,
+            "start": 25598,
+            "end": 25632,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 692.35,
+                  "r": 290.53,
+                  "b": 680.84,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/198",
+            "physicalPage": 9,
+            "start": 25633,
+            "end": 25665,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 674.26,
+                  "r": 280.07,
+                  "b": 662.75,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  32
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/199",
+            "physicalPage": 9,
+            "start": 25666,
+            "end": 25685,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 656.17,
+                  "r": 226.61,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  19
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_008",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_006",
+        "children": [
+          "seg_009",
+          "seg_010",
+          "seg_011"
+        ],
+        "span": {
+          "start": 25686,
+          "end": 26825
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/200",
+            "physicalPage": 9,
+            "start": 25686,
+            "end": 25729,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 638.08,
+                  "r": 309.12,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  43
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/201",
+            "physicalPage": 9,
+            "start": 25730,
+            "end": 25780,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 619.99,
+                  "r": 362.58,
+                  "b": 608.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  50
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/202",
+            "physicalPage": 9,
+            "start": 25781,
+            "end": 25861,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 601.9,
+                  "r": 477.63,
+                  "b": 578.88,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  80
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/203",
+            "physicalPage": 9,
+            "start": 25862,
+            "end": 25887,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 572.3,
+                  "r": 275.42,
+                  "b": 560.79,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  25
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/204",
+            "physicalPage": 9,
+            "start": 25888,
+            "end": 26016,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 554.21,
+                  "r": 477.63,
+                  "b": 531.18,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  128
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/205",
+            "physicalPage": 9,
+            "start": 26017,
+            "end": 26119,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 524.61,
+                  "r": 477.63,
+                  "b": 501.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  102
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/206",
+            "physicalPage": 9,
+            "start": 26120,
+            "end": 26317,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 493.36,
+                  "r": 477.63,
+                  "b": 458.82,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  197
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/207",
+            "physicalPage": 9,
+            "start": 26318,
+            "end": 26372,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 452.25,
+                  "r": 383.5,
+                  "b": 440.73,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  54
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/208",
+            "physicalPage": 9,
+            "start": 26373,
+            "end": 26703,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 434.16,
+                  "r": 477.63,
+                  "b": 374.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  330
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/209",
+            "physicalPage": 9,
+            "start": 26704,
+            "end": 26730,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 368.38,
+                  "r": 280.07,
+                  "b": 356.86,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  26
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/210",
+            "physicalPage": 9,
+            "start": 26731,
+            "end": 26825,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 350.29,
+                  "r": 477.63,
+                  "b": 327.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_009",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_008",
+        "children": [],
+        "span": {
+          "start": 25730,
+          "end": 26119
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/201",
+            "physicalPage": 9,
+            "start": 25730,
+            "end": 25780,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 619.99,
+                  "r": 362.58,
+                  "b": 608.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  50
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/202",
+            "physicalPage": 9,
+            "start": 25781,
+            "end": 25861,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 601.9,
+                  "r": 477.63,
+                  "b": 578.88,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  80
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/203",
+            "physicalPage": 9,
+            "start": 25862,
+            "end": 25887,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 572.3,
+                  "r": 275.42,
+                  "b": 560.79,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  25
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/204",
+            "physicalPage": 9,
+            "start": 25888,
+            "end": 26016,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 554.21,
+                  "r": 477.63,
+                  "b": 531.18,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  128
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/205",
+            "physicalPage": 9,
+            "start": 26017,
+            "end": 26119,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 524.61,
+                  "r": 477.63,
+                  "b": 501.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  102
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_010",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_008",
+        "children": [],
+        "span": {
+          "start": 26120,
+          "end": 26317
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/206",
+            "physicalPage": 9,
+            "start": 26120,
+            "end": 26317,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 493.36,
+                  "r": 477.63,
+                  "b": 458.82,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  197
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_011",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_008",
+        "children": [],
+        "span": {
+          "start": 26318,
+          "end": 26825
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/207",
+            "physicalPage": 9,
+            "start": 26318,
+            "end": 26372,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 452.25,
+                  "r": 383.5,
+                  "b": 440.73,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  54
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/208",
+            "physicalPage": 9,
+            "start": 26373,
+            "end": 26703,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 434.16,
+                  "r": 477.63,
+                  "b": 374.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  330
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/209",
+            "physicalPage": 9,
+            "start": 26704,
+            "end": 26730,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 368.38,
+                  "r": 280.07,
+                  "b": 356.86,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  26
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/210",
+            "physicalPage": 9,
+            "start": 26731,
+            "end": 26825,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 350.29,
+                  "r": 477.63,
+                  "b": 327.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_012",
+        "kind": "unit",
+        "type": "chapter",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_013"
+        ],
+        "span": {
+          "start": 26826,
+          "end": 26873
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/211",
+            "physicalPage": 9,
+            "start": 26826,
+            "end": 26837,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 269.61,
+                  "t": 320.68,
+                  "r": 325.39,
+                  "b": 309.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  11
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/212",
+            "physicalPage": 9,
+            "start": 26838,
+            "end": 26873,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 224.29,
+                  "t": 302.59,
+                  "r": 370.71,
+                  "b": 291.08,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_013",
+        "kind": "unit",
+        "type": "section",
+        "category": "provision",
+        "parent": "seg_012",
+        "children": [
+          "seg_014",
+          "seg_015"
+        ],
+        "span": {
+          "start": 26874,
+          "end": 27595
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/213",
+            "physicalPage": 9,
+            "start": 26874,
+            "end": 27214,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 284.5,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  340
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/214",
+            "physicalPage": 9,
+            "start": 27215,
+            "end": 27395,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  180
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/215",
+            "physicalPage": 9,
+            "start": 27396,
+            "end": 27595,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 187.48,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  199
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_014",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_013",
+        "children": [],
+        "span": {
+          "start": 27215,
+          "end": 27395
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/214",
+            "physicalPage": 9,
+            "start": 27215,
+            "end": 27395,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  180
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_015",
+        "kind": "unit",
+        "type": "list",
+        "category": "provision",
+        "parent": "seg_013",
+        "children": [],
+        "span": {
+          "start": 27396,
+          "end": 27533
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/215",
+            "physicalPage": 9,
+            "start": 27396,
+            "end": 27533,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 187.48,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  199
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:195, src:196 and src:197 ('9', 'SEC. 1]', 'THE GAZETTE OF INDIA EXTRAORDINARY') appear to be page-layout artifacts from the Gazette publication interleaved within section 10's subsection (1); they are not legal provisions.",
+      "The parent subsection (1) of the section beginning at src:190 (sub-sections 2-5 present, indicating a preceding sub-section (1) not in the core range) is partially outside the supplied core range; sub-sections (2)-(5) are extracted as children of an inferred section 9 (parent seg_001) whose opening anchor was not supplied.",
+      "The Explanation at src:189 belongs to sub-section (1) of the section whose sub-sections (2)-(5) appear at src:190-193; since sub-section (1) itself is outside the core range, the Explanation is attached as a child of the inferred section parent.",
+      "src:220 clause (c) is marked as context-after but is supplied in the source units; it has been included as a continuation of section 11(1) list with continuesAfterChunk=true since section 11 may continue beyond the core range."
+    ],
+    "warnings": [
+      "Structures seg_001-seg_005 belong to a section whose opening text (sub-section (1)) is not within the core range; the section number 9 is inferred from document position but is not stated in the supplied units.",
+      "Section 11(1) and its clauses continue beyond the supplied core range into the context-after unit (src:220) and possibly further text not supplied.",
+      "Ignored 2 context-only segments in chunk_014"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_001\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( 2 ) A Data Fiduciary shall not undertake such processing of personal data that is likely to cause any detrimental effect on the well-being of a child.\", \"occurrence\": 0, \"sourceId\": \"src:190\"},\n        {\"exactQuote\": \"for such purposes, and subject to such conditions, as may be prescribed.\", \"occurrence\": 0, \"sourceId\": \"src:192\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_002\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring of children or targeted advertising directed at children.\", \"occurrence\": 0, \"sourceId\": \"src:191\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_003\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to processing of personal data of a child by such classes of Data Fiduciaries or for such purposes, and subject to such conditions, as may be prescribed.\", \"occurrence\": 0, \"sourceId\": \"src:192\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_004\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured that its processing of personal data of children is done in a manner that is verifiably safe\", \"occurrence\": 0, \"sourceId\": \"src:193\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_005\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"the expression 'consent of the parent' includes the consent of lawful guardian, wherever applicable.\", \"occurrence\": 0, \"sourceId\": \"src:189\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"explanation\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_006\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"10. ( 1 )  The Central Government may notify any Data Fiduciary or class of Data Fiduciaries as Significant Data Fiduciary\", \"occurrence\": 0, \"sourceId\": \"src:194\"},\n        {\"exactQuote\": \"( f ) public order.\", \"occurrence\": 0, \"sourceId\": \"src:203\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_007\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_006\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( a ) the volume and sensitivity of personal data processed;\", \"occurrence\": 0, \"sourceId\": \"src:198\"},\n        {\"exactQuote\": \"( f ) public order.\", \"occurrence\": 0, \"sourceId\": \"src:203\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_008\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_006\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( 2 ) The Significant Data Fiduciary shall-\", \"occurrence\": 0, \"sourceId\": \"src:204\"},\n        {\"exactQuote\": \"( iii ) such other measures, consistent with the provisions of this Act, as may be prescribed.\", \"occurrence\": 0, \"sourceId\": \"src:214\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_009\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_008\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( a ) appoint a Data Protection Officer who shall-\", \"occurrence\": 0, \"sourceId\": \"src:205\"},\n        {\"exactQuote\": \"( iv ) be the point of contact for the grievance redressal mechanism under the provisions of this Act;\", \"occurrence\": 0, \"sourceId\": \"src:209\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_010\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_008\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( b )  appoint  an  independent  data  auditor  to  carry  out  data  audit\", \"occurrence\": 0, \"sourceId\": \"src:210\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_011\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_008\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( c ) undertake the following other measures, namely:-\", \"occurrence\": 0, \"sourceId\": \"src:211\"},\n        {\"exactQuote\": \"( iii ) such other measures, consistent with the provisions of this Act, as may be prescribed.\", \"occurrence\": 0, \"sourceId\": \"src:214\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_012\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"CHAPTER III\", \"occurrence\": 0, \"sourceId\": \"src:215\"},\n        {\"exactQuote\": \"RIGHTS AND DUTIES OF DATA PRINCIPAL\", \"occurrence\": 0, \"sourceId\": \"src:216\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_013\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_012\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"11. ( 1 ) The Data Principal shall have the right to obtain from the Data Fiduciary to whom she has previously given consent\", \"occurrence\": 0, \"sourceId\": \"src:217\"},\n        {\"exactQuote\": \"along with a description of the personal data so shared; and\", \"occurrence\": 0, \"sourceId\": \"src:219\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_014\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_013\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( a ) a summary of personal data which is being processed by such Data Fiduciary\", \"occurrence\": 0, \"sourceId\": \"src:218\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_015\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_013\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( b ) the identities of all other Data Fiduciaries and Data Processors with whom the personal data has been shared by such Data Fiduciary\", \"occurrence\": 0, \"sourceId\": \"src:219\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_016\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_013\",\n      \"sourceAnchors\": [\n        {\"exactQuote\": \"( c ) any other information related to the personal data of such Data Principal and its processing, as may be prescribed.\", \"occurrence\": 0, \"sourceId\": \"src:220\"}\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:195, src:196 and src:197 ('9', 'SEC. 1]', 'THE GAZETTE OF INDIA EXTRAORDINARY') appear to be page-layout artifacts from the Gazette publication interleaved within section 10's subsection (1); they are not legal provisions.\",\n    \"The parent subsection (1) of the section beginning at src:190 (sub-sections 2-5 present, indicating a preceding sub-section (1) not in the core range) is partially outside the supplied core range; sub-sections (2)-(5) are extracted as children of an inferred section 9 (parent seg_001) whose opening anchor was not supplied.\",\n    \"The Explanation at src:189 belongs to sub-section (1) of the section whose sub-sections (2)-(5) appear at src:190-193; since sub-section (1) itself is outside the core range, the Explanation is attached as a child of the inferred section parent.\",\n    \"src:220 clause (c) is marked as context-after but is supplied in the source units; it has been included as a continuation of section 11(1) list with continuesAfterChunk=true since section 11 may continue beyond the core range.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Structures seg_001-seg_005 belong to a section whose opening text (sub-section (1)) is not within the core range; the section number 9 is inferred from document position but is not stated in the supplied units.\",\n    \"Section 11(1) and its clauses continue beyond the supplied core range into the context-after unit (src:220) and possibly further text not supplied.\"\n  ]\n}",
+          "reasoning_content": "Extract structures: section 9(2)-(5) (DPDP Act), section 10, Chapter III heading, section 11(1) with clauses (a)-(b), (c) in after context. Refs: \"sub-sections (1) and (3)\", \"clause (a) of section 7\", \"provisions of this Act\". Note src:195-197 are page artifacts.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951232,
+    "id": "chatcmpl-8c08b64f-024a-4149-b06f-de4a7451c2be",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 1536,
+      "completion_tokens": 2719,
+      "prompt_tokens": 1546,
+      "prompt_tokens_details": {
+        "cached_tokens": 1536
+      },
+      "speed": null,
+      "total_tokens": 4265
+    }
+  },
+  "usage": {
+    "inputTokens": 1546,
+    "outputTokens": 2719,
+    "totalTokens": 4265
+  },
+  "finishReason": "stop",
+  "durationMs": 357652
+}

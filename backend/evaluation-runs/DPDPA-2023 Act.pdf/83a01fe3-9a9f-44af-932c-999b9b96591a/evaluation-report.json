@@ -1,0 +1,1114 @@
+{
+  "datasetId": "dpdpa-gazette-2023-en-review-v1",
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "sourceSha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "provider": "llm",
+  "model": "glm-5.3",
+  "pipelineVersion": "docling_small_chunks_reconcile-v4",
+  "modelAssignments": [],
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": null,
+  "configurationHash": null,
+  "reasoningSetting": null,
+  "judgeModel": "glm-5.3-flash",
+  "split": "development",
+  "humanApprovedCases": 0,
+  "humanReviewPendingCases": 19,
+  "referenceStatus": "provisional_ai_drafted",
+  "passRateIsHumanValidated": false,
+  "statuses": {
+    "pass": 0,
+    "fail": 16,
+    "not_run": 0,
+    "blocked_by_upstream": 0,
+    "needs_review": 3
+  },
+  "evaluatedPassRate": {
+    "passed": 0,
+    "evaluated": 16,
+    "value": 0
+  },
+  "advisory": {
+    "pass": 0,
+    "fail": 16,
+    "needsReview": 3
+  },
+  "byLayer": {
+    "S1": {
+      "cases": 2,
+      "statuses": {
+        "pass": 0,
+        "fail": 2,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 2,
+        "value": 0
+      }
+    },
+    "S2": {
+      "cases": 4,
+      "statuses": {
+        "pass": 0,
+        "fail": 2,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 2
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 2,
+        "value": 0
+      }
+    },
+    "S3": {
+      "cases": 4,
+      "statuses": {
+        "pass": 0,
+        "fail": 4,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 4,
+        "value": 0
+      }
+    },
+    "S4": {
+      "cases": 3,
+      "statuses": {
+        "pass": 0,
+        "fail": 3,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 3,
+        "value": 0
+      }
+    },
+    "S5": {
+      "cases": 2,
+      "statuses": {
+        "pass": 0,
+        "fail": 2,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 2,
+        "value": 0
+      }
+    },
+    "S6": {
+      "cases": 2,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "S7": {
+      "cases": 2,
+      "statuses": {
+        "pass": 0,
+        "fail": 2,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 2,
+        "value": 0
+      }
+    }
+  },
+  "byChallengeType": {
+    "source_identity": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "document_classification": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "cross_page_boundary": {
+      "cases": 2,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "table_structure": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "full_document_map_inventory": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    },
+    "complete_subgraph": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "multi_hop_graph": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "exception_scope": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "definitions_and_exception_scope": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "legal_meaning": {
+      "cases": 3,
+      "statuses": {
+        "pass": 0,
+        "fail": 3,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 3,
+        "value": 0
+      }
+    },
+    "generated_analysis_guidance": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "generated_drafting_guidance": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "retrieval_and_context": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    },
+    "source_version_retrieval": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "legal_qa": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    },
+    "analysis_use": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    }
+  },
+  "byCheckingMethod": {
+    "source_backed_comparison": {
+      "cases": 19,
+      "statuses": {
+        "pass": 0,
+        "fail": 16,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 3
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 16,
+        "value": 0
+      }
+    }
+  },
+  "requiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "humanReviewedRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "advisoryRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "metrics": {
+    "duration_ms": 332743,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost_usd": null
+  },
+  "releaseQualified": false,
+  "cases": [
+    {
+      "caseId": "DPDPA-S1-01",
+      "stage": "S1",
+      "method": "source_backed_comparison",
+      "challengeType": "source_identity",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "exact_commencement_text"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "exact_commencement_text: Inventory subsection (5b9dcda...) textStart begins '(2) It shall come into force on such date as the Central Government may, by n' but text is truncated at ~80 chars and detailedProvisions is empty; only the prefix, not the complete commencement text including the 'reference... construed' clause, is evidenced.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S1-01#"
+      ],
+      "expectedChecks": {
+        "passed": 2,
+        "failed": 1,
+        "needsReview": 0,
+        "total": 3
+      }
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "stage": "S1",
+      "method": "source_backed_comparison",
+      "challengeType": "document_classification",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "physical_page_inventory"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "physical_page_inventory: Expected pages 1-21; evidence.selection.physicalPages only lists [1,21]. No inventory entries for pages 2-20, so 19 pages are missing.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S1-02#"
+      ],
+      "expectedChecks": {
+        "passed": 3,
+        "failed": 1,
+        "needsReview": 0,
+        "total": 4
+      }
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "stage": "S2",
+      "method": "source_backed_comparison",
+      "challengeType": "cross_page_boundary",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "boundary"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "point_a_exact_text: Inventory node 724fceb... (point under 8(7)) textStart shows only '(a) erase personal data, upon the Data Principal withdrawing her consent or as'; detailedProvisions empty and full text omitted, so the clause through 'whichever is earlier; and' cannot be verified.",
+        "boundary: Pages [7,8] match, but inventory includes Section 8(8) subsection 797b71... and later nodes (8(9)-8(11), Sections 9, 10), so selection does not end immediately before Section 8(8).",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S2-01#"
+      ],
+      "expectedChecks": {
+        "passed": 3,
+        "failed": 1,
+        "needsReview": 1,
+        "total": 5
+      }
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "stage": "S2",
+      "method": "source_backed_comparison",
+      "challengeType": "cross_page_boundary",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "exact_subsection_text: Section 33 node exists (label 'Penalties.', parent CHAPTER VIII) but boundaryStatus='cross_chunk' and status='needs_review'; textStart is cut mid-sentence and full subsection text is not shown in saved output, so completeness of s.33(1) cannot be verified.",
+        "boundary: No saved-output evidence confirms the phrase 'person an opportunity of being heard' continues Section 33(1) on page 17; the 'Penalties.' node (f1289c4...) is only marked boundaryStatus cross_chunk with status needs_review, with no page-17 continuation recorded.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S2-02#"
+      ],
+      "expectedChecks": {
+        "passed": 1,
+        "failed": 0,
+        "needsReview": 2,
+        "total": 3
+      }
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "stage": "S2",
+      "method": "source_backed_comparison",
+      "challengeType": "table_structure",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [
+        "Pairing a breach description with the following row's penalty."
+      ],
+      "reasons": [
+        "Forbidden: Node 36c59757 labeled 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10' has textStart 'May extend to fifty crore rupees' (row 7's penalty), a cross-row mispairing; cross_chunk needs_review nodes 9e881, 953018, ed9b2 inherit it.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S2-03#"
+      ],
+      "expectedChecks": {
+        "passed": 10,
+        "failed": 0,
+        "needsReview": 0,
+        "total": 10
+      }
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "stage": "S2",
+      "method": "source_backed_comparison",
+      "challengeType": "full_document_map_inventory",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "section-start:1: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:1",
+        "section-start:2: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:2",
+        "section-start:3: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:3",
+        "section-start:4: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:4",
+        "section-start:5: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:5",
+        "section-start:6: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:6",
+        "section-start:7: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:7",
+        "section-start:8: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:8",
+        "section-start:9: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:9",
+        "section-start:10: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:10",
+        "section-start:11: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:11",
+        "section-start:12: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:12",
+        "section-start:13: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:13",
+        "section-start:14: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:14",
+        "section-start:15: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:15",
+        "section-start:16: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:16",
+        "section-start:17: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:17",
+        "section-start:18: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:18",
+        "section-start:19: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:19",
+        "section-start:20: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:20",
+        "section-start:21: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:21",
+        "section-start:22: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:22",
+        "section-start:23: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:23",
+        "section-start:24: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:24",
+        "section-start:25: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:25",
+        "section-start:26: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:26",
+        "section-start:27: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:27",
+        "section-start:28: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:28",
+        "section-start:29: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:29",
+        "section-start:30: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:30",
+        "section-start:31: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:31",
+        "section-start:32: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:32",
+        "section-start:33: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:33",
+        "section-start:34: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:34",
+        "section-start:35: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:35",
+        "section-start:36: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:36",
+        "section-start:37: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:37",
+        "section-start:38: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:38",
+        "section-start:39: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:39",
+        "section-start:40: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:40",
+        "section-start:41: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:41",
+        "section-start:42: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:42",
+        "section-start:43: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:43",
+        "section-start:44: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:44",
+        "chapter:CHAPTER I: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER I",
+        "chapter:CHAPTER II: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER II",
+        "chapter:CHAPTER III: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER III",
+        "chapter:CHAPTER IV: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IV",
+        "chapter:CHAPTER V: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER V",
+        "chapter:CHAPTER VI: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VI",
+        "chapter:CHAPTER VII: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VII",
+        "chapter:CHAPTER VIII: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VIII",
+        "chapter:CHAPTER IX: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IX",
+        "act_section_count: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/act_section_count",
+        "chapter_count: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter_count",
+        "schedule_presence: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/schedule_presence",
+        "Forbidden check needs review: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+        "Forbidden check needs review: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+        "Forbidden check needs review: Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S2-04#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 0,
+        "needsReview": 56,
+        "total": 56
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "complete_subgraph",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "edge:Section 8(8) -> Section 8(7)(a)"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "edge:Section 8(8) -> Section 8(7)(a): No relationship exists connecting Section 8(8) to Section 8(7)(a); only edges from 8(8) are 'under this Act' (unresolved) and external_reference 'Act and'. Missing graph edge, relation explicit_reference unmet.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-01#"
+      ],
+      "expectedChecks": {
+        "passed": 28,
+        "failed": 1,
+        "needsReview": 0,
+        "total": 29
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "multi_hop_graph",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "node:Section 33",
+        "node:Section 33(1)",
+        "node:Section 33(2)",
+        "node:Section 33(2)(b)",
+        "edge:Section 33(1) -> The Schedule",
+        "edge:Section 33(2) -> Section 33(1)",
+        "edge:Schedule row 6 -> Section 32",
+        "edge:Schedule row 6 -> Section 28",
+        "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5)",
+        "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6)",
+        "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9",
+        "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10",
+        "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28",
+        "path:Section 33(1) -> The Schedule -> Schedule row 7"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 33: Section 33 node exists in detailedProvisions but text is cross_chunk/needs_review and ends after '(2)... namely:-' without factors (a)-(g); only points appear as orphaned inventory items with parentId null, so the node text is incomplete.",
+        "node:Section 33(1): No subsection node for Section 33(1) exists in inventory or detailedProvisions; Section 33 appears only as a section-level node (f1289c42..., label 'Penalties.') with sub-section (1) text embedded inline, not as kind=subsection under parent Section 33.",
+        "node:Section 33(2): No subsection node for Section 33(2) exists in inventory or detailedProvisions; the Section 33 section node is cross_chunk/needs_review and only points (a)-(g) appear as fragmented items (e.g., (e) and (f) truncated at 'effective,'). Subsection text incomplete.",
+        "node:Section 33(2)(a): No parent linkage exists to Section 33(2) or any Section 33 subsection; the point node is captured but its hierarchical context is absent.",
+        "node:Section 33(2)(b): Point text '( b ) the type and nature of the personal data affected by the breach;' exists complete in evidence.detailedProvisions (id 986ebae…), but expected parent 'Section 33(2)' is unsupported: parentId and parentLabel are null and no Section 33(2) node exists in inventory.",
+        "node:Schedule row 1: Node exists with complete exact text incl. penalty 'May extend to two hundred and fifty crore rupees' (node d1758450..., complete/candidate). But kind is 'table' not 'table_row' and parentLabel is 'Schedule Penalties Table Header' not 'The Schedule'; match policy forgives only internal IDs, not kind/parent, so structural mismatch needs review.",
+        "node:Schedule row 7: Node 0f96f4df... in detailedProvisions has complete text '7. Breach of any other provision of this Act or the rules made thereunder. May extend to fifty crore rupees.' matching source, and tables row 8 confirms. But expected parent 'The Schedule' is wrong: parentLabel is mislabeled 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10.'",
+        "edge:Section 33(1) -> The Schedule: Source 'Penalties.' (33) has relationship exactMention 'the Schedule' with targetIds [] and status 'unresolved'; no resolved edge to a Schedule node exists in evidence.relationships.",
+        "edge:Section 33(2) -> Section 33(1): evidence.relationships contains no edge from Section 33(2) to Section 33(1) with relationType explicit_relative_reference; section 33 node f1289c42 is cross_chunk/needs_review and only 'the Schedule' external_reference edge exists, no 'sub-section (1)' relative edge.",
+        "edge:Schedule row 2 -> Section 8(6): Relationships show row-2 node 40f141b4 -> e5053e281 (Section 8(6)) with explicit_reference, but exactMention is only 'section 8', status 'ambiguous' with 17 over-broad targets; the source_words 'sub-section (6) of section 8' was not resolved to the specific subsection.",
+        "edge:Schedule row 6 -> Section 32: Schedule row 6 node ed9b2dcc has a relationship with exactMention 'section 32' but targetIds is empty and status 'unresolved'; no edge connects row 6 to the Section 32 'Voluntary undertaking.' node (93f4f3cf) in evidence.relationships.",
+        "edge:Schedule row 6 -> Section 28: No directed edge exists from the Schedule row 6 node to Section 28. The relationships array shows only an unresolved 'explicit_reference' with targetIds [] and targetLabels [] for exactMention 'section 28'; the section-28 mention was never resolved to a Section 28 target, and no edge with relationType explicit_procedural_reference to Section 28 exists.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5): Nodes exist (33(1) node f1289c...; Schedule row 1 node d1758450...; Section 8(5) node 88adc714...) but the required edge chain is incomplete: Section 33's explicit_reference to 'the Schedule' is unresolved with empty targetIds, and no 'contains' relationship links the Schedule to Schedule row 1 (only parent-child metadata). Only row1->Section 8 edge exists (ambiguous, includes Section 8(5)).",
+        "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6): Path incomplete: edge Section 33(1) -> Schedule has exactMention 'the Schedule' but targetIds/targetLabels are empty and status 'unresolved', so no directed edge to Schedule exists in evidence.relationships. Row 2 node (40f141b4...) and its edge to Section 8(6) (e5053e281) exist, and table row 2 shows 'May extend to two hundred crore rupees', but the required 33(1)->Schedule->row chain is broken.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9: No edge Section 33(1) -> Schedule exists in relationships: the 'the Schedule' reference from 'Penalties.' has empty targetIds/status unresolved. No Schedule row 3 node exists in inventory (rows 4-7 only, mislabeled), and no edge from Schedule row 3 to Section 9; only 'Schedule Penalties Table Header' -> Section 9 exists. Full path cannot be supported.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10: Only row4->Section 10 explicit_reference edge exists (id 9e881ee8...). No edge from Section 33(1)/Penalties to the Schedule resolves to a target ('the Schedule' edge status unresolved, empty targetIds), and no 'contains' edge links the Schedule to row 4 (id 36c59757... is cross_chunk table with no relationship).",
+        "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15: Middle hop missing: Section 33 'the Schedule' reference exists only as unresolved with targetIds=[]; no directed edge 33(1)->Schedule node, so full path (explicit_reference, contains, explicit_reference) is not present in relationships.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32: Row 6 and Section 32 nodes exist, but edge row6→Section 32 (id ed9b2dcc) is unresolved with empty targetIds, and Section 33→Schedule edge is likewise unresolved with no targetIds; no directed edges actually connect the path.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28: No resolved edges: 33(1)->Schedule explicit_reference has empty targetIds (status unresolved); row 6's section 28 mention is explicit_reference with empty targetIds, no explicit_procedural_reference edge to a Section 28 node; graph omission despite path nodes existing.",
+        "path:Section 33(1) -> The Schedule -> Schedule row 7: Section 33(1) node exists ('Penalties.' cross_chunk) with explicit_reference to 'the Schedule' (unresolved), and row 7 node exists in inventory/table with 'May extend to fifty crore rupees', but no 'contains' relationship edge exists in evidence.relationships linking the Schedule to Schedule row 7; the required second edge is missing, so the relation_sequence is incomplete.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-02#"
+      ],
+      "expectedChecks": {
+        "passed": 15,
+        "failed": 16,
+        "needsReview": 4,
+        "total": 35
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "exception_scope",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "node:Section 17(2)",
+        "node:Section 17(3)",
+        "node:Section 17(1)(b)",
+        "node:Section 17(1)(c)",
+        "node:Section 17(1)(f)",
+        "node:Section 17(2)(b)",
+        "node:Section 17(1)(f) explanation",
+        "node:Section 17(3) explanation",
+        "edge:Section 17(1) -> Chapter II",
+        "edge:Section 17(1) -> Chapter III",
+        "edge:Section 17(1) -> Section 16",
+        "edge:Section 17(3) -> Section 5",
+        "edge:Section 17(3) -> Section 8(3)",
+        "edge:Section 17(3) -> Section 8(7)",
+        "edge:Section 17(3) -> Section 10",
+        "edge:Section 17(3) -> Section 11",
+        "edge:Section 17(4) -> Section 8(7)",
+        "edge:Section 17(4) -> Section 12(3)",
+        "edge:Section 17(4) -> Section 12(2)",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12)",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14)"
+      ],
+      "forbiddenClaimsFound": [
+        "Exempting Section 8(1) or 8(5) through Section 17(1)."
+      ],
+      "reasons": [
+        "node:Section 17(2): No node for Section 17(2) exists in evidence.inventory or detailedProvisions; only a Section 17 section-level node appears (id 5ebf5371...). Expected subsection with clauses (a)-(b) including notified State instrumentality and research/archiving/statistics conditions is missing entirely.",
+        "node:Section 17(3): No Section 17(3) node exists in evidence.inventory or detailedProvisions; only the section-level '17. ( 1 )...' node (5ebf53...) is captured, and no subsection child for (3) or its startup Explanation is present.",
+        "node:Section 17(1)(b): No provision node 'Section 17(1)(b)' of kind 'point' exists in inventory or detailedProvisions; only a combined Section 17 section node (5ebf5371...) embeds the clause text, so the expected point-level node is missing.",
+        "node:Section 17(1)(c): No dedicated node with id 'Section 17(1)(c)' or parent 'Section 17(1)' exists in inventory or detailedProvisions; clause (c) text appears only embedded inside the Section 17 section node (id 5ebf...), so the expected point-level node is omitted.",
+        "node:Section 17(1)(f): No dedicated point node 'Section 17(1)(f)' with parent 'Section 17(1)' exists in inventory or detailedProvisions; clause (f) text appears only inline within the Section 17 section node, so the expected node structure is missing.",
+        "node:Section 17(2)(b): No node for Section 17(2)(b) exists in evidence.inventory or detailedProvisions (no point-kind child of Section 17(2)); its text appears only embedded inside the full Section 17 section node.",
+        "node:Section 17(1)(f) explanation: No standalone node with kind 'explanation' for the 17(1)(f) Explanation exists in inventory or detailedProvisions; the explanation text appears only embedded within the Section 17 section node, not as a separate explanation provision.",
+        "node:Section 17(3) explanation: No node of kind 'explanation' for the s17(3) startup Explanation exists in evidence.inventory or detailedProvisions; the text only appears embedded inside the Section 17 section node, so the expected standalone node is missing.",
+        "edge:Section 17(1) -> Chapter II: No edge exists in evidence.relationships from Section 17(1) to a Chapter II node. All Section 17 exception_to_exemption edges target only Section 8 or Section 16 nodes; the Chapter II reference ('The provisions of Chapter II...') was not resolved to a Chapter II target, so the conditional_exemption edge to Chapter II is missing.",
+        "edge:Section 17(1) -> Chapter III: No relationship in evidence connects Section 17 to a Chapter III target; Section 17 edges target Section 8, 16, 3, 12 and definitions only. No Chapter III node exists, and no conditional_exemption edge to Chapter III is present.",
+        "edge:Section 17(1) -> Section 16: Saved relationships contain a Section 17 -> Section 16 edge only with relationType 'exception_to_exemption' (status 'proposed'), not the expected 'conditional_exemption'; the conditional_exemption edge is absent from evidence.relationships, so the expected edge does not exist.",
+        "edge:Section 17(3) -> Section 5: No edge exists connecting Section 17 to Section 5: relationships only include an 'explicit_procedural_reference' with empty targetIds/unresolved 'section 5', and section 5 mentions resolved to Section 8 nodes with relationType 'exception_to_exemption'/'explicit_procedural_reference', not 'notification_dependent_exemption'; Section 5 node absent from inventory.",
+        "edge:Section 17(3) -> Section 8(3): No directed edge from Section 17(3) to Section 8(3) with relationType notification_dependent_exemption exists. Related edges carry sourceLabel 'Section 17' with relationType explicit_procedural_reference/exception_to_exemption and ambiguous status, none at subsection 17(3) level with the required relation.",
+        "edge:Section 17(3) -> Section 8(7): No edge with relationType 'notification_dependent_exemption' exists in evidence.relationships; the only related edges are 'Section 17' with relationType 'explicit_procedural_reference' (exactMention 'sub-sections ( 3 ) and ( 7 ) of section 8...', status ambiguous). Relation mismatch, so edge fails.",
+        "edge:Section 17(3) -> Section 10: No relationship from Section 17(3) to Section 10 exists in evidence.relationships; the Section 17 explicit_procedural_reference with exactMention 'sections 10 and 11' has empty targetIds/targetLabels, and relationType is not notification_dependent_exemption. Per anti-false-pass rule, edge fails.",
+        "edge:Section 17(3) -> Section 11: No relationship from Section 17(3) to Section 11 exists in evidence.relationships. The 'sections 10...' mention edge has empty targetIds and status unresolved; the explicit_procedural_reference edge for s.17(3) targets only Sections 8, not Section 11. Edge omitted.",
+        "edge:Section 17(4) -> Section 8(7): No edge exists in evidence.relationships with source 'Section 17(4)' targeting Section 8(7) with relationType 'conditional_exemption'. Section 17 edges exist only from 'Section 17' (subsection-level), status ambiguous, typed 'explicit_reference'/'exception_to_exemption', and bundle all 8(1)-8(11) targets without isolating 8(7).",
+        "edge:Section 17(4) -> Section 12(3): No edge in evidence.relationships from Section 17(4) to Section 12(3) with conditional_exemption. Only section-level Section 17 edges exist with relationType explicit_reference/ambiguous mentioning section 12; no subsection-scoped 17(4) source or conditional_exemption relation.",
+        "edge:Section 17(4) -> Section 12(2): No directed relationship from Section 17(4) to Section 12(2) with relationType 'conditional_exemption' exists in evidence.relationships; Section 17 edges only target Section 8/12/16/3/definitions as section-level reference/exemption edges.",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12): No edge in evidence.relationships from a 'Section 17(1)(f) explanation' node to IBC 2016 s.3(12) with relationType external_defined_term_reference. Closest entry is Section 17 → Section 3 as explicit_procedural_reference with IBC text, wrong source node, wrong target, wrong relation.",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14): No edge with relationType 'external_defined_term_reference' to IBC 2016 Section 3(14) exists in evidence.relationships. Closest is sourceLabel 'Section 17' with relationType 'explicit_procedural_reference' targeting DPDPA's internal Section 3 node (proposed, no external IBC target). Source also is Section 17, not the 17(1)(f) explanation; edge omitted.",
+        "Forbidden: Relationships from Section 17 with exactMention 'except sub-sections (1) and (5) of section 8' still target sub-section nodes 88adc (8(5)) and 8ac88 (8(4)) under exception_to_exemption, asserting 8(5) is exempted, contradicting the carve-out.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-03#"
+      ],
+      "expectedChecks": {
+        "passed": 12,
+        "failed": 21,
+        "needsReview": 0,
+        "total": 33
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "definitions_and_exception_scope",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "node:Section 9",
+        "edge:Section 9(1) -> Section 2(f)",
+        "edge:Section 9(4) -> Section 9(1)",
+        "edge:Section 9(4) -> Section 9(3)",
+        "edge:Section 9(5) -> Section 9(1)",
+        "edge:Section 9(5) -> Section 9(3)",
+        "exception_scope"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 9: Section 9 node exists (4f4f...) but its saved text contains only sub-section (1) plus Explanation, omitting sub-sections (2)-(5); those appear in detached subsection nodes with parentId null / structuralPath ['subsection'] and one cross_chunk needs_review, so the node's legal text is incomplete and subsections are not linked to Section 9.",
+        "edge:Section 9(1) -> Section 2(f): No relationship edge connects Section 9/9(1) to the Section 2(f) 'child' definition in evidence.relationships; only 'personal data' and 'prescribed' defined_term edges exist from Section 9. Graph omission per anti-false-pass rule.",
+        "edge:Section 9(4) -> Section 9(1): No relationships edge from Section 9(4) (id 60bca...) to Section 9(1); only defined_term edges to 'personal data' and 'prescribed' exist. Text mentions sub-sections (1) and (3) but graph edge missing.",
+        "edge:Section 9(4) -> Section 9(3): No relationship edge in evidence.connects Section 9(4) (id 60bca75c...) to Section 9(3) (id ac25e36a...); relationships only include a defined_term link to 'prescribed'. Section 9(3) target node itself is also missing from inventory. Edge omission.",
+        "edge:Section 9(5) -> Section 9(1): No directed edge from Section 9(5) (id 895ad83...) to Section 9(1) exists in evidence.relationships; the 9(5) node only has defined_term edges to 'personal data'/'prescribed' definitions, despite text mentioning 'sub-sections (1) and (3)'.",
+        "edge:Section 9(5) -> Section 9(3): No relationship exists in evidence.relationships from Section 9(5) (id 895ad832...) to Section 9(3); its only outgoing edge is a defined_term edge to the 'personal data' definition, despite text mentioning 'sub-sections (1) and (3)'.",
+        "exception_scope: No saved-output fact states that 9(4) or 9(5) concerns duties under 9(1) and 9(3) only, nor that 9(2) is not disapplied. detailedProvisions is empty; inventory 9(4)/9(5) nodes are unannotated textStarts, and relationships contain no exemption/exception edges from these subsections.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-04#"
+      ],
+      "expectedChecks": {
+        "passed": 9,
+        "failed": 7,
+        "needsReview": 0,
+        "total": 16
+      }
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "stage": "S4",
+      "method": "source_backed_comparison",
+      "challengeType": "legal_meaning",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "condition",
+        "relationship_to_section_6"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "condition: No saved output contains any condition about retention being an exception to erasure; detailedProvisions is empty and inventory textStarts omit sub-section (7) text, so expected fact is unsupported.",
+        "relationship_to_section_6: No Section 6 nodes appear in evidence.inventory, detailedProvisions is empty (candidateCount 0), and no relationships involve 6(4) withdrawal or 6(6) cessation-with-exceptions; clause:6(4)/clause:6(6) sources are wholly absent from saved output.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S4-01#"
+      ],
+      "expectedChecks": {
+        "passed": 5,
+        "failed": 2,
+        "needsReview": 0,
+        "total": 7
+      }
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "stage": "S4",
+      "method": "source_backed_comparison",
+      "challengeType": "legal_meaning",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "subsection_3_dependency"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "source_text: Section 17 node (id 5ebf...24c6) exists in evidence.inventory with boundaryStatus 'complete', but evidence.detailedProvisions is empty and only the textStart chapeau is shown; clauses (a)-(f), Explanation, and Illustration text are not evidenced in saved output, so completeness of the expected passage cannot be confirmed.",
+        "conditional_scope: Section 17 node (5ebf5371...) exists with boundaryStatus 'complete' and chapeau text 'provisions of Chapter II, except sub-sections (1) and (5) of section 8... shall not apply', supporting that only listed 17(1)(a)-(f) situations qualify; however detailedProvisions is empty and only textStart (chapeau) is shown, so clauses (a)-(f) content cannot be fully verified from saved output.",
+        "subsection_3_dependency: No saved-output provision captures s.17(3) text requiring Central Government notification; relationships only contain s.17 references to s.8/12/16; s.17(3) notification content absent.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S4-02#"
+      ],
+      "expectedChecks": {
+        "passed": 2,
+        "failed": 1,
+        "needsReview": 2,
+        "total": 5
+      }
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "stage": "S4",
+      "method": "source_backed_comparison",
+      "challengeType": "legal_meaning",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "conditions"
+      ],
+      "forbiddenClaimsFound": [
+        "Omitting the hearing or significant-breach condition."
+      ],
+      "reasons": [
+        "source_text: Section 33 node (f1289c42...) exists but is cross_chunk/needs_review with textStart only; detailedProvisions is empty so full (1)-(2) verbatim text is not evidenced, though points (a)-(g) nodes are complete.",
+        "conditions: expected includes three conditions: Board concludes inquiry, breach is significant, opportunity of being heard. The complete relevant saved evidence (inventory, detailedProvisions=[], detailSelection) contains no representation of these conditions anywhere; detailedProvisions is empty and no node or edge captures section 33(1) conditions. Omission.",
+        "Forbidden: DetailedProvisions Section 33 includes both conditions: 'breach ... is significant' and 'after giving the person an opportunity of being heard' — wait, forbidden requires their OMISSION; both ARE present, so claim not found.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S4-03#"
+      ],
+      "expectedChecks": {
+        "passed": 4,
+        "failed": 1,
+        "needsReview": 1,
+        "total": 6
+      }
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "stage": "S5",
+      "method": "source_backed_comparison",
+      "challengeType": "generated_analysis_guidance",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "analysis_checks"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "analysis_checks: No analysis answer exists in saved output: detailedProvisions is empty and only a textStart snippet of Section 8(5) appears in inventory; no safeguards answer or proof examples (security policy, control records, incident prevention evidence) are present.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S5-01#"
+      ],
+      "expectedChecks": {
+        "passed": 2,
+        "failed": 1,
+        "needsReview": 0,
+        "total": 3
+      }
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "stage": "S5",
+      "method": "source_backed_comparison",
+      "challengeType": "generated_drafting_guidance",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "drafting_guidance",
+        "preference_label"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "drafting_guidance: No drafting guidance present in saved evidence: detailedProvisions is empty and inventory/relationships contain only statutory node and edge data; no recommendations about fiduciary/processor roles, processing activity, or security/breach cooperation appear.",
+        "preference_label: No saved-output node, inventory entry, or relationship carries any label stating extra contract terms are drafting recommendations or sourced to another instrument; Section 8(2) text contains only the valid-contract requirement with no annotation.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S5-02#"
+      ],
+      "expectedChecks": {
+        "passed": 2,
+        "failed": 2,
+        "needsReview": 0,
+        "total": 4
+      }
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "stage": "S6",
+      "method": "source_backed_comparison",
+      "challengeType": "retrieval_and_context",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "direct_retrieval: Section 8(5) node 88adc71 (complete), Section 8(6) node e5053e2 (complete), Schedule row 1 (table row 2, Rs. 250 crore) and row 2 (table row 3, Rs. 200 crore) all present. But Section 33(1) node f1289c4 is boundaryStatus=cross_chunk/needs_review, so 33(1) text completeness is not established; 4 of 5 passages covered.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S6-01#"
+      ],
+      "expectedChecks": {
+        "passed": 3,
+        "failed": 0,
+        "needsReview": 1,
+        "total": 4
+      }
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "stage": "S6",
+      "method": "source_backed_comparison",
+      "challengeType": "source_version_retrieval",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "source_identity",
+        "retrieval_action"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "source_identity: Saved evidence contains no source identity hash or fingerprint; inventory node IDs exist but none equals 4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15, so identity is unsupported/omitted.",
+        "retrieval_action: No commencement notifications located and no explicit return that current status cannot be established from this PDF; evidence only contains section 1(2) commencement text and spurious external_reference edges.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S6-02#"
+      ],
+      "expectedChecks": {
+        "passed": 3,
+        "failed": 2,
+        "needsReview": 0,
+        "total": 5
+      }
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "stage": "S7",
+      "method": "source_backed_comparison",
+      "challengeType": "legal_qa",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "answer_requirements",
+        "answer_status"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "answer_requirements: Saved output contains only an inventory of nodes/edges; no answer text exists. Node for 8(6) (e5053e28...) appears in inventory, but requirement 'Cite Section 8(6)' in the answer is not supported by any saved answer content.",
+        "answer_status: No answer_status field or statement that an additional current legal source is needed for a numeric deadline appears in saved evidence; evidence contains only inventory, relationships, and section/table text, so expected status is unsupported.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S7-01#"
+      ],
+      "expectedChecks": {
+        "passed": 2,
+        "failed": 2,
+        "needsReview": 0,
+        "total": 4
+      }
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "stage": "S7",
+      "method": "source_backed_comparison",
+      "challengeType": "analysis_use",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "required_conclusion"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "scenario: detailedProvisions is empty; only textStart snippets exist. No saved fact that a contract exists in this scenario, nor that safeguards/breach-cooperation evidence is absent; s.8(2)/(5)/(6) appear only as bare inventory nodes.",
+        "required_conclusion: No conclusion about contract validity under Section 8(2) appears anywhere in saved evidence; detailedProvisions is empty and no analysis output is present.",
+        "supporting_exact_text: Inventory node 07930bf (Section 8(1), boundaryStatus complete) has textStart '8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary ' matching the expected opening verbatim, but detailedProvisions is empty (fullTextOmittedForOtherNodes) so the full subsection text cannot be confirmed.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S7-02#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 1,
+        "needsReview": 2,
+        "total": 3
+      }
+    }
+  ],
+  "judgeUsage": {
+    "calls": 222,
+    "inputTokens": 5100748,
+    "outputTokens": 39344,
+    "durationMs": 538841
+  },
+  "datasetReview": "human_review_pending",
+  "fixtureReplacementCharacterCount": 0,
+  "judgeArtifacts": {
+    "checkpoint": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-checkpoint.all-cases.glm-5.3-flash.json",
+    "calls": "evaluation-judge-calls.all-cases.glm-5.3-flash.json",
+    "rawAttempts": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-raw.all-cases.glm-5.3-flash.jsonl"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024baa",
+    "coreRange": {
+      "start": 63205,
+      "end": 63503
+    },
+    "coreSourceIds": [
+      "src:470",
+      "src:471",
+      "src:472"
+    ],
+    "contextBefore": [
+      "src:469"
+    ],
+    "contextAfter": [
+      "src:473"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:469",
+        "start": 62990,
+        "end": 63204,
+        "text": "( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:470",
+        "start": 63205,
+        "end": 63279,
+        "text": "( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:471",
+        "start": 63280,
+        "end": 63443,
+        "text": "( 3 ) In section 8 of the Right to Information Act, 2005, in sub-section ( 1 ), for clause ( j ), the following clause shall be substituted, namely:- 22  of  2005.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:472",
+        "start": 63444,
+        "end": 63503,
+        "text": "'( j ) information which relates to personal information;'.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:473",
+        "start": 63504,
+        "end": 63506,
+        "text": "21",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "0cee8737b7ac3638f08c455fd8428d84747ca49eb05d3cc34682069a88909470",
+    "assembledInputCharacters": 4455
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_472_0",
+        "kind": "item",
+        "type": "list_item_clause_c",
+        "category": "amendment_instruction",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 63205,
+          "end": 63279
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/466",
+            "physicalPage": 20,
+            "start": 63205,
+            "end": 63279,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 577.23,
+                  "r": 423.01,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  74
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "seg_471_0"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "Cross-chunk parent left pending for seg_472_0: seg_471_0"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[],\"segments\":[{\"category\":\"amendment_instruction\",\"codeAnchor\":null,\"id\":\"seg_472_0\",\"kind\":\"item\",\"parent\":\"seg_471_0\",\"sourceAnchors\":[{\"exactQuote\":\"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\"occurrence\":0,\"sourceId\":\"src:470\"}],\"startsBeforeChunk\":true,\"titleAnchor\":null,\"type\":\"list_item_clause_c\"}],\"unresolvedItems\":[],\"warnings\":[]\n}",
+          "reasoning_content": "src:470, 471, 472 are core. These are amendment provisions within a schedule/section of an amending act (Digital Personal Data Protection Act 2023 amendment to RTI Act). src:470 is a clause (c) continuing from previous list; src:471 is sub-section (3); src:472 is quoted substitution text (child of 471). src:469 is context before (clause b), not emitted. src:473 is page number \"21\".",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952330,
+    "id": "chatcmpl-8c8e3835-7eed-92e1-8b62-4dafcb60cdff",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 232,
+      "prompt_tokens": 696,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 928
+    }
+  },
+  "usage": {
+    "inputTokens": 696,
+    "outputTokens": 232,
+    "totalTokens": 928
+  },
+  "finishReason": "stop",
+  "durationMs": 7885
+}

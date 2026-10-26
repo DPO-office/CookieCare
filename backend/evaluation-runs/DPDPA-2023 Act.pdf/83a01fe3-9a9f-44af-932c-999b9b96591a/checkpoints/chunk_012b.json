@@ -1,0 +1,855 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_012b",
+    "coreRange": {
+      "start": 16628,
+      "end": 18864
+    },
+    "coreSourceIds": [
+      "src:144",
+      "src:145",
+      "src:146",
+      "src:147",
+      "src:148",
+      "src:149",
+      "src:150",
+      "src:151",
+      "src:152",
+      "src:153",
+      "src:154",
+      "src:155",
+      "src:156"
+    ],
+    "contextBefore": [
+      "src:143"
+    ],
+    "contextAfter": [
+      "src:157"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:143",
+        "start": 16214,
+        "end": 16627,
+        "text": "( II ) X, an individual, electronically messages Y, a real estate broker, requesting Y to help identify a suitable rented accommodation for her and shares her personal data for this purpose. Y may process her personal data to identify and intimate to her the details of accommodation available on rent. Subsequently, X informs Y that X no longer needs help from Y. Y shall cease to process the personal data of X;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:144",
+        "start": 16628,
+        "end": 16826,
+        "text": "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:145",
+        "start": 16827,
+        "end": 17015,
+        "text": "( i ) she has previously consented to the processing of her personal data by the State or any of its instrumentalities for any subsidy, benefit, service, certificate, licence or permit; or",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:146",
+        "start": 17016,
+        "end": 17471,
+        "text": "( ii ) such personal data is available in digital form in, or in non-digital form and digitised subsequently from, any database, register, book or other document which is maintained by the State or any of its instrumentalities and is notified by the Central Government, subject to standards followed for processing being in accordance with the policy issued by the Central Government or any law for the time being in force for governance of personal data.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:147",
+        "start": 17472,
+        "end": 17485,
+        "text": "Illustration.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:148",
+        "start": 17486,
+        "end": 17836,
+        "text": "X. a pregnant woman, enrols herself on an app or website to avail of government's maternity benefits programme, while consenting to provide her personal data for the purpose of availing of such benefits. Government may process the personal data of X processing to determine her eligibility to receive any other prescribed benefit from the government;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:149",
+        "start": 17837,
+        "end": 17838,
+        "text": "7",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:150",
+        "start": 17839,
+        "end": 17846,
+        "text": "SEC. 1]",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:151",
+        "start": 17847,
+        "end": 17881,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:152",
+        "start": 17882,
+        "end": 17895,
+        "text": "53  of  2005.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:153",
+        "start": 17896,
+        "end": 18116,
+        "text": "( c ) for the performance by the State or any of its instrumentalities of any function under any law for the time being in force in India or in the interest of sovereignty and integrity of India or security of the State;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:154",
+        "start": 18117,
+        "end": 18455,
+        "text": "( d ) for fulfilling any obligation under any law for the time being in force in India on any person to disclose any information to the State or any of its instrumentalities, subject  to  such  processing  being  in  accordance  with  the  provisions  regarding disclosure of such information in any other law for the time being in force;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:155",
+        "start": 18456,
+        "end": 18706,
+        "text": "( e ) for compliance with any judgment or decree or order issued under any law for the time being in force in India, or any judgment or order relating to claims of a contractual or civil nature under any law for the time being in force outside India;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:156",
+        "start": 18707,
+        "end": 18864,
+        "text": "( f )  for  responding to a medical emergency involving a threat to the life or immediate threat to the health of the Data Principal or any other individual;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:157",
+        "start": 18865,
+        "end": 19035,
+        "text": "( g ) for taking measures to provide medical treatment or health services to any individual during an epidemic, outbreak of disease, or any other threat to public health;",
+        "group": "native:11",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER II",
+      "Illustration."
+    ],
+    "inputHash": "6ec8297fa8a8d2ff910a342c5b32b9b18ea9d342e74519b24034d22a00ac8406",
+    "assembledInputCharacters": 6938
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "item",
+        "type": "clause",
+        "category": "list_point",
+        "parent": null,
+        "children": [
+          "seg_002",
+          "seg_003",
+          "seg_004"
+        ],
+        "span": {
+          "start": 16628,
+          "end": 17285
+        },
+        "code": {
+          "start": 16628,
+          "end": 16826
+        },
+        "title": {
+          "start": 16628,
+          "end": 16680
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/140",
+            "physicalPage": 6,
+            "start": 16628,
+            "end": 16826,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 312.46,
+                  "r": 477.63,
+                  "b": 277.93,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  198
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/141",
+            "physicalPage": 6,
+            "start": 16827,
+            "end": 17015,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 272.99,
+                  "r": 477.63,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  188
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/142",
+            "physicalPage": 6,
+            "start": 17016,
+            "end": 17285,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 233.52,
+                  "r": 477.63,
+                  "b": 187.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  455
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 7 (parent not fully in core range)"
+      },
+      {
+        "id": "seg_002",
+        "kind": "item",
+        "type": "sub_clause",
+        "category": "list_point",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 16827,
+          "end": 17015
+        },
+        "code": {
+          "start": 16827,
+          "end": 17015
+        },
+        "title": {
+          "start": 16827,
+          "end": 16861
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/141",
+            "physicalPage": 6,
+            "start": 16827,
+            "end": 17015,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 272.99,
+                  "r": 477.63,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  188
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_003",
+        "kind": "item",
+        "type": "sub_clause",
+        "category": "list_point",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 17016,
+          "end": 17471
+        },
+        "code": {
+          "start": 17016,
+          "end": 17471
+        },
+        "title": {
+          "start": 17016,
+          "end": 17041
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/142",
+            "physicalPage": 6,
+            "start": 17016,
+            "end": 17471,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 233.52,
+                  "r": 477.63,
+                  "b": 187.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  455
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_004",
+        "kind": "item",
+        "type": "illustration",
+        "category": "illustration",
+        "parent": "seg_001",
+        "children": [],
+        "span": {
+          "start": 17472,
+          "end": 17836
+        },
+        "code": {
+          "start": 17472,
+          "end": 17485
+        },
+        "title": {
+          "start": 17472,
+          "end": 17485
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/143",
+            "physicalPage": 6,
+            "start": 17472,
+            "end": 17485,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 273.1,
+                  "t": 143.07,
+                  "r": 321.9,
+                  "b": 131.56,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/144",
+            "physicalPage": 6,
+            "start": 17486,
+            "end": 17836,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 128.27,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  350
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Illustration to clause (b)"
+      },
+      {
+        "id": "seg_005",
+        "kind": "item",
+        "type": "gazette_running_header",
+        "category": "header_artifact",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 17839,
+          "end": 17895
+        },
+        "code": {
+          "start": 17839,
+          "end": 17846
+        },
+        "title": {
+          "start": 17839,
+          "end": 17846
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/146",
+            "physicalPage": 7,
+            "start": 17839,
+            "end": 17846,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 776.22,
+                  "r": 145.26,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  7
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/147",
+            "physicalPage": 7,
+            "start": 17847,
+            "end": 17881,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 201.04,
+                  "t": 776.22,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/148",
+            "physicalPage": 7,
+            "start": 17882,
+            "end": 17895,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 59.27,
+                  "t": 486.78,
+                  "r": 101.1,
+                  "b": 476.91,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Gazette running header, section marker"
+      },
+      {
+        "id": "seg_006",
+        "kind": "item",
+        "type": "clause",
+        "category": "list_point",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 17896,
+          "end": 18116
+        },
+        "code": {
+          "start": 17896,
+          "end": 18116
+        },
+        "title": {
+          "start": 17896,
+          "end": 17934
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/149",
+            "physicalPage": 7,
+            "start": 17896,
+            "end": 18116,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 710.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  220
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 7 (parent not fully in core range)"
+      },
+      {
+        "id": "seg_007",
+        "kind": "item",
+        "type": "clause",
+        "category": "list_point",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 18117,
+          "end": 18455
+        },
+        "code": {
+          "start": 18117,
+          "end": 18455
+        },
+        "title": {
+          "start": 18117,
+          "end": 18152
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/150",
+            "physicalPage": 7,
+            "start": 18117,
+            "end": 18455,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 705.5,
+                  "r": 477.63,
+                  "b": 657.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  338
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 7 (parent not fully in core range)"
+      },
+      {
+        "id": "seg_008",
+        "kind": "item",
+        "type": "clause",
+        "category": "list_point",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 18456,
+          "end": 18706
+        },
+        "code": {
+          "start": 18456,
+          "end": 18706
+        },
+        "title": {
+          "start": 18456,
+          "end": 18494
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/151",
+            "physicalPage": 7,
+            "start": 18456,
+            "end": 18706,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 651.23,
+                  "r": 477.63,
+                  "b": 616.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  250
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 7 (parent not fully in core range)"
+      },
+      {
+        "id": "seg_009",
+        "kind": "item",
+        "type": "clause",
+        "category": "list_point",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 18707,
+          "end": 18864
+        },
+        "code": {
+          "start": 18707,
+          "end": 18864
+        },
+        "title": {
+          "start": 18707,
+          "end": 18752
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/152",
+            "physicalPage": 7,
+            "start": 18707,
+            "end": 18864,
+            "provenance": [
+              {
+                "page_no": 7,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 610.12,
+                  "r": 477.63,
+                  "b": 587.1,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  157
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 7 (parent not fully in core range)"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:149 contains '7', likely the section number '7' of Section 7 of the Digital Personal Data Protection Act, 2023; the parent provision (Section 7 introductory text) lies before the core range and is not fully supplied.",
+      "src:143 (context before) contains clause (a) of Section 7 and an Illustration relating to section 6/7 processing by a real estate broker; context unit only, not emitted as a provision.",
+      "src:157 (context after) contains clause (g) on epidemic/public health measures; continues after the supplied core range and is marked as pending continuation.",
+      "Gazette artifacts (src:149-src:152) interrupt the clause sequence; page break artifacts '53 of 2005' relate to the Ordinance No. 53 of 2005-era citation within the Gazette layout."
+    ],
+    "warnings": [
+      "Parent Section 7 introductory text starts before the chunk; only its clauses (b)-(f) fall within the core range.",
+      "The clause list likely continues after the chunk (clause (g) visible in context after).",
+      "Cross-chunk parent left pending for seg_001: seg_parent_sec7_pending",
+      "Cross-chunk parent left pending for seg_005: seg_parent_sec7_pending",
+      "Cross-chunk parent left pending for seg_006: seg_parent_sec7_pending",
+      "Cross-chunk parent left pending for seg_007: seg_parent_sec7_pending",
+      "Cross-chunk parent left pending for seg_008: seg_parent_sec7_pending",
+      "Cross-chunk parent left pending for seg_009: seg_parent_sec7_pending"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:144\"\n      },\n      \"id\": \"seg_001\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Section 7 (parent not fully in core range)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate, licence or permit as  may  be  prescribed,  where--\", \"occurrence\": 0, \"sourceId\": \"src:144\" },\n        { \"exactQuote\": \"any database, register, book or other document which is maintained by the State or any of its instrumentalities and is notified by the Central Government,\", \"occurrence\": 0, \"sourceId\": \"src:146\" }\n      ],\n      \"startsBeforeChunk\": true\n    ,\n      \"titleAnchor\": { \"exactQuote\": \"( b ) for the State and any of its instrumentalities\", \"occurrence\": 0, \"sourceId\": \"src:144\" }\n    , \"type\": \"clause\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( i ) she has previously consented to the processing of her personal data by the State or any of its instrumentalities for any subsidy, benefit, service, certificate, licence or permit; or\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:145\"\n      },\n      \"id\": \"seg_002\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( i ) she has previously consented to the processing\", \"occurrence\": 0, \"sourceId\": \"src:145\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( i ) she has previously consented\", \"occurrence\": 0, \"sourceId\": \"src:145\" }\n    ,\n      \"type\": \"sub_clause\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( ii ) such personal data is available in digital form in, or in non-digital form and digitised subsequently from, any database, register, book or other document which is maintained by the State or any of its instrumentalities and is notified by the Central Government, subject to standards followed for processing being in accordance with the policy issued by the Central Government or any law for the time being in force for governance of personal data.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:146\"\n      },\n      \"id\": \"seg_003\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_001\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( ii ) such personal data is available in digital form\", \"occurrence\": 0, \"sourceId\": \"src:146\" },\n        { \"exactQuote\": \"for governance of personal data.\", \"occurrence\": 0, \"sourceId\": \"src:146\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( ii ) such personal data\", \"occurrence\": 0, \"sourceId\": \"src:146\" }\n    ,\n      \"type\": \"sub_clause\"\n    },\n    {\n      \"category\": \"illustration\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Illustration.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:147\"\n      },\n      \"id\": \"seg_004\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_001\",\n      \"parentHint\": \"Illustration to clause (b)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"Illustration.\", \"occurrence\": 0, \"sourceId\": \"src:147\" },\n        { \"exactQuote\": \"Government may process the personal data of X processing to determine her eligibility to receive any other prescribed benefit from the government;\", \"occurrence\": 0, \"sourceId\": \"src:148\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"Illustration.\", \"occurrence\": 0, \"sourceId\": \"src:147\" }\n    ,\n      \"type\": \"illustration\"\n    },\n    {\n      \"category\": \"header_artifact\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"SEC. 1]\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:150\"\n      },\n      \"id\": \"seg_005\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Gazette running header, section marker\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"SEC. 1]\", \"occurrence\": 0, \"sourceId\": \"src:150\" },\n        { \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\", \"occurrence\": 0, \"sourceId\": \"src:151\" },\n        { \"exactQuote\": \"53  of  2005.\", \"occurrence\": 0, \"sourceId\": \"src:152\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"SEC. 1]\", \"occurrence\": 0, \"sourceId\": \"src:150\" }\n    ,\n      \"type\": \"gazette_running_header\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) for the performance by the State or any of its instrumentalities of any function under any law for the time being in force in India or in the interest of sovereignty and integrity of India or security of the State;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:153\"\n      },\n      \"id\": \"seg_006\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Section 7 (parent not fully in core range)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( c ) for the performance by the State or any of its instrumentalities\", \"occurrence\": 0, \"sourceId\": \"src:153\" },\n        { \"exactQuote\": \"sovereignty and integrity of India or security of the State;\", \"occurrence\": 0, \"sourceId\": \"src:153\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( c ) for the performance by the State\", \"occurrence\": 0, \"sourceId\": \"src:153\" }\n    ,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( d ) for fulfilling any obligation under any law for the time being in force in India on any person to disclose any information to the State or any of its instrumentalities, subject  to  such  processing  being  in  accordance  with  the  provisions  regarding disclosure of such information in any other law for the time being in force;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:154\"\n      },\n      \"id\": \"seg_007\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Section 7 (parent not fully in core range)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( d ) for fulfilling any obligation under any law\", \"occurrence\": 0, \"sourceId\": \"src:154\" },\n        { \"exactQuote\": \"disclosure of such information in any other law for the time being in force;\", \"occurrence\": 0, \"sourceId\": \"src:154\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( d ) for fulfilling any obligation\", \"occurrence\": 0, \"sourceId\": \"src:154\" }\n    ,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( e ) for compliance with any judgment or decree or order issued under any law for the time being in force in India, or any judgment or order relating to claims of a contractual or civil nature under any law for the time being in force outside India;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:155\"\n      },\n      \"id\": \"seg_008\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Section 7 (parent not fully in core range)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( e ) for compliance with any judgment or decree or order\", \"occurrence\": 0, \"sourceId\": \"src:155\" },\n        { \"exactQuote\": \"under any law for the time being in force outside India;\", \"occurrence\": 0, \"sourceId\": \"src:155\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( e ) for compliance with any judgment\", \"occurrence\": 0, \"sourceId\": \"src:155\" }\n    ,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"list_point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( f )  for  responding to a medical emergency involving a threat to the life or immediate threat to the health of the Data Principal or any other individual;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:156\"\n      },\n      \"id\": \"seg_009\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_parent_sec7_pending\",\n      \"parentHint\": \"Section 7 (parent not fully in core range)\",\n      \"sourceAnchors\": [\n        { \"exactQuote\": \"( f )  for  responding to a medical emergency\", \"occurrence\": 0, \"sourceId\": \"src:156\" },\n        { \"exactQuote\": \"or any other individual;\", \"occurrence\": 0, \"sourceId\": \"src:156\" }\n      ],\n      \"titleAnchor\": { \"exactQuote\": \"( f )  for  responding to a medical emergency\", \"occurrence\": 0, \"sourceId\": \"src:156\" }\n    ,\n      \"type\": \"clause\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:149 contains '7', likely the section number '7' of Section 7 of the Digital Personal Data Protection Act, 2023; the parent provision (Section 7 introductory text) lies before the core range and is not fully supplied.\",\n    \"src:143 (context before) contains clause (a) of Section 7 and an Illustration relating to section 6/7 processing by a real estate broker; context unit only, not emitted as a provision.\",\n    \"src:157 (context after) contains clause (g) on epidemic/public health measures; continues after the supplied core range and is marked as pending continuation.\",\n    \"Gazette artifacts (src:149-src:152) interrupt the clause sequence; page break artifacts '53 of 2005' relate to the Ordinance No. 53 of 2005-era citation within the Gazette layout.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Parent Section 7 introductory text starts before the chunk; only its clauses (b)-(f) fall within the core range.\",\n    \"The clause list likely continues after the chunk (clause (g) visible in context after).\"\n  ]\n}",
+          "reasoning_content": "This is DPDP Act 2023 section 7 illustration area. Extract provisions: clause (b) with sub-clauses (i),(ii), illustration, clause (c)-(f), plus artifacts (7, SEC. 1], gazette header, 53 of 2005).",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950804,
+    "id": "chatcmpl-ba9aab5d-d55f-4fb1-be9c-3e633ff947d1",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 2655,
+      "prompt_tokens": 1173,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 3828
+    }
+  },
+  "usage": {
+    "inputTokens": 1173,
+    "outputTokens": 2655,
+    "totalTokens": 3828
+  },
+  "finishReason": "stop",
+  "durationMs": 49065
+}

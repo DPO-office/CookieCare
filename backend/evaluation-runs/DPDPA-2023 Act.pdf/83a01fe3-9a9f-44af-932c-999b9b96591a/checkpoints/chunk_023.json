@@ -1,0 +1,3100 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_023",
+    "coreRange": {
+      "start": 55644,
+      "end": 61428
+    },
+    "coreSourceIds": [
+      "src:410",
+      "src:411",
+      "src:412",
+      "src:413",
+      "src:414",
+      "src:415",
+      "src:416",
+      "src:417",
+      "src:418",
+      "src:419",
+      "src:420",
+      "src:421",
+      "src:422",
+      "src:423",
+      "src:424",
+      "src:425",
+      "src:426",
+      "src:427",
+      "src:428",
+      "src:429",
+      "src:430",
+      "src:431",
+      "src:432",
+      "src:433",
+      "src:434",
+      "src:435",
+      "src:436",
+      "src:437",
+      "src:438",
+      "src:439",
+      "src:440",
+      "src:441",
+      "src:442",
+      "src:443",
+      "src:444",
+      "src:445",
+      "src:446",
+      "src:447",
+      "src:448",
+      "src:449"
+    ],
+    "contextBefore": [
+      "src:409"
+    ],
+    "contextAfter": [
+      "src:450"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:409",
+        "start": 55594,
+        "end": 55643,
+        "text": "Power of Central Government to  issue directions.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:410",
+        "start": 55644,
+        "end": 55646,
+        "text": "18",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:411",
+        "start": 55647,
+        "end": 55681,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:412",
+        "start": 55682,
+        "end": 55691,
+        "text": "[PART II-",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:413",
+        "start": 55692,
+        "end": 55721,
+        "text": "Consistency with  other laws.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:414",
+        "start": 55722,
+        "end": 55850,
+        "text": "38. ( 1 ) The provisions of this Act shall be in addition to and not in derogation of any other law for the time being in force.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:415",
+        "start": 55851,
+        "end": 56051,
+        "text": "( 2 ) In the event of any conflict between a provision of this Act and a provision of any other law for the time being in force, the provision of this Act shall prevail to the extent of such conflict.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:416",
+        "start": 56052,
+        "end": 56420,
+        "text": "39. No civil court shall have the jurisdiction to entertain any suit or proceeding in respect of any matter for which the Board is empowered under the provisions of this Act and no injunction shall be granted by any court or other authority in respect of any action taken or to be taken in pursuance of any power under the provisions of this Act. Bar  of jurisdiction.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:417",
+        "start": 56421,
+        "end": 56651,
+        "text": "40. ( 1 ) The Central Government may, by notification, and subject to the condition of previous publication, make rules not inconsistent with the provisions of this Act, to carry out the purposes of this Act. Power  to make rules.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:418",
+        "start": 56652,
+        "end": 56808,
+        "text": "( 2 ) In particular and without prejudice to the generality of the foregoing power, such rules may provide for all or any of the following matters, namely:-",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:419",
+        "start": 56809,
+        "end": 56949,
+        "text": "( a ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 1 ) of section 5;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:420",
+        "start": 56950,
+        "end": 57090,
+        "text": "( b ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 2 ) of section 5;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:421",
+        "start": 57091,
+        "end": 57202,
+        "text": "( c ) the manner of accountability and the obligations of Consent Manager under sub-section ( 8 ) of section 6;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:422",
+        "start": 57203,
+        "end": 57329,
+        "text": "( d ) the manner of registration of Consent Manager and the conditions relating thereto, under sub-section ( 9 ) of section 6;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:423",
+        "start": 57330,
+        "end": 57501,
+        "text": "( e ) the subsidy, benefit, service, certificate, licence or permit for the provision or issuance of which, personal data may be processed under clause ( b ) of section 7;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:424",
+        "start": 57502,
+        "end": 57616,
+        "text": "( f ) the form and manner of intimation of personal data breach to the Board under sub-section ( 6 ) of section 8;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:425",
+        "start": 57617,
+        "end": 57742,
+        "text": "( g ) the time period for the specified purpose to be deemed as no longer being served, under sub-section ( 8 ) of section 8;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:426",
+        "start": 57743,
+        "end": 57884,
+        "text": "( h )  the  manner  of  publishing  the  business  contact  information  of  a  Data Protection Officer under sub-section ( 9 ) of section 8;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:427",
+        "start": 57885,
+        "end": 57981,
+        "text": "( i )  the  manner  of  obtaining  verifiable  consent  under  sub-section  ( 1 )  of section 9;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:428",
+        "start": 57982,
+        "end": 58150,
+        "text": "( j ) the classes of Data Fiduciaries, the purposes of processing of personal data of a child and the conditions relating thereto, under sub-section ( 4 ) of section 9;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:429",
+        "start": 58151,
+        "end": 58319,
+        "text": "( k )  the  other  matters  comprising  the  process  of  Data  Protection  Impact Assessment under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:430",
+        "start": 58320,
+        "end": 58473,
+        "text": "( l ) the other measures that the Significant Data Fiduciary shall undertake under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:431",
+        "start": 58474,
+        "end": 58718,
+        "text": "( m ) the manner in which a Data Principal shall make a request to the Data Fiduciary to obtain information and any other information related to the personal data of such Data Principal and its processing, under sub-section ( 1 ) of section 11;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:432",
+        "start": 58719,
+        "end": 58878,
+        "text": "( n )  the  manner in which a Data Principal shall make a request to the Data Fiduciary for erasure of her personal data under sub-section ( 3 ) of section 12;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:433",
+        "start": 58879,
+        "end": 58998,
+        "text": "( o ) the period within which the Data Fiduciary shall respond to any grievances under sub-section ( 2 ) of section 13;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:434",
+        "start": 58999,
+        "end": 59001,
+        "text": "19",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:435",
+        "start": 59002,
+        "end": 59009,
+        "text": "SEC. 1]",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:436",
+        "start": 59010,
+        "end": 59044,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:437",
+        "start": 59045,
+        "end": 59160,
+        "text": "( p ) the manner of nomination of any other individual by the Data Principal under sub-section ( 1 ) of section 14;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:438",
+        "start": 59161,
+        "end": 59282,
+        "text": "( q ) the standards for processing the personal data for exemption under clause ( b ) of sub-section ( 2 ) of section 17;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:439",
+        "start": 59283,
+        "end": 59403,
+        "text": "( r ) the manner of appointment of the Chairperson and other Members of the Board under sub-section ( 2 ) of section 19;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:440",
+        "start": 59404,
+        "end": 59564,
+        "text": "( s ) the salary, allowances and other terms and conditions of services of the Chairperson and other Members of the Board under sub-section ( 1 ) of section 20;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:441",
+        "start": 59565,
+        "end": 59676,
+        "text": "( t ) the manner of authentication of orders, directions and instruments under sub-section ( 1 ) of section 23;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:442",
+        "start": 59677,
+        "end": 59802,
+        "text": "( u )  the  terms  and  conditions  of  appointment  and  service  of  officers  and employees of the Board under section 24;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:443",
+        "start": 59803,
+        "end": 59900,
+        "text": "( v ) the techno-legal measures to be adopted by the Board under sub-section ( 1 ) of section 28;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:444",
+        "start": 59901,
+        "end": 59979,
+        "text": "( w ) the other matters under clause ( d ) of sub-section ( 7 ) of section 28;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:445",
+        "start": 59980,
+        "end": 60083,
+        "text": "( x )  the  form,  manner  and  fee  for  filing  an  appeal  under  sub-section  ( 2 )  of section 29;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:446",
+        "start": 60084,
+        "end": 60164,
+        "text": "( y ) the procedure for dealing an appeal under sub-section ( 8 ) of section 29;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:447",
+        "start": 60165,
+        "end": 60292,
+        "text": "( z ) any other matter which is to be or may be prescribed or in respect of which provision is to be, or may be, made by rules.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:448",
+        "start": 60293,
+        "end": 61149,
+        "text": "41. Every rule made and every notification issued under section 16 and section 42 of this Act shall be laid, as soon as may be after it is made, before each House of Parliament, while it is in session, for a total period of thirty days which may be comprised in one session or in two or more successive sessions, and if before the expiry of the session immediately following the session or the successive sessions aforesaid, both Houses agree in making any modification in the rule or notification or both Houses agree that the rule or notification should not be made or issued, the rule or notification shall thereafter have effect only in such modified form or be of no effect, as the case may be; so, however, that any such modification or annulment shall be without prejudice to the validity of anything previously done under that rule or notification.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:449",
+        "start": 61150,
+        "end": 61428,
+        "text": "42. ( 1 ) The Central Government may, by notification, amend the Schedule, subject to the restriction that no such notification shall have the effect of increasing any penalty specified therein to more than twice of what was specified in it when this Act was originally enacted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:450",
+        "start": 61429,
+        "end": 61584,
+        "text": "( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "2f69d9df1067f5225c4994354898bd25d8aadbb7d7a35c16be3a468969f140aa",
+    "assembledInputCharacters": 10592,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_38_1",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 55722,
+          "end": 55850
+        },
+        "code": {
+          "start": 55722,
+          "end": 55850
+        },
+        "title": {
+          "start": 55692,
+          "end": 55721
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/410",
+            "physicalPage": 18,
+            "start": 55722,
+            "end": 55850,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 723.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  128
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 38"
+      },
+      {
+        "id": "seg_38_2",
+        "kind": "container",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 55851,
+          "end": 56051
+        },
+        "code": {
+          "start": 55851,
+          "end": 56051
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/411",
+            "physicalPage": 18,
+            "start": 55851,
+            "end": 56051,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 715.37,
+                  "r": 477.63,
+                  "b": 680.84,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  200
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 38"
+      },
+      {
+        "id": "seg_39",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 56052,
+          "end": 56420
+        },
+        "code": {
+          "start": 56052,
+          "end": 56398
+        },
+        "title": {
+          "start": 56399,
+          "end": 56420
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/412",
+            "physicalPage": 18,
+            "start": 56052,
+            "end": 56420,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 674.26,
+                  "r": 477.63,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  368
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_40_1",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "seg_40_2"
+        ],
+        "span": {
+          "start": 56421,
+          "end": 56651
+        },
+        "code": {
+          "start": 56421,
+          "end": 56629
+        },
+        "title": {
+          "start": 56630,
+          "end": 56651
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/413",
+            "physicalPage": 18,
+            "start": 56421,
+            "end": 56651,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 619.99,
+                  "r": 477.63,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  230
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40"
+      },
+      {
+        "id": "seg_40_2",
+        "kind": "container",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "seg_40_1",
+        "children": [
+          "seg_40_2_a",
+          "seg_40_2_b",
+          "seg_40_2_c",
+          "seg_40_2_d",
+          "seg_40_2_e",
+          "seg_40_2_f",
+          "seg_40_2_g",
+          "seg_40_2_h",
+          "seg_40_2_i",
+          "seg_40_2_j",
+          "seg_40_2_k",
+          "seg_40_2_l",
+          "seg_40_2_m",
+          "seg_40_2_n",
+          "seg_40_2_o",
+          "seg_40_2_p",
+          "seg_40_2_q",
+          "seg_40_2_r",
+          "seg_40_2_s",
+          "seg_40_2_t",
+          "seg_40_2_u",
+          "seg_40_2_v",
+          "seg_40_2_w",
+          "seg_40_2_x",
+          "seg_40_2_y",
+          "seg_40_2_z"
+        ],
+        "span": {
+          "start": 56652,
+          "end": 56808
+        },
+        "code": {
+          "start": 56652,
+          "end": 56808
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/414",
+            "physicalPage": 18,
+            "start": 56652,
+            "end": 56808,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 577.23,
+                  "r": 477.63,
+                  "b": 554.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  156
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(1) — section 40"
+      },
+      {
+        "id": "seg_40_2_a",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 56809,
+          "end": 56949
+        },
+        "code": {
+          "start": 56809,
+          "end": 56949
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/415",
+            "physicalPage": 18,
+            "start": 56809,
+            "end": 56949,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 547.63,
+                  "r": 477.63,
+                  "b": 524.61,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  140
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_b",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 56950,
+          "end": 57090
+        },
+        "code": {
+          "start": 56950,
+          "end": 57090
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/416",
+            "physicalPage": 18,
+            "start": 56950,
+            "end": 57090,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 518.03,
+                  "r": 477.63,
+                  "b": 495,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  140
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_c",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57091,
+          "end": 57202
+        },
+        "code": {
+          "start": 57091,
+          "end": 57202
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/417",
+            "physicalPage": 18,
+            "start": 57091,
+            "end": 57202,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 488.43,
+                  "r": 477.63,
+                  "b": 465.4,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  111
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_d",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57203,
+          "end": 57329
+        },
+        "code": {
+          "start": 57203,
+          "end": 57329
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/418",
+            "physicalPage": 18,
+            "start": 57203,
+            "end": 57329,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 457.18,
+                  "r": 477.63,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  126
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_e",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57330,
+          "end": 57501
+        },
+        "code": {
+          "start": 57330,
+          "end": 57501
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/419",
+            "physicalPage": 18,
+            "start": 57330,
+            "end": 57501,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 404.55,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  171
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_f",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57502,
+          "end": 57616
+        },
+        "code": {
+          "start": 57502,
+          "end": 57616
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/420",
+            "physicalPage": 18,
+            "start": 57502,
+            "end": 57616,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 397.98,
+                  "r": 477.63,
+                  "b": 374.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  114
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_g",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57617,
+          "end": 57742
+        },
+        "code": {
+          "start": 57617,
+          "end": 57742
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/421",
+            "physicalPage": 18,
+            "start": 57617,
+            "end": 57742,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 368.38,
+                  "r": 477.63,
+                  "b": 345.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_h",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57743,
+          "end": 57884
+        },
+        "code": {
+          "start": 57743,
+          "end": 57884
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/422",
+            "physicalPage": 18,
+            "start": 57743,
+            "end": 57884,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 338.77,
+                  "r": 477.63,
+                  "b": 314.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  141
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_i",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57885,
+          "end": 57981
+        },
+        "code": {
+          "start": 57885,
+          "end": 57981
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/423",
+            "physicalPage": 18,
+            "start": 57885,
+            "end": 57981,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 307.53,
+                  "r": 477.63,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  96
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_j",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 57982,
+          "end": 58150
+        },
+        "code": {
+          "start": 57982,
+          "end": 58150
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/424",
+            "physicalPage": 18,
+            "start": 57982,
+            "end": 58150,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 277.93,
+                  "r": 477.63,
+                  "b": 254.9,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  168
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_k",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 58151,
+          "end": 58319
+        },
+        "code": {
+          "start": 58151,
+          "end": 58319
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/425",
+            "physicalPage": 18,
+            "start": 58151,
+            "end": 58319,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 249.97,
+                  "r": 477.63,
+                  "b": 225.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  168
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_l",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 58320,
+          "end": 58473
+        },
+        "code": {
+          "start": 58320,
+          "end": 58473
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/426",
+            "physicalPage": 18,
+            "start": 58320,
+            "end": 58473,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 218.72,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  153
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_m",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 58474,
+          "end": 58718
+        },
+        "code": {
+          "start": 58474,
+          "end": 58718
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/427",
+            "physicalPage": 18,
+            "start": 58474,
+            "end": 58718,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 189.12,
+                  "r": 477.63,
+                  "b": 154.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  244
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_n",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 58719,
+          "end": 58878
+        },
+        "code": {
+          "start": 58719,
+          "end": 58878
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/428",
+            "physicalPage": 18,
+            "start": 58719,
+            "end": 58878,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 148.01,
+                  "r": 477.63,
+                  "b": 124.98,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  159
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_o",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 58879,
+          "end": 58998
+        },
+        "code": {
+          "start": 58879,
+          "end": 58998
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/429",
+            "physicalPage": 18,
+            "start": 58879,
+            "end": 58998,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 118.41,
+                  "r": 477.63,
+                  "b": 95.38,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  119
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_p",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59045,
+          "end": 59160
+        },
+        "code": {
+          "start": 59045,
+          "end": 59160
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/433",
+            "physicalPage": 19,
+            "start": 59045,
+            "end": 59160,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 723.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  115
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_q",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59161,
+          "end": 59282
+        },
+        "code": {
+          "start": 59161,
+          "end": 59282
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/434",
+            "physicalPage": 19,
+            "start": 59161,
+            "end": 59282,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 715.37,
+                  "r": 477.63,
+                  "b": 692.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  121
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_r",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59283,
+          "end": 59403
+        },
+        "code": {
+          "start": 59283,
+          "end": 59403
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/435",
+            "physicalPage": 19,
+            "start": 59283,
+            "end": 59403,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 685.77,
+                  "r": 477.63,
+                  "b": 662.75,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  120
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_s",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59404,
+          "end": 59564
+        },
+        "code": {
+          "start": 59404,
+          "end": 59564
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/436",
+            "physicalPage": 19,
+            "start": 59404,
+            "end": 59564,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 656.17,
+                  "r": 477.63,
+                  "b": 633.14,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  160
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_t",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59565,
+          "end": 59676
+        },
+        "code": {
+          "start": 59565,
+          "end": 59676
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/437",
+            "physicalPage": 19,
+            "start": 59565,
+            "end": 59676,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 626.57,
+                  "r": 477.63,
+                  "b": 603.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  111
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_u",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59677,
+          "end": 59802
+        },
+        "code": {
+          "start": 59677,
+          "end": 59802
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/438",
+            "physicalPage": 19,
+            "start": 59677,
+            "end": 59802,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 595.32,
+                  "r": 477.63,
+                  "b": 572.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_v",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59803,
+          "end": 59900
+        },
+        "code": {
+          "start": 59803,
+          "end": 59900
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/439",
+            "physicalPage": 19,
+            "start": 59803,
+            "end": 59900,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 565.72,
+                  "r": 477.63,
+                  "b": 542.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  97
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_w",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59901,
+          "end": 59979
+        },
+        "code": {
+          "start": 59901,
+          "end": 59979
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/440",
+            "physicalPage": 19,
+            "start": 59901,
+            "end": 59979,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 536.12,
+                  "r": 447.41,
+                  "b": 524.61,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  78
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_x",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 59980,
+          "end": 60083
+        },
+        "code": {
+          "start": 59980,
+          "end": 60083
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/441",
+            "physicalPage": 19,
+            "start": 59980,
+            "end": 60083,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 518.03,
+                  "r": 477.63,
+                  "b": 495,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  103
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_y",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 60084,
+          "end": 60164
+        },
+        "code": {
+          "start": 60084,
+          "end": 60164
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/442",
+            "physicalPage": 19,
+            "start": 60084,
+            "end": 60164,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 488.43,
+                  "r": 467.17,
+                  "b": 476.91,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  80
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_40_2_z",
+        "kind": "container",
+        "type": "listPoint",
+        "category": "listPoint",
+        "parent": "seg_40_2",
+        "children": [],
+        "span": {
+          "start": 60165,
+          "end": 60292
+        },
+        "code": {
+          "start": 60165,
+          "end": 60292
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/443",
+            "physicalPage": 19,
+            "start": 60165,
+            "end": 60292,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 470.34,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  127
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "section 40(2)"
+      },
+      {
+        "id": "seg_41",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 60293,
+          "end": 61149
+        },
+        "code": {
+          "start": 60293,
+          "end": 60793
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/444",
+            "physicalPage": 19,
+            "start": 60293,
+            "end": 61149,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 440.73,
+                  "r": 477.63,
+                  "b": 320.68,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  856
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_42_1",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 61150,
+          "end": 61428
+        },
+        "code": {
+          "start": 61150,
+          "end": 61428
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/445",
+            "physicalPage": 19,
+            "start": 61150,
+            "end": 61428,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 314.11,
+                  "r": 477.63,
+                  "b": 266.41,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  278
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "section 42"
+      }
+    ],
+    "references": [
+      {
+        "start": 56912,
+        "end": 56948,
+        "exactMention": "under sub-section ( 1 ) of section 5",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/415",
+            "physicalPage": 18,
+            "start": 56912,
+            "end": 56948,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 547.63,
+                  "r": 477.63,
+                  "b": 524.61,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  140
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 5(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57053,
+        "end": 57089,
+        "exactMention": "under sub-section ( 2 ) of section 5",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/416",
+            "physicalPage": 18,
+            "start": 57053,
+            "end": 57089,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 518.03,
+                  "r": 477.63,
+                  "b": 495,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  140
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 5(2)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57165,
+        "end": 57201,
+        "exactMention": "under sub-section ( 8 ) of section 6",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/417",
+            "physicalPage": 18,
+            "start": 57165,
+            "end": 57201,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 488.43,
+                  "r": 477.63,
+                  "b": 465.4,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  111
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 6(8)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57292,
+        "end": 57328,
+        "exactMention": "under sub-section ( 9 ) of section 6",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/418",
+            "physicalPage": 18,
+            "start": 57292,
+            "end": 57328,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 457.18,
+                  "r": 477.63,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  126
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 6(9)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57469,
+        "end": 57500,
+        "exactMention": "under clause ( b ) of section 7",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/419",
+            "physicalPage": 18,
+            "start": 57469,
+            "end": 57500,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 404.55,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  171
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 7(b)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57579,
+        "end": 57615,
+        "exactMention": "under sub-section ( 6 ) of section 8",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/420",
+            "physicalPage": 18,
+            "start": 57579,
+            "end": 57615,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 397.98,
+                  "r": 477.63,
+                  "b": 374.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  114
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 8(6)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57705,
+        "end": 57741,
+        "exactMention": "under sub-section ( 8 ) of section 8",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/421",
+            "physicalPage": 18,
+            "start": 57705,
+            "end": 57741,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 368.38,
+                  "r": 477.63,
+                  "b": 345.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 8(8)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57847,
+        "end": 57883,
+        "exactMention": "under sub-section ( 9 ) of section 8",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/422",
+            "physicalPage": 18,
+            "start": 57847,
+            "end": 57883,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 338.77,
+                  "r": 477.63,
+                  "b": 314.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  141
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 8(9)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 57941,
+        "end": 57980,
+        "exactMention": "under  sub-section  ( 1 )  of section 9",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/423",
+            "physicalPage": 18,
+            "start": 57941,
+            "end": 57980,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 307.53,
+                  "r": 477.63,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  96
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 9(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58113,
+        "end": 58149,
+        "exactMention": "under sub-section ( 4 ) of section 9",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/424",
+            "physicalPage": 18,
+            "start": 58113,
+            "end": 58149,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 277.93,
+                  "r": 477.63,
+                  "b": 254.9,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  168
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 9(4)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58245,
+        "end": 58318,
+        "exactMention": "under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/425",
+            "physicalPage": 18,
+            "start": 58245,
+            "end": 58318,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 249.97,
+                  "r": 477.63,
+                  "b": 225.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  168
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 10(2)(c)(i)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58397,
+        "end": 58472,
+        "exactMention": "under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/426",
+            "physicalPage": 18,
+            "start": 58397,
+            "end": 58472,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 218.72,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  153
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 10(2)(c)(iii)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58680,
+        "end": 58717,
+        "exactMention": "under sub-section ( 1 ) of section 11",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/427",
+            "physicalPage": 18,
+            "start": 58680,
+            "end": 58717,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 189.12,
+                  "r": 477.63,
+                  "b": 154.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  244
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 11(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58840,
+        "end": 58877,
+        "exactMention": "under sub-section ( 3 ) of section 12",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/428",
+            "physicalPage": 18,
+            "start": 58840,
+            "end": 58877,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 148.01,
+                  "r": 477.63,
+                  "b": 124.98,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  159
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 12(3)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 58960,
+        "end": 58997,
+        "exactMention": "under sub-section ( 2 ) of section 13",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/429",
+            "physicalPage": 18,
+            "start": 58960,
+            "end": 58997,
+            "provenance": [
+              {
+                "page_no": 18,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 118.41,
+                  "r": 477.63,
+                  "b": 95.38,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  119
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 13(2)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59122,
+        "end": 59159,
+        "exactMention": "under sub-section ( 1 ) of section 14",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/433",
+            "physicalPage": 19,
+            "start": 59122,
+            "end": 59159,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 723.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  115
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 14(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59228,
+        "end": 59281,
+        "exactMention": "under clause ( b ) of sub-section ( 2 ) of section 17",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/434",
+            "physicalPage": 19,
+            "start": 59228,
+            "end": 59281,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 715.37,
+                  "r": 477.63,
+                  "b": 692.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  121
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 17(2)(b)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59365,
+        "end": 59402,
+        "exactMention": "under sub-section ( 2 ) of section 19",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/435",
+            "physicalPage": 19,
+            "start": 59365,
+            "end": 59402,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 685.77,
+                  "r": 477.63,
+                  "b": 662.75,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  120
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 19(2)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59526,
+        "end": 59563,
+        "exactMention": "under sub-section ( 1 ) of section 20",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/436",
+            "physicalPage": 19,
+            "start": 59526,
+            "end": 59563,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 656.17,
+                  "r": 477.63,
+                  "b": 633.14,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  160
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 20(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59638,
+        "end": 59675,
+        "exactMention": "under sub-section ( 1 ) of section 23",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/437",
+            "physicalPage": 19,
+            "start": 59638,
+            "end": 59675,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 626.57,
+                  "r": 477.63,
+                  "b": 603.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  111
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 23(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59785,
+        "end": 59801,
+        "exactMention": "under section 24",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/438",
+            "physicalPage": 19,
+            "start": 59785,
+            "end": 59801,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 595.32,
+                  "r": 477.63,
+                  "b": 572.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 24",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59862,
+        "end": 59899,
+        "exactMention": "under sub-section ( 1 ) of section 28",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/439",
+            "physicalPage": 19,
+            "start": 59862,
+            "end": 59899,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 565.72,
+                  "r": 477.63,
+                  "b": 542.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  97
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 28(1)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 59925,
+        "end": 59978,
+        "exactMention": "under clause ( d ) of sub-section ( 7 ) of section 28",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/440",
+            "physicalPage": 19,
+            "start": 59925,
+            "end": 59978,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 536.12,
+                  "r": 447.41,
+                  "b": 524.61,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  78
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 28(7)(d)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 60042,
+        "end": 60082,
+        "exactMention": "under  sub-section  ( 2 )  of section 29",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/441",
+            "physicalPage": 19,
+            "start": 60042,
+            "end": 60082,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 518.03,
+                  "r": 477.63,
+                  "b": 495,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  103
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 29(2)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 60126,
+        "end": 60163,
+        "exactMention": "under sub-section ( 8 ) of section 29",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/442",
+            "physicalPage": 19,
+            "start": 60126,
+            "end": 60163,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 488.43,
+                  "r": 467.17,
+                  "b": 476.91,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  80
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 29(8)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 60343,
+        "end": 60374,
+        "exactMention": "under section 16 and section 42",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/444",
+            "physicalPage": 19,
+            "start": 60343,
+            "end": 60374,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 440.73,
+                  "r": 477.63,
+                  "b": 320.68,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  856
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "sections 16 and 42",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [
+      "src:410 ('18') and src:434 ('19') are page numbers of the Gazette printing, not legal provisions.",
+      "src:411 and src:436 are running headers ('THE GAZETTE OF INDIA EXTRAORDINARY'); src:412 and src:435 are '[PART II-' and 'SEC. 1]' — Gazette masthead fragments, not legal content.",
+      "src:413 'Consistency with other laws.' is a marginal heading belonging to section 38.",
+      "src:409 (context before) contains a marginal heading 'Power of Central Government to issue directions.' likely belonging to a preceding provision not fully in this chunk.",
+      "Section 42(2) (src:450) is supplied as context after; the section 42 container starts in the core range and continuesAfterChunk is marked on seg_42_1 — the subsection itself is not emitted as a standalone provision per context rules.",
+      "Note: list points (a)–(o) and (p)–(z) of section 40(2) are separated by Gazette page-break material (src:434–src:436); the list is treated as one continuous list."
+    ],
+    "warnings": [
+      "Sections referenced in section 40(2) list points (sections 5–29) are outside this chunk; references marked pending.",
+      "Section 41 mentions sections 16 and 42; both outside this chunk's extracted core except section 42(1) itself; reference to section 42 partly resolvable to seg_42_1, reference to section 16 remains pending.",
+      "Heading context 'CHAPTER IX MISCELLANEOUS' suggests a chapter hierarchy; no explicit chapter provision text is present in the core range, so chapter-level container not emitted.",
+      "Cross-chunk parent left pending for seg_38_2: seg_38",
+      "Ignored 1 context-only references in chunk_023"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 5\",\"occurrence\":0,\"sourceId\":\"src:419\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 5(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 2 ) of section 5\",\"occurrence\":0,\"sourceId\":\"src:420\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 5(2)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 8 ) of section 6\",\"occurrence\":0,\"sourceId\":\"src:421\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 6(8)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 9 ) of section 6\",\"occurrence\":0,\"sourceId\":\"src:422\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 6(9)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under clause ( b ) of section 7\",\"occurrence\":0,\"sourceId\":\"src:423\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 7(b)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 6 ) of section 8\",\"occurrence\":0,\"sourceId\":\"src:424\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 8(6)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 8 ) of section 8\",\"occurrence\":0,\"sourceId\":\"src:425\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 8(8)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 9 ) of section 8\",\"occurrence\":0,\"sourceId\":\"src:426\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 8(9)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 9\",\"occurrence\":0,\"sourceId\":\"src:427\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 9(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 4 ) of section 9\",\"occurrence\":0,\"sourceId\":\"src:428\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 9(4)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10\",\"occurrence\":0,\"sourceId\":\"src:429\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 10(2)(c)(i)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10\",\"occurrence\":0,\"sourceId\":\"src:430\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 10(2)(c)(iii)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 11\",\"occurrence\":0,\"sourceId\":\"src:431\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 11(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 3 ) of section 12\",\"occurrence\":0,\"sourceId\":\"src:432\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 12(3)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 2 ) of section 13\",\"occurrence\":0,\"sourceId\":\"src:433\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 13(2)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 14\",\"occurrence\":0,\"sourceId\":\"src:437\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 14(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under clause ( b ) of sub-section ( 2 ) of section 17\",\"occurrence\":0,\"sourceId\":\"src:438\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 17(2)(b)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 2 ) of section 19\",\"occurrence\":0,\"sourceId\":\"src:439\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 19(2)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 20\",\"occurrence\":0,\"sourceId\":\"src:440\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 20(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 23\",\"occurrence\":0,\"sourceId\":\"src:441\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 23(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under section 24\",\"occurrence\":0,\"sourceId\":\"src:442\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 24\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 1 ) of section 28\",\"occurrence\":0,\"sourceId\":\"src:443\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 28(1)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under clause ( d ) of sub-section ( 7 ) of section 28\",\"occurrence\":0,\"sourceId\":\"src:444\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 28(7)(d)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 2 ) of section 29\",\"occurrence\":0,\"sourceId\":\"src:445\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 29(2)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under sub-section ( 8 ) of section 29\",\"occurrence\":0,\"sourceId\":\"src:446\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"section 29(8)\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"under section 16 and section 42\",\"occurrence\":0,\"sourceId\":\"src:448\"},\"resolutionStatus\":\"pending\",\"targetHint\":\"sections 16 and 42\",\"targetSegmentIds\":[]},{\"mention\":{\"exactQuote\":\"Any amendment notified under sub-section ( 1 )\",\"occurrence\":0,\"sourceId\":\"src:450\"},\"resolutionStatus\":\"resolved\",\"targetHint\":\"section 42(1)\",\"targetSegmentIds\":[]}],\"segments\":[{\"category\":\"section\",\"codeAnchor\":{\"exactQuote\":\"38. ( 1 ) The provisions of this Act shall be in addition to and not in derogation of any other law for the time being in force.\",\"occurrence\":0,\"sourceId\":\"src:414\"},\"continuesAfterChunk\":false,\"id\":\"seg_38_1\",\"kind\":\"container\",\"parent\":null,\"parentHint\":\"section 38\",\"sourceAnchors\":[{\"exactQuote\":\"38. ( 1 ) The provisions of this Act shall be in addition to\",\"occurrence\":0,\"sourceId\":\"src:414\"},{\"exactQuote\":\"in derogation of any other law for the time being in force.\",\"occurrence\":0,\"sourceId\":\"src:414\"}],\"titleAnchor\":{\"exactQuote\":\"Consistency with  other laws.\",\"occurrence\":0,\"sourceId\":\"src:413\"},\"type\":\"section\"},{\"category\":\"subsection\",\"codeAnchor\":{\"exactQuote\":\"( 2 ) In the event of any conflict between a provision of this Act and a provision of any other law for the time being in force, the provision of this Act shall prevail to the extent of such conflict.\",\"occurrence\":0,\"sourceId\":\"src:415\"},\"continuesAfterChunk\":false,\"id\":\"seg_38_2\",\"kind\":\"container\",\"parent\":\"seg_38\",\"parentHint\":\"section 38\",\"sourceAnchors\":[{\"exactQuote\":\"( 2 ) In the event of any conflict between a provision of this Act\",\"occurrence\":0,\"sourceId\":\"src:415\"},{\"exactQuote\":\"the provision of this Act shall prevail to the extent of such conflict.\",\"occurrence\":0,\"sourceId\":\"src:415\"}],\"titleAnchor\":null,\"type\":\"subsection\"},{\"category\":\"section\",\"codeAnchor\":{\"exactQuote\":\"39. No civil court shall have the jurisdiction to entertain any suit or proceeding in respect of any matter for which the Board is empowered under the provisions of this Act and no injunction shall be granted by any court or other authority in respect of any action taken or to be taken in pursuance of any power under the provisions of this Act.\",\"occurrence\":0,\"sourceId\":\"src:416\"},\"continuesAfterChunk\":false,\"id\":\"seg_39\",\"kind\":\"container\",\"parent\":null,\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"39. No civil court shall have the jurisdiction to entertain\",\"occurrence\":0,\"sourceId\":\"src:416\"},{\"exactQuote\":\"in pursuance of any power under the provisions of this Act.\",\"occurrence\":0,\"sourceId\":\"src:416\"}],\"titleAnchor\":{\"exactQuote\":\"Bar  of jurisdiction.\",\"occurrence\":0,\"sourceId\":\"src:416\"},\"type\":\"section\"},{\"category\":\"section\",\"codeAnchor\":{\"exactQuote\":\"40. ( 1 ) The Central Government may, by notification, and subject to the condition of previous publication, make rules not inconsistent with the provisions of this Act, to carry out the purposes of this Act.\",\"occurrence\":0,\"sourceId\":\"src:417\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_1\",\"kind\":\"container\",\"parent\":null,\"parentHint\":\"section 40\",\"sourceAnchors\":[{\"exactQuote\":\"40. ( 1 ) The Central Government may, by notification,\",\"occurrence\":0,\"sourceId\":\"src:417\"},{\"exactQuote\":\"make rules not inconsistent with the provisions of this Act, to carry out the purposes of this Act.\",\"occurrence\":0,\"sourceId\":\"src:417\"}],\"titleAnchor\":{\"exactQuote\":\"Power  to make rules.\",\"occurrence\":0,\"sourceId\":\"src:417\"},\"type\":\"section\"},{\"category\":\"subsection\",\"codeAnchor\":{\"exactQuote\":\"( 2 ) In particular and without prejudice to the generality of the foregoing power, such rules may provide for all or any of the following matters, namely:-\",\"occurrence\":0,\"sourceId\":\"src:418\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2\",\"kind\":\"container\",\"parent\":\"seg_40_1\",\"parentHint\":\"section 40(1) — section 40\",\"sourceAnchors\":[{\"exactQuote\":\"( 2 ) In particular and without prejudice to the generality\",\"occurrence\":0,\"sourceId\":\"src:418\"},{\"exactQuote\":\"such rules may provide for all or any of the following matters, namely:-\",\"occurrence\":0,\"sourceId\":\"src:418\"}],\"titleAnchor\":null,\"type\":\"subsection\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( a ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 1 ) of section 5;\",\"occurrence\":0,\"sourceId\":\"src:419\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_a\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( a ) the manner in which the notice given by the Data Fiduciary\",\"occurrence\":0,\"sourceId\":\"src:419\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 5;\",\"occurrence\":0,\"sourceId\":\"src:419\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( b ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 2 ) of section 5;\",\"occurrence\":0,\"sourceId\":\"src:420\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_b\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( b ) the manner in which the notice given by the Data Fiduciary\",\"occurrence\":0,\"sourceId\":\"src:420\"},{\"exactQuote\":\"under sub-section ( 2 ) of section 5;\",\"occurrence\":0,\"sourceId\":\"src:420\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( c ) the manner of accountability and the obligations of Consent Manager under sub-section ( 8 ) of section 6;\",\"occurrence\":0,\"sourceId\":\"src:421\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_c\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( c ) the manner of accountability and the obligations of Consent Manager\",\"occurrence\":0,\"sourceId\":\"src:421\"},{\"exactQuote\":\"under sub-section ( 8 ) of section 6;\",\"occurrence\":0,\"sourceId\":\"src:421\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( d ) the manner of registration of Consent Manager and the conditions relating thereto, under sub-section ( 9 ) of section 6;\",\"occurrence\":0,\"sourceId\":\"src:422\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_d\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( d ) the manner of registration of Consent Manager\",\"occurrence\":0,\"sourceId\":\"src:422\"},{\"exactQuote\":\"under sub-section ( 9 ) of section 6;\",\"occurrence\":0,\"sourceId\":\"src:422\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( e ) the subsidy, benefit, service, certificate, licence or permit for the provision or issuance of which, personal data may be processed under clause ( b ) of section 7;\",\"occurrence\":0,\"sourceId\":\"src:423\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_e\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( e ) the subsidy, benefit, service, certificate, licence or permit\",\"occurrence\":0,\"sourceId\":\"src:423\"},{\"exactQuote\":\"under clause ( b ) of section 7;\",\"occurrence\":0,\"sourceId\":\"src:423\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( f ) the form and manner of intimation of personal data breach to the Board under sub-section ( 6 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:424\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_f\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( f ) the form and manner of intimation of personal data breach\",\"occurrence\":0,\"sourceId\":\"src:424\"},{\"exactQuote\":\"under sub-section ( 6 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:424\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( g ) the time period for the specified purpose to be deemed as no longer being served, under sub-section ( 8 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:425\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_g\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( g ) the time period for the specified purpose\",\"occurrence\":0,\"sourceId\":\"src:425\"},{\"exactQuote\":\"under sub-section ( 8 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:425\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( h )  the  manner  of  publishing  the  business  contact  information  of  a  Data Protection Officer under sub-section ( 9 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:426\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_h\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( h )  the  manner  of  publishing  the  business  contact  information\",\"occurrence\":0,\"sourceId\":\"src:426\"},{\"exactQuote\":\"under sub-section ( 9 ) of section 8;\",\"occurrence\":0,\"sourceId\":\"src:426\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( i )  the  manner  of  obtaining  verifiable  consent  under sub-section ( 1 ) of section 9;\",\"occurrence\":0,\"sourceId\":\"src:427\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_i\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( i )  the  manner  of  obtaining  verifiable  consent\",\"occurrence\":0,\"sourceId\":\"src:427\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 9;\",\"occurrence\":0,\"sourceId\":\"src:427\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( j ) the classes of Data Fiduciaries, the purposes of processing of personal data of a child and the conditions relating thereto, under sub-section ( 4 ) of section 9;\",\"occurrence\":0,\"sourceId\":\"src:428\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_j\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( j ) the classes of Data Fiduciaries, the purposes of processing\",\"occurrence\":0,\"sourceId\":\"src:428\"},{\"exactQuote\":\"under sub-section ( 4 ) of section 9;\",\"occurrence\":0,\"sourceId\":\"src:428\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( k )  the  other  matters  comprising  the  process  of  Data  Protection  Impact Assessment under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10;\",\"occurrence\":0,\"sourceId\":\"src:429\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_k\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( k )  the  other  matters  comprising  the  process\",\"occurrence\":0,\"sourceId\":\"src:429\"},{\"exactQuote\":\"of sub-section ( 2 ) of section 10;\",\"occurrence\":0,\"sourceId\":\"src:429\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( l ) the other measures that the Significant Data Fiduciary shall undertake under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10;\",\"occurrence\":0,\"sourceId\":\"src:430\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_l\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( l ) the other measures that the Significant Data Fiduciary\",\"occurrence\":0,\"sourceId\":\"src:430\"},{\"exactQuote\":\"of sub-section ( 2 ) of section 10;\",\"occurrence\":0,\"sourceId\":\"src:430\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( m ) the manner in which a Data Principal shall make a request to the Data Fiduciary to obtain information and any other information related to the personal data of such Data Principal and its processing, under sub-section ( 1 ) of section 11;\",\"occurrence\":0,\"sourceId\":\"src:431\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_m\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( m ) the manner in which a Data Principal shall make a request\",\"occurrence\":0,\"sourceId\":\"src:431\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 11;\",\"occurrence\":0,\"sourceId\":\"src:431\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( n )  the  manner in which a Data Principal shall make a request to the Data Fiduciary for erasure of her personal data under sub-section ( 3 ) of section 12;\",\"occurrence\":0,\"sourceId\":\"src:432\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_n\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( n )  the  manner in which a Data Principal shall make a request\",\"occurrence\":0,\"sourceId\":\"src:432\"},{\"exactQuote\":\"under sub-section ( 3 ) of section 12;\",\"occurrence\":0,\"sourceId\":\"src:432\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( o ) the period within which the Data Fiduciary shall respond to any grievances under sub-section ( 2 ) of section 13;\",\"occurrence\":0,\"sourceId\":\"src:433\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_o\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( o ) the period within which the Data Fiduciary shall respond\",\"occurrence\":0,\"sourceId\":\"src:433\"},{\"exactQuote\":\"under sub-section ( 2 ) of section 13;\",\"occurrence\":0,\"sourceId\":\"src:433\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( p ) the manner of nomination of any other individual by the Data Principal under sub-section ( 1 ) of section 14;\",\"occurrence\":0,\"sourceId\":\"src:437\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_p\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( p ) the manner of nomination of any other individual\",\"occurrence\":0,\"sourceId\":\"src:437\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 14;\",\"occurrence\":0,\"sourceId\":\"src:437\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( q ) the standards for processing the personal data for exemption under clause ( b ) of sub-section ( 2 ) of section 17;\",\"occurrence\":0,\"sourceId\":\"src:438\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_q\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( q ) the standards for processing the personal data for exemption\",\"occurrence\":0,\"sourceId\":\"src:438\"},{\"exactQuote\":\"of sub-section ( 2 ) of section 17;\",\"occurrence\":0,\"sourceId\":\"src:438\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( r ) the manner of appointment of the Chairperson and other Members of the Board under sub-section ( 2 ) of section 19;\",\"occurrence\":0,\"sourceId\":\"src:439\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_r\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( r ) the manner of appointment of the Chairperson\",\"occurrence\":0,\"sourceId\":\"src:439\"},{\"exactQuote\":\"under sub-section ( 2 ) of section 19;\",\"occurrence\":0,\"sourceId\":\"src:439\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( s ) the salary, allowances and other terms and conditions of services of the Chairperson and other Members of the Board under sub-section ( 1 ) of section 20;\",\"occurrence\":0,\"sourceId\":\"src:440\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_s\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( s ) the salary, allowances and other terms and conditions\",\"occurrence\":0,\"sourceId\":\"src:440\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 20;\",\"occurrence\":0,\"sourceId\":\"src:440\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( t ) the manner of authentication of orders, directions and instruments under sub-section ( 1 ) of section 23;\",\"occurrence\":0,\"sourceId\":\"src:441\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_t\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( t ) the manner of authentication of orders, directions and instruments\",\"occurrence\":0,\"sourceId\":\"src:441\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 23;\",\"occurrence\":0,\"sourceId\":\"src:441\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( u )  the  terms  and  conditions  of  appointment  and  service  of  officers  and employees of the Board under section 24;\",\"occurrence\":0,\"sourceId\":\"src:442\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_u\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( u )  the  terms  and  conditions  of  appointment\",\"occurrence\":0,\"sourceId\":\"src:442\"},{\"exactQuote\":\"of the Board under section 24;\",\"occurrence\":0,\"sourceId\":\"src:442\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( v ) the techno-legal measures to be adopted by the Board under sub-section ( 1 ) of section 28;\",\"occurrence\":0,\"sourceId\":\"src:443\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_v\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( v ) the techno-legal measures to be adopted by the Board\",\"occurrence\":0,\"sourceId\":\"src:443\"},{\"exactQuote\":\"under sub-section ( 1 ) of section 28;\",\"occurrence\":0,\"sourceId\":\"src:443\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( w ) the other matters under clause ( d ) of sub-section ( 7 ) of section 28;\",\"occurrence\":0,\"sourceId\":\"src:444\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_w\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( w ) the other matters under clause ( d ) of sub-section ( 7 )\",\"occurrence\":0,\"sourceId\":\"src:444\"},{\"exactQuote\":\"of section 28;\",\"occurrence\":0,\"sourceId\":\"src:444\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( x )  the  form,  manner  and  fee  for  filing  an  appeal  under sub-section ( 2 ) of section 29;\",\"occurrence\":0,\"sourceId\":\"src:445\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_x\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( x )  the  form,  manner  and  fee  for  filing  an  appeal\",\"occurrence\":0,\"sourceId\":\"src:445\"},{\"exactQuote\":\"under sub-section ( 2 ) of section 29;\",\"occurrence\":0,\"sourceId\":\"src:445\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( y ) the procedure for dealing an appeal under sub-section ( 8 ) of section 29;\",\"occurrence\":0,\"sourceId\":\"src:446\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_y\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( y ) the procedure for dealing an appeal\",\"occurrence\":0,\"sourceId\":\"src:446\"},{\"exactQuote\":\"under sub-section ( 8 ) of section 29;\",\"occurrence\":0,\"sourceId\":\"src:446\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"listPoint\",\"codeAnchor\":{\"exactQuote\":\"( z ) any other matter which is to be or may be prescribed or in respect of which provision is to be, or may be, made by rules.\",\"occurrence\":0,\"sourceId\":\"src:447\"},\"continuesAfterChunk\":false,\"id\":\"seg_40_2_z\",\"kind\":\"container\",\"parent\":\"seg_40_2\",\"parentHint\":\"section 40(2)\",\"sourceAnchors\":[{\"exactQuote\":\"( z ) any other matter which is to be or may be prescribed\",\"occurrence\":0,\"sourceId\":\"src:447\"},{\"exactQuote\":\"provision is to be, or may be, made by rules.\",\"occurrence\":0,\"sourceId\":\"src:447\"}],\"titleAnchor\":null,\"type\":\"listPoint\"},{\"category\":\"section\",\"codeAnchor\":{\"exactQuote\":\"41. Every rule made and every notification issued under section 16 and section 42 of this Act shall be laid, as soon as may be after it is made, before each House of Parliament, while it is in session, for a total period of thirty days which may be comprised in one session or in two or more successive sessions, and if before the expiry of the session immediately following the session or the successive sessions aforesaid, both Houses agree in making any modification in the rule or notification or\",\"occurrence\":0,\"sourceId\":\"src:448\"},\"continuesAfterChunk\":false,\"id\":\"seg_41\",\"kind\":\"container\",\"parent\":null,\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"41. Every rule made and every notification issued\",\"occurrence\":0,\"sourceId\":\"src:448\"},{\"exactQuote\":\"anything previously done under that rule or notification.\",\"occurrence\":0,\"sourceId\":\"src:448\"}],\"titleAnchor\":null,\"type\":\"section\"},{\"category\":\"section\",\"codeAnchor\":{\"exactQuote\":\"42. ( 1 ) The Central Government may, by notification, amend the Schedule, subject to the restriction that no such notification shall have the effect of increasing any penalty specified therein to more than twice of what was specified in it when this Act was originally enacted.\",\"occurrence\":0,\"sourceId\":\"src:449\"},\"continuesAfterChunk\":true,\"id\":\"seg_42_1\",\"kind\":\"container\",\"parent\":null,\"parentHint\":\"section 42\",\"sourceAnchors\":[{\"exactQuote\":\"42. ( 1 ) The Central Government may, by notification, amend the Schedule,\",\"occurrence\":0,\"sourceId\":\"src:449\"},{\"exactQuote\":\"when this Act was originally enacted.\",\"occurrence\":0,\"sourceId\":\"src:449\"}],\"titleAnchor\":null,\"type\":\"section\"}],\"unresolvedItems\":[\"src:410 ('18') and src:434 ('19') are page numbers of the Gazette printing, not legal provisions.\",\"src:411 and src:436 are running headers ('THE GAZETTE OF INDIA EXTRAORDINARY'); src:412 and src:435 are '[PART II-' and 'SEC. 1]' — Gazette masthead fragments, not legal content.\",\"src:413 'Consistency with other laws.' is a marginal heading belonging to section 38.\",\"src:409 (context before) contains a marginal heading 'Power of Central Government to issue directions.' likely belonging to a preceding provision not fully in this chunk.\",\"Section 42(2) (src:450) is supplied as context after; the section 42 container starts in the core range and continuesAfterChunk is marked on seg_42_1 — the subsection itself is not emitted as a standalone provision per context rules.\",\"Note: list points (a)–(o) and (p)–(z) of section 40(2) are separated by Gazette page-break material (src:434–src:436); the list is treated as one continuous list.\"],\"warnings\":[\"Sections referenced in section 40(2) list points (sections 5–29) are outside this chunk; references marked pending.\",\"Section 41 mentions sections 16 and 42; both outside this chunk's extracted core except section 42(1) itself; reference to section 42 partly resolvable to seg_42_1, reference to section 16 remains pending.\",\"Heading context 'CHAPTER IX MISCELLANEOUS' suggests a chapter hierarchy; no explicit chapter provision text is present in the core range, so chapter-level container not emitted.\"]}",
+          "reasoning_content": "Extract provisions: section 38(1)(2), 39, 40(1)(2) with list a–z, 41, 42(1) core; 42(2) is context after — must not emit? \"context after\" must not be emitted on its own, but 42(2) belongs to section 42 which starts in core. Continuation across chunk — include child with continuation flag. References: many internal references to sections 5,6,7,8,9,10,11,12,13,14,17,19,20,23,24,28,29,16,42.\n\nBuild JSON per schema (not shown but described). Keep concise.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951959,
+    "id": "chatcmpl-eea88af0-c65f-47a8-a4f8-f022c4a9c983",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 7710,
+      "prompt_tokens": 2242,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 9952
+    }
+  },
+  "usage": {
+    "inputTokens": 2242,
+    "outputTokens": 7710,
+    "totalTokens": 9952
+  },
+  "finishReason": "stop",
+  "durationMs": 146052
+}

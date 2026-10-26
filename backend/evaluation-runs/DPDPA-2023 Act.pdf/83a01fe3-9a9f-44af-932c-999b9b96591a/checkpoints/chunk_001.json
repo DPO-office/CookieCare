@@ -1,0 +1,119 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_001",
+    "coreRange": {
+      "start": 0,
+      "end": 161
+    },
+    "coreSourceIds": [
+      "src:0",
+      "src:1",
+      "src:2"
+    ],
+    "contextBefore": [],
+    "contextAfter": [
+      "src:3"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:0",
+        "start": 0,
+        "end": 45,
+        "text": "jftLVªh lañ Mhñ ,yñ -( ,u ) 04@0007@2003 - 23",
+        "group": "native:0",
+        "headings": []
+      },
+      {
+        "id": "src:1",
+        "start": 46,
+        "end": 82,
+        "text": "REGISTERED NO. DL-(N)04/0007/2003-23",
+        "group": "native:0",
+        "headings": []
+      },
+      {
+        "id": "src:2",
+        "start": 83,
+        "end": 161,
+        "text": "xxxGIDHxxx xxxGIDExxx सी.जी.-डी.एल.-अ.-12082023-248045 CG-DL-E-12082023-248045",
+        "group": "native:0",
+        "headings": []
+      },
+      {
+        "id": "src:3",
+        "start": 162,
+        "end": 171,
+        "text": "vlk/kkj.k",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      }
+    ],
+    "headingContext": [],
+    "inputHash": "05b4762b76223b01191db12982d5c94e1f20fa9be496b76d3c3f07f81038bd72",
+    "assembledInputCharacters": 4036,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "The core range (src:0–src:2) contains only masthead/registration identifiers (e.g. 'REGISTERED NO. DL-(N)04/0007/2003-23') and gazette identification codes, which do not constitute a legal provision, structure, or reference. No boundary anchors for any legal structure are present in the core units."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[],\"segments\":[],\"unresolvedItems\":[] ,\"warnings\":[\"The core range (src:0–src:2) contains only masthead/registration identifiers (e.g. 'REGISTERED NO. DL-(N)04/0007/2003-23') and gazette identification codes, which do not constitute a legal provision, structure, or reference. No boundary anchors for any legal structure are present in the core units.\"]}",
+          "reasoning_content": "This is a masthead/newspaper registration line, not a provision. Core range covers src:0–2 which are registration numbers and gazette identifiers. No legal structure; record as unresolved? These are headings/masthead lines. Best: no provisions, unresolved item noting masthead/registration identifiers, not legal provisions.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950392,
+    "id": "chatcmpl-2cc7b3f4-9452-444a-a18e-3a5f75035d1f",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 576,
+      "completion_tokens": 163,
+      "prompt_tokens": 597,
+      "prompt_tokens_details": {
+        "cached_tokens": 576
+      },
+      "speed": null,
+      "total_tokens": 760
+    }
+  },
+  "usage": {
+    "inputTokens": 597,
+    "outputTokens": 163,
+    "totalTokens": 760
+  },
+  "finishReason": "stop",
+  "durationMs": 4385
+}

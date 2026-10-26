@@ -1,0 +1,1948 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_017",
+    "coreRange": {
+      "start": 31341,
+      "end": 37514
+    },
+    "coreSourceIds": [
+      "src:245",
+      "src:246",
+      "src:247",
+      "src:248",
+      "src:249",
+      "src:250",
+      "src:251",
+      "src:252",
+      "src:253",
+      "src:254",
+      "src:255",
+      "src:256",
+      "src:257",
+      "src:258",
+      "src:259",
+      "src:260",
+      "src:261",
+      "src:262",
+      "src:263",
+      "src:264",
+      "src:265",
+      "src:266",
+      "src:267",
+      "src:268",
+      "src:269",
+      "src:270",
+      "src:271",
+      "src:272",
+      "src:273",
+      "src:274",
+      "src:275",
+      "src:276",
+      "src:277",
+      "src:278",
+      "src:279",
+      "src:280",
+      "src:281",
+      "src:282",
+      "src:283",
+      "src:284"
+    ],
+    "contextBefore": [
+      "src:244"
+    ],
+    "contextAfter": [
+      "src:285"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:244",
+        "start": 31225,
+        "end": 31340,
+        "text": "( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:245",
+        "start": 31341,
+        "end": 31522,
+        "text": "( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:246",
+        "start": 31523,
+        "end": 31525,
+        "text": "11",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:247",
+        "start": 31526,
+        "end": 31533,
+        "text": "SEC. 1]",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:248",
+        "start": 31534,
+        "end": 31568,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:249",
+        "start": 31569,
+        "end": 31582,
+        "text": "31  of  2016.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:250",
+        "start": 31583,
+        "end": 31593,
+        "text": "CHAPTER IV",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:251",
+        "start": 31594,
+        "end": 31612,
+        "text": "SPECIAL PROVISIONS",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:252",
+        "start": 31613,
+        "end": 31807,
+        "text": "16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory outside India as may be so notified.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:253",
+        "start": 31808,
+        "end": 32127,
+        "text": "( 2 ) Nothing contained in this section shall restrict the applicability of any law for the time being in force in India that provides for a higher degree of protection for or restriction on transfer of personal data by a Data Fiduciary outside India in relation to any personal data or Data Fiduciary or class thereof.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:254",
+        "start": 32128,
+        "end": 32280,
+        "text": "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:255",
+        "start": 32281,
+        "end": 32371,
+        "text": "( a ) the processing of personal data is necessary for enforcing any legal right or claim;",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:256",
+        "start": 32372,
+        "end": 32654,
+        "text": "( b ) the processing of personal data by any court or tribunal or any other body in India which is entrusted by law with the performance of any judicial or quasi-judicial or regulatory or supervisory function, where such processing is necessary for the performance of such function;",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:257",
+        "start": 32655,
+        "end": 32849,
+        "text": "( c )  personal  data  is  processed  in  the  interest  of  prevention,  detection, investigation or prosecution of any offence or contravention of any law for the time being in force in India;",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:258",
+        "start": 32850,
+        "end": 33050,
+        "text": "( d ) personal data of Data Principals not within the territory of India is processed pursuant to any contract entered into with any person outside the territory of India by any person based in India;",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:259",
+        "start": 33051,
+        "end": 33475,
+        "text": "( e ) the processing is necessary for a scheme of compromise or arrangement or merger or amalgamation of two or more companies or a reconstruction by way of demerger or otherwise of a company, or transfer of undertaking of one or more company to another company, or involving division of one or more companies, approved by a court or tribunal or other authority competent to do so by any law for the time being in force; and",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:260",
+        "start": 33476,
+        "end": 33856,
+        "text": "( f ) the processing is for the purpose of ascertaining the financial information and assets and liabilities of any person who has defaulted in payment due on account of a loan or advance taken from a financial institution, subject to such processing being in accordance with the provisions regarding disclosure of information or data in any other law for the time being in force.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:261",
+        "start": 33857,
+        "end": 34113,
+        "text": "Explanation.- For the purposes of this clause, the expressions 'default' and 'financial  institution'  shall  have  the  meanings  respectively  assigned  to  them  in sub-sections ( 12 ) and ( 14 ) of section 3 of the Insolvency and Bankruptcy Code, 2016.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:262",
+        "start": 34114,
+        "end": 34127,
+        "text": "Illustration.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:263",
+        "start": 34128,
+        "end": 34377,
+        "text": "X, an individual, takes a loan from Y, a bank.  X defaults in paying her monthly loan repayment instalment on the date on which it falls due. Y may process the personal data of X for ascertaining her financial information and assets and liabilities.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:264",
+        "start": 34378,
+        "end": 34473,
+        "text": "( 2 ) The provisions of this Act shall not apply in respect of the processing of personal data-",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:265",
+        "start": 34474,
+        "end": 34939,
+        "text": "( a ) by such instrumentality of the State as the Central Government may notify, in the interests of sovereignty and integrity of India, security of the State, friendly relations with foreign States, maintenance of public order or preventing incitement to any cognizable offence relating to any of these, and the processing by the Central Government of any personal data that such instrumentality may furnish to it; and Processing  of personal  data outside  India.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:266",
+        "start": 34940,
+        "end": 34951,
+        "text": "Exemptions.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:267",
+        "start": 34952,
+        "end": 34954,
+        "text": "12",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:268",
+        "start": 34955,
+        "end": 34989,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:269",
+        "start": 34990,
+        "end": 34999,
+        "text": "[PART II-",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:270",
+        "start": 35000,
+        "end": 35024,
+        "text": "Establishment of  Board.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:271",
+        "start": 35025,
+        "end": 35028,
+        "text": "and",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:272",
+        "start": 35029,
+        "end": 35100,
+        "text": "Composition qualifications for appointment of Chairperson and  Members.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:273",
+        "start": 35101,
+        "end": 35153,
+        "text": "Salary, allowances payable  to  and term  of office.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:274",
+        "start": 35154,
+        "end": 35396,
+        "text": "( b ) necessary for research, archiving or statistical purposes if the personal data is not to be used to take any decision specific to a Data Principal and such processing is carried on in accordance with such standards as may be prescribed.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:275",
+        "start": 35397,
+        "end": 35732,
+        "text": "( 3 ) The Central Government may, having regard to the volume and nature of personal data processed, notify certain Data Fiduciaries or class of Data Fiduciaries, including startups, as  Data  Fiduciaries  to  whom  the  provisions  of  section  5,  sub-sections  ( 3 )  and  ( 7 )  of section 8 and sections 10 and 11 shall not apply.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:276",
+        "start": 35733,
+        "end": 36115,
+        "text": "Explanation.- For the purposes of this sub-section, the term 'startup' means a private limited company or a partnership firm or a limited liability partnership incorporated in India, which is eligible to be and is recognised as such in accordance with the criteria and process notified by the department to which matters relating to startups are allocated in the Central Government.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:277",
+        "start": 36116,
+        "end": 36450,
+        "text": "( 4 ) In respect of processing by the State or any instrumentality of the State, the provisions of sub-section ( 7 ) of section 8 and sub-section ( 3 ) of section 12 and, where such processing is for a purpose that does not include making of a decision that affects the Data Principal, sub-section ( 2 ) of section 12 shall not apply.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:278",
+        "start": 36451,
+        "end": 36751,
+        "text": "( 5 )  The  Central  Government  may,  before  expiry  of  five  years  from  the  date  of commencement of this Act, by notification, declare that any provision of this Act shall not apply to such Data Fiduciary or classes of Data Fiduciaries for such period as may be specified in the notification.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:279",
+        "start": 36752,
+        "end": 36761,
+        "text": "CHAPTER V",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:280",
+        "start": 36762,
+        "end": 36792,
+        "text": "DATA PROTECTION BOARD OF INDIA",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:281",
+        "start": 36793,
+        "end": 37001,
+        "text": "18. ( 1 ) With effect from such date as the Central Government may, by notification, appoint, there shall be established, for the purposes of this Act, a Board to be called the Data Protection Board of India.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:282",
+        "start": 37002,
+        "end": 37295,
+        "text": "( 2 ) The Board shall be a body corporate by the name aforesaid, having perpetual succession and a common seal, with power, subject to the provisions of this Act, to acquire, hold and dispose of property, both movable and immovable, and to contract and shall, by the said name, sue or be sued.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:283",
+        "start": 37296,
+        "end": 37392,
+        "text": "( 3 ) The headquarters of the Board shall be at such place as the Central Government may notify.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:284",
+        "start": 37393,
+        "end": 37514,
+        "text": "19. ( 1 ) The Board shall consist of a Chairperson and such number of other Members as the Central Government may notify.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      },
+      {
+        "id": "src:285",
+        "start": 37515,
+        "end": 37636,
+        "text": "( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER V"
+    ],
+    "inputHash": "096e15b8ddc0afe56ae2915433393dde2e091d6e316ac059853bf98db7f8ff33",
+    "assembledInputCharacters": 10996,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg:001",
+        "kind": "container",
+        "type": "clause-list-item",
+        "category": "article",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 31341,
+          "end": 31522
+        },
+        "code": {
+          "start": 31341,
+          "end": 31522
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/241",
+            "physicalPage": 10,
+            "start": 31341,
+            "end": 31522,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 128.27,
+                  "r": 477.63,
+                  "b": 93.74,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  181
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:002",
+        "kind": "container",
+        "type": "chapter",
+        "category": "article",
+        "parent": null,
+        "children": [
+          "seg:003",
+          "seg:004"
+        ],
+        "span": {
+          "start": 31583,
+          "end": 31593
+        },
+        "code": {
+          "start": 31583,
+          "end": 31593
+        },
+        "title": {
+          "start": 31594,
+          "end": 31612
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/246",
+            "physicalPage": 11,
+            "start": 31583,
+            "end": 31593,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 269.61,
+                  "t": 746.62,
+                  "r": 325.39,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  10
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:003",
+        "kind": "container",
+        "type": "section",
+        "category": "article",
+        "parent": "seg:002",
+        "children": [],
+        "span": {
+          "start": 31613,
+          "end": 32127
+        },
+        "code": {
+          "start": 31613,
+          "end": 31807
+        },
+        "title": {
+          "start": 34894,
+          "end": 34939
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/248",
+            "physicalPage": 11,
+            "start": 31613,
+            "end": 31807,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 710.44,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  194
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/249",
+            "physicalPage": 11,
+            "start": 31808,
+            "end": 32127,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 667.68,
+                  "r": 477.63,
+                  "b": 621.63,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  319
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:004",
+        "kind": "container",
+        "type": "section",
+        "category": "article",
+        "parent": "seg:002",
+        "children": [],
+        "span": {
+          "start": 32128,
+          "end": 36751
+        },
+        "code": {
+          "start": 32128,
+          "end": 32280
+        },
+        "title": {
+          "start": 34940,
+          "end": 34951
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/250",
+            "physicalPage": 11,
+            "start": 32128,
+            "end": 32280,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 613.41,
+                  "r": 477.63,
+                  "b": 590.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  152
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/251",
+            "physicalPage": 11,
+            "start": 32281,
+            "end": 32371,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 583.81,
+                  "r": 477.63,
+                  "b": 560.79,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  90
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/252",
+            "physicalPage": 11,
+            "start": 32372,
+            "end": 32654,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 554.21,
+                  "r": 477.63,
+                  "b": 506.52,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  282
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/253",
+            "physicalPage": 11,
+            "start": 32655,
+            "end": 32849,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 499.94,
+                  "r": 477.63,
+                  "b": 465.4,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  194
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/254",
+            "physicalPage": 11,
+            "start": 32850,
+            "end": 33050,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 457.18,
+                  "r": 477.63,
+                  "b": 422.64,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  200
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/255",
+            "physicalPage": 11,
+            "start": 33051,
+            "end": 33475,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 416.07,
+                  "r": 477.63,
+                  "b": 345.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  424
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/256",
+            "physicalPage": 11,
+            "start": 33476,
+            "end": 33856,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 338.77,
+                  "r": 477.63,
+                  "b": 279.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  380
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/257",
+            "physicalPage": 11,
+            "start": 33857,
+            "end": 34113,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 271.35,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  256
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/258",
+            "physicalPage": 11,
+            "start": 34114,
+            "end": 34127,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 273.1,
+                  "t": 230.23,
+                  "r": 321.9,
+                  "b": 218.72,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/259",
+            "physicalPage": 11,
+            "start": 34128,
+            "end": 34377,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 212.14,
+                  "r": 477.63,
+                  "b": 177.61,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  249
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/260",
+            "physicalPage": 11,
+            "start": 34378,
+            "end": 34473,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 169.39,
+                  "r": 477.63,
+                  "b": 146.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  95
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/261",
+            "physicalPage": 11,
+            "start": 34474,
+            "end": 34939,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 139.79,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  465
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/262",
+            "physicalPage": 11,
+            "start": 34940,
+            "end": 34951,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 611.77,
+                  "r": 531.08,
+                  "b": 603.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  11
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/263",
+            "physicalPage": 12,
+            "start": 34952,
+            "end": 34954,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 123.18,
+                  "t": 774.57,
+                  "r": 133.64,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  2
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/264",
+            "physicalPage": 12,
+            "start": 34955,
+            "end": 34989,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/265",
+            "physicalPage": 12,
+            "start": 34990,
+            "end": 34999,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 438.12,
+                  "t": 774.57,
+                  "r": 478.79,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/266",
+            "physicalPage": 12,
+            "start": 35000,
+            "end": 35024,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 437.45,
+                  "r": 105.75,
+                  "b": 419.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  24
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/267",
+            "physicalPage": 12,
+            "start": 35025,
+            "end": 35028,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 300.95,
+                  "r": 69.73,
+                  "b": 291.08,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  3
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/268",
+            "physicalPage": 12,
+            "start": 35029,
+            "end": 35100,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 310.82,
+                  "r": 104.59,
+                  "b": 243.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  71
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/269",
+            "physicalPage": 12,
+            "start": 35101,
+            "end": 35153,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 156.23,
+                  "r": 108.08,
+                  "b": 110.18,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  52
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/270",
+            "physicalPage": 12,
+            "start": 35154,
+            "end": 35396,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 710.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  242
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/271",
+            "physicalPage": 12,
+            "start": 35397,
+            "end": 35732,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 703.86,
+                  "r": 477.63,
+                  "b": 656.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  335
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/272",
+            "physicalPage": 12,
+            "start": 35733,
+            "end": 36115,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 649.59,
+                  "r": 477.63,
+                  "b": 590.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  382
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/273",
+            "physicalPage": 12,
+            "start": 36116,
+            "end": 36450,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 583.81,
+                  "r": 477.63,
+                  "b": 536.12,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  334
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/274",
+            "physicalPage": 12,
+            "start": 36451,
+            "end": 36751,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 529.54,
+                  "r": 477.63,
+                  "b": 483.49,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  300
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:005",
+        "kind": "container",
+        "type": "chapter",
+        "category": "article",
+        "parent": null,
+        "children": [
+          "seg:006",
+          "seg:007"
+        ],
+        "span": {
+          "start": 36752,
+          "end": 36761
+        },
+        "code": {
+          "start": 36752,
+          "end": 36761
+        },
+        "title": {
+          "start": 36762,
+          "end": 36792
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/275",
+            "physicalPage": 12,
+            "start": 36752,
+            "end": 36761,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 271.93,
+                  "t": 475.27,
+                  "r": 323.07,
+                  "b": 465.4,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:006",
+        "kind": "container",
+        "type": "section",
+        "category": "article",
+        "parent": "seg:005",
+        "children": [],
+        "span": {
+          "start": 36793,
+          "end": 37392
+        },
+        "code": {
+          "start": 36793,
+          "end": 37001
+        },
+        "title": {
+          "start": 35000,
+          "end": 35024
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/277",
+            "physicalPage": 12,
+            "start": 36793,
+            "end": 37001,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 440.73,
+                  "r": 477.63,
+                  "b": 404.55,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  208
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/278",
+            "physicalPage": 12,
+            "start": 37002,
+            "end": 37295,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 397.98,
+                  "r": 477.63,
+                  "b": 350.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  293
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/279",
+            "physicalPage": 12,
+            "start": 37296,
+            "end": 37392,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 343.71,
+                  "r": 477.63,
+                  "b": 320.68,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  96
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:007",
+        "kind": "container",
+        "type": "section",
+        "category": "article",
+        "parent": "seg:005",
+        "children": [],
+        "span": {
+          "start": 37393,
+          "end": 37514
+        },
+        "code": {
+          "start": 37393,
+          "end": 37514
+        },
+        "title": {
+          "start": 35029,
+          "end": 35100
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/280",
+            "physicalPage": 12,
+            "start": 37393,
+            "end": 37514,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 312.46,
+                  "r": 477.63,
+                  "b": 289.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  121
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg:009",
+        "kind": "container",
+        "type": "gazette-header",
+        "category": "article",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 31526,
+          "end": 31533
+        },
+        "code": {
+          "start": 31526,
+          "end": 31533
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/243",
+            "physicalPage": 11,
+            "start": 31526,
+            "end": 31533,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 776.22,
+                  "r": 145.26,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  7
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [
+      {
+        "start": 31466,
+        "end": 31522,
+        "exactMention": "the provisions of this Act or the rules made thereunder.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/241",
+            "physicalPage": 10,
+            "start": 31466,
+            "end": 31522,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 128.27,
+                  "r": 477.63,
+                  "b": 93.74,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  181
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "This Act and its rules",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 32138,
+        "end": 32257,
+        "exactMention": "The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/250",
+            "physicalPage": 11,
+            "start": 32138,
+            "end": 32257,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 613.41,
+                  "r": 477.63,
+                  "b": 590.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  152
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Chapter II, Chapter III, section 8 subsections (1) and (5), section 16",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 33904,
+        "end": 34113,
+        "exactMention": "the expressions 'default' and 'financial  institution'  shall  have  the  meanings  respectively  assigned  to  them  in sub-sections ( 12 ) and ( 14 ) of section 3 of the Insolvency and Bankruptcy Code, 2016.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/257",
+            "physicalPage": 11,
+            "start": 33904,
+            "end": 34113,
+            "provenance": [
+              {
+                "page_no": 11,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 271.35,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  256
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Insolvency and Bankruptcy Code, 2016, section 3 subsections (12) and (14)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 35341,
+        "end": 35396,
+        "exactMention": "in accordance with such standards as may be prescribed.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/270",
+            "physicalPage": 12,
+            "start": 35341,
+            "end": 35396,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 710.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  242
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "prescribed standards (rules to be prescribed)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 35613,
+        "end": 35732,
+        "exactMention": "the  provisions  of  section  5,  sub-sections  ( 3 )  and  ( 7 )  of section 8 and sections 10 and 11 shall not apply.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/271",
+            "physicalPage": 12,
+            "start": 35613,
+            "end": 35732,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 703.86,
+                  "r": 477.63,
+                  "b": 656.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  335
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 5, section 8 subsections (3) and (7), sections 10 and 11",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 35966,
+        "end": 36115,
+        "exactMention": "in accordance with the criteria and process notified by the department to which matters relating to startups are allocated in the Central Government.",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/272",
+            "physicalPage": 12,
+            "start": 35966,
+            "end": 36115,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 649.59,
+                  "r": 477.63,
+                  "b": 590.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  382
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "notification by Central Government startup department",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 36122,
+        "end": 36285,
+        "exactMention": "In respect of processing by the State or any instrumentality of the State, the provisions of sub-section ( 7 ) of section 8 and sub-section ( 3 ) of section 12 and",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/273",
+            "physicalPage": 12,
+            "start": 36122,
+            "end": 36285,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 583.81,
+                  "r": 477.63,
+                  "b": 536.12,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  334
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "section 8 subsection (7), section 12 subsections (2) and (3)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 36569,
+        "end": 36640,
+        "exactMention": "by notification, declare that any provision of this Act shall not apply",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/274",
+            "physicalPage": 12,
+            "start": 36569,
+            "end": 36640,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 529.54,
+                  "r": 477.63,
+                  "b": 483.49,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  300
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "provisions of this Act",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 37126,
+        "end": 37205,
+        "exactMention": "subject to the provisions of this Act, to acquire, hold and dispose of property",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/278",
+            "physicalPage": 12,
+            "start": 37126,
+            "end": 37205,
+            "provenance": [
+              {
+                "page_no": 12,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 397.98,
+                  "r": 477.63,
+                  "b": 350.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  293
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "provisions of this Act",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [
+      "Source units src:246, src:247, src:248, src:249 ('11', 'SEC. 1]', 'THE GAZETTE OF INDIA EXTRAORDINARY', '31 of 2016.') appear to be gazette page artifacts and marginal text, not provisions.",
+      "Source units src:267 to src:273 ('12', 'THE GAZETTE OF INDIA EXTRAORDINARY', '[PART II-', 'Establishment of Board.', 'and', 'Composition qualifications...', 'Salary, allowances...') appear to be marginal section headings and page artifacts belonging to Chapter V sections; they are recorded as unresolved because they are interleaved with section 17's subsections.",
+      "Source unit src:273 'Salary, allowances payable to and term of office.' is a marginal heading suggesting a further section (likely section 20) of Chapter V that begins after the supplied core range.",
+      "Heading context says CHAPTER V but core range also contains CHAPTER IV provisions (sections 16 and 17); heading context treated as navigation hint only.",
+      "seg:001 (clause (e)) is a continuation of a clause list that starts before the supplied chunk (parent clause list in Chapter III Duties of Data Principal); the beginning of that provision is not in the core range."
+    ],
+    "warnings": [
+      "Section 19 subsection (1) ends at the core range boundary; source unit src:285 is marked as context after, but it is explicitly referenced as continuation of section 19 — recorded as segment seg:008 with parentHint seg:007.",
+      "Marginal headings (src:270, src:272, src:273) are used as titleAnchor hints; they may belong to sections 18, 19 and a subsequent section respectively, subject to review.",
+      "src:244 is context before and not emitted on its own.",
+      "Ignored 1 context-only segments in chunk_017",
+      "Ignored 1 context-only references in chunk_017"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [\n    {\n      \"mention\": {\n        \"exactQuote\": \"the provisions of this Act or the rules made thereunder.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:245\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"This Act and its rules\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:254\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"Chapter II, Chapter III, section 8 subsections (1) and (5), section 16\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the expressions 'default' and 'financial  institution'  shall  have  the  meanings  respectively  assigned  to  them  in sub-sections ( 12 ) and ( 14 ) of section 3 of the Insolvency and Bankruptcy Code, 2016.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:261\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"Insolvency and Bankruptcy Code, 2016, section 3 subsections (12) and (14)\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"in accordance with such standards as may be prescribed.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:274\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"prescribed standards (rules to be prescribed)\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the provisions of  section  5,  sub-sections  ( 3 )  and  ( 7 )  of section 8 and sections 10 and 11 shall not apply.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:275\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"section 5, section 8 subsections (3) and (7), sections 10 and 11\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"in accordance  with  the  criteria  and  process  notified  by  the  department  to  which  matters  relating  to  startups  are  allocated  in  the  Central  Government.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:276\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"notification by Central Government startup department\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"In respect of processing by the State or any instrumentality of the State, the provisions of sub-section ( 7 ) of section 8 and sub-section ( 3 ) of section 12 and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:277\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"section 8 subsection (7), section 12 subsections (2) and (3)\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"by notification, declare that any provision of this Act shall not apply\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:278\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"provisions of this Act\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"subject to the provisions of this Act, to acquire, hold and dispose of property\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:282\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"provisions of this Act\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"appointed by the Central Government in such manner as may be prescribed.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:285\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"prescribed manner (rules)\",\n      \"targetSegmentIds\": []\n    }\n  ],\n  \"segments\": [\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:245\"\n      },\n      \"id\": \"seg:001\",\n      \"kind\": \"container\",\n      \"parent\": null\n   ,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:245\"\n        }\n      ],\n      \"startsBeforeChunk\": true\n   ,\n      \"titleAnchor\": null\n   ,\n      \"type\": \"clause-list-item\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"CHAPTER IV\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:250\"\n      },\n      \"id\": \"seg:002\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER IV\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:250\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"SPECIAL PROVISIONS\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:251\"\n      }\n    ,\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory outside India as may be so notified.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:252\"\n      },\n      \"id\": \"seg:003\",\n      \"kind\": \"container\",\n      \"parent\": \"seg:002\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory outside India as may be so notified.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:252\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) Nothing contained in this section shall restrict the applicability of any law for the time being in force in India that provides for a higher degree of protection for or restriction on transfer of personal data by a Data Fiduciary outside India in relation to any personal data or Data Fiduciary or class thereof.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:253\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Processing  of personal  data outside  India.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:265\"\n      }\n    ,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:254\"\n      },\n      \"id\": \"seg:004\",\n      \"kind\": \"container\",\n      \"parent\": \"seg:002\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:254\"\n        },\n        {\n          \"exactQuote\": \"( a ) the processing of personal data is necessary for enforcing any legal right or claim;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:255\"\n        },\n        {\n          \"exactQuote\": \"( b ) the processing of personal data by any court or tribunal or any other body in India which is entrusted by law with the performance of any judicial or quasi-judicial or regulatory or supervisory function, where such processing is necessary for the performance of such function;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:256\"\n        },\n        {\n          \"exactQuote\": \"( c )  personal  data  is  processed  in  the  interest  of  prevention, detection, investigation or prosecution of any offence or contravention of any law for the time being in force in India;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:257\"\n        },\n        {\n          \"exactQuote\": \"( d ) personal data of Data Principals not within the territory of India is processed pursuant to any contract entered into with any person outside the territory of India by any person based in India;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:258\"\n        },\n        {\n          \"exactQuote\": \"( e ) the processing is necessary for a scheme of compromise or arrangement or merger or amalgamation of two or more companies or a reconstruction by way of demerger or otherwise of a company, or transfer of undertaking of one or more company to another company, or involving division of one or more companies, approved by a court or tribunal or other authority competent to do so by any law for the time being in force; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:259\"\n        },\n        {\n          \"exactQuote\": \"( f ) the processing is for the purpose of ascertaining the financial information and assets and liabilities of any person who has defaulted in payment due on account of a loan or advance taken from a financial institution, subject to such processing being in accordance with the provisions regarding disclosure of information or data in any other law for the time being in force.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:260\"\n        },\n        {\n          \"exactQuote\": \"Explanation.- For the purposes of this clause, the expressions 'default' and 'financial  institution'  shall  have  the  meanings  respectively  assigned  to  them  in sub-sections ( 12 ) and ( 14 ) of section 3 of the Insolvency and Bankruptcy Code, 2016.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:261\"\n        },\n        {\n          \"exactQuote\": \"X, an individual, takes a loan from Y, a bank.  X defaults in paying her monthly loan repayment instalment on the date on which it falls due. Y may process the personal data of X for ascertaining her financial information and assets and liabilities.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:263\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) The provisions of this Act shall not apply in respect of the processing of personal data-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:264\"\n        },\n        {\n          \"exactQuote\": \"( a ) by such instrumentality of the State as the Central Government may notify, in the interests of sovereignty and integrity of India, security of the State, friendly relations with foreign States, maintenance of public order or preventing incitement to any cognizable offence relating to any of these, and the processing by the Central Government of any personal data that such instrumentality may furnish to it; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:265\"\n        },\n        {\n          \"exactQuote\": \"( b ) necessary for research, archiving or statistical purposes if the personal data is not to be used to take any decision specific to a Data Principal and such processing is carried on in accordance with such standards as may be prescribed.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:274\"\n        },\n        {\n          \"exactQuote\": \"( 3 ) The Central Government may, having regard to the volume and nature of personal data processed, notify certain Data Fiduciaries or class of Data Fiduciaries, including startups, as  Data  Fiduciaries  to  whom  the  provisions of  section  5,  sub-sections  ( 3 )  and  ( 7 )  of section 8 and sections 10 and 11 shall not apply.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:275\"\n        },\n        {\n          \"exactQuote\": \"Explanation.- For the purposes of this sub-section, the term 'startup' means a private limited company or a partnership firm or a limited liability partnership incorporated in India, which is eligible to be and is recognised as such in accordance with the criteria and process notified by the department to which matters relating to startups are allocated in the Central Government.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:276\"\n        },\n        {\n          \"exactQuote\": \"( 4 ) In respect of processing by the State or any instrumentality of the State, the provisions of sub-section ( 7 ) of section 8 and sub-section ( 3 ) of section 12 and, where such processing is for a purpose that does not include making of a decision that affects the Data Principal, sub-section ( 2 ) of section 12 shall not apply.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:277\"\n        },\n        {\n          \"exactQuote\": \"( 5 )  The  Central  Government  may,  before  expiry  of  five  years  from  the  date  of commencement of this Act, by notification, declare that any provision of this Act shall not apply to such Data Fiduciary or classes of Data Fiduciaries for such period as may be specified in the notification.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:278\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Exemptions.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:266\"\n      }\n    ,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"CHAPTER V\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:279\"\n      },\n      \"id\": \"seg:005\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER V\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:279\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"DATA PROTECTION BOARD OF INDIA\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:280\"\n      }\n    ,\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"18. ( 1 ) With effect from such date as the Central Government may, by notification, appoint, there shall be established, for the purposes of this Act, a Board to be called the Data Protection Board of India.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:281\"\n      },\n      \"id\": \"seg:006\",\n      \"kind\": \"container\",\n      \"parent\": \"seg:005\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"18. ( 1 ) With effect from such date as the Central Government may, by notification, appoint, there shall be established, for the purposes of this Act, a Board to be called the Data Protection Board of India.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:281\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) The Board shall be a body corporate by the name aforesaid, having perpetual succession and a common seal, with power, subject to the provisions of this Act, to acquire, hold and dispose of property, both movable and immovable, and to contract and shall, by the said name, sue or be sued.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:282\"\n        },\n        {\n          \"exactQuote\": \"( 3 ) The headquarters of the Board shall be at such place as the Central Government may notify.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:283\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Establishment of  Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:270\"\n      }\n    ,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"19. ( 1 ) The Board shall consist of a Chairperson and such number of other Members as the Central Government may notify.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:284\"\n      },\n      \"id\": \"seg:007\",\n      \"kind\": \"container\",\n      \"parent\": \"seg:005\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"19. ( 1 ) The Board shall consist of a Chairperson and such number of other Members as the Central Government may notify.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:284\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Composition qualifications for appointment of Chairperson and  Members.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:272\"\n      }\n    ,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:285\"\n      },\n      \"id\": \"seg:008\",\n      \"kind\": \"container\",\n      \"parent\": \"seg:007\",\n      \"parentHint\": \"seg:007\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:285\"\n        }\n      ],\n      \"titleAnchor\": null\n    ,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"article\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"SEC. 1]\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:247\"\n      },\n      \"id\": \"seg:009\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"SEC. 1]\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:247\"\n        }\n      ],\n      \"titleAnchor\": null\n    ,\n      \"type\": \"gazette-header\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"Source units src:246, src:247, src:248, src:249 ('11', 'SEC. 1]', 'THE GAZETTE OF INDIA EXTRAORDINARY', '31 of 2016.') appear to be gazette page artifacts and marginal text, not provisions.\",\n    \"Source units src:267 to src:273 ('12', 'THE GAZETTE OF INDIA EXTRAORDINARY', '[PART II-', 'Establishment of Board.', 'and', 'Composition qualifications...', 'Salary, allowances...') appear to be marginal section headings and page artifacts belonging to Chapter V sections; they are recorded as unresolved because they are interleaved with section 17's subsections.\",\n    \"Source unit src:273 'Salary, allowances payable to and term of office.' is a marginal heading suggesting a further section (likely section 20) of Chapter V that begins after the supplied core range.\",\n    \"Heading context says CHAPTER V but core range also contains CHAPTER IV provisions (sections 16 and 17); heading context treated as navigation hint only.\",\n    \"seg:001 (clause (e)) is a continuation of a clause list that starts before the supplied chunk (parent clause list in Chapter III Duties of Data Principal); the beginning of that provision is not in the core range.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Section 19 subsection (1) ends at the core range boundary; source unit src:285 is marked as context after, but it is explicitly referenced as continuation of section 19 — recorded as segment seg:008 with parentHint seg:007.\",\n    \"Marginal headings (src:270, src:272, src:273) are used as titleAnchor hints; they may belong to sections 18, 19 and a subsequent section respectively, subject to review.\",\n    \"src:244 is context before and not emitted on its own.\"\n  ]\n}",
+          "reasoning_content": null,
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951424,
+    "id": "chatcmpl-088ad8be-6a66-42f4-ab00-6ee285cd6d46",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 4820,
+      "prompt_tokens": 2240,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 7060
+    }
+  },
+  "usage": {
+    "inputTokens": 2240,
+    "outputTokens": 4820,
+    "totalTokens": 7060
+  },
+  "finishReason": "stop",
+  "durationMs": 95520
+}

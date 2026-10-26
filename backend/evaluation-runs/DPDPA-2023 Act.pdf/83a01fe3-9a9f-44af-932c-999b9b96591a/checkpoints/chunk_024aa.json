@@ -1,0 +1,647 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024aa",
+    "coreRange": {
+      "start": 61429,
+      "end": 62496
+    },
+    "coreSourceIds": [
+      "src:450",
+      "src:451",
+      "src:452",
+      "src:453",
+      "src:454",
+      "src:455",
+      "src:456",
+      "src:457",
+      "src:458"
+    ],
+    "contextBefore": [
+      "src:449"
+    ],
+    "contextAfter": [
+      "src:459"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:449",
+        "start": 61150,
+        "end": 61428,
+        "text": "42. ( 1 ) The Central Government may, by notification, amend the Schedule, subject to the restriction that no such notification shall have the effect of increasing any penalty specified therein to more than twice of what was specified in it when this Act was originally enacted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:450",
+        "start": 61429,
+        "end": 61584,
+        "text": "( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:451",
+        "start": 61585,
+        "end": 61888,
+        "text": "43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:452",
+        "start": 61889,
+        "end": 62028,
+        "text": "( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:453",
+        "start": 62029,
+        "end": 62154,
+        "text": "( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:454",
+        "start": 62155,
+        "end": 62365,
+        "text": "44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and ( ii ),  the  following  sub-clauses  shall  be  substituted, namely:- 24  of  1997.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:455",
+        "start": 62366,
+        "end": 62410,
+        "text": "Laying  of rules  and certain notifications.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:456",
+        "start": 62411,
+        "end": 62436,
+        "text": "Power  to amend Schedule.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:457",
+        "start": 62437,
+        "end": 62467,
+        "text": "Power  to remove difficulties.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:458",
+        "start": 62468,
+        "end": 62496,
+        "text": "Amendments to  certain Acts.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:459",
+        "start": 62497,
+        "end": 62499,
+        "text": "20",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "c95b1155817e08823d8ffeda6e636af46802bf8d793455176cffd623117b55d8",
+    "assembledInputCharacters": 5395
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_450_sub2",
+        "kind": "unit",
+        "type": "sub-section",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 61429,
+          "end": 61584
+        },
+        "code": {
+          "start": 61429,
+          "end": 61584
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/446",
+            "physicalPage": 19,
+            "start": 61429,
+            "end": 61584,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 259.84,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  155
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "seg_449_or_sec42"
+      },
+      {
+        "id": "seg_451_sub1",
+        "kind": "unit",
+        "type": "sub-section",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 61585,
+          "end": 61888
+        },
+        "code": {
+          "start": 61585,
+          "end": 61888
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/447",
+            "physicalPage": 19,
+            "start": 61585,
+            "end": 61888,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 182.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  303
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sec43"
+      },
+      {
+        "id": "seg_452_sub2",
+        "kind": "unit",
+        "type": "sub-section",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 61889,
+          "end": 62028
+        },
+        "code": {
+          "start": 61889,
+          "end": 62028
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/448",
+            "physicalPage": 19,
+            "start": 61889,
+            "end": 62028,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 175.96,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  139
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sec43"
+      },
+      {
+        "id": "seg_453_sub3",
+        "kind": "unit",
+        "type": "sub-section",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62029,
+          "end": 62154
+        },
+        "code": {
+          "start": 62029,
+          "end": 62154
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/449",
+            "physicalPage": 19,
+            "start": 62029,
+            "end": 62154,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 146.36,
+                  "r": 477.63,
+                  "b": 123.34,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sec43"
+      },
+      {
+        "id": "seg_454_sub1",
+        "kind": "unit",
+        "type": "sub-section",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62155,
+          "end": 62365
+        },
+        "code": {
+          "start": 62155,
+          "end": 62365
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/450",
+            "physicalPage": 19,
+            "start": 62155,
+            "end": 62365,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 58.11,
+                  "t": 116.76,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  210
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "sec44"
+      },
+      {
+        "id": "seg_455_heading",
+        "kind": "unit",
+        "type": "marginal-heading",
+        "category": "heading",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62366,
+          "end": 62410
+        },
+        "code": {
+          "start": 62366,
+          "end": 62410
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/451",
+            "physicalPage": 19,
+            "start": 62366,
+            "end": 62410,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 437.45,
+                  "r": 533.41,
+                  "b": 401.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  44
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_456_heading",
+        "kind": "unit",
+        "type": "marginal-heading",
+        "category": "heading",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62411,
+          "end": 62436
+        },
+        "code": {
+          "start": 62411,
+          "end": 62436
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/452",
+            "physicalPage": 19,
+            "start": 62411,
+            "end": 62436,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 312.46,
+                  "r": 518.3,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  25
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_457_heading",
+        "kind": "unit",
+        "type": "marginal-heading",
+        "category": "heading",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62437,
+          "end": 62467
+        },
+        "code": {
+          "start": 62437,
+          "end": 62467
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/453",
+            "physicalPage": 19,
+            "start": 62437,
+            "end": 62467,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 228.59,
+                  "r": 525.27,
+                  "b": 200.63,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  30
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_458_heading",
+        "kind": "unit",
+        "type": "marginal-heading",
+        "category": "heading",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 62468,
+          "end": 62496
+        },
+        "code": {
+          "start": 62468,
+          "end": 62496
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/454",
+            "physicalPage": 19,
+            "start": 62468,
+            "end": 62496,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 115.12,
+                  "r": 533.41,
+                  "b": 87.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  28
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "Section 42(1) text appears only in context unit src:449 (role b); its full provision is outside the supplied core range and is not emitted as a provision here.",
+      "Marginal headings src:455 (Laying of rules) and src:456 (Power to amend Schedule) correspond to sections whose main text (likely sections 41 and 42) is not fully included in the core range; the mapping of headings to sections is inferred, not proven by supplied text.",
+      "Section 44(1) ends with 'namely:-' indicating substitution text follows; the substituted sub-clauses are outside the supplied core range (continuation in later material)."
+    ],
+    "warnings": [
+      "Cross-chunk parent left pending for seg_450_sub2: seg_449_or_sec42",
+      "Cross-chunk parent left pending for seg_451_sub1: sec43",
+      "Cross-chunk parent left pending for seg_452_sub2: sec43",
+      "Cross-chunk parent left pending for seg_453_sub3: sec43",
+      "Cross-chunk parent left pending for seg_454_sub1: sec44"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[],\"segments\":[{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.\",\"occurrence\":0,\"sourceId\":\"src:450\"},\"continuesAfterChunk\":false,\"id\":\"seg_450_sub2\",\"kind\":\"unit\",\"parent\":\"seg_449_or_sec42\",\"sourceAnchors\":[{\"exactQuote\":\"( 2 ) Any amendment notified under sub-section ( 1 )\",\"occurrence\":0,\"sourceId\":\"src:450\"},{\"exactQuote\":\"shall come into force on the date of the notification.\",\"occurrence\":0,\"sourceId\":\"src:450\"}],\"titleAnchor\":null,\"type\":\"sub-section\"},{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.\",\"occurrence\":0,\"sourceId\":\"src:451\"},\"continuesAfterChunk\":false,\"id\":\"seg_451_sub1\",\"kind\":\"unit\",\"parent\":\"sec43\",\"sourceAnchors\":[{\"exactQuote\":\"43. ( 1 ) If any difficulty arises\",\"occurrence\":0,\"sourceId\":\"src:451\"},{\"exactQuote\":\"for removing the difficulty.\",\"occurrence\":0,\"sourceId\":\"src:451\"}],\"titleAnchor\":null,\"type\":\"sub-section\"},{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.\",\"occurrence\":0,\"sourceId\":\"src:452\"},\"continuesAfterChunk\":false,\"id\":\"seg_452_sub2\",\"kind\":\"unit\",\"parent\":\"sec43\",\"sourceAnchors\":[{\"exactQuote\":\"( 2 ) No order as referred to in sub-section ( 1 )\",\"occurrence\":0,\"sourceId\":\"src:452\"},{\"exactQuote\":\"date of commencement of this Act.\",\"occurrence\":0,\"sourceId\":\"src:452\"}],\"titleAnchor\":null,\"type\":\"sub-section\"},{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.\",\"occurrence\":0,\"sourceId\":\"src:453\"},\"continuesAfterChunk\":false,\"id\":\"seg_453_sub3\",\"kind\":\"unit\",\"parent\":\"sec43\",\"sourceAnchors\":[{\"exactQuote\":\"( 3 ) Every order made under this section\",\"occurrence\":0,\"sourceId\":\"src:453\"},{\"exactQuote\":\"before each House of Parliament.\",\"occurrence\":0,\"sourceId\":\"src:453\"}],\"titleAnchor\":null,\"type\":\"sub-section\"},{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and ( ii ),  the  following  sub-clauses  shall  be substituted, namely:- 24  of  1997.\",\"occurrence\":0,\"sourceId\":\"src:454\"},\"continuesAfterChunk\":true,\"id\":\"seg_454_sub1\",\"kind\":\"unit\",\"parent\":\"sec44\",\"sourceAnchors\":[{\"exactQuote\":\"44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997\",\"occurrence\":0,\"sourceId\":\"src:454\"},{\"exactQuote\":\"shall  be substituted, namely:- 24  of  1997.\",\"occurrence\":0,\"sourceId\":\"src:454\"}],\"titleAnchor\":null,\"type\":\"sub-section\"},{\"category\":\"heading\",\"codeAnchor\":{\"exactQuote\":\"Laying  of rules  and certain notifications.\",\"occurrence\":0,\"sourceId\":\"src:455\"},\"continuesAfterChunk\":false,\"id\":\"seg_455_heading\",\"kind\":\"unit\",\"parent\":null,\"sourceAnchors\":[{\"exactQuote\":\"Laying  of rules  and certain notifications.\",\"occurrence\":0,\"sourceId\":\"src:455\"}],\"titleAnchor\":null,\"type\":\"marginal-heading\"},{\"category\":\"heading\",\"codeAnchor\":{\"exactQuote\":\"Power  to amend Schedule.\",\"occurrence\":0,\"sourceId\":\"src:456\"},\"continuesAfterChunk\":false,\"id\":\"seg_456_heading\",\"kind\":\"unit\",\"parent\":null,\"sourceAnchors\":[{\"exactQuote\":\"Power  to amend Schedule.\",\"occurrence\":0,\"sourceId\":\"src:456\"}],\"titleAnchor\":null,\"type\":\"marginal-heading\"},{\"category\":\"heading\",\"codeAnchor\":{\"exactQuote\":\"Power  to remove difficulties.\",\"occurrence\":0,\"sourceId\":\"src:457\"},\"continuesAfterChunk\":false,\"id\":\"seg_457_heading\",\"kind\":\"unit\",\"parent\":null,\"sourceAnchors\":[{\"exactQuote\":\"Power  to remove difficulties.\",\"occurrence\":0,\"sourceId\":\"src:457\"}],\"titleAnchor\":null,\"type\":\"marginal-heading\"},{\"category\":\"heading\",\"codeAnchor\":{\"exactQuote\":\"Amendments to  certain Acts.\",\"occurrence\":0,\"sourceId\":\"src:458\"},\"continuesAfterChunk\":false,\"id\":\"seg_458_heading\",\"kind\":\"unit\",\"parent\":null,\"sourceAnchors\":[{\"exactQuote\":\"Amendments to  certain Acts.\",\"occurrence\":0,\"sourceId\":\"src:458\"}],\"titleAnchor\":null,\"type\":\"marginal-heading\"}],\"unresolvedItems\":[\"Section 42(1) text appears only in context unit src:449 (role b); its full provision is outside the supplied core range and is not emitted as a provision here.\",\"Marginal headings src:455 (Laying of rules) and src:456 (Power to amend Schedule) correspond to sections whose main text (likely sections 41 and 42) is not fully included in the core range; the mapping of headings to sections is inferred, not proven by supplied text.\",\"Section 44(1) ends with 'namely:-' indicating substitution text follows; the substituted sub-clauses are outside the supplied core range (continuation in later material).\"],\"warnings\":[]}",
+          "reasoning_content": "Extract provisions: section 42(2), 43(1),(2),(3), 44(1) plus marginal headings. 44(1) continues after chunk (substitution text). Headings are side notes.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952193,
+    "id": "chatcmpl-79feb87e-6a5a-4942-af20-b38833613fa2",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 1411,
+      "prompt_tokens": 901,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 2312
+    }
+  },
+  "usage": {
+    "inputTokens": 901,
+    "outputTokens": 1411,
+    "totalTokens": 2312
+  },
+  "finishReason": "stop",
+  "durationMs": 26229
+}

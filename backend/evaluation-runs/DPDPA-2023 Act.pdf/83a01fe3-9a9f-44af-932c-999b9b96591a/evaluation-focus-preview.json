@@ -1,0 +1,1786 @@
+[
+  {
+    "caseId": "DPDPA-S1-01",
+    "fieldCount": 3,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "document_identity",
+        "inputCharacters": 13149,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "exact_commencement_text",
+        "inputCharacters": 13298,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "commencement_status_from_this_pdf",
+        "inputCharacters": 13069,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S1-02",
+    "fieldCount": 4,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "physical_page_inventory",
+        "inputCharacters": 59146,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "schedule_heading_exact_text",
+        "inputCharacters": 64545,
+        "candidateLabels": [],
+        "tableCount": 2
+      },
+      {
+        "field": "schedule_type",
+        "inputCharacters": 64571,
+        "candidateLabels": [],
+        "tableCount": 2
+      },
+      {
+        "field": "page_1_matter",
+        "inputCharacters": 59191,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S2-01",
+    "fieldCount": 5,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "exact_subsection_text",
+        "inputCharacters": 36580,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "point_a_exact_text",
+        "inputCharacters": 35664,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "point_b_exact_text",
+        "inputCharacters": 35610,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "boundary",
+        "inputCharacters": 35538,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "condition",
+        "inputCharacters": 35550,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S2-02",
+    "fieldCount": 3,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "exact_subsection_text",
+        "inputCharacters": 32752,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "boundary",
+        "inputCharacters": 32554,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "required_facts",
+        "inputCharacters": 32601,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S2-03",
+    "fieldCount": 10,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "table_heading_exact_text",
+        "inputCharacters": 53284,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "column_headers",
+        "inputCharacters": 53319,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:1",
+        "inputCharacters": 59751,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:2",
+        "inputCharacters": 59688,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:3",
+        "inputCharacters": 59642,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:4",
+        "inputCharacters": 59659,
+        "candidateLabels": [
+          "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+          "Schedule Penalties Table Header",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:5",
+        "inputCharacters": 59459,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Breach in observance of the duties under section 15.",
+          "Schedule Penalties Table Header"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:6",
+        "inputCharacters": 59745,
+        "candidateLabels": [
+          "Breach of any term of voluntary undertaking accepted by the Board under section 32.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Schedule Penalties Table Header"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "schedule-row:7",
+        "inputCharacters": 59534,
+        "candidateLabels": [
+          "Breach of any other provision of this Act or the rules made thereunder.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Schedule Penalties Table Header"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "row_count",
+        "inputCharacters": 53234,
+        "candidateLabels": [],
+        "tableCount": 1
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S2-04",
+    "fieldCount": 56,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "section-start:1",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:1"
+      },
+      {
+        "field": "section-start:2",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:2"
+      },
+      {
+        "field": "section-start:3",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:3"
+      },
+      {
+        "field": "section-start:4",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:4"
+      },
+      {
+        "field": "section-start:5",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:5"
+      },
+      {
+        "field": "section-start:6",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:6"
+      },
+      {
+        "field": "section-start:7",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:7"
+      },
+      {
+        "field": "section-start:8",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:8"
+      },
+      {
+        "field": "section-start:9",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:9"
+      },
+      {
+        "field": "section-start:10",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:10"
+      },
+      {
+        "field": "section-start:11",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:11"
+      },
+      {
+        "field": "section-start:12",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:12"
+      },
+      {
+        "field": "section-start:13",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:13"
+      },
+      {
+        "field": "section-start:14",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:14"
+      },
+      {
+        "field": "section-start:15",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:15"
+      },
+      {
+        "field": "section-start:16",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:16"
+      },
+      {
+        "field": "section-start:17",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:17"
+      },
+      {
+        "field": "section-start:18",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:18"
+      },
+      {
+        "field": "section-start:19",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:19"
+      },
+      {
+        "field": "section-start:20",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:20"
+      },
+      {
+        "field": "section-start:21",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:21"
+      },
+      {
+        "field": "section-start:22",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:22"
+      },
+      {
+        "field": "section-start:23",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:23"
+      },
+      {
+        "field": "section-start:24",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:24"
+      },
+      {
+        "field": "section-start:25",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:25"
+      },
+      {
+        "field": "section-start:26",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:26"
+      },
+      {
+        "field": "section-start:27",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:27"
+      },
+      {
+        "field": "section-start:28",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:28"
+      },
+      {
+        "field": "section-start:29",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:29"
+      },
+      {
+        "field": "section-start:30",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:30"
+      },
+      {
+        "field": "section-start:31",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:31"
+      },
+      {
+        "field": "section-start:32",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:32"
+      },
+      {
+        "field": "section-start:33",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:33"
+      },
+      {
+        "field": "section-start:34",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:34"
+      },
+      {
+        "field": "section-start:35",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:35"
+      },
+      {
+        "field": "section-start:36",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:36"
+      },
+      {
+        "field": "section-start:37",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:37"
+      },
+      {
+        "field": "section-start:38",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:38"
+      },
+      {
+        "field": "section-start:39",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:39"
+      },
+      {
+        "field": "section-start:40",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:40"
+      },
+      {
+        "field": "section-start:41",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:41"
+      },
+      {
+        "field": "section-start:42",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:42"
+      },
+      {
+        "field": "section-start:43",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:43"
+      },
+      {
+        "field": "section-start:44",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/section-start:44"
+      },
+      {
+        "field": "chapter:CHAPTER I",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER I"
+      },
+      {
+        "field": "chapter:CHAPTER II",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER II"
+      },
+      {
+        "field": "chapter:CHAPTER III",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER III"
+      },
+      {
+        "field": "chapter:CHAPTER IV",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IV"
+      },
+      {
+        "field": "chapter:CHAPTER V",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER V"
+      },
+      {
+        "field": "chapter:CHAPTER VI",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VI"
+      },
+      {
+        "field": "chapter:CHAPTER VII",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VII"
+      },
+      {
+        "field": "chapter:CHAPTER VIII",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VIII"
+      },
+      {
+        "field": "chapter:CHAPTER IX",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IX"
+      },
+      {
+        "field": "act_section_count",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/act_section_count"
+      },
+      {
+        "field": "chapter_count",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/chapter_count"
+      },
+      {
+        "field": "schedule_presence",
+        "error": "Focused graph evidence remains too large for DPDPA-S2-04/schedule_presence"
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S3-01",
+    "fieldCount": 29,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "node:Section 8",
+        "inputCharacters": 45263,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "8. ( 1 )  A Data Fiduciary shall, irrespective of any agreement to the contrary ",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(1)",
+        "inputCharacters": 41768,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "8. ( 1 )  A Data Fiduciary shall, irrespective of any agreement to the contrary ",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(2)",
+        "inputCharacters": 41521,
+        "candidateLabels": [
+          "( 2 )  A Data Fiduciary may engage, appoint, use or otherwise involve a Data Pro",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(3)",
+        "inputCharacters": 41364,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(4)",
+        "inputCharacters": 41123,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to ",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(5)",
+        "inputCharacters": 41501,
+        "candidateLabels": [
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(6)",
+        "inputCharacters": 41226,
+        "candidateLabels": [
+          "( 6 ) In the event of a personal data breach, the Data Fiduciary shall give the ",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 9 )  A Data Fiduciary shall publish, in such manner as may be prescribed, the "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(7)",
+        "inputCharacters": 42581,
+        "candidateLabels": [
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with ",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Illustrations."
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(8)",
+        "inputCharacters": 41339,
+        "candidateLabels": [
+          "( 8 ) The purpose referred to in clause ( a ) of sub-section ( 7 ) shall be deem",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( b ) exercise any of her rights in relation to such processing, for such time p"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(9)",
+        "inputCharacters": 41536,
+        "candidateLabels": [
+          "( 9 )  A Data Fiduciary shall publish, in such manner as may be prescribed, the ",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(10)",
+        "inputCharacters": 40928,
+        "candidateLabels": [
+          "( 10 ) A Data Fiduciary shall establish an effective mechanism to redress the gr",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(11)",
+        "inputCharacters": 41643,
+        "candidateLabels": [
+          "( 11 ) For the purposes of this section, it is hereby clarified that a Data Prin",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(3)(a)",
+        "inputCharacters": 41079,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( a ) used to make a decision that affects the Data Principal; or"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(3)(b)",
+        "inputCharacters": 41033,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( b ) disclosed to another Data Fiduciary,"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(7)(a)",
+        "inputCharacters": 41608,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with ",
+          "( a ) erase personal data, upon the Data Principal withdrawing her consent or as"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(7)(b)",
+        "inputCharacters": 41390,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with ",
+          "( b ) cause its Data Processor to erase any personal data that was made availabl"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(8)(a)",
+        "inputCharacters": 41272,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( a ) approach the Data Fiduciary for the performance of the specified purpose; ",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(8)(b)",
+        "inputCharacters": 41391,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( b ) exercise any of her rights in relation to such processing, for such time p",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(3) shared consequence",
+        "inputCharacters": 41655,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(7) illustrations",
+        "inputCharacters": 41927,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Illustrations.",
+          "Illustrations."
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 8(8) shared time condition",
+        "inputCharacters": 41480,
+        "candidateLabels": [
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( b ) exercise any of her rights in relation to such processing, for such time p",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 8(8) -> Section 8(7)(a)",
+        "inputCharacters": 36164,
+        "candidateLabels": [
+          "( 8 ) The purpose referred to in clause ( a ) of sub-section ( 7 ) shall be deem"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 8(11) -> Section 8",
+        "inputCharacters": 36374,
+        "candidateLabels": [
+          "( 11 ) For the purposes of this section, it is hereby clarified that a Data Prin"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 8(5) -> Section 2(u)",
+        "inputCharacters": 37174,
+        "candidateLabels": [
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 8(6) -> Section 2(u)",
+        "inputCharacters": 36297,
+        "candidateLabels": [
+          "( 6 ) In the event of a personal data breach, the Data Fiduciary shall give the "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "inherited-condition:Section 8(3)(a),Section 8(3)(b)",
+        "inputCharacters": 35699,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "inherited-condition:Section 8(7)(a),Section 8(7)(b)",
+        "inputCharacters": 35745,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "paragraph_count",
+        "inputCharacters": 35528,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "lettered_points",
+        "inputCharacters": 35635,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S3-02",
+    "fieldCount": 35,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "node:Section 33",
+        "inputCharacters": 97403,
+        "candidateLabels": [
+          "Penalties.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "37."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Section 33(1)",
+        "inputCharacters": 97621,
+        "candidateLabels": [
+          "Penalties.",
+          "Appeal  to Appellate Tribunal.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Section 33(2)",
+        "inputCharacters": 92798,
+        "candidateLabels": [
+          "( 2 ) The Significant Data Fiduciary shall-\n( a ) appoint a Data Protection Offi",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that",
+          "( 2 ) Every intermediary who receives a direction issued under sub-section ( 1 ) shall be bound to comply with the same."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Section 33(2)(a)",
+        "inputCharacters": 89476,
+        "candidateLabels": [
+          "( a ) the nature, gravity and duration of the breach;",
+          "( b ) the type and nature of the personal data affected by the breach;",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 33(2)(b)",
+        "inputCharacters": 89608,
+        "candidateLabels": [
+          "( b ) the type and nature of the personal data affected by the breach;",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 6 ) In the event of a personal data breach, the Data Fiduciary shall give the "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 33(2)(c)",
+        "inputCharacters": 85637,
+        "candidateLabels": [
+          "( c ) repetitive nature of the breach;",
+          "( a ) the nature, gravity and duration of the breach;",
+          "( b ) the type and nature of the personal data affected by the breach;"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 33(2)(d)",
+        "inputCharacters": 89768,
+        "candidateLabels": [
+          "( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( e ) whether the person took any action to mitigate the effects and consequences of the breach,"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 33(2)(e)",
+        "inputCharacters": 91040,
+        "candidateLabels": [
+          "( e ) whether the person took any action to mitigate the effects and consequences of the breach,",
+          "Voluntary undertaking.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 33(2)(f)",
+        "inputCharacters": 94882,
+        "candidateLabels": [
+          "( f ) whether the monetary penalty to be imposed is proportionate and effective,",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Penalties."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Section 33(2)(g)",
+        "inputCharacters": 92305,
+        "candidateLabels": [
+          "( g ) the likely impact of the imposition of the monetary penalty on the person.",
+          "Penalties.",
+          "37."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:The Schedule",
+        "inputCharacters": 96101,
+        "candidateLabels": [
+          "THE  SCHEDULE [ See section 33 ( 1 )]",
+          "Schedule Penalties Table Header",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 1",
+        "inputCharacters": 92412,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8",
+          "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 2",
+        "inputCharacters": 92391,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.",
+          "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 3",
+        "inputCharacters": 92345,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+          "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 4",
+        "inputCharacters": 92362,
+        "candidateLabels": [
+          "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+          "Schedule Penalties Table Header",
+          "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 5",
+        "inputCharacters": 95404,
+        "candidateLabels": [
+          "Breach in observance of the duties under section 15.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "Schedule Penalties Table Header"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 6",
+        "inputCharacters": 96405,
+        "candidateLabels": [
+          "Breach of any term of voluntary undertaking accepted by the Board under section 32.",
+          "Voluntary undertaking.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "node:Schedule row 7",
+        "inputCharacters": 95479,
+        "candidateLabels": [
+          "Breach of any other provision of this Act or the rules made thereunder.",
+          "Schedule Penalties Table Header",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Section 33(1) -> The Schedule",
+        "inputCharacters": 90290,
+        "candidateLabels": [
+          "Penalties."
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Section 33(2) -> Section 33(1)",
+        "inputCharacters": 87437,
+        "candidateLabels": [
+          "( 2 )  A Data Fiduciary may engage, appoint, use or otherwise involve a Data Pro",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that",
+          "( 2 ) The Significant Data Fiduciary shall-\n( a ) appoint a Data Protection Offi"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Schedule row 1 -> Section 8(5)",
+        "inputCharacters": 89306,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 2 -> Section 8(6)",
+        "inputCharacters": 89306,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 3 -> Section 9",
+        "inputCharacters": 89281,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 4 -> Section 10",
+        "inputCharacters": 89284,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 5 -> Section 15",
+        "inputCharacters": 89284,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 6 -> Section 32",
+        "inputCharacters": 89284,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "edge:Schedule row 6 -> Section 28",
+        "inputCharacters": 89407,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5)",
+        "inputCharacters": 89487,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6)",
+        "inputCharacters": 89479,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9",
+        "inputCharacters": 89478,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10",
+        "inputCharacters": 89484,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15",
+        "inputCharacters": 89480,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32",
+        "inputCharacters": 89498,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28",
+        "inputCharacters": 89484,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "path:Section 33(1) -> The Schedule -> Schedule row 7",
+        "inputCharacters": 89424,
+        "candidateLabels": [],
+        "tableCount": 1
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S3-03",
+    "fieldCount": 33,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "node:Section 17",
+        "inputCharacters": 83318,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory ou"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)",
+        "inputCharacters": 80761,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "12. ( 1 ) A Data Principal shall have the right to correction, completion, updat"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(2)",
+        "inputCharacters": 71436,
+        "candidateLabels": [
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that",
+          "( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.",
+          "( 2 )  A Data Fiduciary may engage, appoint, use or otherwise involve a Data Pro"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(3)",
+        "inputCharacters": 71998,
+        "candidateLabels": [
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel",
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(4)",
+        "inputCharacters": 75164,
+        "candidateLabels": [
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to ",
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(5)",
+        "inputCharacters": 75422,
+        "candidateLabels": [
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured",
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(a)",
+        "inputCharacters": 78935,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(b)",
+        "inputCharacters": 79129,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(c)",
+        "inputCharacters": 79188,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory ou"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(d)",
+        "inputCharacters": 79204,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory ou"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(e)",
+        "inputCharacters": 79273,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(f)",
+        "inputCharacters": 79413,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( d ) for fulfilling any obligation under any law for the time being in force in India on any person to disclose any information to the State or any of its inst"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(2)(a)",
+        "inputCharacters": 75804,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "10. ( 1 ) The Central Government may notify any Data Fiduciary or class of Data ",
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(2)(b)",
+        "inputCharacters": 79037,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(f) explanation",
+        "inputCharacters": 78932,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(1)(f) illustration",
+        "inputCharacters": 79812,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "7. A Data Fiduciary may process personal data of a Data Principal"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 17(3) explanation",
+        "inputCharacters": 79535,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o",
+          "18. ( 1 ) With effect from such date as the Central Government may, by notification, appoint, there shall be established, for the purposes of this Act, a Board "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1) -> Chapter II",
+        "inputCharacters": 73744,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1) -> Chapter III",
+        "inputCharacters": 73747,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1) -> Section 16",
+        "inputCharacters": 73744,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1) -> Section 8(1)",
+        "inputCharacters": 73776,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1) -> Section 8(5)",
+        "inputCharacters": 73776,
+        "candidateLabels": [
+          "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(3) -> Section 5",
+        "inputCharacters": 71333,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(3) -> Section 8(3)",
+        "inputCharacters": 71357,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(3) -> Section 8(7)",
+        "inputCharacters": 71357,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(3) -> Section 10",
+        "inputCharacters": 71344,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(3) -> Section 11",
+        "inputCharacters": 71344,
+        "candidateLabels": [
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fiel"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(4) -> Section 8(7)",
+        "inputCharacters": 69738,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(4) -> Section 12(3)",
+        "inputCharacters": 69741,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(4) -> Section 12(2)",
+        "inputCharacters": 69741,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12)",
+        "inputCharacters": 68741,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14)",
+        "inputCharacters": 68741,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "exemption_scope",
+        "inputCharacters": 68753,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S3-04",
+    "fieldCount": 16,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "node:Section 9",
+        "inputCharacters": 80087,
+        "candidateLabels": [
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(1)",
+        "inputCharacters": 81737,
+        "candidateLabels": [
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "2. In this Act, unless the context otherwise requires,-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(2)",
+        "inputCharacters": 79516,
+        "candidateLabels": [
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that",
+          "( 2 ) The Significant Data Fiduciary shall-\n( a ) appoint a Data Protection Offi",
+          "( 2 )  A Data Fiduciary may engage, appoint, use or otherwise involve a Data Pro"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(3)",
+        "inputCharacters": 78540,
+        "candidateLabels": [
+          "( 3 )  A Data Fiduciary shall not undertake tracking or behavioural monitoring o",
+          "( 3 ) Where personal data processed by a Data Fiduciary is likely to be-\n( a ) u",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(4)",
+        "inputCharacters": 78497,
+        "candidateLabels": [
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to ",
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 2 ) A Data Fiduciary shall not undertake such processing of personal data that"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(5)",
+        "inputCharacters": 81631,
+        "candidateLabels": [
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured",
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "2. In this Act, unless the context otherwise requires,-"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "node:Section 9(1) explanation",
+        "inputCharacters": 78548,
+        "candidateLabels": [
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "Explanation. - For the purpose of this sub-section, the expression 'consent of t"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 9(1) -> Section 2(f)",
+        "inputCharacters": 77958,
+        "candidateLabels": [
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil",
+          "9. ( 1 ) The Data Fiduciary shall, before processing any personal data of a chil"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 9(4) -> Section 9(1)",
+        "inputCharacters": 77449,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 9(4) -> Section 9(3)",
+        "inputCharacters": 77449,
+        "candidateLabels": [
+          "( 4 )  A Data Fiduciary shall implement appropriate technical and organisational",
+          "( 4 ) The provisions of sub-sections ( 1 ) and ( 3 ) shall not be applicable to "
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 9(5) -> Section 9(1)",
+        "inputCharacters": 77748,
+        "candidateLabels": [
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Section 9(5) -> Section 9(3)",
+        "inputCharacters": 77748,
+        "candidateLabels": [
+          "( 5 )  A Data Fiduciary shall protect personal data in its possession or under i",
+          "( 5 ) The Central Government may, if satisfied that a Data Fiduciary has ensured"
+        ],
+        "tableCount": 0
+      },
+      {
+        "field": "edge:Schedule row 3 -> Section 9",
+        "inputCharacters": 80876,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "definition_exact_text",
+        "inputCharacters": 76281,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "schedule_row_3",
+        "inputCharacters": 87161,
+        "candidateLabels": [
+          "Schedule Penalties Table Header",
+          "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+          "8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary o"
+        ],
+        "tableCount": 1
+      },
+      {
+        "field": "exception_scope",
+        "inputCharacters": 76287,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S4-01",
+    "fieldCount": 7,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "source_text",
+        "inputCharacters": 35232,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "actor",
+        "inputCharacters": 32977,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "trigger",
+        "inputCharacters": 33063,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "condition",
+        "inputCharacters": 33022,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "duties",
+        "inputCharacters": 33069,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "section_8_8",
+        "inputCharacters": 33060,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "relationship_to_section_6",
+        "inputCharacters": 33115,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S4-02",
+    "fieldCount": 5,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "source_text",
+        "inputCharacters": 64073,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "conditional_scope",
+        "inputCharacters": 61894,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "removed_within_scope",
+        "inputCharacters": 61914,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "retained",
+        "inputCharacters": 61863,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "subsection_3_dependency",
+        "inputCharacters": 61923,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S4-03",
+    "fieldCount": 6,
+    "forbiddenCount": 3,
+    "fields": [
+      {
+        "field": "source_text",
+        "inputCharacters": 77907,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "conditions",
+        "inputCharacters": 71898,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "modality",
+        "inputCharacters": 76481,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "determination_factors",
+        "inputCharacters": 71963,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "row_1_ceiling",
+        "inputCharacters": 76405,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "row_2_ceiling",
+        "inputCharacters": 76405,
+        "candidateLabels": [],
+        "tableCount": 1
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S5-01",
+    "fieldCount": 3,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "legal_source",
+        "inputCharacters": 86766,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "analysis_checks",
+        "inputCharacters": 81378,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "unknown_from_act_alone",
+        "inputCharacters": 81048,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S5-02",
+    "fieldCount": 4,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "legal_source",
+        "inputCharacters": 51635,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "mandatory_from_act",
+        "inputCharacters": 51145,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "drafting_guidance",
+        "inputCharacters": 51125,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "preference_label",
+        "inputCharacters": 51096,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S6-01",
+    "fieldCount": 4,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "query",
+        "inputCharacters": 80990,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "direct_retrieval",
+        "inputCharacters": 85647,
+        "candidateLabels": [],
+        "tableCount": 1
+      },
+      {
+        "field": "context_expansion",
+        "inputCharacters": 81012,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "source_text",
+        "inputCharacters": 86765,
+        "candidateLabels": [],
+        "tableCount": 1
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S6-02",
+    "fieldCount": 5,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "query",
+        "inputCharacters": 12975,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "source_identity",
+        "inputCharacters": 13006,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "this_pdf_supports",
+        "inputCharacters": 13028,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "this_pdf_does_not_supply",
+        "inputCharacters": 13019,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "retrieval_action",
+        "inputCharacters": 13073,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S7-01",
+    "fieldCount": 4,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "user_question",
+        "inputCharacters": 76969,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "answer_requirements",
+        "inputCharacters": 77177,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "supporting_exact_text",
+        "inputCharacters": 77097,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "answer_status",
+        "inputCharacters": 76970,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  },
+  {
+    "caseId": "DPDPA-S7-02",
+    "fieldCount": 3,
+    "forbiddenCount": 2,
+    "fields": [
+      {
+        "field": "scenario",
+        "inputCharacters": 51083,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "required_conclusion",
+        "inputCharacters": 51161,
+        "candidateLabels": [],
+        "tableCount": 0
+      },
+      {
+        "field": "supporting_exact_text",
+        "inputCharacters": 51999,
+        "candidateLabels": [],
+        "tableCount": 0
+      }
+    ]
+  }
+]

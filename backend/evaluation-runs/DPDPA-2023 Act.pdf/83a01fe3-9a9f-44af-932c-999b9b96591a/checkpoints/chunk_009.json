@@ -1,0 +1,645 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_009",
+    "coreRange": {
+      "start": 7200,
+      "end": 7835
+    },
+    "coreSourceIds": [
+      "src:84",
+      "src:85",
+      "src:86",
+      "src:87",
+      "src:88",
+      "src:89",
+      "src:90",
+      "src:91",
+      "src:92"
+    ],
+    "contextBefore": [
+      "src:83"
+    ],
+    "contextAfter": [
+      "src:93"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:83",
+        "start": 7198,
+        "end": 7199,
+        "text": "4",
+        "group": "native:6",
+        "headings": [
+          "CHAPTER I",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:84",
+        "start": 7200,
+        "end": 7234,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:85",
+        "start": 7235,
+        "end": 7244,
+        "text": "[PART II-",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:86",
+        "start": 7245,
+        "end": 7264,
+        "text": "( c ) not apply to-",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:87",
+        "start": 7265,
+        "end": 7353,
+        "text": "( i ) personal data processed by an individual for any personal or domestic purpose; and",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:88",
+        "start": 7354,
+        "end": 7432,
+        "text": "( ii ) personal data that is made or caused to be made publicly available by -",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:89",
+        "start": 7433,
+        "end": 7496,
+        "text": "( A ) the Data Principal to whom such personal data relates; or",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:90",
+        "start": 7497,
+        "end": 7656,
+        "text": "( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:91",
+        "start": 7657,
+        "end": 7670,
+        "text": "Illustration.",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:92",
+        "start": 7671,
+        "end": 7835,
+        "text": "X, an individual, while blogging her views, has publicly made available her personal data on social media. In such case, the provisions of this Act shall not apply.",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:93",
+        "start": 7836,
+        "end": 7846,
+        "text": "CHAPTER II",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER II",
+      "OBLIGATIONS OF DATA FIDUCIARY"
+    ],
+    "inputHash": "e435303d2b249e521e5052aafa844d9ff0b0382b0eaee80ee3b66ad5753556dc",
+    "assembledInputCharacters": 4693,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "segment_009_001",
+        "kind": "unit",
+        "type": "clause",
+        "category": "provision",
+        "parent": "segment_009_002",
+        "children": [
+          "segment_009_002",
+          "segment_009_003",
+          "segment_009_006"
+        ],
+        "span": {
+          "start": 7200,
+          "end": 7264
+        },
+        "code": {
+          "start": 7245,
+          "end": 7264
+        },
+        "title": {
+          "start": 7200,
+          "end": 7234
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/80",
+            "physicalPage": 4,
+            "start": 7200,
+            "end": 7234,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/81",
+            "physicalPage": 4,
+            "start": 7235,
+            "end": 7244,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 438.12,
+                  "t": 774.57,
+                  "r": 478.79,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/82",
+            "physicalPage": 4,
+            "start": 7245,
+            "end": 7264,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 746.62,
+                  "r": 237.07,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  19
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:83"
+      },
+      {
+        "id": "segment_009_002",
+        "kind": "unit",
+        "type": "sub-clause",
+        "category": "list-point",
+        "parent": "segment_009_001",
+        "children": [
+          "segment_009_001"
+        ],
+        "span": {
+          "start": 7265,
+          "end": 7353
+        },
+        "code": {
+          "start": 7265,
+          "end": 7353
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/83",
+            "physicalPage": 4,
+            "start": 7265,
+            "end": 7353,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 730.17,
+                  "r": 477.63,
+                  "b": 707.15,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  88
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:86"
+      },
+      {
+        "id": "segment_009_003",
+        "kind": "unit",
+        "type": "sub-clause",
+        "category": "list-point",
+        "parent": "segment_009_001",
+        "children": [
+          "segment_009_004",
+          "segment_009_005"
+        ],
+        "span": {
+          "start": 7354,
+          "end": 7656
+        },
+        "code": {
+          "start": 7354,
+          "end": 7432
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/84",
+            "physicalPage": 4,
+            "start": 7354,
+            "end": 7432,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 702.21,
+                  "r": 477.63,
+                  "b": 679.19,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  78
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/85",
+            "physicalPage": 4,
+            "start": 7433,
+            "end": 7496,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 213.83,
+                  "t": 675.9,
+                  "r": 457.87,
+                  "b": 664.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  63
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/86",
+            "physicalPage": 4,
+            "start": 7497,
+            "end": 7656,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 659.46,
+                  "r": 477.63,
+                  "b": 624.92,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  159
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:86"
+      },
+      {
+        "id": "segment_009_004",
+        "kind": "unit",
+        "type": "sub-sub-clause",
+        "category": "list-point",
+        "parent": "segment_009_003",
+        "children": [],
+        "span": {
+          "start": 7433,
+          "end": 7496
+        },
+        "code": {
+          "start": 7433,
+          "end": 7496
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/85",
+            "physicalPage": 4,
+            "start": 7433,
+            "end": 7496,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 213.83,
+                  "t": 675.9,
+                  "r": 457.87,
+                  "b": 664.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  63
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:88"
+      },
+      {
+        "id": "segment_009_005",
+        "kind": "unit",
+        "type": "sub-sub-clause",
+        "category": "list-point",
+        "parent": "segment_009_003",
+        "children": [],
+        "span": {
+          "start": 7497,
+          "end": 7656
+        },
+        "code": {
+          "start": 7497,
+          "end": 7656
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/86",
+            "physicalPage": 4,
+            "start": 7497,
+            "end": 7656,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 659.46,
+                  "r": 477.63,
+                  "b": 624.92,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  159
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:88"
+      },
+      {
+        "id": "segment_009_006",
+        "kind": "unit",
+        "type": "illustration",
+        "category": "explanatory-material",
+        "parent": "segment_009_001",
+        "children": [],
+        "span": {
+          "start": 7657,
+          "end": 7835
+        },
+        "code": {
+          "start": 7657,
+          "end": 7670
+        },
+        "title": {
+          "start": 7657,
+          "end": 7670
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/87",
+            "physicalPage": 4,
+            "start": 7657,
+            "end": 7670,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 273.1,
+                  "t": 618.34,
+                  "r": 321.9,
+                  "b": 606.83,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/88",
+            "physicalPage": 4,
+            "start": 7671,
+            "end": 7835,
+            "provenance": [
+              {
+                "page_no": 4,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 600.25,
+                  "r": 477.63,
+                  "b": 577.23,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  164
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "src:86"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:84 (\"THE GAZETTE OF INDIA EXTRAORDINARY\") and src:85 (\"[PART II-\") appear to be gazette header fragments preceding the clause text; they are core units but do not constitute a separate legal provision, so they are recorded here for review rather than emitted as provisions.",
+      "The clause at src:86 (\"( c ) not apply to-\") begins mid-provision; the opening text of the parent provision (likely the beginning of the section/clause containing it) lies in the preceding context (src:83, role b) and is not emitted, so the full parent provision text and its section number are pending resolution.",
+      "The heading \"CHAPTER II\" appearing at src:93 is after-context navigation material only and is not emitted as a provision; the chapter's substantive content begins after the supplied core range.",
+      "The provision containing clause (c) appears to conclude at src:92; whether further text of the same provision (e.g., a clause (d)) follows after the core range is unknown and recorded as pending."
+    ],
+    "warnings": [
+      "The parent provision containing clause (c) starts before the supplied core range (src:83 context); its section number and opening wording are unknown.",
+      "Uncertainty exists as to whether additional sub-clauses or clauses of the parent provision continue after the core range."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) not apply to-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:86\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_001\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_002\",\n      \"parentHint\": \"src:83\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:84\"\n        },\n        {\n          \"exactQuote\": \"[PART II-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:85\"\n        },\n        {\n          \"exactQuote\": \"( c ) not apply to-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:86\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:84\"\n      }\n   ,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( i ) personal data processed by an individual for any personal or domestic purpose; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:87\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_002\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_001\",\n      \"parentHint\": \"src:86\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( i ) personal data processed by an individual for any personal or domestic purpose; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:87\"\n        },\n        {\n          \"exactQuote\": \"( i ) personal data processed by an individual for any personal or domestic purpose; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:87\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"sub-clause\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( ii ) personal data that is made or caused to be made publicly available by -\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:88\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_003\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_001\",\n      \"parentHint\": \"src:86\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( ii ) personal data that is made or caused to be made publicly available by -\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:88\"\n        },\n        {\n          \"exactQuote\": \"( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:90\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"sub-clause\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( A ) the Data Principal to whom such personal data relates; or\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:89\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_004\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_003\",\n      \"parentHint\": \"src:88\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( A ) the Data Principal to whom such personal data relates; or\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:89\"\n        },\n        {\n          \"exactQuote\": \"( A ) the Data Principal to whom such personal data relates; or\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:89\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"sub-sub-clause\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:90\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_005\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_003\",\n      \"parentHint\": \"src:88\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:90\"\n        },\n        {\n          \"exactQuote\": \"( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:90\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"sub-sub-clause\"\n    },\n    {\n      \"category\": \"explanatory-material\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Illustration.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:91\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"segment_009_006\",\n      \"kind\": \"unit\",\n      \"parent\": \"segment_009_001\",\n      \"parentHint\": \"src:86\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Illustration.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:91\"\n        },\n        {\n          \"exactQuote\": \"X, an individual, while blogging her views, has publicly made available her personal data on social media. In such case, the provisions of this Act shall not apply.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:92\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Illustration.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:91\"\n      },\n      \"type\": \"illustration\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:84 (\\\"THE GAZETTE OF INDIA EXTRAORDINARY\\\") and src:85 (\\\"[PART II-\\\") appear to be gazette header fragments preceding the clause text; they are core units but do not constitute a separate legal provision, so they are recorded here for review rather than emitted as provisions.\",\n    \"The clause at src:86 (\\\"( c ) not apply to-\\\") begins mid-provision; the opening text of the parent provision (likely the beginning of the section/clause containing it) lies in the preceding context (src:83, role b) and is not emitted, so the full parent provision text and its section number are pending resolution.\",\n    \"The heading \\\"CHAPTER II\\\" appearing at src:93 is after-context navigation material only and is not emitted as a provision; the chapter's substantive content begins after the supplied core range.\",\n    \"The provision containing clause (c) appears to conclude at src:92; whether further text of the same provision (e.g., a clause (d)) follows after the core range is unknown and recorded as pending.\"\n  ]\n  ,\"warnings\":[\"The parent provision containing clause (c) starts before the supplied core range (src:83 context); its section number and opening wording are unknown.\",\"Uncertainty exists as to whether additional sub-clauses or clauses of the parent provision continue after the core range.\"]\n}",
+          "reasoning_content": "Extract structures. Core units src:84-92. Provision: clause (c) of section 3 exceptions with list points and illustration. Anchors: start \"THE GAZETTE OF INDIA EXTRAORDINARY\" src:84, end src:92 quote. Also chapter II heading in context after (src:93, context only). src:83 context only.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950619,
+    "id": "chatcmpl-056582a1-8fee-47f2-9eab-c73f9ffb816b",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 1957,
+      "prompt_tokens": 725,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 2682
+    }
+  },
+  "usage": {
+    "inputTokens": 725,
+    "outputTokens": 1957,
+    "totalTokens": 2682
+  },
+  "finishReason": "stop",
+  "durationMs": 35555
+}

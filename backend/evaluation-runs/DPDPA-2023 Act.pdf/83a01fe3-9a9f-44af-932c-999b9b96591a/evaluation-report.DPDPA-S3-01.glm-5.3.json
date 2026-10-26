@@ -1,0 +1,166 @@
+{
+  "datasetId": "dpdpa-gazette-2023-en-review-v1",
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "sourceSha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "provider": "llm",
+  "model": "glm-5.3",
+  "pipelineVersion": "docling_small_chunks_reconcile-v4",
+  "modelAssignments": [],
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": null,
+  "configurationHash": null,
+  "reasoningSetting": null,
+  "judgeModel": "glm-5.3",
+  "split": "development",
+  "humanApprovedCases": 0,
+  "humanReviewPendingCases": 1,
+  "referenceStatus": "provisional_ai_drafted",
+  "passRateIsHumanValidated": false,
+  "statuses": {
+    "pass": 0,
+    "fail": 1,
+    "not_run": 0,
+    "blocked_by_upstream": 0,
+    "needs_review": 0
+  },
+  "evaluatedPassRate": {
+    "passed": 0,
+    "evaluated": 1,
+    "value": 0
+  },
+  "advisory": {
+    "pass": 0,
+    "fail": 1,
+    "needsReview": 0
+  },
+  "byLayer": {
+    "S3": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    }
+  },
+  "byChallengeType": {
+    "complete_subgraph": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    }
+  },
+  "byCheckingMethod": {
+    "source_backed_comparison": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 1,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 0
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 1,
+        "value": 0
+      }
+    }
+  },
+  "requiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "humanReviewedRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "advisoryRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "metrics": {
+    "duration_ms": 332743,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost_usd": null
+  },
+  "releaseQualified": false,
+  "cases": [
+    {
+      "caseId": "DPDPA-S3-01",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "complete_subgraph",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "fail",
+      "preliminaryVerdict": "fail",
+      "failedExpectedFields": [
+        "node:Section 8",
+        "node:Section 8(8)",
+        "node:Section 8(7)(a)",
+        "node:Section 8(8)(b)",
+        "edge:Section 8(8) -> Section 8(7)(a)",
+        "edge:Section 8(5) -> Section 2(u)",
+        "edge:Section 8(6) -> Section 2(u)"
+      ],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 8: Saved detailedProvision for Section 8 exists and covers sub-sections (1)-(11), but its text is corrupted: PDF page-junk ('General obligations of Data Fiduciary. 8 THE GAZETTE OF INDIA EXTRAORDINARY [PART II- Processing of personal data of children...') is inserted mid-clause within sub-section 7(a), breaking the statutory wording.",
+        "node:Section 8(8): Saved detailedProvision for Section 8(8) contains only the chapeau ('...if the Data Principal does not--') and omits clauses (a), (b) and the prescribed time-period sentence; clause (a) node 89fbc31f... has no full text in detailedProvisions and inventory textStart is truncated.",
+        "node:Section 8(7)(a): The point exists (id 724fceb...) with parent Section 8, but its saved text interleaves unrelated PDF page-header/section-heading junk ('General obligations of Data Fiduciary. 8 THE GAZETTE OF INDIA EXTRAORDINARY [PART II- Processing of personal data of children.') mid-sentence, so the exact source text is corrupted rather than matching after line-wrap normalization; kind is also 'unknown', not 'point'.",
+        "node:Section 8(8)(b): Node 31da1de4... contains the exact clause (b) text within a complete provision under parent subsection 797b71c (Section 8(8)), but its kind is 'unknown' instead of expected 'point', so the node specification is not fully supported.",
+        "edge:Section 8(8) -> Section 8(7)(a): No edge in evidence.relationships connects Section 8(8) to Section 8(7)(a). Its only outgoing edges are unresolved 'under this Act' and external 'Act and' references with empty targetIds; the textual mention 'clause (a) of sub-section (7)' was never resolved into a graph edge.",
+        "edge:Section 8(5) -> Section 2(u): No directed edge from Section 8(5) (node 88adc..., sourceLabel 'Section 8') to the Section 2(u) 'personal data breach' definition exists in evidence.relationships; its defined_term edges target only Definition (t) 'personal data', and no 2(u) node appears in the inventory.",
+        "edge:Section 8(6) -> Section 2(u): No defined_term edge to Section 2(u). Saved relationships from Section 8(6) (id e5053e...) link only 'personal data' (2(t)) and 'prescribed' (2(v)); no 2(u) node or 'personal data breach' edge exists.",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-01#"
+      ],
+      "expectedChecks": {
+        "passed": 22,
+        "failed": 7,
+        "needsReview": 0,
+        "total": 29
+      }
+    }
+  ],
+  "judgeUsage": {
+    "calls": 32,
+    "inputTokens": 418907,
+    "outputTokens": 6185,
+    "durationMs": 164025
+  },
+  "datasetReview": "human_review_pending",
+  "fixtureReplacementCharacterCount": 0,
+  "judgeArtifacts": {
+    "checkpoint": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-checkpoint.DPDPA-S3-01.glm-5.3.json",
+    "calls": "evaluation-judge-calls.DPDPA-S3-01.glm-5.3.json",
+    "rawAttempts": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-raw.DPDPA-S3-01.glm-5.3.jsonl"
+  }
+}

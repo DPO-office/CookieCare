@@ -1,0 +1,286 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_020",
+    "coreRange": {
+      "start": 44523,
+      "end": 46752
+    },
+    "coreSourceIds": [
+      "src:334",
+      "src:335",
+      "src:336",
+      "src:337",
+      "src:338",
+      "src:339",
+      "src:340",
+      "src:341",
+      "src:342",
+      "src:343",
+      "src:344",
+      "src:345",
+      "src:346",
+      "src:347",
+      "src:348"
+    ],
+    "contextBefore": [
+      "src:333"
+    ],
+    "contextAfter": [
+      "src:349"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:333",
+        "start": 44207,
+        "end": 44522,
+        "text": "( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:334",
+        "start": 44523,
+        "end": 44927,
+        "text": "( 3 ) The Board may, on a representation made to it by a person affected by a direction issued under sub-section ( 1 )  or  sub-section ( 2 ),  or  on  a  reference made by the Central Government, modify, suspend, withdraw or cancel such direction and, while doing so, impose such conditions as it may deem fit, subject to which the modification, suspension, withdrawal or cancellation shall have effect.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:335",
+        "start": 44928,
+        "end": 45246,
+        "text": "28. ( 1 ) The Board shall function as an independent body and shall, as far as practicable, function as a digital office, with the receipt of complaints and the allocation, hearing and pronouncement of decisions in respect of the same being digital by design, and adopt such techno-legal measures as may be prescribed.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:336",
+        "start": 45247,
+        "end": 45475,
+        "text": "( 2 ) The Board may, on receipt of an intimation or complaint or reference or directions as referred to in sub-section ( 1 ) of section 27, take action in accordance with the provisions of this Act and the rules made thereunder.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:337",
+        "start": 45476,
+        "end": 45478,
+        "text": "15",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:338",
+        "start": 45479,
+        "end": 45486,
+        "text": "SEC. 1]",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:339",
+        "start": 45487,
+        "end": 45521,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:340",
+        "start": 45522,
+        "end": 45618,
+        "text": "( 3 ) The Board shall determine whether there are sufficient grounds to proceed with an inquiry.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:341",
+        "start": 45619,
+        "end": 45760,
+        "text": "( 4 ) In case the Board determines that there are insufficient grounds, it may, for reasons to be recorded in writing, close the proceedings.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:342",
+        "start": 45761,
+        "end": 46044,
+        "text": "( 5 ) In case the Board determines that there are sufficient grounds to proceed with inquiry, it may, for reasons to be recorded in writing, inquire into the affairs of any person for ascertaining whether such person is complying with or has complied with the provisions of this Act.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:343",
+        "start": 46045,
+        "end": 46207,
+        "text": "( 6 ) The Board shall conduct such inquiry following the principles of natural justice and shall record reasons for its actions during the course of such inquiry.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:344",
+        "start": 46208,
+        "end": 46430,
+        "text": "( 7 ) For the purposes of discharging its functions under this Act, the Board shall have the same powers as are vested in a civil court under the Code of Civil Procedure, 1908, in respect of matters relating to5  of  1908.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:345",
+        "start": 46431,
+        "end": 46516,
+        "text": "( a ) summoning and enforcing the attendance of any person and examining her on oath;",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:346",
+        "start": 46517,
+        "end": 46607,
+        "text": "( b ) receiving evidence of affidavit requiring the discovery and production of documents;",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:347",
+        "start": 46608,
+        "end": 46705,
+        "text": "( c )  inspecting any data, book, document, register, books of account or any other document; and",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:348",
+        "start": 46706,
+        "end": 46752,
+        "text": "( d ) such other matters as may be prescribed.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:349",
+        "start": 46753,
+        "end": 46938,
+        "text": "( 8 ) The Board or its officers shall not prevent access to any premises or take into custody any equipment or any item that may adversely affect the day-to-day functioning of a person.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER VIII",
+      "PENALTIES AND ADJUDICATION"
+    ],
+    "inputHash": "4631bf1c3ec113f0bbb6884b322ee5db8d1ab217b392add28cb02e009dad0c14",
+    "assembledInputCharacters": 6898,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": []
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [],\n  \"unresolvedItems\": [],\n  \"warnings\": []\n}",
+          "reasoning_content": "Extract structures with core anchors. src:334 is subsection (3) of section 27 — parent hint section 27 (before chunk). src:335 starts section 28. src:336–348 subsections/list points. src:337/338/339 are page furniture (\"15\", \"SEC. 1]\", \"THE GAZETTE OF INDIA EXTRAORDINARY\") — mark as unresolved/unclassified non-provision material, or skip? They're core units but not legal provisions; record in unresolvedItems as non-provision typographic material.\n\nBuild JSON per schema (not fully known; assume reasonable shape with provisions array and references).",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951797,
+    "id": "chatcmpl-0dc8c082-28e1-9929-b36e-15a2ca140bcc",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 166,
+      "prompt_tokens": 1222,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 1388
+    }
+  },
+  "usage": {
+    "inputTokens": 1222,
+    "outputTokens": 166,
+    "totalTokens": 1388
+  },
+  "finishReason": "stop",
+  "durationMs": 4681
+}

@@ -1,0 +1,402 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_005",
+    "coreRange": {
+      "start": 697,
+      "end": 1210
+    },
+    "coreSourceIds": [
+      "src:16",
+      "src:17",
+      "src:18",
+      "src:19",
+      "src:20"
+    ],
+    "contextBefore": [
+      "src:15"
+    ],
+    "contextAfter": [
+      "src:21"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:15",
+        "start": 634,
+        "end": 696,
+        "text": "New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )",
+        "group": "native:3",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+        ]
+      },
+      {
+        "id": "src:16",
+        "start": 697,
+        "end": 850,
+        "text": "The following Act  of  Parliament  received  the  assent  of  the  President  on  the 11th August, 2023 and is hereby published for general information:-",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      },
+      {
+        "id": "src:17",
+        "start": 851,
+        "end": 897,
+        "text": "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      },
+      {
+        "id": "src:18",
+        "start": 898,
+        "end": 914,
+        "text": "(NO. 22 OF 2023)",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      },
+      {
+        "id": "src:19",
+        "start": 915,
+        "end": 937,
+        "text": "[11 th August , 2023.]",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      },
+      {
+        "id": "src:20",
+        "start": 938,
+        "end": 1210,
+        "text": "An Act to provide for the processing of digital personal data in a manner that recognises both the right of individuals to protect their personal data and the need to process such personal data for lawful purposes and for matters connected therewith or incidental thereto.",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      },
+      {
+        "id": "src:21",
+        "start": 1211,
+        "end": 1304,
+        "text": "BE it enacted by Parliament in the Seventy-fourth Year of the Republic of India as follows:--",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      }
+    ],
+    "headingContext": [
+      "vlk/kkj.k",
+      "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+      "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+    ],
+    "inputHash": "d84495c9fec8096ef55284344915f70fcc6b293fd087595d1293f8ea8ffa1bf9",
+    "assembledInputCharacters": 4717,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_005_01",
+        "kind": "container",
+        "type": "preamble",
+        "category": "preamble",
+        "parent": null,
+        "children": [
+          "seg_005_02",
+          "seg_005_05"
+        ],
+        "span": {
+          "start": 697,
+          "end": 850
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/12",
+            "physicalPage": 1,
+            "start": 697,
+            "end": 850,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 360.15,
+                  "r": 477.63,
+                  "b": 337.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  153
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "vlk/kkj.k"
+      },
+      {
+        "id": "seg_005_02",
+        "kind": "unit",
+        "type": "title",
+        "category": "title",
+        "parent": "seg_005_01",
+        "children": [
+          "seg_005_03",
+          "seg_005_04"
+        ],
+        "span": {
+          "start": 851,
+          "end": 897
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/13",
+            "physicalPage": 1,
+            "start": 851,
+            "end": 897,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 145.26,
+                  "t": 325.62,
+                  "r": 449.74,
+                  "b": 312.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  46
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_005_03",
+        "kind": "unit",
+        "type": "act_number",
+        "category": "title",
+        "parent": "seg_005_02",
+        "children": [],
+        "span": {
+          "start": 898,
+          "end": 914
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/14",
+            "physicalPage": 1,
+            "start": 898,
+            "end": 914,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 254.5,
+                  "t": 309.17,
+                  "r": 340.5,
+                  "b": 296.02,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  16
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_005_04",
+        "kind": "unit",
+        "type": "enactment_date",
+        "category": "date",
+        "parent": "seg_005_02",
+        "children": [],
+        "span": {
+          "start": 915,
+          "end": 937
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/15",
+            "physicalPage": 1,
+            "start": 915,
+            "end": 937,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 398.6,
+                  "t": 294.37,
+                  "r": 477.63,
+                  "b": 282.86,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  22
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_005_05",
+        "kind": "unit",
+        "type": "long_title",
+        "category": "title",
+        "parent": "seg_005_01",
+        "children": [],
+        "span": {
+          "start": 938,
+          "end": 1210
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/16",
+            "physicalPage": 1,
+            "start": 938,
+            "end": 1210,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 272.99,
+                  "r": 477.63,
+                  "b": 215.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  272
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "seg_005_5 (long title) and seg_005_6 (enacting formula) continue beyond this chunk into the enacting provisions; the core range ends at src:20 and src:21 is supplied only as context after, so its status is tentative",
+      "Ignored 1 context-only segments in chunk_005",
+      "Cross-chunk parent left pending for seg_005_01: vlk/kkj.k"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\": [], \"segments\": [{\"category\": \"preamble\", \"codeAnchor\": null, \"continuesAfterChunk\": false, \"id\": \"seg_005_01\", \"kind\": \"container\", \"parent\": \"vlk/kkj.k\", \"sourceAnchors\": [{\"exactQuote\": \"The following Act  of  Parliament  received  the  assent  of  the  President\", \"occurrence\": 0, \"sourceId\": \"src:16\"}], \"titleAnchor\": null, \"type\": \"preamble\"}, {\"category\": \"title\", \"codeAnchor\": null, \"continuesAfterChunk\": false, \"id\": \"seg_005_02\", \"kind\": \"unit\", \"parent\": \"seg_005_01\", \"sourceAnchors\": [{\"exactQuote\": \"THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023\", \"occurrence\": 0, \"sourceId\": \"src:17\"}], \"titleAnchor\": null, \"type\": \"title\"}, {\"category\": \"title\", \"codeAnchor\": null, \"continuesAfterChunk\": false, \"id\": \"seg_005_03\", \"kind\": \"unit\", \"parent\": \"seg_005_02\", \"sourceAnchors\": [{\"exactQuote\": \"(NO. 22 OF 2023)\", \"occurrence\": 0, \"sourceId\": \"src:18\"}], \"titleAnchor\": null, \"type\": \"act_number\"}, {\"category\": \"date\", \"codeAnchor\": null, \"continuesAfterChunk\": false, \"id\": \"seg_005_04\", \"kind\": \"unit\", \"parent\": \"seg_005_02\", \"sourceAnchors\": [{\"exactQuote\": \"[11 th August , 2023.]\", \"occurrence\": 0, \"sourceId\": \"src:19\"}], \"titleAnchor\": null, \"type\": \"enactment_date\"}, {\"category\": \"title\", \"codeAnchor\": null, \"continuesAfterChunk\": true, \"id\": \"seg_005_05\", \"kind\": \"unit\", \"parent\": \"seg_005_01\", \"sourceAnchors\": [{\"exactQuote\": \"An Act to provide for the processing of digital personal data in a manner\", \"occurrence\": 0, \"sourceId\": \"src:20\"}], \"titleAnchor\": null, \"type\": \"long_title\"}, {\"category\": \"preamble\", \"codeAnchor\": null, \"continuesAfterChunk\": true, \"id\": \"seg_005_06\", \"kind\": \"unit\", \"parent\": \"seg_005_01\", \"sourceAnchors\": [{\"exactQuote\": \"BE it enacted by Parliament in the Seventy-fourth Year of the Republic\", \"occurrence\": 0, \"sourceId\": \"src:21\"}], \"titleAnchor\": null, \"type\": \"enacting_formula\"}], \"unresolvedItems\": [] , \"warnings\": [\"seg_005_5 (long title) and seg_005_6 (enacting formula) continue beyond this chunk into the enacting provisions; the core range ends at src:20 and src:21 is supplied only as context after, so its status is tentative\"]}",
+          "reasoning_content": "Extract structures. Core units src:16-20: preamble/preamble formula, long title.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950433,
+    "id": "chatcmpl-3198fd31-16d8-465f-a852-5d830bc56cc1",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 704,
+      "completion_tokens": 753,
+      "prompt_tokens": 729,
+      "prompt_tokens_details": {
+        "cached_tokens": 704
+      },
+      "speed": null,
+      "total_tokens": 1482
+    }
+  },
+  "usage": {
+    "inputTokens": 729,
+    "outputTokens": 753,
+    "totalTokens": 1482
+  },
+  "finishReason": "stop",
+  "durationMs": 14336
+}

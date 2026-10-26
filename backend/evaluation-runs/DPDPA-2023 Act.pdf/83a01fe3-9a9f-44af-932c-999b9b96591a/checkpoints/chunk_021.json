@@ -1,0 +1,1951 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_021",
+    "coreRange": {
+      "start": 46753,
+      "end": 52788
+    },
+    "coreSourceIds": [
+      "src:349",
+      "src:350",
+      "src:351",
+      "src:352",
+      "src:353",
+      "src:354",
+      "src:355",
+      "src:356",
+      "src:357",
+      "src:358",
+      "src:359",
+      "src:360",
+      "src:361",
+      "src:362",
+      "src:363",
+      "src:364",
+      "src:365",
+      "src:366",
+      "src:367",
+      "src:368",
+      "src:369",
+      "src:370",
+      "src:371",
+      "src:372",
+      "src:373",
+      "src:374",
+      "src:375",
+      "src:376",
+      "src:377",
+      "src:378",
+      "src:379",
+      "src:380",
+      "src:381",
+      "src:382",
+      "src:383",
+      "src:384",
+      "src:385",
+      "src:386",
+      "src:387",
+      "src:388"
+    ],
+    "contextBefore": [
+      "src:348"
+    ],
+    "contextAfter": [
+      "src:389"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:348",
+        "start": 46706,
+        "end": 46752,
+        "text": "( d ) such other matters as may be prescribed.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      },
+      {
+        "id": "src:349",
+        "start": 46753,
+        "end": 46938,
+        "text": "( 8 ) The Board or its officers shall not prevent access to any premises or take into custody any equipment or any item that may adversely affect the day-to-day functioning of a person.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:350",
+        "start": 46939,
+        "end": 47190,
+        "text": "( 9 ) The Board may require the services of any police officer or any officer of the Central Government or a State Government to assist it for the purposes of this section and it shall be the duty of every such officer to comply with such requisition.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:351",
+        "start": 47191,
+        "end": 47400,
+        "text": "( 10 ) During the course of the inquiry, if the Board considers it necessary, it may for reasons to be recorded in writing, issue interim orders after giving the person concerned an opportunity of being heard.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:352",
+        "start": 47401,
+        "end": 47644,
+        "text": "( 11 ) On completion of the inquiry and after giving the person concerned an opportunity of  being  heard,  the  Board  may  for  reasons  to  be  recorded  in  writing,  either  close  the proceedings or proceed in accordance with section 33.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:353",
+        "start": 47645,
+        "end": 47826,
+        "text": "( 12 ) At any stage after receipt of a complaint, if the Board is of the opinion that the complaint is false or frivolous, it may issue a warning or impose costs on the complainant.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:354",
+        "start": 47827,
+        "end": 47838,
+        "text": "CHAPTER VII",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:355",
+        "start": 47839,
+        "end": 47878,
+        "text": "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:356",
+        "start": 47879,
+        "end": 48019,
+        "text": "29. ( 1 ) Any person aggrieved by an order or direction made by the Board under this Act may prefer an appeal before the Appellate Tribunal.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:357",
+        "start": 48020,
+        "end": 48274,
+        "text": "( 2 ) Every appeal under sub-section ( 1 ) shall be filed within a period of sixty days from the date of receipt of the order or direction appealed against and it shall be in such form and manner and shall be accompanied by such fee as may be prescribed.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:358",
+        "start": 48275,
+        "end": 48491,
+        "text": "( 3 ) The Appellate Tribunal may entertain an appeal after the expiry of the period specified in sub-section ( 2 ), if it is satisfied that there was sufficient cause for not preferring the appeal within that period.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:359",
+        "start": 48492,
+        "end": 48755,
+        "text": "( 4 ) On receipt of an appeal under sub-section ( 1 ), the Appellate Tribunal may, after giving the parties to the appeal, an opportunity of being heard, pass such orders thereon as it thinks fit, confirming, modifying or setting aside the order appealed against.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:360",
+        "start": 48756,
+        "end": 48786,
+        "text": "Appeal  to Appellate Tribunal.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:361",
+        "start": 48787,
+        "end": 48789,
+        "text": "16",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:362",
+        "start": 48790,
+        "end": 48824,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:363",
+        "start": 48825,
+        "end": 48834,
+        "text": "[PART II-",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:364",
+        "start": 48835,
+        "end": 48901,
+        "text": "Orders passed by Appellate Tribunal  to  be executable  as decree.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:365",
+        "start": 48902,
+        "end": 49021,
+        "text": "( 5 ) The Appellate Tribunal shall send a copy of every order made by it to the Board and to the parties to the appeal.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:366",
+        "start": 49022,
+        "end": 49292,
+        "text": "( 6 ) The appeal filed before the Appellate Tribunal under sub-section ( 1 ) shall be dealt with by it as expeditiously as possible and endeavour shall be made by it to dispose of the appeal finally within six months from the date on which the appeal is presented to it.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:367",
+        "start": 49293,
+        "end": 49516,
+        "text": "( 7 )  Where any appeal under sub-section ( 6 )  could  not  be  disposed  of  within  the period of six months, the Appellate Tribunal shall record its reasons in writing for not disposing of the appeal within that period.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:368",
+        "start": 49517,
+        "end": 49768,
+        "text": "( 8 ) Without prejudice to the provisions of section 14A and section 16 of the Telecom Regulatory Authority of India Act, 1997, the Appellate Tribunal shall deal with an appeal under this section in accordance with such procedure as may be prescribed.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:369",
+        "start": 49769,
+        "end": 49957,
+        "text": "( 9 ) Where an appeal is filed against the orders of the Appellate Tribunal under this Act, the provisions of section 18 of the Telecom Regulatory Authority of India Act, 1997 shall apply.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:370",
+        "start": 49958,
+        "end": 50225,
+        "text": "( 10 ) In respect of appeals filed under the provisions of this Act, the  Appellate Tribunal shall, as far as practicable, function as a digital office, with the receipt of appeal, hearing and pronouncement of decisions in respect of the same being digital by design.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:371",
+        "start": 50226,
+        "end": 50435,
+        "text": "30. ( 1 ) An order passed by the Appellate Tribunal under this Act shall be executable by it as a decree of civil court, and for this purpose, the Appellate Tribunal shall have all the powers of a civil court.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:372",
+        "start": 50436,
+        "end": 50686,
+        "text": "( 2 ) Notwithstanding anything contained in sub-section ( 1 ), the Appellate Tribunal may transmit any order made by it to a civil court having local jurisdiction and such civil court shall execute the order as if it were a decree made by that court.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:373",
+        "start": 50687,
+        "end": 51024,
+        "text": "31. If the Board is of the opinion that any complaint may be resolved by mediation, it may direct the parties concerned to attempt resolution of the dispute through such mediation by such mediator as the parties may mutually agree upon, or as provided for under any law for the time being in force in India. Alternate dispute resolution.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:374",
+        "start": 51025,
+        "end": 51242,
+        "text": "32. ( 1 ) The Board may accept a voluntary undertaking in respect of any matter related to observance of the provisions of this Act from any person at any stage of a proceeding under section 28. Voluntary undertaking.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:375",
+        "start": 51243,
+        "end": 51490,
+        "text": "( 2 )  The  voluntary  undertaking  referred  to  in  sub-section  ( 1 )  may  include  an undertaking to take such action within such time as may be determined by the Board, or refrain from taking such action, and or publicising such undertaking.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:376",
+        "start": 51491,
+        "end": 51677,
+        "text": "( 3 ) The Board may, after accepting the voluntary undertaking and with the consent of the person who gave the voluntary undertaking vary the terms included in the voluntary undertaking.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:377",
+        "start": 51678,
+        "end": 51911,
+        "text": "( 4 ) The acceptance of the voluntary undertaking by the Board shall constitute a bar on proceedings under the provisions of this Act as regards the contents of the voluntary undertaking, except in cases covered by sub-section ( 5 ).",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:378",
+        "start": 51912,
+        "end": 52215,
+        "text": "( 5 ) Where a person fails to adhere to any term of the voluntary undertaking accepted by the Board, such breach shall be deemed to be breach of the provisions of this Act and the Board may, after giving such person an opportunity of being heard, proceed in accordance with the provisions of section 33.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:379",
+        "start": 52216,
+        "end": 52228,
+        "text": "CHAPTER VIII",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:380",
+        "start": 52229,
+        "end": 52255,
+        "text": "PENALTIES AND ADJUDICATION",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:381",
+        "start": 52256,
+        "end": 52452,
+        "text": "33. ( 1 ) If the Board determines on conclusion of an inquiry that breach of the provisions of this Act or the rules made thereunder by a person is significant, it may, after giving the Penalties.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:382",
+        "start": 52453,
+        "end": 52466,
+        "text": "24  of  1997.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:383",
+        "start": 52467,
+        "end": 52480,
+        "text": "24  of  1997.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:384",
+        "start": 52481,
+        "end": 52483,
+        "text": "17",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:385",
+        "start": 52484,
+        "end": 52491,
+        "text": "SEC. 1]",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:386",
+        "start": 52492,
+        "end": 52526,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:387",
+        "start": 52527,
+        "end": 52620,
+        "text": "person an opportunity of being heard, impose such monetary penalty specified in the Schedule.",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:388",
+        "start": 52621,
+        "end": 52788,
+        "text": "( 2 )  While  determining  the  amount  of  monetary  penalty  to  be  imposed  under sub-section ( 1 ), the Board shall have regard to the following matters, namely:-",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:389",
+        "start": 52789,
+        "end": 52842,
+        "text": "( a ) the nature, gravity and duration of the breach;",
+        "group": "native:19",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "3704abe5ed75f9161f75796c3ed8c5cdcc4a083c384086a74ae9f449c6fca6ff",
+    "assembledInputCharacters": 10738,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "sec_28_continuation",
+        "kind": "container",
+        "type": "section",
+        "category": "paragraph",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 46753,
+          "end": 47826
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/345",
+            "physicalPage": 15,
+            "start": 46753,
+            "end": 46938,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 460.47,
+                  "r": 477.63,
+                  "b": 424.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  185
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/346",
+            "physicalPage": 15,
+            "start": 46939,
+            "end": 47190,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 419.36,
+                  "r": 477.63,
+                  "b": 383.18,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  251
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/347",
+            "physicalPage": 15,
+            "start": 47191,
+            "end": 47400,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 378.24,
+                  "r": 477.63,
+                  "b": 342.06,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  209
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/348",
+            "physicalPage": 15,
+            "start": 47401,
+            "end": 47644,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 337.13,
+                  "r": 477.63,
+                  "b": 302.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  243
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/349",
+            "physicalPage": 15,
+            "start": 47645,
+            "end": 47826,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 296.02,
+                  "r": 477.63,
+                  "b": 272.99,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  181
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": true,
+        "parentHint": "Section 28 (inquiry and inspection powers of the Board)"
+      },
+      {
+        "id": "ch_7",
+        "kind": "container",
+        "type": "chapter",
+        "category": "chapter_heading",
+        "parent": null,
+        "children": [
+          "sec_29",
+          "sec_30",
+          "sec_31",
+          "sec_32"
+        ],
+        "span": {
+          "start": 47827,
+          "end": 47878
+        },
+        "code": null,
+        "title": {
+          "start": 47839,
+          "end": 47878
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/350",
+            "physicalPage": 15,
+            "start": 47827,
+            "end": 47838,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 268.45,
+                  "t": 266.41,
+                  "r": 326.55,
+                  "b": 256.55,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  11
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/351",
+            "physicalPage": 15,
+            "start": 47839,
+            "end": 47878,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 212.67,
+                  "t": 249.97,
+                  "r": 382.33,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  39
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "sec_29",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": "ch_7",
+        "children": [],
+        "span": {
+          "start": 47879,
+          "end": 50225
+        },
+        "code": null,
+        "title": {
+          "start": 48756,
+          "end": 48786
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/352",
+            "physicalPage": 15,
+            "start": 47879,
+            "end": 48019,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 233.52,
+                  "r": 477.63,
+                  "b": 210.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  140
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/353",
+            "physicalPage": 15,
+            "start": 48020,
+            "end": 48274,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 203.92,
+                  "r": 477.63,
+                  "b": 169.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  254
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/354",
+            "physicalPage": 15,
+            "start": 48275,
+            "end": 48491,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 162.81,
+                  "r": 477.63,
+                  "b": 128.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  216
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/355",
+            "physicalPage": 15,
+            "start": 48492,
+            "end": 48755,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 121.7,
+                  "r": 477.63,
+                  "b": 87.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  263
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/356",
+            "physicalPage": 15,
+            "start": 48756,
+            "end": 48786,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 230.23,
+                  "r": 521.79,
+                  "b": 202.28,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  30
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/357",
+            "physicalPage": 16,
+            "start": 48787,
+            "end": 48789,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 123.18,
+                  "t": 774.57,
+                  "r": 133.64,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  2
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/358",
+            "physicalPage": 16,
+            "start": 48790,
+            "end": 48824,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/359",
+            "physicalPage": 16,
+            "start": 48825,
+            "end": 48834,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 438.12,
+                  "t": 774.57,
+                  "r": 478.79,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/360",
+            "physicalPage": 16,
+            "start": 48835,
+            "end": 48901,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 503.23,
+                  "r": 106.91,
+                  "b": 457.18,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  66
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/361",
+            "physicalPage": 16,
+            "start": 48902,
+            "end": 49021,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 723.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  119
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/362",
+            "physicalPage": 16,
+            "start": 49022,
+            "end": 49292,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 715.37,
+                  "r": 477.63,
+                  "b": 680.84,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  270
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/363",
+            "physicalPage": 16,
+            "start": 49293,
+            "end": 49516,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 674.26,
+                  "r": 477.63,
+                  "b": 639.72,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  223
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/364",
+            "physicalPage": 16,
+            "start": 49517,
+            "end": 49768,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 631.5,
+                  "r": 477.63,
+                  "b": 596.96,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  251
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/365",
+            "physicalPage": 16,
+            "start": 49769,
+            "end": 49957,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 590.39,
+                  "r": 477.63,
+                  "b": 554.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  188
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/366",
+            "physicalPage": 16,
+            "start": 49958,
+            "end": 50225,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 547.63,
+                  "r": 477.63,
+                  "b": 513.09,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  267
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter VII"
+      },
+      {
+        "id": "sec_30",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": "ch_7",
+        "children": [],
+        "span": {
+          "start": 50226,
+          "end": 50686
+        },
+        "code": null,
+        "title": {
+          "start": 48835,
+          "end": 48901
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/367",
+            "physicalPage": 16,
+            "start": 50226,
+            "end": 50435,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 506.52,
+                  "r": 477.63,
+                  "b": 470.34,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  209
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/368",
+            "physicalPage": 16,
+            "start": 50436,
+            "end": 50686,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 463.76,
+                  "r": 477.63,
+                  "b": 429.22,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  250
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter VII"
+      },
+      {
+        "id": "sec_31",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": "ch_7",
+        "children": [],
+        "span": {
+          "start": 50687,
+          "end": 51024
+        },
+        "code": null,
+        "title": {
+          "start": 50995,
+          "end": 51024
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/369",
+            "physicalPage": 16,
+            "start": 50687,
+            "end": 51024,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 422.64,
+                  "r": 477.63,
+                  "b": 374.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  337
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter VII"
+      },
+      {
+        "id": "sec_32",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": "ch_7",
+        "children": [],
+        "span": {
+          "start": 51025,
+          "end": 52215
+        },
+        "code": null,
+        "title": {
+          "start": 51220,
+          "end": 51242
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/370",
+            "physicalPage": 16,
+            "start": 51025,
+            "end": 51242,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 368.38,
+                  "r": 477.63,
+                  "b": 332.2,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  217
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/371",
+            "physicalPage": 16,
+            "start": 51243,
+            "end": 51490,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 325.62,
+                  "r": 477.63,
+                  "b": 291.08,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  247
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/372",
+            "physicalPage": 16,
+            "start": 51491,
+            "end": 51677,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 284.5,
+                  "r": 477.63,
+                  "b": 248.32,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  186
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/373",
+            "physicalPage": 16,
+            "start": 51678,
+            "end": 51911,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 241.75,
+                  "r": 477.63,
+                  "b": 207.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  233
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/374",
+            "physicalPage": 16,
+            "start": 51912,
+            "end": 52215,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 200.63,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  303
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter VII"
+      },
+      {
+        "id": "ch_8",
+        "kind": "container",
+        "type": "chapter",
+        "category": "chapter_heading",
+        "parent": null,
+        "children": [
+          "sec_33_partial"
+        ],
+        "span": {
+          "start": 52216,
+          "end": 52255
+        },
+        "code": null,
+        "title": {
+          "start": 52229,
+          "end": 52255
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/375",
+            "physicalPage": 16,
+            "start": 52216,
+            "end": 52228,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 267.29,
+                  "t": 146.36,
+                  "r": 327.71,
+                  "b": 134.85,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  12
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/376",
+            "physicalPage": 16,
+            "start": 52229,
+            "end": 52255,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 241.72,
+                  "t": 128.27,
+                  "r": 353.28,
+                  "b": 116.76,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  26
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "sec_33_partial",
+        "kind": "container",
+        "type": "section",
+        "category": "section",
+        "parent": "ch_8",
+        "children": [],
+        "span": {
+          "start": 52256,
+          "end": 52788
+        },
+        "code": null,
+        "title": {
+          "start": 52442,
+          "end": 52452
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/377",
+            "physicalPage": 16,
+            "start": 52256,
+            "end": 52452,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 110.18,
+                  "r": 477.63,
+                  "b": 87.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  196
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/378",
+            "physicalPage": 16,
+            "start": 52453,
+            "end": 52466,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 618.34,
+                  "r": 528.76,
+                  "b": 608.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/379",
+            "physicalPage": 16,
+            "start": 52467,
+            "end": 52480,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 575.59,
+                  "r": 528.76,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/380",
+            "physicalPage": 17,
+            "start": 52481,
+            "end": 52483,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 467.17,
+                  "t": 776.22,
+                  "r": 477.63,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  2
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/381",
+            "physicalPage": 17,
+            "start": 52484,
+            "end": 52491,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 776.22,
+                  "r": 145.26,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  7
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/382",
+            "physicalPage": 17,
+            "start": 52492,
+            "end": 52526,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 201.04,
+                  "t": 776.22,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/383",
+            "physicalPage": 17,
+            "start": 52527,
+            "end": 52620,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 723.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  93
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/384",
+            "physicalPage": 17,
+            "start": 52621,
+            "end": 52788,
+            "provenance": [
+              {
+                "page_no": 17,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 715.37,
+                  "r": 477.63,
+                  "b": 692.35,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  167
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Chapter VIII"
+      }
+    ],
+    "references": [
+      {
+        "start": 47606,
+        "end": 47643,
+        "exactMention": "proceed in accordance with section 33",
+        "targetSegmentIds": [
+          "sec_33_partial"
+        ],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/348",
+            "physicalPage": 15,
+            "start": 47606,
+            "end": 47643,
+            "provenance": [
+              {
+                "page_no": 15,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 337.13,
+                  "r": 477.63,
+                  "b": 302.59,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  243
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Section 33 of this Act"
+      },
+      {
+        "start": 49861,
+        "end": 49956,
+        "exactMention": "the provisions of section 18 of the Telecom Regulatory Authority of India Act, 1997 shall apply",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/365",
+            "physicalPage": 16,
+            "start": 49861,
+            "end": 49956,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 590.39,
+                  "r": 477.63,
+                  "b": 554.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  188
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Section 18, Telecom Regulatory Authority of India Act, 1997",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 49562,
+        "end": 49643,
+        "exactMention": "section 14A and section 16 of the Telecom Regulatory Authority of India Act, 1997",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/364",
+            "physicalPage": 16,
+            "start": 49562,
+            "end": 49643,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 631.5,
+                  "r": 477.63,
+                  "b": 596.96,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  251
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Sections 14A and 16, Telecom Regulatory Authority of India Act, 1997",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 51191,
+        "end": 51218,
+        "exactMention": "proceeding under section 28",
+        "targetSegmentIds": [
+          "sec_28_continuation"
+        ],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/370",
+            "physicalPage": 16,
+            "start": 51191,
+            "end": 51218,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 368.38,
+                  "r": 477.63,
+                  "b": 332.2,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  217
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Section 28 of this Act"
+      },
+      {
+        "start": 52190,
+        "end": 52214,
+        "exactMention": "provisions of section 33",
+        "targetSegmentIds": [
+          "sec_33_partial"
+        ],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/374",
+            "physicalPage": 16,
+            "start": 52190,
+            "end": 52214,
+            "provenance": [
+              {
+                "page_no": 16,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 200.63,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  303
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Section 33 of this Act"
+      }
+    ],
+    "unresolvedItems": [
+      "src:381 – src:388 constitute a fragmented rendering of Section 33(1) split across a page break; the sub-section (1) text completes only at src:387 ('person an opportunity of being heard, impose such monetary penalty specified in the Schedule.') and continues beyond the chunk.",
+      "src:388 introduces a list under Section 33(2) ('the following matters, namely:-'); the list items begin after the core range (first list point '( a ) the nature, gravity and duration of the breach;' appears in context unit src:389).",
+      "Page furniture interspersed in core text: src:361 ('16'), src:362 ('THE GAZETTE OF INDIA EXTRAORDINARY'), src:363 ('[PART II-'), src:382 ('24  of  1997.'), src:383 ('24  of  1997.'), src:384 ('17'), src:385 ('SEC. 1]'), src:386 ('THE GAZETTE OF INDIA EXTRAORDINARY') – not legal provisions.",
+      "Marginal running heads 'Orders passed by Appellate Tribunal to be executable as decree.' (src:364) and 'Penalties.' (src:381) are embedded in the core text; treated as titles per Gazette formatting, uncertainty noted."
+    ],
+    "warnings": []
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [\n    {\n      \"mention\": {\n        \"exactQuote\": \"proceed in accordance with section 33\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:352\"\n      },\n      \"targetHint\": \"Section 33 of this Act\",\n      \"targetSegmentIds\": [\"sec_33_partial\"]\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the provisions of section 18 of the Telecom Regulatory Authority of India Act, 1997 shall apply\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:369\"\n      },\n      \"targetHint\": \"Section 18, Telecom Regulatory Authority of India Act, 1997\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"section 14A and section 16 of the Telecom Regulatory Authority of India Act, 1997\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:368\"\n      },\n      \"targetHint\": \"Sections 14A and 16, Telecom Regulatory Authority of India Act, 1997\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"proceeding under section 28\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:374\"\n      },\n      \"targetHint\": \"Section 28 of this Act\",\n      \"targetSegmentIds\": [\"sec_28_continuation\"]\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"provisions of section 33\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:378\"\n      },\n      \"targetHint\": \"Section 33 of this Act\",\n      \"targetSegmentIds\": [\"sec_33_partial\"]\n    }\n  ],\n  \"segments\": [\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"sec_28_continuation\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": \"Section 28 (inquiry and inspection powers of the Board)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 8 ) The Board or its officers shall not prevent access to any premises or take into custody any equipment or any item that may adversely affect the day-to-day functioning of a person.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:349\"\n        },\n        {\n          \"exactQuote\": \"( 12 ) At any stage after receipt of a complaint, if the Board is of the opinion that the complaint is false or frivolous, it may issue a warning or impose costs on the complainant.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:353\"\n        }\n      ],\n      \"startsBeforeChunk\": true\n    ,\n      \"titleAnchor\": null\n    ,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"chapter_heading\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"ch_7\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER VII\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:354\"\n        },\n        {\n          \"exactQuote\": \"APPEAL AND ALTERNATE DISPUTE RESOLUTION\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:355\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"APPEAL AND ALTERNATE DISPUTE RESOLUTION\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:355\"\n      },\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"sec_29\",\n      \"kind\": \"container\",\n      \"parent\": \"ch_7\",\n      \"parentHint\": \"Chapter VII\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"29. ( 1 ) Any person aggrieved by an order or direction made by the Board under this Act may prefer an appeal before the Appellate Tribunal.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:356\"\n        },\n        {\n          \"exactQuote\": \"( 10 ) In respect of appeals filed under the provisions of this Act, the  Appellate Tribunal shall, as far as practicable, function as a digital office, with the receipt of appeal, hearing and pronouncement of decisions in respect of the same being digital by design.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:370\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Appeal  to Appellate Tribunal.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:360\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"sec_30\",\n      \"kind\": \"container\",\n      \"parent\": \"ch_7\",\n      \"parentHint\": \"Chapter VII\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"30. ( 1 ) An order passed by the Appellate Tribunal under this Act shall be executable by it as a decree of civil court, and for this purpose, the Appellate Tribunal shall have all the powers of a civil court.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:371\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) Notwithstanding anything contained in sub-section ( 1 ), the Appellate Tribunal may transmit any order made by it to a civil court having local jurisdiction and such civil court shall execute the order as if it were a decree made by that court.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:372\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Orders passed by Appellate Tribunal  to  be executable  as decree.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:364\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"sec_31\",\n      \"kind\": \"container\",\n      \"parent\": \"ch_7\",\n      \"parentHint\": \"Chapter VII\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"31. If the Board is of the opinion that any complaint may be resolved by mediation, it may direct the parties concerned to attempt resolution of the dispute through such mediation by such mediator as the parties may mutually agree upon, or as provided for under any law for the time being in force in India.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:373\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Alternate dispute resolution.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:373\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"sec_32\",\n      \"kind\": \"container\",\n      \"parent\": \"ch_7\",\n      \"parentHint\": \"Chapter VII\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"32. ( 1 ) The Board may accept a voluntary undertaking in respect of any matter related to observance of the provisions of this Act from any person at any stage of a proceeding under section 28.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:374\"\n        },\n        {\n          \"exactQuote\": \"( 5 ) Where a person fails to adhere to any term of the voluntary undertaking accepted by the Board, such breach shall be deemed to be breach of the provisions of this Act and the Board may, after giving such person an opportunity of being heard, proceed in accordance with the provisions of section 33.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:378\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Voluntary undertaking.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:374\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"chapter_heading\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"ch_8\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER VIII\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:379\"\n        },\n        {\n          \"exactQuote\": \"PENALTIES AND ADJUDICATION\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:380\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"PENALTIES AND ADJUDICATION\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:380\"\n      },\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"sec_33_partial\",\n      \"kind\": \"container\",\n      \"parent\": \"ch_8\",\n      \"parentHint\": \"Chapter VIII\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"33. ( 1 ) If the Board determines on conclusion of an inquiry that breach of the provisions of this Act or the rules made thereunder by a person is significant, it may, after giving the Penalties.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:381\"\n        },\n        {\n          \"exactQuote\": \"( 2 )  While  determining  the  amount  of  monetary  penalty  to  be  imposed  under sub-section ( 1 ), the Board shall have regard to the following matters, namely:-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:388\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Penalties.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:381\"\n      },\n      \"type\": \"section\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:381 – src:388 constitute a fragmented rendering of Section 33(1) split across a page break; the sub-section (1) text completes only at src:387 ('person an opportunity of being heard, impose such monetary penalty specified in the Schedule.') and continues beyond the chunk.\",\n    \"src:388 introduces a list under Section 33(2) ('the following matters, namely:-'); the list items begin after the core range (first list point '( a ) the nature, gravity and duration of the breach;' appears in context unit src:389).\",\n    \"Page furniture interspersed in core text: src:361 ('16'), src:362 ('THE GAZETTE OF INDIA EXTRAORDINARY'), src:363 ('[PART II-'), src:382 ('24  of  1997.'), src:383 ('24  of  1997.'), src:384 ('17'), src:385 ('SEC. 1]'), src:386 ('THE GAZETTE OF INDIA EXTRAORDINARY') – not legal provisions.\",\n    \"Marginal running heads 'Orders passed by Appellate Tribunal to be executable as decree.' (src:364) and 'Penalties.' (src:381) are embedded in the core text; treated as titles per Gazette formatting, uncertainty noted.\"\n  ]\n  , \"warnings\": []\n}",
+          "reasoning_content": "Extract structures anchored on core units. Core range spans src:349–388. Build provisions with first and last anchors.\n\nProvisions:\n- Continuation: section 28 sub-sections (8)–(12): src:349–353, continuesAfterChunk, parent hint section 28.\n- Chapter VII heading src:354/355.\n- Section 29: src:356–370 (sub-sections 1–10). Note marginal \"Appeal to Appellate Tribunal.\" src:360.\n- Section 30: src:371–372.\n- Section 31: src:373.\n- Section 32: src:374–378.\n- Chapter VIII heading src:379/380.\n- Section 33 starts: src:381, 388 (1) partial and (2) begins list, continuesAfterChunk.\n\nReferences: \"section 33\" (src:352), \"section 14A and section 16 of TRAI Act 1997\" (src:368), \"section 18 of TRAI Act\" (src:369), \"section 28\" (src:374), \"section 33\" (src:378), \"sub-section (1)\" internal refs (skip? explicit mentions—they're internal relative refs; I'll include major ones: sub-section (2) src:358? Keep it manageable—include cross-section refs only).\n\nUnresolved items: page artifacts src:361-363, 382-386, marginal headings embedded.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951802,
+    "id": "chatcmpl-300596a5-ac73-42b1-a775-33c14db33ded",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 2967,
+      "prompt_tokens": 2215,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 5182
+    }
+  },
+  "usage": {
+    "inputTokens": 2215,
+    "outputTokens": 2967,
+    "totalTokens": 5182
+  },
+  "finishReason": "stop",
+  "durationMs": 60391
+}

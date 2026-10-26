@@ -1,0 +1,2289 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024",
+    "coreRange": {
+      "start": 61429,
+      "end": 64135
+    },
+    "coreSourceIds": [
+      "src:450",
+      "src:451",
+      "src:452",
+      "src:453",
+      "src:454",
+      "src:455",
+      "src:456",
+      "src:457",
+      "src:458",
+      "src:459",
+      "src:460",
+      "src:461",
+      "src:462",
+      "src:463",
+      "src:464",
+      "src:465",
+      "src:466",
+      "src:467",
+      "src:468",
+      "src:469",
+      "src:470",
+      "src:471",
+      "src:472",
+      "src:473",
+      "src:474",
+      "src:475",
+      "src:476",
+      "src:477",
+      "src:478",
+      "src:479",
+      "src:480",
+      "src:481",
+      "src:482",
+      "src:483",
+      "src:484",
+      "src:485",
+      "src:486",
+      "src:487",
+      "src:488",
+      "src:489"
+    ],
+    "contextBefore": [
+      "src:449"
+    ],
+    "contextAfter": [
+      "src:490"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:449",
+        "start": 61150,
+        "end": 61428,
+        "text": "42. ( 1 ) The Central Government may, by notification, amend the Schedule, subject to the restriction that no such notification shall have the effect of increasing any penalty specified therein to more than twice of what was specified in it when this Act was originally enacted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:450",
+        "start": 61429,
+        "end": 61584,
+        "text": "( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:451",
+        "start": 61585,
+        "end": 61888,
+        "text": "43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:452",
+        "start": 61889,
+        "end": 62028,
+        "text": "( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:453",
+        "start": 62029,
+        "end": 62154,
+        "text": "( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:454",
+        "start": 62155,
+        "end": 62365,
+        "text": "44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and ( ii ),  the  following  sub-clauses  shall  be  substituted, namely:- 24  of  1997.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:455",
+        "start": 62366,
+        "end": 62410,
+        "text": "Laying  of rules  and certain notifications.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:456",
+        "start": 62411,
+        "end": 62436,
+        "text": "Power  to amend Schedule.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:457",
+        "start": 62437,
+        "end": 62467,
+        "text": "Power  to remove difficulties.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:458",
+        "start": 62468,
+        "end": 62496,
+        "text": "Amendments to  certain Acts.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:459",
+        "start": 62497,
+        "end": 62499,
+        "text": "20",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:460",
+        "start": 62500,
+        "end": 62534,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:461",
+        "start": 62535,
+        "end": 62544,
+        "text": "[PART II-",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:462",
+        "start": 62545,
+        "end": 62618,
+        "text": "'( i ) the Appellate Tribunal under the Information Technology Act, 2000;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:463",
+        "start": 62619,
+        "end": 62722,
+        "text": "( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:464",
+        "start": 62723,
+        "end": 62736,
+        "text": "21  of  2000.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:465",
+        "start": 62737,
+        "end": 62750,
+        "text": "27  of  2008.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:466",
+        "start": 62751,
+        "end": 62845,
+        "text": "( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:467",
+        "start": 62846,
+        "end": 62953,
+        "text": "( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:468",
+        "start": 62954,
+        "end": 62989,
+        "text": "( a ) section 43A shall be omitted;",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:469",
+        "start": 62990,
+        "end": 63204,
+        "text": "( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:470",
+        "start": 63205,
+        "end": 63279,
+        "text": "( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:471",
+        "start": 63280,
+        "end": 63443,
+        "text": "( 3 ) In section 8 of the Right to Information Act, 2005, in sub-section ( 1 ), for clause ( j ), the following clause shall be substituted, namely:- 22  of  2005.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:472",
+        "start": 63444,
+        "end": 63503,
+        "text": "'( j ) information which relates to personal information;'.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:473",
+        "start": 63504,
+        "end": 63506,
+        "text": "21",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:474",
+        "start": 63507,
+        "end": 63514,
+        "text": "SEC. 1]",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:475",
+        "start": 63515,
+        "end": 63549,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:476",
+        "start": 63550,
+        "end": 63557,
+        "text": "Sl. No.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:477",
+        "start": 63558,
+        "end": 63615,
+        "text": "Breach of provisions of this Act or rules made thereunder",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:478",
+        "start": 63616,
+        "end": 63623,
+        "text": "Penalty",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:479",
+        "start": 63624,
+        "end": 63627,
+        "text": "(1)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:480",
+        "start": 63628,
+        "end": 63631,
+        "text": "(2)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:481",
+        "start": 63632,
+        "end": 63635,
+        "text": "(3)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:482",
+        "start": 63636,
+        "end": 63638,
+        "text": "1.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:483",
+        "start": 63639,
+        "end": 63800,
+        "text": "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:484",
+        "start": 63801,
+        "end": 63850,
+        "text": "May extend to two hundred and fifty crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:485",
+        "start": 63851,
+        "end": 63853,
+        "text": "2.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:486",
+        "start": 63854,
+        "end": 64004,
+        "text": "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:487",
+        "start": 64005,
+        "end": 64044,
+        "text": "May extend to two hundred crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:488",
+        "start": 64045,
+        "end": 64047,
+        "text": "3.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:489",
+        "start": 64048,
+        "end": 64135,
+        "text": "Breach in observance of additional obligations in relation to children under section 9.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:490",
+        "start": 64136,
+        "end": 64175,
+        "text": "May extend to two hundred crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "ed99f57c1c5d40b1313e5f82353560e4b462f9a3c021449899fb771f3b9d8b21",
+    "assembledInputCharacters": 7627,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_450",
+        "kind": "container",
+        "type": "subsection",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 61429,
+          "end": 61584
+        },
+        "code": {
+          "start": 61429,
+          "end": 61584
+        },
+        "title": {
+          "start": 62411,
+          "end": 62436
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/446",
+            "physicalPage": 19,
+            "start": 61429,
+            "end": 61584,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 259.84,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  155
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "42"
+      },
+      {
+        "id": "seg_451",
+        "kind": "container",
+        "type": "article",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_452",
+          "seg_453"
+        ],
+        "span": {
+          "start": 61585,
+          "end": 61888
+        },
+        "code": {
+          "start": 61585,
+          "end": 61888
+        },
+        "title": {
+          "start": 62437,
+          "end": 62467
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/447",
+            "physicalPage": 19,
+            "start": 61585,
+            "end": 61888,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 182.54,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  303
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "43"
+      },
+      {
+        "id": "seg_452",
+        "kind": "container",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_451",
+        "children": [],
+        "span": {
+          "start": 61889,
+          "end": 62028
+        },
+        "code": {
+          "start": 61889,
+          "end": 62028
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/448",
+            "physicalPage": 19,
+            "start": 61889,
+            "end": 62028,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 175.96,
+                  "r": 477.63,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  139
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_453",
+        "kind": "container",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_451",
+        "children": [],
+        "span": {
+          "start": 62029,
+          "end": 62154
+        },
+        "code": {
+          "start": 62029,
+          "end": 62154
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/449",
+            "physicalPage": 19,
+            "start": 62029,
+            "end": 62154,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 146.36,
+                  "r": 477.63,
+                  "b": 123.34,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  125
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_454",
+        "kind": "container",
+        "type": "article",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_462",
+          "seg_463",
+          "seg_466",
+          "seg_467",
+          "seg_471"
+        ],
+        "span": {
+          "start": 62155,
+          "end": 62845
+        },
+        "code": {
+          "start": 62155,
+          "end": 62365
+        },
+        "title": {
+          "start": 62468,
+          "end": 62496
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/450",
+            "physicalPage": 19,
+            "start": 62155,
+            "end": 62365,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 58.11,
+                  "t": 116.76,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  210
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/451",
+            "physicalPage": 19,
+            "start": 62366,
+            "end": 62410,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 437.45,
+                  "r": 533.41,
+                  "b": 401.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  44
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/452",
+            "physicalPage": 19,
+            "start": 62411,
+            "end": 62436,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 312.46,
+                  "r": 518.3,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  25
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/453",
+            "physicalPage": 19,
+            "start": 62437,
+            "end": 62467,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 228.59,
+                  "r": 525.27,
+                  "b": 200.63,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  30
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/454",
+            "physicalPage": 19,
+            "start": 62468,
+            "end": 62496,
+            "provenance": [
+              {
+                "page_no": 19,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 115.12,
+                  "r": 533.41,
+                  "b": 87.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  28
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/455",
+            "physicalPage": 20,
+            "start": 62497,
+            "end": 62499,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 123.18,
+                  "t": 774.57,
+                  "r": 133.64,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  2
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/456",
+            "physicalPage": 20,
+            "start": 62500,
+            "end": 62534,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/457",
+            "physicalPage": 20,
+            "start": 62535,
+            "end": 62544,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 438.12,
+                  "t": 774.57,
+                  "r": 478.79,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/458",
+            "physicalPage": 20,
+            "start": 62545,
+            "end": 62618,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 746.62,
+                  "r": 455.55,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  73
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/459",
+            "physicalPage": 20,
+            "start": 62619,
+            "end": 62722,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 728.53,
+                  "r": 477.63,
+                  "b": 705.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  103
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/460",
+            "physicalPage": 20,
+            "start": 62723,
+            "end": 62736,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 490.41,
+                  "t": 744.97,
+                  "r": 532.25,
+                  "b": 736.75,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/461",
+            "physicalPage": 20,
+            "start": 62737,
+            "end": 62750,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 490.41,
+                  "t": 715.37,
+                  "r": 532.25,
+                  "b": 707.15,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/462",
+            "physicalPage": 20,
+            "start": 62751,
+            "end": 62845,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 697.28,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "44"
+      },
+      {
+        "id": "seg_462",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_454",
+        "children": [],
+        "span": {
+          "start": 62545,
+          "end": 62618
+        },
+        "code": {
+          "start": 62545,
+          "end": 62618
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/458",
+            "physicalPage": 20,
+            "start": 62545,
+            "end": 62618,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 746.62,
+                  "r": 455.55,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  73
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_463",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_454",
+        "children": [],
+        "span": {
+          "start": 62619,
+          "end": 62722
+        },
+        "code": {
+          "start": 62619,
+          "end": 62722
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/459",
+            "physicalPage": 20,
+            "start": 62619,
+            "end": 62722,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 728.53,
+                  "r": 477.63,
+                  "b": 705.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  103
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_466",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_454",
+        "children": [],
+        "span": {
+          "start": 62751,
+          "end": 62845
+        },
+        "code": {
+          "start": 62751,
+          "end": 62845
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/462",
+            "physicalPage": 20,
+            "start": 62751,
+            "end": 62845,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 697.28,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_467",
+        "kind": "container",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_454",
+        "children": [
+          "seg_468",
+          "seg_469",
+          "seg_470"
+        ],
+        "span": {
+          "start": 62846,
+          "end": 63279
+        },
+        "code": {
+          "start": 62846,
+          "end": 62953
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/463",
+            "physicalPage": 20,
+            "start": 62846,
+            "end": 62953,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 667.68,
+                  "r": 532.25,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  107
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/464",
+            "physicalPage": 20,
+            "start": 62954,
+            "end": 62989,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 638.08,
+                  "r": 296.34,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/465",
+            "physicalPage": 20,
+            "start": 62990,
+            "end": 63204,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 619.99,
+                  "r": 532.25,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  214
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/466",
+            "physicalPage": 20,
+            "start": 63205,
+            "end": 63279,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 577.23,
+                  "r": 423.01,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  74
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "44"
+      },
+      {
+        "id": "seg_468",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_467",
+        "children": [],
+        "span": {
+          "start": 62954,
+          "end": 62989
+        },
+        "code": {
+          "start": 62954,
+          "end": 62989
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/464",
+            "physicalPage": 20,
+            "start": 62954,
+            "end": 62989,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 638.08,
+                  "r": 296.34,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_469",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_467",
+        "children": [],
+        "span": {
+          "start": 62990,
+          "end": 63204
+        },
+        "code": {
+          "start": 62990,
+          "end": 63204
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/465",
+            "physicalPage": 20,
+            "start": 62990,
+            "end": 63204,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 619.99,
+                  "r": 532.25,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  214
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_470",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_467",
+        "children": [],
+        "span": {
+          "start": 63205,
+          "end": 63279
+        },
+        "code": {
+          "start": 63205,
+          "end": 63279
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/466",
+            "physicalPage": 20,
+            "start": 63205,
+            "end": 63279,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 577.23,
+                  "r": 423.01,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  74
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_471",
+        "kind": "container",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_454",
+        "children": [
+          "seg_472"
+        ],
+        "span": {
+          "start": 63280,
+          "end": 63503
+        },
+        "code": {
+          "start": 63280,
+          "end": 63443
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/467",
+            "physicalPage": 20,
+            "start": 63280,
+            "end": 63443,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 560.79,
+                  "r": 532.25,
+                  "b": 536.12,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  163
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/468",
+            "physicalPage": 20,
+            "start": 63444,
+            "end": 63503,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 529.54,
+                  "r": 388.14,
+                  "b": 519.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  59
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "footnote",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "44"
+      },
+      {
+        "id": "seg_472",
+        "kind": "container",
+        "type": "listItem",
+        "category": "list-item",
+        "parent": "seg_471",
+        "children": [],
+        "span": {
+          "start": 63444,
+          "end": 63503
+        },
+        "code": {
+          "start": 63444,
+          "end": 63503
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/468",
+            "physicalPage": 20,
+            "start": 63444,
+            "end": 63503,
+            "provenance": [
+              {
+                "page_no": 20,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 529.54,
+                  "r": 388.14,
+                  "b": 519.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  59
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "footnote",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_476",
+        "kind": "container",
+        "type": "table",
+        "category": "table-part",
+        "parent": null,
+        "children": [
+          "seg_483",
+          "seg_486"
+        ],
+        "span": {
+          "start": 63550,
+          "end": 64135
+        },
+        "code": {
+          "start": 63550,
+          "end": 63557
+        },
+        "title": {
+          "start": 63558,
+          "end": 63615
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63550,
+            "end": 63557,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63558,
+            "end": 63615,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63616,
+            "end": 63623,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63624,
+            "end": 63627,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64045,
+            "end": 64047,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_483",
+        "kind": "container",
+        "type": "tableRow",
+        "category": "table-part",
+        "parent": "seg_476",
+        "children": [],
+        "span": {
+          "start": 63639,
+          "end": 63850
+        },
+        "code": {
+          "start": 63639,
+          "end": 63800
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_486",
+        "kind": "container",
+        "type": "tableRow",
+        "category": "table-part",
+        "parent": "seg_476",
+        "children": [],
+        "span": {
+          "start": 63854,
+          "end": 64044
+        },
+        "code": {
+          "start": 63854,
+          "end": 64004
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:449 is context before chunk: continuation of section 42 (Power to amend Schedule) subsection (1); not extracted as core but noted as parent context for seg_450.",
+      "src:483-487 and src:489 appear to be rows of a penalty Schedule table; the table header and its governing provision lie within or beyond the core range and the table continuesAfterChunk.",
+      "src:455 (Laying of rules and certain notifications.) and src:459-461, src:473-475 appear to be page headers/footers/gazette artifacts, not legal provisions.",
+      "src:489 'Breach in observance of additional obligations in relation to children under section 9.' is a table row description; its penalty value continues after chunk (src:490 in context-after)."
+    ],
+    "warnings": [
+      "Boundary for section 42(1) lies before the supplied core range; subsection 42(2) anchored to src:450 with parent hint '42' only.",
+      "Table continuation beyond chunk end; last visible row (children obligations) penalty text in context-after source src:490 not used as core anchor."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:450\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_450\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": \"42\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:450\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Power  to amend Schedule.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:456\"\n      },\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:451\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_451\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": \"43\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:451\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Power  to remove difficulties.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:457\"\n      },\n      \"type\": \"article\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:452\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_452\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_451\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:452\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:453\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_453\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_451\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:453\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and  ( ii ),  the  following  sub-clauses  shall be  substituted, namely:- 24  of  1997.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:454\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_454\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": \"44\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and  ( ii ),  the  following  sub-clauses  shall be  substituted, namely:- 24  of  1997.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:454\"\n        },\n        {\n          \"exactQuote\": \"( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:466\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Amendments to  certain Acts.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:458\"\n      },\n      \"type\": \"article\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"'( i ) the Appellate Tribunal under the Information Technology Act, 2000;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:462\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_462\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_454\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"'( i ) the Appellate Tribunal under the Information Technology Act, 2000;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:462\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:463\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_463\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_454\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:463\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:466\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_466\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_454\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:466\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:467\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_467\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_454\",\n      \"parentHint\": \"44\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:467\"\n        },\n        {\n          \"exactQuote\": \"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:470\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) section 43A shall be omitted;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:468\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_468\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_467\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) section 43A shall be omitted;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:468\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:469\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_469\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_467\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:469\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:470\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_470\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_467\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:470\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) In section 8 of the Right to Information Act, 2005, in sub-section ( 1 ), for clause ( j ), the following clause shall be substituted, namely:- 22  of  2005.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:471\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_471\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_454\",\n      \"parentHint\": \"44\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) In section 8 of the Right to Information Act, 2005, in sub-section ( 1 ), for clause ( j ), the following clause shall be substituted, namely:- 22  of  2005.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:471\"\n        },\n        {\n          \"exactQuote\": \"'( j ) information which relates to personal information;'.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:472\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"list-item\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"'( j ) information which relates to personal information;'.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:472\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_472\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_471\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"'( j ) information which relates to personal information;'.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:472\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"table-part\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Sl. No.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:476\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_476\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Sl. No.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:476\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:477\"\n      },\n      \"type\": \"table\"\n    },\n    {\n      \"category\": \"table-part\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:483\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_483\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_476\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:483\"\n        },\n        {\n          \"exactQuote\": \"May extend to two hundred and fifty crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:484\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"tableRow\"\n    },\n    {\n      \"category\": \"table-part\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:486\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_486\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_476\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:486\"\n        },\n        {\n          \"exactQuote\": \"May extend to two hundred crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:487\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"tableRow\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:449 is context before chunk: continuation of section 42 (Power to amend Schedule) subsection (1); not extracted as core but noted as parent context for seg_450.\",\n    \"src:483-487 and src:489 appear to be rows of a penalty Schedule table; the table header and its governing provision lie within or beyond the core range and the table continuesAfterChunk.\",\n    \"src:455 (Laying of rules and certain notifications.) and src:459-461, src:473-475 appear to be page headers/footers/gazette artifacts, not legal provisions.\",\n    \"src:489 'Breach in observance of additional obligations in relation to children under section 9.' is a table row description; its penalty value continues after chunk (src:490 in context-after).\"\n  ]\n  ,\"warnings\": [\"Boundary for section 42(1) lies before the supplied core range; subsection 42(2) anchored to src:450 with parent hint '42' only.\", \"Table continuation beyond chunk end; last visible row (children obligations) penalty text in context-after source src:490 not used as core anchor.\"]\n}",
+          "reasoning_content": null,
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792957494,
+    "id": "chatcmpl-571f5439-993c-98a3-9f9e-777b875beb15",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 1600,
+      "completion_tokens": 4289,
+      "prompt_tokens": 1629,
+      "prompt_tokens_details": {
+        "cached_tokens": 1600
+      },
+      "speed": null,
+      "total_tokens": 5918
+    }
+  },
+  "usage": {
+    "inputTokens": 1629,
+    "outputTokens": 4289,
+    "totalTokens": 5918
+  },
+  "finishReason": "stop",
+  "durationMs": 73006
+}

@@ -1,0 +1,155 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_002",
+    "coreRange": {
+      "start": 162,
+      "end": 222
+    },
+    "coreSourceIds": [
+      "src:3",
+      "src:4",
+      "src:5",
+      "src:6"
+    ],
+    "contextBefore": [
+      "src:2"
+    ],
+    "contextAfter": [
+      "src:7"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:2",
+        "start": 83,
+        "end": 161,
+        "text": "xxxGIDHxxx xxxGIDExxx सी.जी.-डी.एल.-अ.-12082023-248045 CG-DL-E-12082023-248045",
+        "group": "native:0",
+        "headings": []
+      },
+      {
+        "id": "src:3",
+        "start": 162,
+        "end": 171,
+        "text": "vlk/kkj.k",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      },
+      {
+        "id": "src:4",
+        "start": 172,
+        "end": 185,
+        "text": "EXTRAORDINARY",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      },
+      {
+        "id": "src:5",
+        "start": 186,
+        "end": 202,
+        "text": "Hkkx II - [k.M 1",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      },
+      {
+        "id": "src:6",
+        "start": 203,
+        "end": 222,
+        "text": "PART II - Section 1",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      },
+      {
+        "id": "src:7",
+        "start": 223,
+        "end": 244,
+        "text": "izkf/kdkj ls izdkf'kr",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      }
+    ],
+    "headingContext": [
+      "vlk/kkj.k",
+      "EXTRAORDINARY"
+    ],
+    "inputHash": "6cf7e8aad98eb31f2e1eafc727e18754cc8555e9b47986fd36c711bbd269cd83",
+    "assembledInputCharacters": 4094,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "All core source units in this chunk (src:3 through src:6) are masthead/header lines of the भारत के राजपत्र / Gazette of India publication banner ('vlk/kkj.k izkf/kdkj', 'EXTRAORDINARY', 'Hkkx II - [k.M 1' / 'PART II - Section 1'), not legal provisions. The core range contains no substantive provision text, so no provisions were extracted.",
+      "src:7 ('izkf/kdkj ls izdkf'kr' / 'Published by Authority') is context-after only and must not be emitted on its own.",
+      "The heading context ('vlk/kkj.k', 'EXTRAORDINARY') matches the masthead lines; if substantive provisions follow in a later chunk, this header establishes the parent publication context (Gazette of India, Extraordinary, Part II - Section 1) for them."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [],\n  \"unresolvedItems\": [],\n  \"warnings\": [\n    \"All core source units in this chunk (src:3 through src:6) are masthead/header lines of the भारत के राजपत्र / Gazette of India publication banner ('vlk/kkj.k izkf/kdkj', 'EXTRAORDINARY', 'Hkkx II - [k.M 1' / 'PART II - Section 1'), not legal provisions. The core range contains no substantive provision text, so no provisions were extracted.\",\n    \"src:7 ('izkf/kdkj ls izdkf'kr' / 'Published by Authority') is context-after only and must not be emitted on its own.\",\n    \"The heading context ('vlk/kkj.k', 'EXTRAORDINARY') matches the masthead lines; if substantive provisions follow in a later chunk, this header establishes the parent publication context (Gazette of India, Extraordinary, Part II - Section 1) for them.\"\n  ]\n}",
+          "reasoning_content": "Parse: core units src:3 \"व्याख्यान\"? Actually \"vlk/kkj.k\" = \"व्याख्यान\"? No—likely \"भाग\" ... Actually vlk/kkj.k is \"प्राधिकारी\"? Hmm. \"vlk/kkj.k izkf/kdkj\" — Gazette of India. src:3 core text \"vlk/kkj.k\" ... Romanization: \"vlk/kkj.k\" = \"प्राधिकारी\"? No, it's \"प्राधि...\". Hmm, \"vlk/kkj.k\" — likely \"प्राधिकारी\"? Not important. It's Gazette header pieces: \"भारत के राजपत्र\" parts. Just emit structure with anchors.\n\nCore units: \"vlk/kkj.k\", \"EXTRAORDINARY\", \"Hkkx II - [k.M 1\", \"PART II - Section 1\" — these are Gazette masthead lines. Emit as provisions hierarchy with labels.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950396,
+    "id": "chatcmpl-87adba59-fea5-4eba-8d7d-3026fa06ef9d",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 576,
+      "completion_tokens": 466,
+      "prompt_tokens": 610,
+      "prompt_tokens_details": {
+        "cached_tokens": 576
+      },
+      "speed": null,
+      "total_tokens": 1076
+    }
+  },
+  "usage": {
+    "inputTokens": 610,
+    "outputTokens": 466,
+    "totalTokens": 1076
+  },
+  "finishReason": "stop",
+  "durationMs": 10212
+}

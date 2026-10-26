@@ -1,0 +1,392 @@
+{
+  "datasetId": "dpdpa-gazette-2023-en-review-v1",
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "sourceSha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "provider": "llm",
+  "model": "glm-5.3",
+  "pipelineVersion": "docling_small_chunks_reconcile-v4",
+  "modelAssignments": [],
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": null,
+  "configurationHash": null,
+  "reasoningSetting": null,
+  "judgeModel": "glm-5.3",
+  "split": "development",
+  "humanApprovedCases": 0,
+  "humanReviewPendingCases": 4,
+  "referenceStatus": "provisional_ai_drafted",
+  "passRateIsHumanValidated": false,
+  "statuses": {
+    "pass": 0,
+    "fail": 0,
+    "not_run": 0,
+    "blocked_by_upstream": 0,
+    "needs_review": 4
+  },
+  "evaluatedPassRate": {
+    "passed": 0,
+    "evaluated": 0,
+    "value": null
+  },
+  "advisory": {
+    "pass": 0,
+    "fail": 0,
+    "needsReview": 4
+  },
+  "byLayer": {
+    "S3": {
+      "cases": 4,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 4
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    }
+  },
+  "byChallengeType": {
+    "complete_subgraph": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    },
+    "multi_hop_graph": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    },
+    "exception_scope": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    },
+    "definitions_and_exception_scope": {
+      "cases": 1,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 1
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    }
+  },
+  "byCheckingMethod": {
+    "source_backed_comparison": {
+      "cases": 4,
+      "statuses": {
+        "pass": 0,
+        "fail": 0,
+        "not_run": 0,
+        "blocked_by_upstream": 0,
+        "needs_review": 4
+      },
+      "evaluatedPassRate": {
+        "passed": 0,
+        "evaluated": 0,
+        "value": null
+      }
+    }
+  },
+  "requiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "humanReviewedRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "advisoryRequiredTargetRecall": {
+    "found": 0,
+    "total": 0,
+    "value": null,
+    "note": "Required targets only; no full precision or nDCG claim"
+  },
+  "metrics": {
+    "duration_ms": 332743,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost_usd": null
+  },
+  "releaseQualified": false,
+  "cases": [
+    {
+      "caseId": "DPDPA-S3-01",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "complete_subgraph",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 8: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(2): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(4): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(6): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(7): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(8): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(9): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(10): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(11): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(3)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(3)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(7)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(7)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(8)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(8)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(3) shared consequence: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(7) illustrations: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 8(8) shared time condition: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 8(8) -> Section 8(7)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 8(11) -> Section 8: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 8(5) -> Section 2(u): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 8(6) -> Section 2(u): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "inherited-condition:Section 8(3)(a),Section 8(3)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "inherited-condition:Section 8(7)(a),Section 8(7)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "paragraph_count: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "lettered_points: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-01#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 0,
+        "needsReview": 29,
+        "total": 29
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "multi_hop_graph",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 33: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(c): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(d): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(e): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(f): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 33(2)(g): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:The Schedule: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 1: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 2: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 3: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 4: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 5: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 6: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Schedule row 7: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 33(1) -> The Schedule: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 33(2) -> Section 33(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 1 -> Section 8(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 2 -> Section 8(6): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 3 -> Section 9: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 4 -> Section 10: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 5 -> Section 15: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 6 -> Section 32: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 6 -> Section 28: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "path:Section 33(1) -> The Schedule -> Schedule row 7: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-02#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 0,
+        "needsReview": 35,
+        "total": 35
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "exception_scope",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 17: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(2): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(4): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(c): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(d): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(e): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(f): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(2)(a): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(2)(b): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(f) explanation: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(1)(f) illustration: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 17(3) explanation: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1) -> Chapter II: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1) -> Chapter III: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1) -> Section 16: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1) -> Section 8(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1) -> Section 8(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(3) -> Section 5: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(3) -> Section 8(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(3) -> Section 8(7): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(3) -> Section 10: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(3) -> Section 11: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(4) -> Section 8(7): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(4) -> Section 12(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(4) -> Section 12(2): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "exemption_scope: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-03#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 0,
+        "needsReview": 33,
+        "total": 33
+      }
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "stage": "S3",
+      "method": "source_backed_comparison",
+      "challengeType": "definitions_and_exception_scope",
+      "severity": "critical",
+      "reviewStatus": "pending",
+      "status": "needs_review",
+      "preliminaryVerdict": "needs_review",
+      "failedExpectedFields": [],
+      "forbiddenClaimsFound": [],
+      "reasons": [
+        "node:Section 9: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(2): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(4): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(5): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "node:Section 9(1) explanation: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 9(1) -> Section 2(f): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 9(4) -> Section 9(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 9(4) -> Section 9(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 9(5) -> Section 9(1): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Section 9(5) -> Section 9(3): Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "edge:Schedule row 3 -> Section 9: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "definition_exact_text: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "schedule_row_3: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "exception_scope: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Forbidden check needs review: Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+        "Expected answer awaits human approval"
+      ],
+      "evidenceRefs": [
+        "DPDPA-S3-04#"
+      ],
+      "expectedChecks": {
+        "passed": 0,
+        "failed": 0,
+        "needsReview": 16,
+        "total": 16
+      }
+    }
+  ],
+  "judgeUsage": {
+    "calls": 248,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "durationMs": 0
+  },
+  "datasetReview": "human_review_pending",
+  "fixtureReplacementCharacterCount": 0,
+  "judgeArtifacts": {
+    "checkpoint": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-checkpoint.S3.glm-5.3.json",
+    "calls": "evaluation-judge-calls.S3.glm-5.3.json",
+    "rawAttempts": "backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a/evaluation-judge-raw.S3.glm-5.3.jsonl"
+  }
+}

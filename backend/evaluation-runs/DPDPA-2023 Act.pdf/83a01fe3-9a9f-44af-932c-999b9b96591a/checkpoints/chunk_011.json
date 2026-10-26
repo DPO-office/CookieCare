@@ -1,0 +1,184 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_011",
+    "coreRange": {
+      "start": 12958,
+      "end": 14153
+    },
+    "coreSourceIds": [
+      "src:125",
+      "src:126",
+      "src:127",
+      "src:128",
+      "src:129",
+      "src:130"
+    ],
+    "contextBefore": [
+      "src:124"
+    ],
+    "contextAfter": [
+      "src:131"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:124",
+        "start": 12697,
+        "end": 12957,
+        "text": "( 4 ) Where consent given by the Data Principal is the basis of processing of personal data, such Data Principal shall have the right to withdraw her consent at any time, with the ease of doing so being comparable to the ease with which such consent was given.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:125",
+        "start": 12958,
+        "end": 13194,
+        "text": "( 5 ) The consequences of the withdrawal referred to in sub-section ( 4 ) shall be borne by the Data Principal, and such withdrawal shall not affect the legality of processing of the personal data based on consent before its withdrawal.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:126",
+        "start": 13195,
+        "end": 13208,
+        "text": "Illustration.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:127",
+        "start": 13209,
+        "end": 13688,
+        "text": "X, an individual, is the user of an online shopping app or website operated by Y , an e-commerce service provider. X consents to the processing of her personal data by Y for the purpose of fulfilling her supply order and places an order for supply of a good while making payment for the same. If X withdraws her consent, Y may stop enabling X to use the app or website for placing orders, but may not stop the processing for supply of the goods already ordered and paid for by X.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:128",
+        "start": 13689,
+        "end": 14142,
+        "text": "( 6 ) If a Data Principal withdraws her consent to the processing of personal data under sub-section ( 5 ), the Data Fiduciary shall, within a reasonable time, cease and cause its Data Processors to  cease  processing  the  personal  data  of  such  Data  Principal  unless  such processing without her consent is required or authorised under the provisions of this Act or the rules made thereunder or any other law for the time being in force in India.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:129",
+        "start": 14143,
+        "end": 14151,
+        "text": "Consent.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:130",
+        "start": 14152,
+        "end": 14153,
+        "text": "6",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:131",
+        "start": 14154,
+        "end": 14188,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER II",
+      "Illustrations."
+    ],
+    "inputHash": "789bf9c817ad04aa3311a253c90c65d5f5c77f651ef7f825dffd385099c65d3c",
+    "assembledInputCharacters": 5482,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [
+      "Heading-like units src:129 ('Consent.') and src:130 ('6') appear at the end of the supplied core range, after sub-section (6) of an unnamed section. Their legal scope cannot be resolved from the supplied material: they may constitute the heading of a new section (number 6, titled 'Consent') whose text follows in a later chunk, or an odd mid-document heading placement. They are also not preceded by core material identifying the parent section of sub-sections (4)-(6). Recorded as unresolved pending further core context.",
+      "src:124 (context before) contains sub-section (4) concerning withdrawal of consent, which is explicitly referenced by sub-section (5) (src:125). Because src:124 is context, sub-section (4) itself is not emitted as a provision; the reference from (5) to (4) is recorded but its full text lies outside the core range."
+    ],
+    "warnings": [
+      "src:131 ('THE GAZETTE OF INDIA EXTRAORDINARY') is context after and appears to be a running header/gazette masthead line, not a legal provision; excluded.",
+      "The heading context ('CHAPTER II', 'Illustrations.') is treated as navigation hint only and not as proof of legal scope."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [],\n  \"unresolvedItems\": [\n    \"Heading-like units src:129 ('Consent.') and src:130 ('6') appear at the end of the supplied core range, after sub-section (6) of an unnamed section. Their legal scope cannot be resolved from the supplied material: they may constitute the heading of a new section (number 6, titled 'Consent') whose text follows in a later chunk, or an odd mid-document heading placement. They are also not preceded by core material identifying the parent section of sub-sections (4)-(6). Recorded as unresolved pending further core context.\",\n    \"src:124 (context before) contains sub-section (4) concerning withdrawal of consent, which is explicitly referenced by sub-section (5) (src:125). Because src:124 is context, sub-section (4) itself is not emitted as a provision; the reference from (5) to (4) is recorded but its full text lies outside the core range.\"\n  ],\n  \"warnings\": [\n    \"src:131 ('THE GAZETTE OF INDIA EXTRAORDINARY') is context after and appears to be a running header/gazette masthead line, not a legal provision; excluded.\",\n    \"The heading context ('CHAPTER II', 'Illustrations.') is treated as navigation hint only and not as proof of legal scope.\"\n  ]\n}",
+          "reasoning_content": "Extract provisions: sub-section (5) src:125, Illustration src:126-127 (illustration), sub-section (6) src:128, heading \"Consent.\" src:129, section number \"6\" src:130. Parent section 6 heading. References: sub-section (4) (before core), sub-section (5), this Act, rules made thereunder, any other law in force in India.\n\nUncertainty: heading \"Consent\" with number 6 — section heading following subsections; parentHint needed since section 6 body starts after? Actually continuation of section 6's subsections, then heading suggests next section (Section 6 titled \"Consent\")? DPDP Act 2023: Section 6 is Consent. So src:129/130 is heading of Section 6, whose content follows in later chunks — but wait, subsections (4)-(6) are in Section 6 actually. Section 6 covers consent and withdrawal. So \"Consent.\" + \"6\" is the heading, appearing... in the Act headings appear before? In Gazette format, section number and title precede text. Here they appear at end of core, likely heading for section 6? Actually the subsections 4-6 of Section 6 appear before the heading line in this layout? In the Gazette, headings can be placed... Possibly \"Consent. 6\" heading appears before the section text normally; here it's at end because core range spans... src:130 \"6\" then src:131 \"THE GAZETTE...\" column header. So the heading \"Consent. 6\" is start of a new column/page — actually in the Gazette layout, headings precede text. Given the heading context says \"CHAPTER II Illustrations\", ambiguous. Likely \"Consent. 6\" is heading of Section 6, whose subsections follow in later chunks — but that contradicts subsections 4-6 belonging to Section 6. Hmm, DPDP Act section 6 \"Consent\" contains sub-sections (1)-(6) including the withdrawal provisions. Sub-sections 4-6 we see are part of Section 6? Actually sub-section (4) about withdrawal appears in Section 6. Yes! Section 6 Consent includes subsections on withdrawal. So \"Consent. 6\" heading should come BEFORE sub-section (1)... but src:124 is (4). Layout in Gazette: the section heading appears in the middle of the column? In original Gazette text, headings are placed after the text? No — DPDP Act PDF: headings appear above section text but subsections 4-6 belong to section 6, and section 6's heading appears before subsection (1). Unless... this heading \"Consent. 6\" at this position is odd — could be mid-column heading placement. Given headingContext CHAPTER II Illustrations, and the source order, it appears the heading is placed at the bottom of one column/page with text continuing. Safer: mark it as heading with uncertainty, parentHint pending, since its scope crosses the core range.\n\nI'll produce JSON per schema.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950657,
+    "id": "chatcmpl-c3d4f1eb-af8f-4302-8185-dc52d98a946c",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 942,
+      "prompt_tokens": 867,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 1809
+    }
+  },
+  "usage": {
+    "inputTokens": 867,
+    "outputTokens": 942,
+    "totalTokens": 1809
+  },
+  "finishReason": "stop",
+  "durationMs": 20636
+}

@@ -1,0 +1,1192 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_018b",
+    "coreRange": {
+      "start": 39182,
+      "end": 41896
+    },
+    "coreSourceIds": [
+      "src:299",
+      "src:300",
+      "src:301",
+      "src:302",
+      "src:303",
+      "src:304",
+      "src:305",
+      "src:306",
+      "src:307",
+      "src:308",
+      "src:309",
+      "src:310",
+      "src:311"
+    ],
+    "contextBefore": [
+      "src:298"
+    ],
+    "contextAfter": [
+      "src:312"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:298",
+        "start": 39074,
+        "end": 39181,
+        "text": "( e ) has so abused her position as to render her continuance in office prejudicial to the public interest.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:299",
+        "start": 39182,
+        "end": 39347,
+        "text": "( 2 ) The Chairperson or Member shall not be removed from her office by the Central Government unless she has been given an opportunity of being heard in the matter.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:300",
+        "start": 39348,
+        "end": 39810,
+        "text": "22. ( 1 ) The Chairperson or any other Member may give notice in writing to the Central Government of resigning from her office, and such resignation shall be effective from the date on which the Central Government permits her to relinquish office, or upon expiry of a period of three months from the date of receipt of such notice, or upon a duly appointed successor entering upon her office, or upon the expiry of the term of her office, whichever is earliest.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:301",
+        "start": 39811,
+        "end": 40010,
+        "text": "( 2 ) A vacancy caused by the resignation or removal or death of the Chairperson or any other Member, or otherwise, shall be filled by fresh appointment in accordance with the provisions of this Act.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:302",
+        "start": 40011,
+        "end": 40430,
+        "text": "( 3 ) The Chairperson and any other Member shall not, for a period of one year from the date on which they cease to hold such office, except with the previous approval of the Central  Government, accept any employment, and shall also disclose to the Central Government any subsequent acceptance of employment with any Data Fiduciary against whom proceedings were initiated by or before such Chairperson or other Member.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:303",
+        "start": 40431,
+        "end": 40686,
+        "text": "23. ( 1 )  The  Board  shall  observe  such  procedure  in  regard  to  the  holding  of  and transaction of business at its meetings, including by digital means, and authenticate its orders, directions and instruments in such manner as may be prescribed.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:304",
+        "start": 40687,
+        "end": 40764,
+        "text": "( 2 ) No act or proceeding of the Board shall be invalid merely by reason of-",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:305",
+        "start": 40765,
+        "end": 40833,
+        "text": "( a ) any vacancy in or any defect in the constitution of the Board;",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:306",
+        "start": 40834,
+        "end": 40940,
+        "text": "( b ) any defect in the appointment of a person acting as the Chairperson or other Member of the Board; or",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:307",
+        "start": 40941,
+        "end": 41040,
+        "text": "( c ) any irregularity in the procedure of the Board, which does not affect the merits of the case.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:308",
+        "start": 41041,
+        "end": 41282,
+        "text": "( 3 ) When the Chairperson is unable to discharge her functions owing to absence, illness or any other cause, the senior-most Member shall discharge the functions of the Chairperson until the date on which the Chairperson resumes her duties.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:309",
+        "start": 41283,
+        "end": 41569,
+        "text": "24. The Board may, with previous approval of the Central Government, appoint such officers and employees as it may deem necessary for the efficient discharge of its functions under the provisions of this Act, on such terms and conditions of appointment and service as may be prescribed.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:310",
+        "start": 41570,
+        "end": 41806,
+        "text": "25. The Chairperson, Members, officers and employees of the Board shall be deemed, when acting or purporting to act in pursuance of provisions of this Act, to be public servants within the meaning of section 21 of the Indian Penal Code.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:311",
+        "start": 41807,
+        "end": 41896,
+        "text": "Disqualifications for appointment and continuation as Chairperson and  Members of  Board.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:312",
+        "start": 41897,
+        "end": 41945,
+        "text": "Resignation by  Members and filling  of vacancy.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER VI"
+    ],
+    "inputHash": "b7177f26173315ea9762ff8d1bd6acb5d5c05f31e9a3dc69d162a754899c9bd5",
+    "assembledInputCharacters": 6972
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_018b_01",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 39182,
+          "end": 39347
+        },
+        "code": {
+          "start": 39182,
+          "end": 39347
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/295",
+            "physicalPage": 13,
+            "start": 39182,
+            "end": 39347,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 590.39,
+                  "r": 477.63,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  165
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "Section on removal of Chairperson/Member (parent section begins before supplied range)"
+      },
+      {
+        "id": "seg_018b_02",
+        "kind": "unit",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "seg_018b_02_2",
+          "seg_018b_02_3"
+        ],
+        "span": {
+          "start": 39348,
+          "end": 40430
+        },
+        "code": {
+          "start": 39348,
+          "end": 39476
+        },
+        "title": {
+          "start": 41897,
+          "end": 41945
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/296",
+            "physicalPage": 13,
+            "start": 39348,
+            "end": 39810,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 560.79,
+                  "r": 477.63,
+                  "b": 488.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  462
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/297",
+            "physicalPage": 13,
+            "start": 39811,
+            "end": 40010,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 481.85,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  199
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/298",
+            "physicalPage": 13,
+            "start": 40011,
+            "end": 40430,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 440.73,
+                  "r": 477.63,
+                  "b": 381.53,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  419
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "CHAPTER VI"
+      },
+      {
+        "id": "seg_018b_02_2",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "seg_018b_02",
+        "children": [],
+        "span": {
+          "start": 39811,
+          "end": 40010
+        },
+        "code": {
+          "start": 39811,
+          "end": 39926
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/297",
+            "physicalPage": 13,
+            "start": 39811,
+            "end": 40010,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 481.85,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  199
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 22"
+      },
+      {
+        "id": "seg_018b_02_3",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "seg_018b_02",
+        "children": [],
+        "span": {
+          "start": 40011,
+          "end": 40144
+        },
+        "code": {
+          "start": 40011,
+          "end": 40144
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/298",
+            "physicalPage": 13,
+            "start": 40011,
+            "end": 40144,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 440.73,
+                  "r": 477.63,
+                  "b": 381.53,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  419
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 22"
+      },
+      {
+        "id": "seg_018b_03",
+        "kind": "unit",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "seg_018b_03_2",
+          "seg_018b_03_3"
+        ],
+        "span": {
+          "start": 40431,
+          "end": 41282
+        },
+        "code": {
+          "start": 40431,
+          "end": 40565
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/299",
+            "physicalPage": 13,
+            "start": 40431,
+            "end": 40686,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 373.31,
+                  "r": 477.63,
+                  "b": 338.77,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  255
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/300",
+            "physicalPage": 13,
+            "start": 40687,
+            "end": 40764,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 330.55,
+                  "r": 447.41,
+                  "b": 320.68,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  77
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/301",
+            "physicalPage": 13,
+            "start": 40765,
+            "end": 40833,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 312.46,
+                  "r": 427.66,
+                  "b": 300.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  68
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/302",
+            "physicalPage": 13,
+            "start": 40834,
+            "end": 40940,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 292.73,
+                  "r": 477.63,
+                  "b": 269.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  106
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/303",
+            "physicalPage": 13,
+            "start": 40941,
+            "end": 41040,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 261.48,
+                  "r": 477.63,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  99
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/304",
+            "physicalPage": 13,
+            "start": 41041,
+            "end": 41282,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  241
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "CHAPTER VI"
+      },
+      {
+        "id": "seg_018b_03_2",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "seg_018b_03",
+        "children": [
+          "seg_018b_03_2_a",
+          "seg_018b_03_2_b",
+          "seg_018b_03_2_c"
+        ],
+        "span": {
+          "start": 40687,
+          "end": 41040
+        },
+        "code": {
+          "start": 40687,
+          "end": 40764
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/300",
+            "physicalPage": 13,
+            "start": 40687,
+            "end": 40764,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 330.55,
+                  "r": 447.41,
+                  "b": 320.68,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  77
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/301",
+            "physicalPage": 13,
+            "start": 40765,
+            "end": 40833,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 312.46,
+                  "r": 427.66,
+                  "b": 300.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  68
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/302",
+            "physicalPage": 13,
+            "start": 40834,
+            "end": 40940,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 292.73,
+                  "r": 477.63,
+                  "b": 269.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  106
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/303",
+            "physicalPage": 13,
+            "start": 40941,
+            "end": 41040,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 261.48,
+                  "r": 477.63,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  99
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 23"
+      },
+      {
+        "id": "seg_018b_03_2_a",
+        "kind": "unit",
+        "type": "clause",
+        "category": "clause",
+        "parent": "seg_018b_03_2",
+        "children": [],
+        "span": {
+          "start": 40765,
+          "end": 40833
+        },
+        "code": {
+          "start": 40765,
+          "end": 40833
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/301",
+            "physicalPage": 13,
+            "start": 40765,
+            "end": 40833,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 312.46,
+                  "r": 427.66,
+                  "b": 300.95,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  68
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 23(2)"
+      },
+      {
+        "id": "seg_018b_03_2_b",
+        "kind": "unit",
+        "type": "clause",
+        "category": "clause",
+        "parent": "seg_018b_03_2",
+        "children": [],
+        "span": {
+          "start": 40834,
+          "end": 40940
+        },
+        "code": {
+          "start": 40834,
+          "end": 40940
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/302",
+            "physicalPage": 13,
+            "start": 40834,
+            "end": 40940,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 292.73,
+                  "r": 477.63,
+                  "b": 269.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  106
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 23(2)"
+      },
+      {
+        "id": "seg_018b_03_2_c",
+        "kind": "unit",
+        "type": "clause",
+        "category": "clause",
+        "parent": "seg_018b_03_2",
+        "children": [],
+        "span": {
+          "start": 40941,
+          "end": 41040
+        },
+        "code": {
+          "start": 40941,
+          "end": 41040
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/303",
+            "physicalPage": 13,
+            "start": 40941,
+            "end": 41040,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 261.48,
+                  "r": 477.63,
+                  "b": 238.46,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  99
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 23(2)"
+      },
+      {
+        "id": "seg_018b_03_3",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "subsection",
+        "parent": "seg_018b_03",
+        "children": [],
+        "span": {
+          "start": 41041,
+          "end": 41150
+        },
+        "code": {
+          "start": 41041,
+          "end": 41150
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/304",
+            "physicalPage": 13,
+            "start": 41041,
+            "end": 41150,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 195.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  241
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 23"
+      },
+      {
+        "id": "seg_018b_04",
+        "kind": "unit",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 41283,
+          "end": 41569
+        },
+        "code": {
+          "start": 41283,
+          "end": 41387
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/305",
+            "physicalPage": 13,
+            "start": 41283,
+            "end": 41569,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 187.48,
+                  "r": 477.63,
+                  "b": 141.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  286
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "CHAPTER VI"
+      },
+      {
+        "id": "seg_018b_05",
+        "kind": "unit",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 41570,
+          "end": 41806
+        },
+        "code": {
+          "start": 41570,
+          "end": 41725
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/306",
+            "physicalPage": 13,
+            "start": 41570,
+            "end": 41806,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 133.21,
+                  "r": 477.63,
+                  "b": 98.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  236
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "CHAPTER VI"
+      }
+    ],
+    "references": [
+      {
+        "start": 41732,
+        "end": 41805,
+        "exactMention": "public servants within the meaning of section 21 of the Indian Penal Code",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/306",
+            "physicalPage": 13,
+            "start": 41732,
+            "end": 41805,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 133.21,
+                  "r": 477.63,
+                  "b": 98.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  236
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Section 21, Indian Penal Code",
+        "resolutionStatus": "external"
+      },
+      {
+        "start": 39964,
+        "end": 40009,
+        "exactMention": "in accordance with the provisions of this Act",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/297",
+            "physicalPage": 13,
+            "start": 39964,
+            "end": 40009,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 481.85,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  199
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Appointment provisions of this Act",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 41413,
+        "end": 41490,
+        "exactMention": "for the efficient discharge of its functions under the provisions of this Act",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/305",
+            "physicalPage": 13,
+            "start": 41413,
+            "end": 41490,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 187.48,
+                  "r": 477.63,
+                  "b": 141.43,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  286
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Functions of the Board under this Act",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [
+      "src:311 (marginal heading 'Disqualifications for appointment and continuation as Chairperson and Members of Board.') appears within the core range but does not anchor to a numbered provision in the supplied units; its governing provision text is not present. Preserved for review.",
+      "The heading context ('CHAPTER VI') is treated as a navigation hint only; no chapter-level text was supplied within the core range.",
+      "src:298 is context-before and was not emitted; the parent section of src:299 begins before the supplied chunk and cannot be anchored here."
+    ],
+    "warnings": [
+      "The subsection at src:299 is marked startsBeforeChunk=true because its parent section begins before the supplied core range.",
+      "The marginal heading src:312 ('Resignation by Members and filling of vacancy.') was used as a title anchor for section 22; it appears in the context-after range, so this attribution is provisional.",
+      "Cross-chunk parent left pending for seg_018b_01: chapter_VI",
+      "Cross-chunk parent left pending for seg_018b_02: chapter_VI",
+      "Cross-chunk parent left pending for seg_018b_03: chapter_VI",
+      "Cross-chunk parent left pending for seg_018b_04: chapter_VI",
+      "Cross-chunk parent left pending for seg_018b_05: chapter_VI"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [\n    {\n      \"mention\": {\n        \"exactQuote\": \"public servants within the meaning of section 21 of the Indian Penal Code\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:310\"\n      },\n      \"resolutionStatus\": \"external\",\n      \"targetHint\": \"Section 21, Indian Penal Code\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"in accordance with the provisions of this Act\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:301\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"Appointment provisions of this Act\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"for the efficient discharge of its functions under the provisions of this Act\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:309\"\n      },\n      \"resolutionStatus\": \"pending\",\n      \"targetHint\": \"Functions of the Board under this Act\",\n      \"targetSegmentIds\": []\n    }\n  ],\n  \"segments\": [\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) The Chairperson or Member shall not be removed from her office by the Central Government unless she has been given an opportunity of being heard in the matter.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:299\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_01\",\n      \"kind\": \"unit\",\n      \"parent\": \"chapter_VI\",\n      \"parentHint\": \"Section on removal of Chairperson/Member (parent section begins before supplied range)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) The Chairperson or Member shall not be removed from her office by the Central Government unless she has been given an opportunity of being heard in the matter.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:299\"\n        }\n      ],\n      \"startsBeforeChunk\": true\n    ,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"22. ( 1 ) The Chairperson or any other Member may give notice in writing to the Central Government of resigning from her office,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:300\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_02\",\n      \"kind\": \"unit\",\n      \"parent\": \"chapter_VI\",\n      \"parentHint\": \"CHAPTER VI\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"22. ( 1 ) The Chairperson or any other Member may give notice in writing to the Central Government of resigning from her office,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:300\"\n        },\n        {\n          \"exactQuote\": \"any Data Fiduciary against whom proceedings were initiated by or before such Chairperson or other Member.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:302\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Resignation by  Members and filling  of vacancy.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:312\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) A vacancy caused by the resignation or removal or death of the Chairperson or any other Member, or otherwise,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:301\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_02_2\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_02\",\n      \"parentHint\": \"Section 22\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) A vacancy caused by the resignation or removal or death of the Chairperson or any other Member, or otherwise,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:301\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) The Chairperson and any other Member shall not, for a period of one year from the date on which they cease to hold such office,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:302\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_02_3\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_02\",\n      \"parentHint\": \"Section 22\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) The Chairperson and any other Member shall not, for a period of one year from the date on which they cease to hold such office,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:302\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"23. ( 1 )  The  Board  shall  observe  such  procedure  in  regard  to  the  holding  of  and transaction of business at its meetings,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:303\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03\",\n      \"kind\": \"unit\",\n      \"parent\": \"chapter_VI\",\n      \"parentHint\": \"CHAPTER VI\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"23. ( 1 )  The  Board  shall  observe  such  procedure  in  regard  to  the  holding  of  and transaction of business at its meetings,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:303\"\n        },\n        {\n          \"exactQuote\": \"until the date on which the Chairperson resumes her duties.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:308\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) No act or proceeding of the Board shall be invalid merely by reason of-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:304\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03_2\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_03\",\n      \"parentHint\": \"Section 23\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) No act or proceeding of the Board shall be invalid merely by reason of-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:304\"\n        },\n        {\n          \"exactQuote\": \"which does not affect the merits of the case.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:307\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"clause\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) any vacancy in or any defect in the constitution of the Board;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:305\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03_2_a\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_03_2\",\n      \"parentHint\": \"Section 23(2)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) any vacancy in or any defect in the constitution of the Board;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:305\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"clause\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) any defect in the appointment of a person acting as the Chairperson or other Member of the Board; or\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:306\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03_2_b\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_03_2\",\n      \"parentHint\": \"Section 23(2)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) any defect in the appointment of a person acting as the Chairperson or other Member of the Board; or\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:306\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"clause\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) any irregularity in the procedure of the Board, which does not affect the merits of the case.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:307\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03_2_c\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_03_2\",\n      \"parentHint\": \"Section 23(2)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) any irregularity in the procedure of the Board, which does not affect the merits of the case.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:307\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"subsection\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) When the Chairperson is unable to discharge her functions owing to absence, illness or any other cause,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:308\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_03_3\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_018b_03\",\n      \"parentHint\": \"Section 23\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) When the Chairperson is unable to discharge her functions owing to absence, illness or any other cause,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:308\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"24. The Board may, with previous approval of the Central Government, appoint such officers and employees\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:309\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_04\",\n      \"kind\": \"unit\",\n      \"parent\": \"chapter_VI\",\n      \"parentHint\": \"CHAPTER VI\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"24. The Board may, with previous approval of the Central Government, appoint such officers and employees\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:309\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"25. The Chairperson, Members, officers and employees of the Board shall be deemed, when acting or purporting to act in pursuance of provisions of this Act,\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:310\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018b_05\",\n      \"kind\": \"unit\",\n      \"parent\": \"chapter_VI\",\n      \"parentHint\": \"CHAPTER VI\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"25. The Chairperson, Members, officers and employees of the Board shall be deemed, when acting or purporting to act in pursuance of provisions of this Act,\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:310\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:311 (marginal heading 'Disqualifications for appointment and continuation as Chairperson and Members of Board.') appears within the core range but does not anchor to a numbered provision in the supplied units; its governing provision text is not present. Preserved for review.\",\n    \"The heading context ('CHAPTER VI') is treated as a navigation hint only; no chapter-level text was supplied within the core range.\",\n    \"src:298 is context-before and was not emitted; the parent section of src:299 begins before the supplied chunk and cannot be anchored here.\"\n  ]\n, \"warnings\": [\n    \"The subsection at src:299 is marked startsBeforeChunk=true because its parent section begins before the supplied core range.\",\n    \"The marginal heading src:312 ('Resignation by Members and filling of vacancy.') was used as a title anchor for section 22; it appears in the context-after range, so this attribution is provisional.\"\n  ]\n}",
+          "reasoning_content": "Wait, heading says CHAPTER VI, but content sections 22-25 look like Data Protection Board provisions (DPDP Act 2023). Source 311 is a marginal heading \"Disqualifications...\" likely belongs before section... Actually structure: sections 22 (resignation), 23 (procedure), 24 (staff), 25 (public servants). Heading src:311 \"Disqualifications...\" appears as side heading — ambiguous. Extract provisions.\n\nsrc:299 is section 21(2) continuation? \"(2) The Chairperson or Member shall not be removed...\" — that's part of section on removal. Core range starts at 39182; src:299 is core and continuation of prior provision (starts before chunk, since src:298 is context). So mark as continuation with startsBeforeChunk.\n\nSection 22 spans src:300-302. Section 23: 303-308 with subsections and clauses. Section 24: 309. Section 25: 310. src:311 unclassified heading — record as unresolved or as marginal heading with unknown attachment. Reference in src:310: section 21 of Indian Penal Code.\n\nBuild JSON.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951615,
+    "id": "chatcmpl-1b87c365-e772-4323-8120-bbf9feefcde6",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 3438,
+      "prompt_tokens": 1206,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 4644
+    }
+  },
+  "usage": {
+    "inputTokens": 1206,
+    "outputTokens": 3438,
+    "totalTokens": 4644
+  },
+  "finishReason": "stop",
+  "durationMs": 75883
+}

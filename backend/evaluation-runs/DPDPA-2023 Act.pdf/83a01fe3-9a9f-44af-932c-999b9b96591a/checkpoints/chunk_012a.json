@@ -1,0 +1,881 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_012a",
+    "coreRange": {
+      "start": 14154,
+      "end": 16627
+    },
+    "coreSourceIds": [
+      "src:131",
+      "src:132",
+      "src:133",
+      "src:134",
+      "src:135",
+      "src:136",
+      "src:137",
+      "src:138",
+      "src:139",
+      "src:140",
+      "src:141",
+      "src:142",
+      "src:143"
+    ],
+    "contextBefore": [
+      "src:130"
+    ],
+    "contextAfter": [
+      "src:144"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:130",
+        "start": 14152,
+        "end": 14153,
+        "text": "6",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      },
+      {
+        "id": "src:131",
+        "start": 14154,
+        "end": 14188,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:132",
+        "start": 14189,
+        "end": 14198,
+        "text": "[PART II-",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:133",
+        "start": 14199,
+        "end": 14212,
+        "text": "Illustration.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:134",
+        "start": 14213,
+        "end": 14651,
+        "text": "X, a telecom service provider, enters into a contract with Y , a Data Processor, for emailing telephone bills to the customers of X. Z, a customer of X, who had earlier given her consent to X for the processing of her personal data for emailing of bills, downloads the mobile app of X and opts to receive bills only on the app. X shall itself cease, and shall cause Y to cease, the processing of the personal data of Z for emailing bills.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:135",
+        "start": 14652,
+        "end": 14774,
+        "text": "( 7 ) The Data Principal may give, manage, review or withdraw her consent to the Data Fiduciary through a Consent Manager.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:136",
+        "start": 14775,
+        "end": 14940,
+        "text": "( 8 ) The Consent Manager shall be accountable to the Data Principal and shall act on her behalf in such manner and subject to such obligations as may be prescribed.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:137",
+        "start": 14941,
+        "end": 15115,
+        "text": "( 9 ) Every Consent Manager shall be registered with the Board in such manner and subject to such technical, operational, financial and other conditions as may be prescribed.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:138",
+        "start": 15116,
+        "end": 15507,
+        "text": "( 10 )  Where a consent given by the Data Principal is the basis of processing of personal data and a question arises in this regard in a proceeding, the Data Fiduciary shall be obliged to prove that a notice was given by her to the Data Principal and consent was given by such Data Principal to the Data Fiduciary in accordance with the provisions of this Act and the rules made thereunder.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:139",
+        "start": 15508,
+        "end": 15635,
+        "text": "7. A Data Fiduciary may process personal data of a Data Principal for any of following uses, namely:- Certain legitimate  uses.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:140",
+        "start": 15636,
+        "end": 15900,
+        "text": "( a )  for  the  specified  purpose  for  which  the  Data  Principal  has  voluntarily provided her personal data to the Data Fiduciary, and in respect of which she has not indicated to the Data Fiduciary that she does not consent to the use of her personal data.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:141",
+        "start": 15901,
+        "end": 15915,
+        "text": "Illustrations.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:142",
+        "start": 15916,
+        "end": 16213,
+        "text": "( I ) X, an individual, makes a purchase at Y, a pharmacy. She voluntarily provides Y her personal data and requests Y to acknowledge receipt of the payment made for the purchase by sending a message to her mobile phone. Y may process the personal data of X for the purpose of sending the receipt.",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:143",
+        "start": 16214,
+        "end": 16627,
+        "text": "( II ) X, an individual, electronically messages Y, a real estate broker, requesting Y to help identify a suitable rented accommodation for her and shares her personal data for this purpose. Y may process her personal data to identify and intimate to her the details of accommodation available on rent. Subsequently, X informs Y that X no longer needs help from Y. Y shall cease to process the personal data of X;",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:144",
+        "start": 16628,
+        "end": 16826,
+        "text": "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+        "group": "native:10",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER II",
+      "Illustration."
+    ],
+    "inputHash": "b31952d5f6f932b3ac623cad0903438c46252ff48fdb597b80ad1828b30ad23f",
+    "assembledInputCharacters": 6791
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "provision_1",
+        "kind": "container",
+        "type": "paragraph",
+        "category": "rule",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 14652,
+          "end": 14774
+        },
+        "code": {
+          "start": 14652,
+          "end": 14725
+        },
+        "title": {
+          "start": 14652,
+          "end": 14657
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/131",
+            "physicalPage": 6,
+            "start": 14652,
+            "end": 14774,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 667.68,
+                  "r": 477.63,
+                  "b": 644.66,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  122
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sub-section (7) of section 6, Digital Personal Data Protection Act, 2023 (inferred from context)"
+      },
+      {
+        "id": "provision_2",
+        "kind": "container",
+        "type": "paragraph",
+        "category": "rule",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 14775,
+          "end": 14940
+        },
+        "code": {
+          "start": 14775,
+          "end": 14843
+        },
+        "title": {
+          "start": 14775,
+          "end": 14780
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/132",
+            "physicalPage": 6,
+            "start": 14775,
+            "end": 14940,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 639.72,
+                  "r": 477.63,
+                  "b": 616.7,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  165
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sub-section (8) of section 6 (inferred)"
+      },
+      {
+        "id": "provision_3",
+        "kind": "container",
+        "type": "paragraph",
+        "category": "rule",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 14941,
+          "end": 15115
+        },
+        "code": {
+          "start": 14941,
+          "end": 15003
+        },
+        "title": {
+          "start": 14941,
+          "end": 14946
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/133",
+            "physicalPage": 6,
+            "start": 14941,
+            "end": 15115,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 611.77,
+                  "r": 477.63,
+                  "b": 588.74,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  174
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sub-section (9) of section 6 (inferred)"
+      },
+      {
+        "id": "provision_4",
+        "kind": "container",
+        "type": "paragraph",
+        "category": "rule",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 15116,
+          "end": 15507
+        },
+        "code": {
+          "start": 15116,
+          "end": 15194
+        },
+        "title": {
+          "start": 15116,
+          "end": 15122
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/134",
+            "physicalPage": 6,
+            "start": 15116,
+            "end": 15507,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 583.81,
+                  "r": 477.63,
+                  "b": 526.25,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  391
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "sub-section (10) of section 6 (inferred)"
+      },
+      {
+        "id": "section_7",
+        "kind": "container",
+        "type": "section",
+        "category": "rule",
+        "parent": null,
+        "children": [
+          "section_7_clause_a",
+          "section_7_illustrations"
+        ],
+        "span": {
+          "start": 15508,
+          "end": 16627
+        },
+        "code": {
+          "start": 15508,
+          "end": 15573
+        },
+        "title": {
+          "start": 15508,
+          "end": 15510
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/135",
+            "physicalPage": 6,
+            "start": 15508,
+            "end": 15635,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 521.32,
+                  "r": 477.63,
+                  "b": 498.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  127
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/136",
+            "physicalPage": 6,
+            "start": 15636,
+            "end": 15900,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 493.36,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  264
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/137",
+            "physicalPage": 6,
+            "start": 15901,
+            "end": 15915,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 270.77,
+                  "t": 442.38,
+                  "r": 324.23,
+                  "b": 430.87,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  14
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/138",
+            "physicalPage": 6,
+            "start": 15916,
+            "end": 16213,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 379.89,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  297
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/139",
+            "physicalPage": 6,
+            "start": 16214,
+            "end": 16627,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 374.95,
+                  "r": 477.63,
+                  "b": 317.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  413
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "CHAPTER II (heading context)"
+      },
+      {
+        "id": "section_7_clause_a",
+        "kind": "container",
+        "type": "clause",
+        "category": "rule",
+        "parent": "section_7",
+        "children": [],
+        "span": {
+          "start": 15636,
+          "end": 15900
+        },
+        "code": {
+          "start": 15636,
+          "end": 15705
+        },
+        "title": {
+          "start": 15636,
+          "end": 15641
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/136",
+            "physicalPage": 6,
+            "start": 15636,
+            "end": 15900,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 493.36,
+                  "r": 477.63,
+                  "b": 447.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  264
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "clause (a) of section 7"
+      },
+      {
+        "id": "section_7_illustrations",
+        "kind": "container",
+        "type": "illustration-group",
+        "category": "rule",
+        "parent": "section_7",
+        "children": [
+          "section_7_illustration_I",
+          "section_7_illustration_II"
+        ],
+        "span": {
+          "start": 15901,
+          "end": 16627
+        },
+        "code": {
+          "start": 15901,
+          "end": 15915
+        },
+        "title": {
+          "start": 15901,
+          "end": 15915
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/137",
+            "physicalPage": 6,
+            "start": 15901,
+            "end": 15915,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 270.77,
+                  "t": 442.38,
+                  "r": 324.23,
+                  "b": 430.87,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  14
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/138",
+            "physicalPage": 6,
+            "start": 15916,
+            "end": 16213,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 379.89,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  297
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/139",
+            "physicalPage": 6,
+            "start": 16214,
+            "end": 16627,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 374.95,
+                  "r": 477.63,
+                  "b": 317.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  413
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Illustrations to section 7, following clause (a)"
+      },
+      {
+        "id": "section_7_illustration_I",
+        "kind": "container",
+        "type": "illustration",
+        "category": "explanatory",
+        "parent": "section_7_illustrations",
+        "children": [],
+        "span": {
+          "start": 15916,
+          "end": 16213
+        },
+        "code": {
+          "start": 15916,
+          "end": 15974
+        },
+        "title": {
+          "start": 15916,
+          "end": 15921
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/138",
+            "physicalPage": 6,
+            "start": 15916,
+            "end": 16213,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 379.89,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  297
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Illustration (I) to section 7"
+      },
+      {
+        "id": "section_7_illustration_II",
+        "kind": "container",
+        "type": "illustration",
+        "category": "explanatory",
+        "parent": "section_7_illustrations",
+        "children": [],
+        "span": {
+          "start": 16214,
+          "end": 16627
+        },
+        "code": {
+          "start": 16214,
+          "end": 16286
+        },
+        "title": {
+          "start": 16214,
+          "end": 16220
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/139",
+            "physicalPage": 6,
+            "start": 16214,
+            "end": 16627,
+            "provenance": [
+              {
+                "page_no": 6,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 374.95,
+                  "r": 477.63,
+                  "b": 317.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  413
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Illustration (II) to section 7"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:131 'THE GAZETTE OF INDIA EXTRAORDINARY' and src:132 '[PART II-' are gazette masthead fragments, not legal provisions; retained for review only.",
+      "src:133 'Illustration.' with src:134 (X, a telecom service provider...) appears to be an illustration belonging to a preceding provision (section 6) outside the supplied core range boundary confirmation; its parent provision text is not fully present in the chunk.",
+      "src:144 '( b ) for the State...' is context-after; clause (b) of section 7 continues after the chunk (section_7 marked continuesAfterChunk) but its structure lies outside the core range and is not emitted.",
+      "Provision numbering: units src:135–src:138 are numbered (7)–(10) following a section numbered 6 (src:139 is numbered 7); parent section 6 heading itself is not included in the supplied units, so parent identification is inferred from numbering and is marked as hint."
+    ],
+    "warnings": [
+      "Parent section 6 for provisions (7)-(10) is inferred from numbering; its heading text is not in the supplied units.",
+      "Chunk contains only part of section 7; clause (b) and subsequent clauses continue after the chunk.",
+      "Cross-chunk parent left pending for provision_1: section_6",
+      "Cross-chunk parent left pending for provision_2: section_6",
+      "Cross-chunk parent left pending for provision_3: section_6",
+      "Cross-chunk parent left pending for provision_4: section_6",
+      "Cross-chunk parent left pending for section_7: CHAPTER_II"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 7 ) The Data Principal may give, manage, review or withdraw her consent\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:135\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"provision_1\",\n      \"kind\": \"container\",\n      \"parent\": \"section_6\",\n      \"parentHint\": \"sub-section (7) of section 6, Digital Personal Data Protection Act, 2023 (inferred from context)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 7 ) The Data Principal may give, manage, review or withdraw her consent to the Data Fiduciary through a Consent Manager.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:135\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 7 )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:135\"\n      }\n   ,\n      \"type\": \"paragraph\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 8 ) The Consent Manager shall be accountable to the Data Principal\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:136\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"provision_2\",\n      \"kind\": \"container\",\n      \"parent\": \"section_6\",\n      \"parentHint\": \"sub-section (8) of section 6 (inferred)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 8 ) The Consent Manager shall be accountable to the Data Principal and shall act on her behalf in such manner and subject to such obligations as may be prescribed.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:136\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 8 )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:136\"\n      },\n      \"type\": \"paragraph\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 9 ) Every Consent Manager shall be registered with the Board\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:137\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"provision_3\",\n      \"kind\": \"container\",\n      \"parent\": \"section_6\",\n      \"parentHint\": \"sub-section (9) of section 6 (inferred)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 9 ) Every Consent Manager shall be registered with the Board in such manner and subject to such technical, operational, financial and other conditions as may be prescribed.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:137\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 9 )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:137\"\n      },\n      \"type\": \"paragraph\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 10 )  Where a consent given by the Data Principal is the basis of processing\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:138\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"provision_4\",\n      \"kind\": \"container\",\n      \"parent\": \"section_6\",\n      \"parentHint\": \"sub-section (10) of section 6 (inferred)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 10 )  Where a consent given by the Data Principal is the basis of processing of personal data and a question arises in this regard in a proceeding, the Data Fiduciary shall be obliged to prove that a notice was given by her to the Data Principal and consent was given by such Data Principal to the Data Fiduciary in accordance with the provisions of this Act and the rules made thereunder.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:138\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 10 )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:138\"\n      },\n      \"type\": \"paragraph\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"7. A Data Fiduciary may process personal data of a Data Principal\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:139\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"section_7\",\n      \"kind\": \"container\",\n      \"parent\": \"CHAPTER_II\",\n      \"parentHint\": \"CHAPTER II (heading context)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"7. A Data Fiduciary may process personal data of a Data Principal for any of following uses, namely:- Certain legitimate  uses.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:139\"\n        },\n        {\n          \"exactQuote\": \"Y shall cease to process the personal data of X;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:143\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"7.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:139\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a )  for  the  specified  purpose  for  which  the  Data Principal\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:140\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_7_clause_a\",\n      \"kind\": \"container\",\n      \"parent\": \"section_7\",\n      \"parentHint\": \"clause (a) of section 7\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a )  for  the  specified  purpose  for  which  the  Data Principal  has  voluntarily provided her personal data to the Data Fiduciary, and in respect of which she has not indicated to the Data Fiduciary that she does not consent to the use of her personal data.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:140\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( a )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:140\"\n      },\n      \"type\": \"clause\"\n    },\n    {\n      \"category\": \"rule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Illustrations.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:141\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_7_illustrations\",\n      \"kind\": \"container\",\n      \"parent\": \"section_7\",\n      \"parentHint\": \"Illustrations to section 7, following clause (a)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Illustrations.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:141\"\n        },\n        {\n          \"exactQuote\": \"Y shall cease to process the personal data of X;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:143\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Illustrations.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:141\"\n      },\n      \"type\": \"illustration-group\"\n    },\n    {\n      \"category\": \"explanatory\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( I ) X, an individual, makes a purchase at Y, a pharmacy.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:142\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_7_illustration_I\",\n      \"kind\": \"container\",\n      \"parent\": \"section_7_illustrations\",\n      \"parentHint\": \"Illustration (I) to section 7\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( I ) X, an individual, makes a purchase at Y, a pharmacy. She voluntarily provides Y her personal data and requests Y to acknowledge receipt of the payment made for the purchase by sending a message to her mobile phone. Y may process the personal data of X for the purpose of sending the receipt.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:142\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( I )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:142\"\n      },\n      \"type\": \"illustration\"\n    },\n    {\n      \"category\": \"explanatory\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( II ) X, an individual, electronically messages Y, a real estate broker\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:143\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_7_illustration_II\",\n      \"kind\": \"container\",\n      \"parent\": \"section_7_illustrations\",\n      \"parentHint\": \"Illustration (II) to section 7\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( II ) X, an individual, electronically messages Y, a real estate broker, requesting Y to help identify a suitable rented accommodation for her and shares her personal data for this purpose. Y may process her personal data to identify and intimate to her the details of accommodation available on rent. Subsequently, X informs Y that X no longer needs help from Y. Y shall cease to process the personal data of X;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:143\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( II )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:143\"\n      },\n      \"type\": \"illustration\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:131 'THE GAZETTE OF INDIA EXTRAORDINARY' and src:132 '[PART II-' are gazette masthead fragments, not legal provisions; retained for review only.\",\n    \"src:133 'Illustration.' with src:134 (X, a telecom service provider...) appears to be an illustration belonging to a preceding provision (section 6) outside the supplied core range boundary confirmation; its parent provision text is not fully present in the chunk.\",\n    \"src:144 '( b ) for the State...' is context-after; clause (b) of section 7 continues after the chunk (section_7 marked continuesAfterChunk) but its structure lies outside the core range and is not emitted.\",\n    \"Provision numbering: units src:135–src:138 are numbered (7)–(10) following a section numbered 6 (src:139 is numbered 7); parent section 6 heading itself is not included in the supplied units, so parent identification is inferred from numbering and is marked as hint.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Parent section 6 for provisions (7)-(10) is inferred from numbering; its heading text is not in the supplied units.\",\n    \"Chunk contains only part of section 7; clause (b) and subsequent clauses continue after the chunk.\"\n  ]\n}",
+          "reasoning_content": "Extract provisions: section 7(7)-(10) DPDP Act, clause 7(a) with illustrations (I),(II). Anchors: first and last quotes per provision.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950753,
+    "id": "chatcmpl-b27051fa-bbe8-459e-b01d-d7ab1a685c7c",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 2585,
+      "prompt_tokens": 1186,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 3771
+    }
+  },
+  "usage": {
+    "inputTokens": 1186,
+    "outputTokens": 2585,
+    "totalTokens": 3771
+  },
+  "finishReason": "stop",
+  "durationMs": 51569
+}

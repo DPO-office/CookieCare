@@ -1,0 +1,197 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_008",
+    "coreRange": {
+      "start": 6945,
+      "end": 7199
+    },
+    "coreSourceIds": [
+      "src:81",
+      "src:82",
+      "src:83"
+    ],
+    "contextBefore": [
+      "src:80"
+    ],
+    "contextAfter": [
+      "src:84"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:80",
+        "start": 6890,
+        "end": 6944,
+        "text": "( ii ) in non-digital form and digitised subsequently;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:81",
+        "start": 6945,
+        "end": 7177,
+        "text": "( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;",
+        "group": "native:6",
+        "headings": [
+          "CHAPTER I",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:82",
+        "start": 7178,
+        "end": 7197,
+        "text": "Application of Act.",
+        "group": "native:6",
+        "headings": [
+          "CHAPTER I",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:83",
+        "start": 7198,
+        "end": 7199,
+        "text": "4",
+        "group": "native:6",
+        "headings": [
+          "CHAPTER I",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:84",
+        "start": 7200,
+        "end": 7234,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER I",
+      "Illustration."
+    ],
+    "inputHash": "1365c5673b4a928d2f8b5550be4c1ff7f25dd987bc8dc8119019d3bdafa2e591",
+    "assembledInputCharacters": 4270,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_chunk_008_01",
+        "kind": "unit",
+        "type": "article",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6945,
+          "end": 7177
+        },
+        "code": {
+          "start": 6945,
+          "end": 7177
+        },
+        "title": {
+          "start": 7178,
+          "end": 7197
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/77",
+            "physicalPage": 3,
+            "start": 6945,
+            "end": 7177,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 128.27,
+                  "r": 477.63,
+                  "b": 93.74,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  232
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "src:83"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:83 contains only the numeral '4', which appears to be the provision number for 'Application of Act.' but no body text follows within the supplied core range.",
+      "The provision in src:81 is a clause within a larger numbered provision that begins before the supplied core range (indicated by the heading context 'Illustration.' and continuing structure); its full parent boundary is not available."
+    ],
+    "warnings": [
+      "Provision 'Application of Act.' (number 4, per src:83) is partially supplied: its title/number units (src:82, src:83) are in the core range but no operative body text follows within the chunk, and the clause in src:81 belongs to a preceding provision continuing before the chunk. Both structures are marked as continuations; no obligations or legal scope conclusions are inferred."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:81\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_chunk_008_01\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": \"src:83\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:81\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Application of Act.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:82\"\n      },\n      \"type\": \"article\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:83 contains only the numeral '4', which appears to be the provision number for 'Application of Act.' but no body text follows within the supplied core range.\",\n    \"The provision in src:81 is a clause within a larger numbered provision that begins before the supplied core range (indicated by the heading context 'Illustration.' and continuing structure); its full parent boundary is not available.\"\n  ]\n  , \"warnings\": [\n    \"Provision 'Application of Act.' (number 4, per src:83) is partially supplied: its title/number units (src:82, src:83) are in the core range but no operative body text follows within the chunk, and the clause in src:81 belongs to a preceding provision continuing before the chunk. Both structures are marked as continuations; no obligations or legal scope conclusions are inferred.\"\n  ]\n}",
+          "reasoning_content": "Core units: src:81 (b), src:82 heading \"Application of Act.\", src:83 \"4\". Likely part of Article 4 structure: section 4 with clauses. Heading \"Application of Act.\" and \"4\" — the provision 4 starts. Continuation before and after.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950609,
+    "id": "chatcmpl-b5898677-06c5-4392-ba97-7462e65fe080",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 521,
+      "prompt_tokens": 594,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 1115
+    }
+  },
+  "usage": {
+    "inputTokens": 594,
+    "outputTokens": 521,
+    "totalTokens": 1115
+  },
+  "finishReason": "stop",
+  "durationMs": 10291
+}

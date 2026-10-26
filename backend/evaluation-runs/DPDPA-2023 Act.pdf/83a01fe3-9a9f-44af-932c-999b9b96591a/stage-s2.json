@@ -1,0 +1,179 @@
+{
+  "stage": "S2",
+  "stageName": "Text extraction and complete boundaries",
+  "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "canonicalCharacters": 64993,
+  "spanCount": 507,
+  "pageCount": 21,
+  "status": "mapped",
+  "pages": [
+    {
+      "physicalPage": 1,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 27,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 2,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 28,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 3,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 28,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 4,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 27,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 5,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 20,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 6,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 19,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 7,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 23,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 8,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 23,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 9,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 27,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 10,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 24,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 11,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 21,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 12,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 22,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 13,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 27,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 14,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 21,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 15,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 24,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 16,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 23,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 17,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 26,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 18,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 24,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 19,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 25,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 20,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 14,
+      "status": "mapped"
+    },
+    {
+      "physicalPage": 21,
+      "printedPageLabel": null,
+      "width": 595,
+      "height": 842,
+      "itemCount": 34,
+      "status": "mapped"
+    }
+  ]
+}

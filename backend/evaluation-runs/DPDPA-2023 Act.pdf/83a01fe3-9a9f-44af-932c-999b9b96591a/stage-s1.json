@@ -1,0 +1,15 @@
+{
+  "stage": "S1",
+  "stageName": "Source identity and classification",
+  "pdfFileName": "DPDPA-2023 Act.pdf",
+  "pdfHash": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "byteSize": 182082,
+  "pageCount": 21,
+  "readability": "readable",
+  "provider": "llm",
+  "model": "glm-5.3",
+  "datasetId": null,
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "outputDir": "/Users/avinav/CookieCare/backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "startedAt": "2026-10-25T19:40:34.856Z"
+}

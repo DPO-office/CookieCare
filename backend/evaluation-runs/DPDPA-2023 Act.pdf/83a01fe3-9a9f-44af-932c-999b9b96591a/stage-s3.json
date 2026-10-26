@@ -1,0 +1,3495 @@
+{
+  "stage": "S3",
+  "stageName": "Document tree and relationships",
+  "directoryCount": 267,
+  "tableCount": 2,
+  "relationshipCount": 316,
+  "provisionCount": 267,
+  "definitionScopeCount": 10,
+  "footnoteCount": 0,
+  "reviewStatus": "needs_review",
+  "directory": [
+    {
+      "provisionId": "73a1d0a073fcaadc3f65dab6243a945605be5d7c3a9e7b379dc430e16eda8498",
+      "kind": "unknown",
+      "label": "izkf/kdkj ls izdkf'kr",
+      "structuralPath": [
+        "izkf/kdkj ls izdkf'kr"
+      ],
+      "parentId": null,
+      "start": 223,
+      "end": 400,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "487b382f095bdca151aaeb9a8c70d38d7c322eccc72895a15d95083e8efd246c",
+      "kind": "unknown",
+      "label": "Separate paging is given to this Part in order that it may be filed as a separate compilation.",
+      "structuralPath": [
+        "Separate paging is given to this Part in order that it may be filed as a separate compilation."
+      ],
+      "parentId": null,
+      "start": 486,
+      "end": 580,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "71b898635a4bb7cc934062610040cd57008cc23763366478800cdc8611059e69",
+      "kind": "unknown",
+      "label": "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+      "structuralPath": [
+        "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+      ],
+      "parentId": null,
+      "start": 581,
+      "end": 633,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "aaadb4278f9076cfacc387e6298cec86a67a507ecb9de69f7479fff4dfb22d39",
+      "kind": "unknown",
+      "label": "New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )",
+      "structuralPath": [
+        "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+        "New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )"
+      ],
+      "parentId": "71b898635a4bb7cc934062610040cd57008cc23763366478800cdc8611059e69",
+      "start": 634,
+      "end": 696,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "18fb14917106139d8a25e18ab73e07e7be18be316b59f1d186c9df635e8d7d49",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "unknown"
+      ],
+      "parentId": null,
+      "start": 697,
+      "end": 850,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "2ab24204e196dd5d2e2422ae5f2f339613276976f12f7369f82d767bfa309263",
+      "kind": "title",
+      "label": null,
+      "structuralPath": [
+        "unknown",
+        "title"
+      ],
+      "parentId": "18fb14917106139d8a25e18ab73e07e7be18be316b59f1d186c9df635e8d7d49",
+      "start": 851,
+      "end": 897,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "afd2eb27727c9363fd4dfc61d6bbaffb33aeb26459e85ccf3c5e726db05de63e",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "unknown",
+        "title",
+        "unknown"
+      ],
+      "parentId": "2ab24204e196dd5d2e2422ae5f2f339613276976f12f7369f82d767bfa309263",
+      "start": 898,
+      "end": 914,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0d93b47c948c0948680c5a209ef42bd17a574ea7c7c7371d433664f88f093f9e",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "unknown",
+        "title",
+        "unknown"
+      ],
+      "parentId": "2ab24204e196dd5d2e2422ae5f2f339613276976f12f7369f82d767bfa309263",
+      "start": 915,
+      "end": 937,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "1c5620b9a367a16f25377b0664503bb96e3bb62a314b5ee3e3b9b9cc92b874a0",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "unknown",
+        "unknown"
+      ],
+      "parentId": "18fb14917106139d8a25e18ab73e07e7be18be316b59f1d186c9df635e8d7d49",
+      "start": 938,
+      "end": 1210,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f1c05b9b3b993a1f7edf4412cd74858357ab63ca33d8d6dd557f2f342c6773ca",
+      "kind": "chapter",
+      "label": "PRELIMINARY",
+      "structuralPath": [
+        "PRELIMINARY"
+      ],
+      "parentId": null,
+      "start": 1305,
+      "end": 1326,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "0e599ef07f85ea9689209ca88be963444d59a33e18fc146d2173f0077d65a433",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "unknown"
+      ],
+      "parentId": "f1c05b9b3b993a1f7edf4412cd74858357ab63ca33d8d6dd557f2f342c6773ca",
+      "start": 1211,
+      "end": 1304,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0139432c9e4d18a4656ec7808644a56adfe98e07e54a0381a410e1eea0c31af4",
+      "kind": "section",
+      "label": "1. ( 1 ) This Act may be called the Digital Personal Data Protection Act, 2023.",
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 1"
+      ],
+      "parentId": "f1c05b9b3b993a1f7edf4412cd74858357ab63ca33d8d6dd557f2f342c6773ca",
+      "start": 1327,
+      "end": 1755,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4e6dccfc0498cddaea6de8731860f63e272e57eabc98712022d572bc11300d37",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 1",
+        "Section 1(1)"
+      ],
+      "parentId": "0139432c9e4d18a4656ec7808644a56adfe98e07e54a0381a410e1eea0c31af4",
+      "start": 1327,
+      "end": 1406,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "5b9dcda2dd3bbe4a431f930922a685104375b22c1ec213e3fac6d828ee931c3c",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 1",
+        "Section 1"
+      ],
+      "parentId": "0139432c9e4d18a4656ec7808644a56adfe98e07e54a0381a410e1eea0c31af4",
+      "start": 1407,
+      "end": 1755,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "kind": "section",
+      "label": "2. In this Act, unless the context otherwise requires,-",
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2"
+      ],
+      "parentId": "f1c05b9b3b993a1f7edf4412cd74858357ab63ca33d8d6dd557f2f342c6773ca",
+      "start": 1848,
+      "end": 4861,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f9cb8dc9def8212eb7437925a30a01521638a7ed9d8aa7bf2eacba3a8b1cefbf",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 1904,
+      "end": 2077,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "df5199aa3cb8151851c10d99dbd3c9f8cc34623beeccdce7ef2b9b189fd01876",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2078,
+      "end": 2239,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "a4d86a2d370bae5fe328673517177d9c3608d9dd228c3cfc3cbf52560f934ab8",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2240,
+      "end": 2350,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2a48668c145f1da69a81491ea1d87e906464704c54b18dfd1b8023ccd41ef525",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2351,
+      "end": 2423,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "56204f90791de35c66cd580d730bed682d4a2cee5e04ee18ea02673830800878",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2424,
+      "end": 2479,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "7ee924596422e2ea2d8891cbf427e6044ab307953ed0ab6239e82ba28701ce96",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2480,
+      "end": 2562,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "54148bf5bd9a9c115744b94e89a1a117e277f1ab0118fab05798ef12fe331703",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2563,
+      "end": 2805,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d9939839d39e130e686f6ac81dced3145904d15661597cb2bafda68ec37fadc1",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 2806,
+      "end": 3007,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "cb7eace564200b07b8041e8e80c95ce4f58728666bf7a1aec793095b7667fa41",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3008,
+      "end": 3159,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4368abb06d32f149f7291383ca4d4bbb2fa113f78a2b0c0cc2fcfa611a61ad4c",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3160,
+      "end": 3424,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "daf0e0db0f19c611d0324064cd1e6ca3c993f6365969af0e85292fbd5e02e912",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "4368abb06d32f149f7291383ca4d4bbb2fa113f78a2b0c0cc2fcfa611a61ad4c",
+      "start": 3268,
+      "end": 3339,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "987feb653dc05a16ed6a4db8823f9f971e49e6543b9d9e1dafe7fb7791cd66cc",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "4368abb06d32f149f7291383ca4d4bbb2fa113f78a2b0c0cc2fcfa611a61ad4c",
+      "start": 3340,
+      "end": 3424,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "7ba9810d1a302e22d33ab80decba5581ebbb553dd0fbe986561d7cd708745e6b",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3425,
+      "end": 3523,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e40b0043476cdb1f91bf0fe0129c4fa4d6a74fbccf9163cccc0a49483058a7d7",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3524,
+      "end": 3674,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "7ab84785f5430c84e893b80c01c423e20ad5ae437bd4f2867ae1cc1e26b9192c",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3675,
+      "end": 3934,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "fc7b8f2f7bf1d44b545a5af938a0dbeb91c67594912e20e9f070b4ec48f9dad5",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 3935,
+      "end": 4001,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e671e8fcf2885c9bb7ab42e8a7b1986c8700689c54d4e01f3f2d354f00d627bb",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 4002,
+      "end": 4265,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "f82618e74b34d0454d1cd5418a94e1c4c428dc1336cb7e49f748e2f357c6d756",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "e671e8fcf2885c9bb7ab42e8a7b1986c8700689c54d4e01f3f2d354f00d627bb",
+      "start": 4022,
+      "end": 4115,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "6fc3cb0b04974ccd3a4891e27ce85bc98168988aa2f529fc4284950a80686aec",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "e671e8fcf2885c9bb7ab42e8a7b1986c8700689c54d4e01f3f2d354f00d627bb",
+      "start": 4116,
+      "end": 4265,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "27c70185930b604e3c251dd00d30fd8a1aee1c254d9c41babca943ccfa2982b0",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 4266,
+      "end": 4552,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "0381d04e0d5c3d9c705813b39e790702f1c23d9830ca362f99fda90f9aaa7169",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "27c70185930b604e3c251dd00d30fd8a1aee1c254d9c41babca943ccfa2982b0",
+      "start": 4286,
+      "end": 4395,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "08cc634f366995198d452ee58965e1d6720122d772d14881cfb2779804e48626",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "27c70185930b604e3c251dd00d30fd8a1aee1c254d9c41babca943ccfa2982b0",
+      "start": 4396,
+      "end": 4552,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "3500842dac008f340a62f8c1fe15549ff5e3a8b6c2dd884bd932e449aece3576",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 4612,
+      "end": 4684,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "b4d69930693f724d209810c3941fcabf27b08b24ac73ec1be009450a6f3bf6f5",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 4685,
+      "end": 4836,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "21e1b7fe9628548a7c5a7a1035c7c362272deb3215deafcb99cf8241492eab8b",
+      "kind": "point",
+      "label": null,
+      "structuralPath": [
+        "PRELIMINARY",
+        "Section 2",
+        "Section 2"
+      ],
+      "parentId": "70cbec437e58871d5186bfb2fefdf53568db4b504f6a20f89308529c9990e594",
+      "start": 4837,
+      "end": 4861,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "cc8335a1184e00dab38d9c95d6d1828441876493552accf3527cced5806015a5",
+      "kind": "definition",
+      "label": "( i ) an individual;",
+      "structuralPath": [
+        "Definition: ( i ) an individual;"
+      ],
+      "parentId": null,
+      "start": 4862,
+      "end": 5163,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "96a81c57fc479e0c0658b1cbaac8720337dd5a4fce0ac9d6f7d98003f4580144",
+      "kind": "definition",
+      "label": "( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;",
+      "structuralPath": [
+        "Definition: ( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;"
+      ],
+      "parentId": null,
+      "start": 5164,
+      "end": 5272,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f2d72078f01ecc064ce0fdb65218842b0be3380d8eb4af2a947eba85be0061a3",
+      "kind": "definition",
+      "label": "( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;",
+      "structuralPath": [
+        "Definition: ( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;"
+      ],
+      "parentId": null,
+      "start": 5273,
+      "end": 5556,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "c82f22710bb20a02d71e8d50e7088c66bdabc3e4a720ceb5112f506fc1ed6151",
+      "kind": "definition",
+      "label": "( v ) 'prescribed' means prescribed by rules made under this Act;",
+      "structuralPath": [
+        "Definition: ( v ) 'prescribed' means prescribed by rules made under this Act;"
+      ],
+      "parentId": null,
+      "start": 5557,
+      "end": 5622,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "16a32ea7b8b8772eb7ebff02ffd05a9536b147b16c84f7bf94153dd9526075d5",
+      "kind": "definition",
+      "label": "( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;",
+      "structuralPath": [
+        "Definition: ( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;"
+      ],
+      "parentId": null,
+      "start": 5623,
+      "end": 5711,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "f5f83d97b7b0561d85c75624ee96c9027381364954b6495621ffb71fc99a477d",
+      "kind": "definition",
+      "label": "( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;",
+      "structuralPath": [
+        "Definition: ( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;"
+      ],
+      "parentId": null,
+      "start": 5712,
+      "end": 6147,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "785b39fda7a1b4e8ad90c849f6a4d6fbdc6573d549913d5da63bb9cdad8dce82",
+      "kind": "definition",
+      "label": "( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;",
+      "structuralPath": [
+        "Definition: ( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;"
+      ],
+      "parentId": null,
+      "start": 6148,
+      "end": 6254,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2b2cd6ab3caee2611aa98b575bb8b32512f3d9ac53f576262020e85c4fbc7f08",
+      "kind": "definition",
+      "label": "( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;",
+      "structuralPath": [
+        "Definition: ( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;"
+      ],
+      "parentId": null,
+      "start": 6255,
+      "end": 6406,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "1f2c973cfe2a9fcdb8c7b8f8484694a1d4a2ccb8869be12357c3c10cafa9839a",
+      "kind": "definition",
+      "label": "( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and",
+      "structuralPath": [
+        "Definition: ( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and"
+      ],
+      "parentId": null,
+      "start": 6407,
+      "end": 6607,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "35756988d9e4ff862d90fd788ae608ce7bc5f85aa06c3c428ce8812eaee8b828",
+      "kind": "definition",
+      "label": "( zb ) 'State' means the State as defined under article 12 of the Constitution.",
+      "structuralPath": [
+        "Definition: ( zb ) 'State' means the State as defined under article 12 of the Constitution."
+      ],
+      "parentId": null,
+      "start": 6608,
+      "end": 6687,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d26d11c3329bb42530e4ebeff13549738baef709c054f036d4c3ba6389fc0829",
+      "kind": "section",
+      "label": "3. Subject to the provisions of this Act, it shall-",
+      "structuralPath": [
+        "Section 3"
+      ],
+      "parentId": null,
+      "start": 6688,
+      "end": 6944,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ed3a84970310e0bb4c67d6beccb9c266e528a2798098ec7eeb5a6f4ce01ca474",
+      "kind": "article",
+      "label": "( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;",
+      "structuralPath": [
+        "( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;"
+      ],
+      "parentId": null,
+      "start": 6945,
+      "end": 7177,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "1869b3f57b2404f3e65a9df8c534e274ebe69f617e38f057a939228c6cb4930a",
+      "kind": "point",
+      "label": "( c ) not apply to-",
+      "structuralPath": [
+        "( c ) not apply to-"
+      ],
+      "parentId": null,
+      "start": 7200,
+      "end": 7264,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d6ad52767ebbbf024eb6713b903700a05915b5174720737761be278472184b7c",
+      "kind": "point",
+      "label": "( i ) personal data processed by an individual for any personal or domestic purpose; and",
+      "structuralPath": [
+        "( c ) not apply to-",
+        "( i ) personal data processed by an individual for any personal or domestic purpose; and"
+      ],
+      "parentId": "1869b3f57b2404f3e65a9df8c534e274ebe69f617e38f057a939228c6cb4930a",
+      "start": 7265,
+      "end": 7353,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "edd30965f307122fe88c6300142c65dab1930294e595d7cd0af282eb48ae5a9d",
+      "kind": "point",
+      "label": "( ii ) personal data that is made or caused to be made publicly available by -",
+      "structuralPath": [
+        "( c ) not apply to-",
+        "( ii ) personal data that is made or caused to be made publicly available by -"
+      ],
+      "parentId": "1869b3f57b2404f3e65a9df8c534e274ebe69f617e38f057a939228c6cb4930a",
+      "start": 7354,
+      "end": 7656,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2a8451bee67c199745677973d5e4b7eac3cd00160733d780e5a8f43e66e14b3a",
+      "kind": "point",
+      "label": "( A ) the Data Principal to whom such personal data relates; or",
+      "structuralPath": [
+        "( c ) not apply to-",
+        "( ii ) personal data that is made or caused to be made publicly available by -",
+        "( A ) the Data Principal to whom such personal data relates; or"
+      ],
+      "parentId": "edd30965f307122fe88c6300142c65dab1930294e595d7cd0af282eb48ae5a9d",
+      "start": 7433,
+      "end": 7496,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d6b1f0c73ed4bfa1e921a55827f28ebc588a094967497ed4432e38eba6568711",
+      "kind": "point",
+      "label": "( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available.",
+      "structuralPath": [
+        "( c ) not apply to-",
+        "( ii ) personal data that is made or caused to be made publicly available by -",
+        "( B ) any other person who is under an obligation under any law for the  time  being  in  force  in  India  to  make  such  personal  data  publicly available."
+      ],
+      "parentId": "edd30965f307122fe88c6300142c65dab1930294e595d7cd0af282eb48ae5a9d",
+      "start": 7497,
+      "end": 7656,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "1084425ed1946f2683dbfd28d3499491d3fe9993ffcc4f5cba1950c1d1bb2fe6",
+      "kind": "illustration",
+      "label": "Illustration.",
+      "structuralPath": [
+        "( c ) not apply to-",
+        "Illustration"
+      ],
+      "parentId": "1869b3f57b2404f3e65a9df8c534e274ebe69f617e38f057a939228c6cb4930a",
+      "start": 7657,
+      "end": 7835,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4fcd38293aef54c90a61cac2b971c49e687167cd4403a6c4ee90f381b68a216d",
+      "kind": "paragraph",
+      "label": "( 7 ) The Data Principal may give, manage, review or withdraw her consent",
+      "structuralPath": [
+        "( 7 ) The Data Principal may give, manage, review or withdraw her consent"
+      ],
+      "parentId": null,
+      "start": 14652,
+      "end": 14774,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d303a1f74e55077389631b96c17efecb6fc400642e298558d8334ff5d367e34d",
+      "kind": "paragraph",
+      "label": "( 8 ) The Consent Manager shall be accountable to the Data Principal",
+      "structuralPath": [
+        "( 8 ) The Consent Manager shall be accountable to the Data Principal"
+      ],
+      "parentId": null,
+      "start": 14775,
+      "end": 14940,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2b9a37de1166de7effb318e1c0aa9898e55e2ef3220d7b5e37aaadfbe3e05ec5",
+      "kind": "paragraph",
+      "label": "( 9 ) Every Consent Manager shall be registered with the Board",
+      "structuralPath": [
+        "( 9 ) Every Consent Manager shall be registered with the Board"
+      ],
+      "parentId": null,
+      "start": 14941,
+      "end": 15115,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d6f6b549d563c8eb5cc39b4870f5cfa1bdf3880d892e1812b438dc06ec60bf18",
+      "kind": "paragraph",
+      "label": "( 10 )  Where a consent given by the Data Principal is the basis of processing",
+      "structuralPath": [
+        "( 10 )  Where a consent given by the Data Principal is the basis of processing"
+      ],
+      "parentId": null,
+      "start": 15116,
+      "end": 15507,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d8368a132fe2ae13421df17df7fbb44c37fc9a327f664f7fc58fe05399a8ec8d",
+      "kind": "section",
+      "label": "7. A Data Fiduciary may process personal data of a Data Principal",
+      "structuralPath": [
+        "Section 7"
+      ],
+      "parentId": null,
+      "start": 15508,
+      "end": 16627,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0c4853a0cdbc9b998f9e496c5133d4cbcab0356ab870b60c4ba84f24ba3f2226",
+      "kind": "point",
+      "label": "( a )  for  the  specified  purpose  for  which  the  Data  Principal",
+      "structuralPath": [
+        "Section 7",
+        "Section 7"
+      ],
+      "parentId": "d8368a132fe2ae13421df17df7fbb44c37fc9a327f664f7fc58fe05399a8ec8d",
+      "start": 15636,
+      "end": 15900,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "9e75f3a6064f3a43bce5ffd055dae2fe6e0f1b4a87904daf618a44256b041d3b",
+      "kind": "unknown",
+      "label": "Illustrations.",
+      "structuralPath": [
+        "Section 7",
+        "Illustrations."
+      ],
+      "parentId": "d8368a132fe2ae13421df17df7fbb44c37fc9a327f664f7fc58fe05399a8ec8d",
+      "start": 15901,
+      "end": 16627,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "c09d8848f84dd0758fc0115c480b849036b9480ae74a34cf53c5f4085c4eadec",
+      "kind": "illustration",
+      "label": "( I ) X, an individual, makes a purchase at Y, a pharmacy.",
+      "structuralPath": [
+        "Section 7",
+        "Illustrations.",
+        "Illustration"
+      ],
+      "parentId": "9e75f3a6064f3a43bce5ffd055dae2fe6e0f1b4a87904daf618a44256b041d3b",
+      "start": 15916,
+      "end": 16213,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "aa0317c43fd1a592e97ec39939f762e19b5a8cdda00d5281b5870d6f1e86d9dd",
+      "kind": "illustration",
+      "label": "( II ) X, an individual, electronically messages Y, a real estate broker",
+      "structuralPath": [
+        "Section 7",
+        "Illustrations.",
+        "Illustration"
+      ],
+      "parentId": "9e75f3a6064f3a43bce5ffd055dae2fe6e0f1b4a87904daf618a44256b041d3b",
+      "start": 16214,
+      "end": 16627,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "13927624d7a36fb007543caf05a9d364b3270f668b83714279ee6684287b7266",
+      "kind": "point",
+      "label": "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+      "structuralPath": [
+        "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--"
+      ],
+      "parentId": null,
+      "start": 16628,
+      "end": 17285,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "a487dfa743964fd22c55a1d50ca4e305adbc12aec687570a68abae90b71f9582",
+      "kind": "point",
+      "label": "( i ) she has previously consented to the processing of her personal data by the State or any of its instrumentalities for any subsidy, benefit, service, certificate, licence or permit; or",
+      "structuralPath": [
+        "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+        "( i ) she has previously consented to the processing of her personal data by the State or any of its instrumentalities for any subsidy, benefit, service, certificate, licence or permit; or"
+      ],
+      "parentId": "13927624d7a36fb007543caf05a9d364b3270f668b83714279ee6684287b7266",
+      "start": 16827,
+      "end": 17015,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "cd295b7fa0db027a694baa9b4cc22ba22f7436b4089a27bd57d1e0009986a023",
+      "kind": "point",
+      "label": "( ii ) such personal data is available in digital form in, or in non-digital form and digitised subsequently from, any database, register, book or other document which is maintained by the State or any of its instrumentalities and is notified by the Central Government, subject to standards followed for processing being in accordance with the policy issued by the Central Government or any law for the time being in force for governance of personal data.",
+      "structuralPath": [
+        "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+        "( ii ) such personal data is available in digital form in, or in non-digital form and digitised subsequently from, any database, register, book or other document which is maintained by the State or any of its instrumentalities and is notified by the Central Government, subject to standards followed for processing being in accordance with the policy issued by the Central Government or any law for the time being in force for governance of personal data."
+      ],
+      "parentId": "13927624d7a36fb007543caf05a9d364b3270f668b83714279ee6684287b7266",
+      "start": 17016,
+      "end": 17471,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2ded550a265e4aac8160f454d30941deea6187cf492c43927dabad9e2eab0085",
+      "kind": "illustration",
+      "label": "Illustration.",
+      "structuralPath": [
+        "( b ) for the State and any of its instrumentalities to provide or issue to the Data Principal  such  subsidy,  benefit,  service,  certificate,  licence  or  permit  as  may  be prescribed, where--",
+        "Illustration"
+      ],
+      "parentId": "13927624d7a36fb007543caf05a9d364b3270f668b83714279ee6684287b7266",
+      "start": 17472,
+      "end": 17836,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "ceabc8fd74c3bc6c581502ff5fbf667836683926030d5b1a9f470aabfbfaaa41",
+      "kind": "table",
+      "label": "SEC. 1]",
+      "structuralPath": [
+        "SEC. 1]"
+      ],
+      "parentId": null,
+      "start": 17839,
+      "end": 17895,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "7cceebd89bff468c634201ccc4c4519786c5bc9f9ac79d31a27628d71c42499d",
+      "kind": "point",
+      "label": "( c ) for the performance by the State or any of its instrumentalities of any function under any law for the time being in force in India or in the interest of sovereignty and integrity of India or security of the State;",
+      "structuralPath": [
+        "( c ) for the performance by the State or any of its instrumentalities of any function under any law for the time being in force in India or in the interest of sovereignty and integrity of India or security of the State;"
+      ],
+      "parentId": null,
+      "start": 17896,
+      "end": 18116,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e8058b1c1d3adf07677604387fdd790e169ca77a222b8ccd96179943d296a660",
+      "kind": "point",
+      "label": "( d ) for fulfilling any obligation under any law for the time being in force in India on any person to disclose any information to the State or any of its instrumentalities, subject  to  such  processing  being  in  accordance  with  the  provisions  regarding disclosure of such information in any other law for the time being in force;",
+      "structuralPath": [
+        "( d ) for fulfilling any obligation under any law for the time being in force in India on any person to disclose any information to the State or any of its instrumentalities, subject  to  such  processing  being  in  accordance  with  the  provisions  regarding disclosure of such information in any other law for the time being in force;"
+      ],
+      "parentId": null,
+      "start": 18117,
+      "end": 18455,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d0e8da0e0499e7ae181eff4686e9bf731d21fa1e21a6f916cf1b97c409d05cea",
+      "kind": "point",
+      "label": "( e ) for compliance with any judgment or decree or order issued under any law for the time being in force in India, or any judgment or order relating to claims of a contractual or civil nature under any law for the time being in force outside India;",
+      "structuralPath": [
+        "( e ) for compliance with any judgment or decree or order issued under any law for the time being in force in India, or any judgment or order relating to claims of a contractual or civil nature under any law for the time being in force outside India;"
+      ],
+      "parentId": null,
+      "start": 18456,
+      "end": 18706,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "0f7926161334d311a759d862e1b98406fb43ca443d1174fa42fe21ae6de66d15",
+      "kind": "point",
+      "label": "( f )  for  responding to a medical emergency involving a threat to the life or immediate threat to the health of the Data Principal or any other individual;",
+      "structuralPath": [
+        "( f )  for  responding to a medical emergency involving a threat to the life or immediate threat to the health of the Data Principal or any other individual;"
+      ],
+      "parentId": null,
+      "start": 18707,
+      "end": 18864,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "Section 8"
+      ],
+      "parentId": null,
+      "start": 19712,
+      "end": 23771,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "07930bf738c3807b6d36725e070ff65cb20559f09516b7993bd4b6ba3f86ab79",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8(8)"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 19712,
+      "end": 20047,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "9cb8a31ea477d4366ee54385649223724a0df6fa0276f2251ba5a8bcc54f7e75",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 20048,
+      "end": 20294,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "80c6111e03bfaa665bbebebfd7c186582c39aeb8029f96131f64297589ab85a6",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 20295,
+      "end": 20592,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e2c4eb6287880583a1832443a8460a6841cd92fad811994303a52ab8a29c5498",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "80c6111e03bfaa665bbebebfd7c186582c39aeb8029f96131f64297589ab85a6",
+      "start": 20368,
+      "end": 20433,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "96f44f72243059e20b052088172db41a15405ec090f75d47f99f551c769589c9",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "80c6111e03bfaa665bbebebfd7c186582c39aeb8029f96131f64297589ab85a6",
+      "start": 20434,
+      "end": 20476,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "8ac88dd8d4e708c88124bc0caab7cbe1f624d54982e0b95a7455ae25a93684b0",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 20593,
+      "end": 20775,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "88adc714c72b97d50920a6177c4ea41f7bcf5f8054e0444d9703dd5fece70e05",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 20776,
+      "end": 21035,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e5053e281d057c440a33482950d0c33fff4575556aa9a9a8d3d0435f433cfe03",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 21036,
+      "end": 21227,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "c969f13b2a43bd95931425d0d63bdbb5490eeb5c1b1bc75dcb38fd93cf346966",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 21228,
+      "end": 21883,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "724fceb3066dd1b2169daacc8e8cfccaffeb9c2306322933786632ec3ce09bbb",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "c969f13b2a43bd95931425d0d63bdbb5490eeb5c1b1bc75dcb38fd93cf346966",
+      "start": 21347,
+      "end": 21740,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "bfff2cb51d5bc44f2d53ec9d1c44d7acbf9fbab4068bc501a4d7dc16f1e8f881",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "c969f13b2a43bd95931425d0d63bdbb5490eeb5c1b1bc75dcb38fd93cf346966",
+      "start": 21741,
+      "end": 21883,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "6f45b0229deee76b2ebd9b9ed83d9307d609df5a74442708c1b4e513ac0d0d4b",
+      "kind": "illustration",
+      "label": "Illustrations.",
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "Illustration"
+      ],
+      "parentId": "c969f13b2a43bd95931425d0d63bdbb5490eeb5c1b1bc75dcb38fd93cf346966",
+      "start": 21899,
+      "end": 22195,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "81435df5d43fced9ea512a3f356015c65b8e5c2c9ba394fc7b9730d26880635b",
+      "kind": "illustration",
+      "label": "Illustrations.",
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "Illustration"
+      ],
+      "parentId": "c969f13b2a43bd95931425d0d63bdbb5490eeb5c1b1bc75dcb38fd93cf346966",
+      "start": 22196,
+      "end": 22531,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "797b71c4736a3d36ca6990bd3745c54d7afd763f53fc0fdff99b146eac52f962",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 22532,
+      "end": 22671,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "89fbc31f6f8641a932419c727a858a732d8f28e28b939e554ed842376665922c",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "797b71c4736a3d36ca6990bd3745c54d7afd763f53fc0fdff99b146eac52f962",
+      "start": 22672,
+      "end": 22755,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "31da1de4c4546ea1919f609e43ea77d7731b6a535306637387471e500e88cb6b",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8",
+        "unknown"
+      ],
+      "parentId": "797b71c4736a3d36ca6990bd3745c54d7afd763f53fc0fdff99b146eac52f962",
+      "start": 22756,
+      "end": 22978,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "549c2ea4cf1ea329fc5782df79961d22b954b5dbb183bdc24fc2a7f87c27d7f1",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 22979,
+      "end": 23294,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "b7f131c563351f607bd1ada2894f83a52c7ac9b2b0367b98f54e3dba97b8921c",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 23295,
+      "end": 23403,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "a917699d4a4487428cac8ab7027e8b1c94a484785313f50dfdbbaa5b24892cf9",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 8",
+        "Section 8"
+      ],
+      "parentId": "8e1562f87c1fd1803d8ea90c4f1528ade29a57b697ee49821af60298444113af",
+      "start": 23404,
+      "end": 23771,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4f4f9ff327666dddbe82ddcddbafb5a3a8df57f3ec082a696a6a149a8226a9f6",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "Section 9"
+      ],
+      "parentId": null,
+      "start": 23772,
+      "end": 24195,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "acd90bb2ab84b086659b01c50ca31e8639cce0025896ce70774735950a97f2bf",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 9",
+        "Section 9(9)"
+      ],
+      "parentId": "4f4f9ff327666dddbe82ddcddbafb5a3a8df57f3ec082a696a6a149a8226a9f6",
+      "start": 23772,
+      "end": 24195,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "a8763a00e60bdc68437cad3f63e7606ab52db9fd972515c37d77dee7dc50087a",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 9",
+        "Section 9(9)",
+        "unknown"
+      ],
+      "parentId": "acd90bb2ab84b086659b01c50ca31e8639cce0025896ce70774735950a97f2bf",
+      "start": 24043,
+      "end": 24195,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "47a1aeddf11a0205d0ca015159e466bd3a9720b868728e38be8153e6d91d81fe",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "subsection"
+      ],
+      "parentId": null,
+      "start": 24196,
+      "end": 24716,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "ac25e36aa680891acee90c85d6a6ac7fc638aff70c54cf8c82cefc0da5ad3c13",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "subsection"
+      ],
+      "parentId": "47a1aeddf11a0205d0ca015159e466bd3a9720b868728e38be8153e6d91d81fe",
+      "start": 24349,
+      "end": 24485,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "60bca75c1c9f64fe6a5006ebf877484193f48c7fe6fa505d279b4f6cf33390e3",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "subsection"
+      ],
+      "parentId": "47a1aeddf11a0205d0ca015159e466bd3a9720b868728e38be8153e6d91d81fe",
+      "start": 24486,
+      "end": 24716,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "895ad8326afc30c942a3a7c9ba7bac3b934ab70260793c57c471ec90d7dae06d",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "subsection"
+      ],
+      "parentId": "47a1aeddf11a0205d0ca015159e466bd3a9720b868728e38be8153e6d91d81fe",
+      "start": 24717,
+      "end": 25169,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2ddd77d379b55f7c32b49fa23b09eb9aeec195f47580db804ccbe81d44411202",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "Section 10"
+      ],
+      "parentId": null,
+      "start": 25170,
+      "end": 25685,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "638599cf6abbc02613ea0e5abcf7a208af0388d90e8d1572fbecc66fdb2113c2",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 10",
+        "unknown"
+      ],
+      "parentId": "2ddd77d379b55f7c32b49fa23b09eb9aeec195f47580db804ccbe81d44411202",
+      "start": 25426,
+      "end": 25685,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "c2e97fa1fcea9b04a51d85e0c2ae8a419317eacc6bd6dc389ee066ba36e7b311",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 10",
+        "Section 10"
+      ],
+      "parentId": "2ddd77d379b55f7c32b49fa23b09eb9aeec195f47580db804ccbe81d44411202",
+      "start": 25686,
+      "end": 26825,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "7230a64c779808824bf54204e7ccfa68ca9b62210fd0952f1303b6aee28e95e1",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 10",
+        "Section 10",
+        "unknown"
+      ],
+      "parentId": "c2e97fa1fcea9b04a51d85e0c2ae8a419317eacc6bd6dc389ee066ba36e7b311",
+      "start": 25730,
+      "end": 26119,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "caff471fac6291c8b9943986f4be9348a3eb3b82b6ab5b795a33971a0fd50a48",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 10",
+        "Section 10",
+        "unknown"
+      ],
+      "parentId": "c2e97fa1fcea9b04a51d85e0c2ae8a419317eacc6bd6dc389ee066ba36e7b311",
+      "start": 26120,
+      "end": 26317,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "316c0789cf943dc4f15da25ff41a715536465168f697d643c9fb2e9b537c8e12",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 10",
+        "Section 10",
+        "unknown"
+      ],
+      "parentId": "c2e97fa1fcea9b04a51d85e0c2ae8a419317eacc6bd6dc389ee066ba36e7b311",
+      "start": 26318,
+      "end": 26825,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "5353887e5f2f9361ab67bf61fdd0f63bf20b1cd1a35830898096c4f0e5815aa4",
+      "kind": "chapter",
+      "label": null,
+      "structuralPath": [
+        "chapter"
+      ],
+      "parentId": null,
+      "start": 26826,
+      "end": 26873,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "a49a95d9f6353fbc1f9b256d2b9384385b2fac204cc4dcc6ad8494d91369be32",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "chapter",
+        "Section 11"
+      ],
+      "parentId": "5353887e5f2f9361ab67bf61fdd0f63bf20b1cd1a35830898096c4f0e5815aa4",
+      "start": 26874,
+      "end": 27595,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "bfaf07821cda82559133105982365c04c5dea43c942e1c15d75ce735dcce001e",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "chapter",
+        "Section 11",
+        "unknown"
+      ],
+      "parentId": "a49a95d9f6353fbc1f9b256d2b9384385b2fac204cc4dcc6ad8494d91369be32",
+      "start": 27215,
+      "end": 27395,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e3f51297c821673f23e45c00cad48b344a6cc428eaf88f1356f921cf8c958df3",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "chapter",
+        "Section 11",
+        "unknown"
+      ],
+      "parentId": "a49a95d9f6353fbc1f9b256d2b9384385b2fac204cc4dcc6ad8494d91369be32",
+      "start": 27396,
+      "end": 27533,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "084440444cc7df4b4709dd0421fc814cb596f4deb6ecad8e4b7273190907cf11",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "unknown"
+      ],
+      "parentId": null,
+      "start": 27596,
+      "end": 27717,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e87084f1c864ce0b7e7dc98e9a4ffd365d446865b6c6feec72c6c539552d68be",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "subsection"
+      ],
+      "parentId": null,
+      "start": 27718,
+      "end": 28040,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d03456e57c8aa4ca0175676fc76eac7ecf514e009f9cf3fc0448f38e43910a8e",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "unknown"
+      ],
+      "parentId": "e87084f1c864ce0b7e7dc98e9a4ffd365d446865b6c6feec72c6c539552d68be",
+      "start": 28174,
+      "end": 28369,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9249cd1d9a6164a5652687281c5f61fee74c42860b94d1fc3feb037eaa25047b",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "unknown"
+      ],
+      "parentId": "e87084f1c864ce0b7e7dc98e9a4ffd365d446865b6c6feec72c6c539552d68be",
+      "start": 28089,
+      "end": 28142,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "11acb3767077d565314dfcef011713b018d2252c9e8a09487cdda6c5a0426679",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "subsection",
+        "unknown"
+      ],
+      "parentId": "e87084f1c864ce0b7e7dc98e9a4ffd365d446865b6c6feec72c6c539552d68be",
+      "start": 28143,
+      "end": 28173,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "b528e1323a07eca1e92c7c64b8785e2f4f38ef8409790c093d7ef46a86218ca2",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "Section 12"
+      ],
+      "parentId": null,
+      "start": 28370,
+      "end": 28702,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "5f213c2fe646dc84b7c1437c6ee59ec7d9c4bd89faaf5e4f93ed2f4b917491d1",
+      "kind": "subsection",
+      "label": null,
+      "structuralPath": [
+        "Section 12",
+        "Section 12"
+      ],
+      "parentId": "b528e1323a07eca1e92c7c64b8785e2f4f38ef8409790c093d7ef46a86218ca2",
+      "start": 28703,
+      "end": 28820,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "aa55fa48bfb2e142032b64f90690af3829f29a7bd3833d6121629becae915b2a",
+      "kind": "unknown",
+      "label": null,
+      "structuralPath": [
+        "Section 12",
+        "Section 12",
+        "unknown"
+      ],
+      "parentId": "5f213c2fe646dc84b7c1437c6ee59ec7d9c4bd89faaf5e4f93ed2f4b917491d1",
+      "start": 28821,
+      "end": 28878,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "b9cac1c70739f30b05cf41a7849825a9b3f16f6d861ca339080cb2b0fda24a35",
+      "kind": "unknown",
+      "label": "( b ) complete the incomplete personal data; and",
+      "structuralPath": [
+        "( b ) complete the incomplete personal data; and"
+      ],
+      "parentId": null,
+      "start": 28879,
+      "end": 28927,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9b3bc1913aba9cc93ba895e2911304187489f4eec4d82fc1fb2b17d97c315e2d",
+      "kind": "unknown",
+      "label": "( c ) update the personal data.",
+      "structuralPath": [
+        "( c ) update the personal data."
+      ],
+      "parentId": null,
+      "start": 28928,
+      "end": 28959,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "6c0c83fad5b7d1a390c8d96ea3d903635933b54d622bf828feee6e98b648eb63",
+      "kind": "subsection",
+      "label": "( 3 ) A Data Principal shall make a request in such manner as may be prescribed to the Data Fiduciary for erasure of her personal data, and upon receipt of such a request, the Data Fiduciary shall erase her personal data unless retention of the same is necessary for the specified purpose or for compliance with any law for the time being in force.",
+      "structuralPath": [
+        "( 3 ) A Data Principal shall make a request in such manner as may be prescribed to the Data Fiduciary for erasure of her personal data, and upon receipt of such a request, the Data Fiduciary shall erase her personal data unless retention of the same is necessary for the specified purpose or for compliance with any law for the time being in force."
+      ],
+      "parentId": null,
+      "start": 28960,
+      "end": 29308,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "abdec2df5563e0182b0a2dafed7b84412042014fb17e05bd6cf8c8fc637139b4",
+      "kind": "section",
+      "label": "13. ( 1 ) A Data Principal shall have the right to have readily available means of grievance redressal provided by a Data Fiduciary or Consent Manager in respect of any act or omission of such Data Fiduciary or Consent Manager regarding the performance of its obligations in relation to the personal data of such Data Principal or the exercise of her rights under the provisions of this Act and the rules made thereunder.",
+      "structuralPath": [
+        "Section 13"
+      ],
+      "parentId": null,
+      "start": 29309,
+      "end": 30083,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "b5e2f074ed033b8e457f1c8b0fd0926c4ebed7b171b2b0327013852266ae1d3c",
+      "kind": "subsection",
+      "label": "( 2 ) The Data Fiduciary or Consent Manager shall respond to any grievances referred to in sub-section ( 1 ) within such period as may be prescribed from the date of its receipt for all or any class of Data Fiduciaries.",
+      "structuralPath": [
+        "Section 13",
+        "Section 13"
+      ],
+      "parentId": "abdec2df5563e0182b0a2dafed7b84412042014fb17e05bd6cf8c8fc637139b4",
+      "start": 29731,
+      "end": 29950,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d38bffa200785519ae632029908ae76b4e9a69ea67c58a5b34b85099191610b6",
+      "kind": "subsection",
+      "label": "( 3 )  The Data Principal shall exhaust the opportunity of redressing her grievance under this section before approaching the Board.",
+      "structuralPath": [
+        "Section 13",
+        "Section 13"
+      ],
+      "parentId": "abdec2df5563e0182b0a2dafed7b84412042014fb17e05bd6cf8c8fc637139b4",
+      "start": 29951,
+      "end": 30083,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "44150078cd78c77406e44ccb7176b6508a655a5356bf0bdd1f746ebad6e95d6d",
+      "kind": "section",
+      "label": "14. ( 1 ) A Data Principal shall have the right to nominate, in such manner as may be prescribed, any other individual, who shall, in the event of death or incapacity of the Data Principal, exercise the rights of the Data Principal in accordance with the provisions of this Act and the rules made thereunder. Right  to nominate.",
+      "structuralPath": [
+        "Section 14"
+      ],
+      "parentId": null,
+      "start": 30084,
+      "end": 30653,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "719190b4fbe1bedd6b9f6ffc96d715f2ea4247a32c409b4c8085b5216e967b7a",
+      "kind": "subsection",
+      "label": "( 2 ) For the purposes of this section, the expression 'incapacity' means inability to exercise the rights of the Data Principal under the provisions of this Act or the rules made thereunder due to unsoundness of mind or infirmity of  body.",
+      "structuralPath": [
+        "Section 14",
+        "Section 14"
+      ],
+      "parentId": "44150078cd78c77406e44ccb7176b6508a655a5356bf0bdd1f746ebad6e95d6d",
+      "start": 30413,
+      "end": 30653,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33",
+      "kind": "section",
+      "label": "15. A Data Principal shall perform the following duties, namely:-",
+      "structuralPath": [
+        "Section 15"
+      ],
+      "parentId": null,
+      "start": 30682,
+      "end": 31340,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e18bcde6bcb7d5510311bd555feebf8a6cde083af36ba557c30b1d2c92b43dd2",
+      "kind": "unknown",
+      "label": "( a ) comply with the provisions of all applicable laws for the time being in force while exercising rights under the provisions of this Act;",
+      "structuralPath": [
+        "Section 15",
+        "( a ) comply with the provisions of all applicable laws for the time being in force while exercising rights under the provisions of this Act;"
+      ],
+      "parentId": "4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33",
+      "start": 30748,
+      "end": 30889,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "aa7aa52449fb5f4b9afd0656606c8f6c8ed3e0af3155c9561b3ac2d81ba21e4a",
+      "kind": "unknown",
+      "label": "( b ) to ensure not to impersonate another person while providing her personal data for a specified purpose;",
+      "structuralPath": [
+        "Section 15",
+        "( b ) to ensure not to impersonate another person while providing her personal data for a specified purpose;"
+      ],
+      "parentId": "4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33",
+      "start": 30890,
+      "end": 30998,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e33b623dbe0fff195ed11d69ee1c259b5cd7759835ff700025a69656dacbcff8",
+      "kind": "unknown",
+      "label": "( c )  to  ensure  not  to  suppress  any  material information while providing her personal data for any document, unique identifier, proof of identity or proof of address issued by the State or any of its instrumentalities;",
+      "structuralPath": [
+        "Section 15",
+        "( c )  to  ensure  not  to  suppress  any  material information while providing her personal data for any document, unique identifier, proof of identity or proof of address issued by the State or any of its instrumentalities;"
+      ],
+      "parentId": "4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33",
+      "start": 30999,
+      "end": 31224,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "5289163be1e409e88525a6a02658cd467dbaeb8a22fb468e2178b4371a67939c",
+      "kind": "unknown",
+      "label": "( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and",
+      "structuralPath": [
+        "Section 15",
+        "( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and"
+      ],
+      "parentId": "4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33",
+      "start": 31225,
+      "end": 31340,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "bc794d9742e3df5831d67b29e05c9d1a027061b6a8c58523dcbb258bfe1bf7a9",
+      "kind": "point",
+      "label": "( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder.",
+      "structuralPath": [
+        "( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder."
+      ],
+      "parentId": null,
+      "start": 31341,
+      "end": 31522,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "c08b34ee118e736c3945de75d5704e97cfd204220800f83faa369bcb13b09987",
+      "kind": "chapter",
+      "label": "CHAPTER IV",
+      "structuralPath": [
+        "CHAPTER IV"
+      ],
+      "parentId": null,
+      "start": 31583,
+      "end": 31593,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "019aca287da74effbff58a77692ad34c2f9fd3550a8ef11d53b25885b625d87f",
+      "kind": "section",
+      "label": "16. ( 1 ) The Central Government may, by notification, restrict the transfer of personal data by a Data Fiduciary for processing to such country or territory outside India as may be so notified.",
+      "structuralPath": [
+        "CHAPTER IV",
+        "Section 16"
+      ],
+      "parentId": "c08b34ee118e736c3945de75d5704e97cfd204220800f83faa369bcb13b09987",
+      "start": 31613,
+      "end": 32127,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "5ebf53717896bbc0c98e6c2d05b8ec64b43bc5a3e25ac6e382759971ef8b24c6",
+      "kind": "section",
+      "label": "17. ( 1 ) The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8, and those of Chapter III and section 16 shall not apply where-",
+      "structuralPath": [
+        "CHAPTER IV",
+        "Section 17"
+      ],
+      "parentId": "c08b34ee118e736c3945de75d5704e97cfd204220800f83faa369bcb13b09987",
+      "start": 32128,
+      "end": 36751,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "6cfdebe38a3ba39ca5104d0b588166871aa6492ec2118e1198ee4f317f518bed",
+      "kind": "chapter",
+      "label": "CHAPTER V",
+      "structuralPath": [
+        "CHAPTER V"
+      ],
+      "parentId": null,
+      "start": 36752,
+      "end": 36761,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "fcec8ff2fd20051e9dc611eb8c5f99873b2e949dd6d442fcd3689f577cd14372",
+      "kind": "section",
+      "label": "18. ( 1 ) With effect from such date as the Central Government may, by notification, appoint, there shall be established, for the purposes of this Act, a Board to be called the Data Protection Board of India.",
+      "structuralPath": [
+        "CHAPTER V",
+        "Section 18"
+      ],
+      "parentId": "6cfdebe38a3ba39ca5104d0b588166871aa6492ec2118e1198ee4f317f518bed",
+      "start": 36793,
+      "end": 37392,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "8337f614f7b44911ba303d65ce46bc79df7b4d8106b7ebe22aee960319535173",
+      "kind": "section",
+      "label": "19. ( 1 ) The Board shall consist of a Chairperson and such number of other Members as the Central Government may notify.",
+      "structuralPath": [
+        "CHAPTER V",
+        "Section 19"
+      ],
+      "parentId": "6cfdebe38a3ba39ca5104d0b588166871aa6492ec2118e1198ee4f317f518bed",
+      "start": 37393,
+      "end": 37514,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "650abb4d45f29efa410967a414ee05c3afdb86bb5e4f049ffbf86e680b07ea39",
+      "kind": "table",
+      "label": "SEC. 1]",
+      "structuralPath": [
+        "SEC. 1]"
+      ],
+      "parentId": null,
+      "start": 31526,
+      "end": 31533,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "38002f2bde61c4736cb92e0548bd818c9560ff163379bd7e57e8dd1285eb4046",
+      "kind": "paragraph",
+      "label": "( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.",
+      "structuralPath": [
+        "( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed."
+      ],
+      "parentId": null,
+      "start": 37515,
+      "end": 37636,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f7c522762d8e255ecb169f8ba7c5dbcc3ceecff0621fc383f8aa7947c6b1fd18",
+      "kind": "paragraph",
+      "label": "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fields of data governance",
+      "structuralPath": [
+        "( 2 ) The Chairperson and other Members shall be appointed by the Central Government in such manner as may be prescribed.",
+        "( 3 ) The Chairperson and other Members shall be a person of ability, integrity and standing who possesses special knowledge or practical experience in the fields of data governance"
+      ],
+      "parentId": "38002f2bde61c4736cb92e0548bd818c9560ff163379bd7e57e8dd1285eb4046",
+      "start": 37637,
+      "end": 38184,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "fc777f0e3b85b448d28c25bca250609d0e9180024aca9a9a20d9664d5a7b9919",
+      "kind": "section",
+      "label": "20. ( 1 )  The  salary,  allowances  and  other  terms  and  conditions  of  service  of  the Chairperson",
+      "structuralPath": [
+        "Section 20"
+      ],
+      "parentId": null,
+      "start": 38185,
+      "end": 38415,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "6b48bd48734becbefe4b0c94a45f52113047c766f74f3337422fe52543d2f594",
+      "kind": "paragraph",
+      "label": "( 2 ) The Chairperson and other Members shall hold office for a term of two years and shall be eligible for re-appointment.",
+      "structuralPath": [
+        "Section 20",
+        "Section 20"
+      ],
+      "parentId": "fc777f0e3b85b448d28c25bca250609d0e9180024aca9a9a20d9664d5a7b9919",
+      "start": 38416,
+      "end": 38539,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "kind": "section",
+      "label": "21. ( 1 ) A  person  shall  be  disqualified  for  being  appointed  and  continued  as  the Chairperson or a Member, if she-",
+      "structuralPath": [
+        "Section 21"
+      ],
+      "parentId": null,
+      "start": 38600,
+      "end": 39181,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "102d45cdeebadaa26f96d93900965d6e50bfeeedbb6803b1f3435c5941a7da3a",
+      "kind": "unknown",
+      "label": "( a ) has been adjudged as an insolvent;",
+      "structuralPath": [
+        "Section 21",
+        "( a ) has been adjudged as an insolvent;"
+      ],
+      "parentId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "start": 38726,
+      "end": 38766,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "423260648270c8ee001dbf81c5accad65f0522d0249cb226859c0530aa1586ec",
+      "kind": "unknown",
+      "label": "( b ) has been convicted of an offence, which in the opinion of the Central Government, involves moral turpitude;",
+      "structuralPath": [
+        "Section 21",
+        "( b ) has been convicted of an offence, which in the opinion of the Central Government, involves moral turpitude;"
+      ],
+      "parentId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "start": 38767,
+      "end": 38880,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "aa0f48c4a4383409d9dfd0eeba75982d9226cbe96924ecd96780781bf3f47ca2",
+      "kind": "unknown",
+      "label": "( c ) has become physically or mentally incapable of acting as a Member;",
+      "structuralPath": [
+        "Section 21",
+        "( c ) has become physically or mentally incapable of acting as a Member;"
+      ],
+      "parentId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "start": 38881,
+      "end": 38953,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "a9ce717050ca2d0f5cd60fc4b303be8cec7d0f456b04c6ccb574b583adabc56e",
+      "kind": "unknown",
+      "label": "( d ) has acquired such financial or other interest, as is likely to affect prejudicially her functions as a Member; or",
+      "structuralPath": [
+        "Section 21",
+        "( d ) has acquired such financial or other interest, as is likely to affect prejudicially her functions as a Member; or"
+      ],
+      "parentId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "start": 38954,
+      "end": 39073,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9dce04ef99c520874c2ffb427e2a662b3fa35b2cd9fe740a6b15eee45a0137f6",
+      "kind": "unknown",
+      "label": "( e ) has so abused her position as to render her continuance in office prejudicial to the public interest.",
+      "structuralPath": [
+        "Section 21",
+        "( e ) has so abused her position as to render her continuance in office prejudicial to the public interest."
+      ],
+      "parentId": "97fdabbf438f8c520e566837e13c55542c44601454e1ecc5d119c9b97edc7404",
+      "start": 39074,
+      "end": 39181,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "de9f7ddd2c38dae61c21e078f1f50743d4aba076f6cc164b2c4d03296dd8a2c2",
+      "kind": "subsection",
+      "label": "( 2 ) The Chairperson or Member shall not be removed from her office by the Central Government unless she has been given an opportunity of being heard in the matter.",
+      "structuralPath": [
+        "( 2 ) The Chairperson or Member shall not be removed from her office by the Central Government unless she has been given an opportunity of being heard in the matter."
+      ],
+      "parentId": null,
+      "start": 39182,
+      "end": 39347,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "99737024fdb926e65e140263c9cb222c636ac9cd7b32fafc55b44fb181a7f8ea",
+      "kind": "section",
+      "label": "22. ( 1 ) The Chairperson or any other Member may give notice in writing to the Central Government of resigning from her office,",
+      "structuralPath": [
+        "Section 22"
+      ],
+      "parentId": null,
+      "start": 39348,
+      "end": 40430,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "c742353dd988546445e88e4926fe58efcb48715a8fc940880ccfa66eaa585d2a",
+      "kind": "subsection",
+      "label": "( 2 ) A vacancy caused by the resignation or removal or death of the Chairperson or any other Member, or otherwise,",
+      "structuralPath": [
+        "Section 22",
+        "Section 22"
+      ],
+      "parentId": "99737024fdb926e65e140263c9cb222c636ac9cd7b32fafc55b44fb181a7f8ea",
+      "start": 39811,
+      "end": 40010,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d419a6d42b56c7d373332ba44659249af8381fdb65f6547531bb1b73ece8e2c4",
+      "kind": "subsection",
+      "label": "( 3 ) The Chairperson and any other Member shall not, for a period of one year from the date on which they cease to hold such office,",
+      "structuralPath": [
+        "Section 22",
+        "Section 22"
+      ],
+      "parentId": "99737024fdb926e65e140263c9cb222c636ac9cd7b32fafc55b44fb181a7f8ea",
+      "start": 40011,
+      "end": 40144,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "21cfb820d4f80842d53216582d6d261f99e883499c8341f0b0553e272b6662ae",
+      "kind": "section",
+      "label": "23. ( 1 )  The  Board  shall  observe  such  procedure  in  regard  to  the  holding  of  and transaction of business at its meetings,",
+      "structuralPath": [
+        "Section 23"
+      ],
+      "parentId": null,
+      "start": 40431,
+      "end": 41282,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "6facf3806139677d7a262e62d412d46445d2e79c3e47f533e11ef87598d0462b",
+      "kind": "subsection",
+      "label": "( 2 ) No act or proceeding of the Board shall be invalid merely by reason of-",
+      "structuralPath": [
+        "Section 23",
+        "Section 23"
+      ],
+      "parentId": "21cfb820d4f80842d53216582d6d261f99e883499c8341f0b0553e272b6662ae",
+      "start": 40687,
+      "end": 41040,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "45e6970131084cdf6ecf09bbc6cfd8f5a481eb0a4d8f879fb584932d342b5f0f",
+      "kind": "point",
+      "label": "( a ) any vacancy in or any defect in the constitution of the Board;",
+      "structuralPath": [
+        "Section 23",
+        "Section 23",
+        "Section 23"
+      ],
+      "parentId": "6facf3806139677d7a262e62d412d46445d2e79c3e47f533e11ef87598d0462b",
+      "start": 40765,
+      "end": 40833,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "0e7aa532e6de0458d06562104c6aa69335f592720104bb223d1989288af8e94b",
+      "kind": "point",
+      "label": "( b ) any defect in the appointment of a person acting as the Chairperson or other Member of the Board; or",
+      "structuralPath": [
+        "Section 23",
+        "Section 23",
+        "Section 23"
+      ],
+      "parentId": "6facf3806139677d7a262e62d412d46445d2e79c3e47f533e11ef87598d0462b",
+      "start": 40834,
+      "end": 40940,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "c0f766454901752af3000c6f5ad0c5b91d32426bc3f5e47049a1636aad130a59",
+      "kind": "point",
+      "label": "( c ) any irregularity in the procedure of the Board, which does not affect the merits of the case.",
+      "structuralPath": [
+        "Section 23",
+        "Section 23",
+        "Section 23"
+      ],
+      "parentId": "6facf3806139677d7a262e62d412d46445d2e79c3e47f533e11ef87598d0462b",
+      "start": 40941,
+      "end": 41040,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "75247f591c80918ccf580f3604d2c6cef9e9c233788a3605654b10805acd228c",
+      "kind": "subsection",
+      "label": "( 3 ) When the Chairperson is unable to discharge her functions owing to absence, illness or any other cause,",
+      "structuralPath": [
+        "Section 23",
+        "Section 23"
+      ],
+      "parentId": "21cfb820d4f80842d53216582d6d261f99e883499c8341f0b0553e272b6662ae",
+      "start": 41041,
+      "end": 41150,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "833805d76efc77666b4330d01eedfb96ff4a9eb97960875db5674e3783afa7c0",
+      "kind": "section",
+      "label": "24. The Board may, with previous approval of the Central Government, appoint such officers and employees",
+      "structuralPath": [
+        "Section 24"
+      ],
+      "parentId": null,
+      "start": 41283,
+      "end": 41569,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "52b7de31d975d901e4f494d85247f52d2e83d454dbcd4f9af3b274bad00e7d58",
+      "kind": "section",
+      "label": "25. The Chairperson, Members, officers and employees of the Board shall be deemed, when acting or purporting to act in pursuance of provisions of this Act,",
+      "structuralPath": [
+        "Section 25"
+      ],
+      "parentId": null,
+      "start": 41570,
+      "end": 41806,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "be22aeca42f14717750abfa103c73769c98e797b01d035b5aaa31a8829b72983",
+      "kind": "unknown",
+      "label": "Resignation by  Members and filling  of vacancy.",
+      "structuralPath": [
+        "Resignation by  Members and filling  of vacancy."
+      ],
+      "parentId": null,
+      "start": 41897,
+      "end": 41945,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "93a1fc6ba3cebaf76c0fead050a399a03114283b6d569da9079e22703cf9ea05",
+      "kind": "unknown",
+      "label": "Proceedings of  Board.",
+      "structuralPath": [
+        "Proceedings of  Board."
+      ],
+      "parentId": null,
+      "start": 41946,
+      "end": 41968,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0b43563336ef873381e9c0d4e67fedc6f4f018f25ed728b955cb987f2e93a012",
+      "kind": "unknown",
+      "label": "Officers  and employees  of Board.",
+      "structuralPath": [
+        "Officers  and employees  of Board."
+      ],
+      "parentId": null,
+      "start": 41969,
+      "end": 42003,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "d74901ab6729d5a9f513608d247ca61d31f26d06f0f03ec4bbb22a34920e0e4b",
+      "kind": "unknown",
+      "label": "Members and officers  to  be public servants.",
+      "structuralPath": [
+        "Members and officers  to  be public servants."
+      ],
+      "parentId": null,
+      "start": 42004,
+      "end": 42049,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "dd0bfdca248de933786c7226195304328df520fc55ef3cac36ca21ecc616cbae",
+      "kind": "unknown",
+      "label": "14",
+      "structuralPath": [
+        "14"
+      ],
+      "parentId": null,
+      "start": 42050,
+      "end": 42087,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "53ab662dea111b0123f09cf92c443464ff77d3d9f3d4cf6bcb1eca8ed10f2f5f",
+      "kind": "unknown",
+      "label": "THE GAZETTE OF INDIA EXTRAORDINARY",
+      "structuralPath": [
+        "THE GAZETTE OF INDIA EXTRAORDINARY"
+      ],
+      "parentId": null,
+      "start": 42053,
+      "end": 42087,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "3485d59dd20e3594fdc0ca7318ef8cfb4858b6b81b3b3b2e69d22abbd45fea3c",
+      "kind": "unknown",
+      "label": "[PART II-",
+      "structuralPath": [
+        "[PART II-"
+      ],
+      "parentId": null,
+      "start": 42088,
+      "end": 42097,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0a13f6c7e8fe46d3e63e7a11ddefe895cd5fefa3dd12b7af009640e2d4da82e8",
+      "kind": "unknown",
+      "label": "Powers of Chairperson.",
+      "structuralPath": [
+        "Powers of Chairperson."
+      ],
+      "parentId": null,
+      "start": 42098,
+      "end": 42120,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "2e748338428cfe0883588be833d1d3d3ef10cfd145407bc398eb527fa5ba5936",
+      "kind": "unknown",
+      "label": "Procedure  to be followed by Board.",
+      "structuralPath": [
+        "Procedure  to be followed by Board."
+      ],
+      "parentId": null,
+      "start": 42121,
+      "end": 42156,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ce232ff5370b8cab84497d47155ef9cef727b47cd35125d44bd10824a09845a2",
+      "kind": "section",
+      "label": "26. The Chairperson shall exercise the following powers, namely:-",
+      "structuralPath": [
+        "Section 26"
+      ],
+      "parentId": null,
+      "start": 42157,
+      "end": 42652,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "328be9055a12df8111ce5b730f732cd12fc78a6899544b9a475c3d90374cc2f6",
+      "kind": "unknown",
+      "label": "( a ) general superintendence and giving direction in respect of all administrative matters of the Board;",
+      "structuralPath": [
+        "Section 26",
+        "( a ) general superintendence and giving direction in respect of all administrative matters of the Board;"
+      ],
+      "parentId": "ce232ff5370b8cab84497d47155ef9cef727b47cd35125d44bd10824a09845a2",
+      "start": 42223,
+      "end": 42328,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f2e1b08f03a4fe24374e50ce88f5bb5ebd7bb58f92288b761686175a8eabe323",
+      "kind": "unknown",
+      "label": "( b ) authorise any officer of the Board to scrutinise any intimation, complaint, reference or correspondence addressed to the Board; and",
+      "structuralPath": [
+        "Section 26",
+        "( b ) authorise any officer of the Board to scrutinise any intimation, complaint, reference or correspondence addressed to the Board; and"
+      ],
+      "parentId": "ce232ff5370b8cab84497d47155ef9cef727b47cd35125d44bd10824a09845a2",
+      "start": 42329,
+      "end": 42466,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "538829193414fc1a373cfa5737c483fdf2803f13b89fd18fbe436cefe6254caa",
+      "kind": "unknown",
+      "label": "( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them.",
+      "structuralPath": [
+        "Section 26",
+        "( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them."
+      ],
+      "parentId": "ce232ff5370b8cab84497d47155ef9cef727b47cd35125d44bd10824a09845a2",
+      "start": 42467,
+      "end": 42652,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "6c4e4e9f1dccc91b22fec84b047013982ef3e18b442014d7b49fda2f447c344d",
+      "kind": "chapter",
+      "label": "CHAPTER VI",
+      "structuralPath": [
+        "CHAPTER VI"
+      ],
+      "parentId": null,
+      "start": 42653,
+      "end": 42719,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "29df709086f3645db41bccc2dbf118dcc58a9ef491579ac40a9b54a8da0645d5",
+      "kind": "unknown",
+      "label": "POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD",
+      "structuralPath": [
+        "CHAPTER VI",
+        "POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD"
+      ],
+      "parentId": "6c4e4e9f1dccc91b22fec84b047013982ef3e18b442014d7b49fda2f447c344d",
+      "start": 42664,
+      "end": 42719,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "kind": "section",
+      "label": "27. ( 1 ) The Board shall exercise and perform the following powers and functions, namely:- Powers and functions  of Board.",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27"
+      ],
+      "parentId": "6c4e4e9f1dccc91b22fec84b047013982ef3e18b442014d7b49fda2f447c344d",
+      "start": 42720,
+      "end": 44522,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "996a1ef92c700e51edc84923a22d3ddb80ba6934f28cf3d30c2ee19f08cb51ef",
+      "kind": "unknown",
+      "label": "( a ) on receipt of an intimation of personal data breach under sub-section ( 6 ) of section 8, to direct any urgent remedial or mitigation measures in the event of a personal data breach, and to inquire into such personal data breach and impose penalty as provided in this Act;",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "( a ) on receipt of an intimation of personal data breach under sub-section ( 6 ) of section 8, to direct any urgent remedial or mitigation measures in the event of a personal data breach, and to inquire into such personal data breach and impose penalty as provided in this Act;"
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 42844,
+      "end": 43122,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ca89810921651893df10b155d3b75d609af6a23e33352f5573644d05ab154243",
+      "kind": "unknown",
+      "label": "( b ) on a complaint made by a Data Principal in respect of a personal data breach or a breach in observance by a Data Fiduciary of its obligations in relation to her personal data or the exercise of her rights under the provisions of this Act, or on a reference made to it by the Central Government or a State Government, or in compliance of the directions of any court, to inquire into such breach and impose penalty as provided in this Act;",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "( b ) on a complaint made by a Data Principal in respect of a personal data breach or a breach in observance by a Data Fiduciary of its obligations in relation to her personal data or the exercise of her rights under the provisions of this Act, or on a reference made to it by the Central Government or a State Government, or in compliance of the directions of any court, to inquire into such breach and impose penalty as provided in this Act;"
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 43123,
+      "end": 43566,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "380a9284959fd7e335f14cd9455d54f399d8c2cd58467820016d265ca674e799",
+      "kind": "unknown",
+      "label": "( c ) on a complaint made by a Data Principal in respect of a breach in observance by a Consent Manager of its obligations in relation to her personal data, to inquire into such breach and impose penalty as provided in this Act;",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "( c ) on a complaint made by a Data Principal in respect of a breach in observance by a Consent Manager of its obligations in relation to her personal data, to inquire into such breach and impose penalty as provided in this Act;"
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 43567,
+      "end": 43795,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "d0f205b9c858b912958bba0cb811013741a6218b05761f6773a135823625d2a9",
+      "kind": "unknown",
+      "label": "( d ) on receipt of an intimation of breach of any condition of registration of a Consent Manager, to inquire into such breach and impose penalty as provided in this Act; and",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "( d ) on receipt of an intimation of breach of any condition of registration of a Consent Manager, to inquire into such breach and impose penalty as provided in this Act; and"
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 43796,
+      "end": 43970,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "22dfc5fee7752033eec5298504dfa30454f401ea54fbdb94bd72d1c4575f2997",
+      "kind": "unknown",
+      "label": "( e ) on a reference made by the Central Government in respect of the breach in observance of the provisions of sub-section ( 2 ) of section 37 by an intermediary, to inquire into such breach and impose penalty as provided in this Act.",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "( e ) on a reference made by the Central Government in respect of the breach in observance of the provisions of sub-section ( 2 ) of section 37 by an intermediary, to inquire into such breach and impose penalty as provided in this Act."
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 43971,
+      "end": 44206,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f14412691bee06b304b8b31c79e22251d1f34f3e19b9aed956fbd3af453189df",
+      "kind": "subsection",
+      "label": "( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.",
+      "structuralPath": [
+        "CHAPTER VI",
+        "Section 27",
+        "Section 27"
+      ],
+      "parentId": "22b930aaa23a44ed048d8b201e761e721a038f185a6d8608dcc2212878ecb84d",
+      "start": 44207,
+      "end": 44522,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "178ce23d91a669f0899ddeaed0036a4cc4194a5695c30fc0fe2e57151051cf0d",
+      "kind": "section",
+      "label": null,
+      "structuralPath": [
+        "section"
+      ],
+      "parentId": null,
+      "start": 46753,
+      "end": 47826,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "6af224db075b54f0bac6df6518bcfc99a7844ebc1925a77231a5cfb82a78a5f1",
+      "kind": "chapter",
+      "label": "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+      "structuralPath": [
+        "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+      ],
+      "parentId": null,
+      "start": 47827,
+      "end": 47878,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "a4ac5735c5c674659c79679e965eec364545bd789de02c8d0ff0e2935348296a",
+      "kind": "section",
+      "label": "Appeal  to Appellate Tribunal.",
+      "structuralPath": [
+        "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+        "Appeal  to Appellate Tribunal."
+      ],
+      "parentId": "6af224db075b54f0bac6df6518bcfc99a7844ebc1925a77231a5cfb82a78a5f1",
+      "start": 47879,
+      "end": 50225,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "2e5ab59894b0b10b6edc1b6a5f31c4b70e816900c248f13e1352dff5cc407a31",
+      "kind": "section",
+      "label": "Orders passed by Appellate Tribunal  to  be executable  as decree.",
+      "structuralPath": [
+        "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+        "Orders passed by Appellate Tribunal  to  be executable  as decree."
+      ],
+      "parentId": "6af224db075b54f0bac6df6518bcfc99a7844ebc1925a77231a5cfb82a78a5f1",
+      "start": 50226,
+      "end": 50686,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e2d5040e69878dfed1b3905f3653a8b59bc268355a7cf6aa725bd16d5d0b97cb",
+      "kind": "section",
+      "label": "Alternate dispute resolution.",
+      "structuralPath": [
+        "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+        "Alternate dispute resolution."
+      ],
+      "parentId": "6af224db075b54f0bac6df6518bcfc99a7844ebc1925a77231a5cfb82a78a5f1",
+      "start": 50687,
+      "end": 51024,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "93f4f3cf80028f21245c5ffcaf55fe8274e0aa343db1d4ce46d80e1001072c3d",
+      "kind": "section",
+      "label": "Voluntary undertaking.",
+      "structuralPath": [
+        "APPEAL AND ALTERNATE DISPUTE RESOLUTION",
+        "Voluntary undertaking."
+      ],
+      "parentId": "6af224db075b54f0bac6df6518bcfc99a7844ebc1925a77231a5cfb82a78a5f1",
+      "start": 51025,
+      "end": 52215,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "5603dcfe26cffcad9aa9afa5ac390c44406ca7a24f76f5f55342146cb14c9044",
+      "kind": "chapter",
+      "label": "PENALTIES AND ADJUDICATION",
+      "structuralPath": [
+        "PENALTIES AND ADJUDICATION"
+      ],
+      "parentId": null,
+      "start": 52216,
+      "end": 52255,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "f1289c42e9b1ac31671fafbf652528cdbf65a3946d18f20c293424c95c1a6b45",
+      "kind": "section",
+      "label": "Penalties.",
+      "structuralPath": [
+        "PENALTIES AND ADJUDICATION",
+        "Penalties."
+      ],
+      "parentId": "5603dcfe26cffcad9aa9afa5ac390c44406ca7a24f76f5f55342146cb14c9044",
+      "start": 52256,
+      "end": 52788,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e8b84cb419703c97be69ee9fe0b5c77d57a191f6ecd35f4a40a1f6e72c8a5d52",
+      "kind": "unknown",
+      "label": "( a ) the nature, gravity and duration of the breach;",
+      "structuralPath": [
+        "( a ) the nature, gravity and duration of the breach;"
+      ],
+      "parentId": null,
+      "start": 52789,
+      "end": 52842,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "986ebae828049b0828ba1731fe07c077ec33476ba0d77917e99d4c4b82159671",
+      "kind": "unknown",
+      "label": "( b ) the type and nature of the personal data affected by the breach;",
+      "structuralPath": [
+        "( b ) the type and nature of the personal data affected by the breach;"
+      ],
+      "parentId": null,
+      "start": 52843,
+      "end": 52913,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "dcab32fc5852cb31dcbba33d6549f1d9ae1309b9aa72fb08637381631d94eeac",
+      "kind": "unknown",
+      "label": "( c ) repetitive nature of the breach;",
+      "structuralPath": [
+        "( c ) repetitive nature of the breach;"
+      ],
+      "parentId": null,
+      "start": 52914,
+      "end": 52952,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "87c2a349035f22306faef9bccc79b9f5878e8bbb9989d2331c50d240c3165777",
+      "kind": "unknown",
+      "label": "( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;",
+      "structuralPath": [
+        "( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;"
+      ],
+      "parentId": null,
+      "start": 52953,
+      "end": 53046,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ddcca9a86f3c84d0aa08d305ddb03436257b1e9007c45d87ff101c83ac9f495f",
+      "kind": "unknown",
+      "label": "( e ) whether the person took any action to mitigate the effects and consequences of the breach,",
+      "structuralPath": [
+        "( e ) whether the person took any action to mitigate the effects and consequences of the breach,"
+      ],
+      "parentId": null,
+      "start": 53047,
+      "end": 53196,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "210372248a6ab3a917fd1789f9f4107382b4650f6a94120d76ffdd2407faefbe",
+      "kind": "unknown",
+      "label": "( f ) whether the monetary penalty to be imposed is proportionate and effective,",
+      "structuralPath": [
+        "( f ) whether the monetary penalty to be imposed is proportionate and effective,"
+      ],
+      "parentId": null,
+      "start": 53197,
+      "end": 53379,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "4c3833e08f7ef620dd4c71217b4f41bd2e84f8d55eeffebe74f8c6a80e6c0167",
+      "kind": "unknown",
+      "label": "( g ) the likely impact of the imposition of the monetary penalty on the person.",
+      "structuralPath": [
+        "( g ) the likely impact of the imposition of the monetary penalty on the person."
+      ],
+      "parentId": null,
+      "start": 53380,
+      "end": 53460,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "c28cb97009dccae6eebd46548a575cddbc30c3bece1ff9908b09cbb6e8347319",
+      "kind": "section",
+      "label": "34.",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 34"
+      ],
+      "parentId": "9bfca8a4715bbe89330e1421a385b9163b0469e15912cd131f5cf5384fae4754",
+      "start": 53461,
+      "end": 53592,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "9bfca8a4715bbe89330e1421a385b9163b0469e15912cd131f5cf5384fae4754",
+      "kind": "chapter",
+      "label": "CHAPTER IX",
+      "structuralPath": [
+        "CHAPTER IX"
+      ],
+      "parentId": null,
+      "start": 53593,
+      "end": 53603,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "43342a67c09cac911aa0c0b556a922ae77be7b6544fd94fade3bb1bc5c8a69ed",
+      "kind": "section",
+      "label": "35.",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 35"
+      ],
+      "parentId": "9bfca8a4715bbe89330e1421a385b9163b0469e15912cd131f5cf5384fae4754",
+      "start": 53618,
+      "end": 53919,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "8c5addf2990eb58be47d913b403be49f1b84dbd45db73818d822b32bae7328b5",
+      "kind": "section",
+      "label": "36.",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 36"
+      ],
+      "parentId": "9bfca8a4715bbe89330e1421a385b9163b0469e15912cd131f5cf5384fae4754",
+      "start": 53920,
+      "end": 54086,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "4fac786953df87a8311876a562b60c8435b000bbe24c8ba6ae4d656dfca853ad",
+      "kind": "section",
+      "label": "37.",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37"
+      ],
+      "parentId": "9bfca8a4715bbe89330e1421a385b9163b0469e15912cd131f5cf5384fae4754",
+      "start": 54087,
+      "end": 55438,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "49897f400d9197bfa887fad8301381cdca27fba4b832c7bf2de380825ebf98b1",
+      "kind": "subsection",
+      "label": "( 1 ) The Central Government or any of its officers specially authorised by it in this behalf may, upon receipt of a reference in writing from the Board that-",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37",
+        "Section 37"
+      ],
+      "parentId": "4fac786953df87a8311876a562b60c8435b000bbe24c8ba6ae4d656dfca853ad",
+      "start": 54091,
+      "end": 55089,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "e38b859851e951c1a1a9d9801ea48249a492e5a5c3fd6ee94000d8c0456cfe4a",
+      "kind": "unknown",
+      "label": "( a ) intimates the imposition of monetary penalty by the Board on a Data Fiduciary in two or more instances; and",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37",
+        "Section 37",
+        "( a ) intimates the imposition of monetary penalty by the Board on a Data Fiduciary in two or more instances; and"
+      ],
+      "parentId": "49897f400d9197bfa887fad8301381cdca27fba4b832c7bf2de380825ebf98b1",
+      "start": 54250,
+      "end": 54363,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "b4ce26c1491b1118699372dfff629328d3aefb19449b491b0222dbabdb7968bd",
+      "kind": "unknown",
+      "label": "( b ) advises, in the interests of the general public, the blocking for access by the public to any information",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37",
+        "Section 37",
+        "( b ) advises, in the interests of the general public, the blocking for access by the public to any information"
+      ],
+      "parentId": "49897f400d9197bfa887fad8301381cdca27fba4b832c7bf2de380825ebf98b1",
+      "start": 54364,
+      "end": 54702,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ee931b0accfa57d0bf5693d6ce01e1aa04f601196fa9ad6d45ca04b6fb7dd555",
+      "kind": "subsection",
+      "label": "( 2 ) Every intermediary who receives a direction issued under sub-section ( 1 ) shall be bound to comply with the same.",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37",
+        "Section 37"
+      ],
+      "parentId": "4fac786953df87a8311876a562b60c8435b000bbe24c8ba6ae4d656dfca853ad",
+      "start": 55090,
+      "end": 55210,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "19938da02f810fd4ec2fb370dc786963d6963838b25390f1aac1bcc89d26a70f",
+      "kind": "subsection",
+      "label": "( 3 ) For  the  purposes  of  this  section,  the  expressions",
+      "structuralPath": [
+        "CHAPTER IX",
+        "Section 37",
+        "Section 37"
+      ],
+      "parentId": "4fac786953df87a8311876a562b60c8435b000bbe24c8ba6ae4d656dfca853ad",
+      "start": 55211,
+      "end": 55438,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "3f17f599b42f4c590388c69830313b80bb749bed541abcc603d03fdc5a7181e5",
+      "kind": "section",
+      "label": "38. ( 1 ) The provisions of this Act shall be in addition to and not in derogation of any other law for the time being in force.",
+      "structuralPath": [
+        "Section 38"
+      ],
+      "parentId": null,
+      "start": 55722,
+      "end": 55850,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "1913d68f164a3c0a0d3fbf4d22b9b34ce9e87b156f418a553a020a91736495a0",
+      "kind": "subsection",
+      "label": "( 2 ) In the event of any conflict between a provision of this Act and a provision of any other law for the time being in force, the provision of this Act shall prevail to the extent of such conflict.",
+      "structuralPath": [
+        "( 2 ) In the event of any conflict between a provision of this Act and a provision of any other law for the time being in force, the provision of this Act shall prevail to the extent of such conflict."
+      ],
+      "parentId": null,
+      "start": 55851,
+      "end": 56051,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "eb89930824378167ae46e0b9911ca73b10d6260a0ae5651d4f3739bdc5af65a4",
+      "kind": "section",
+      "label": "39. No civil court shall have the jurisdiction to entertain any suit or proceeding in respect of any matter for which the Board is empowered under the provisions of this Act and no injunction shall be granted by any court or other authority in respect of any action taken or to be taken in pursuance of any power under the provisions of this Act.",
+      "structuralPath": [
+        "Section 39"
+      ],
+      "parentId": null,
+      "start": 56052,
+      "end": 56420,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "79f7383f0316a29df70ffcedea25f00b6e5b7b4b10393c95a7f78e6ed24a5abf",
+      "kind": "section",
+      "label": "40. ( 1 ) The Central Government may, by notification, and subject to the condition of previous publication, make rules not inconsistent with the provisions of this Act, to carry out the purposes of this Act.",
+      "structuralPath": [
+        "Section 40"
+      ],
+      "parentId": null,
+      "start": 56421,
+      "end": 56651,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "kind": "subsection",
+      "label": "( 2 ) In particular and without prejudice to the generality of the foregoing power, such rules may provide for all or any of the following matters, namely:-",
+      "structuralPath": [
+        "Section 40",
+        "Section 40"
+      ],
+      "parentId": "79f7383f0316a29df70ffcedea25f00b6e5b7b4b10393c95a7f78e6ed24a5abf",
+      "start": 56652,
+      "end": 56808,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "399e0a1e97d0e0ff454508390490b5a581970b01a42d1b8476f3e598f579bd6e",
+      "kind": "unknown",
+      "label": "( a ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 1 ) of section 5;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( a ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 1 ) of section 5;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 56809,
+      "end": 56949,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ce220a36cbcf4821de2f93833dfb7808cd6ad84212c34b3a32dd339242b0ba89",
+      "kind": "unknown",
+      "label": "( b ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 2 ) of section 5;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( b ) the manner in which the notice given by the Data Fiduciary to a Data Principal shall inform her, under sub-section ( 2 ) of section 5;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 56950,
+      "end": 57090,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "983db7a32b9bdbac47bdea214e1c5da3492945ed9e7f8b88480e40fc78b2918f",
+      "kind": "unknown",
+      "label": "( c ) the manner of accountability and the obligations of Consent Manager under sub-section ( 8 ) of section 6;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( c ) the manner of accountability and the obligations of Consent Manager under sub-section ( 8 ) of section 6;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57091,
+      "end": 57202,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "61298286185673c125c0fe1e5ae4da94a0cffbe01f36b98a99545bb761b15e78",
+      "kind": "unknown",
+      "label": "( d ) the manner of registration of Consent Manager and the conditions relating thereto, under sub-section ( 9 ) of section 6;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( d ) the manner of registration of Consent Manager and the conditions relating thereto, under sub-section ( 9 ) of section 6;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57203,
+      "end": 57329,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "4b1b044f4d773dc3f994e6b67e6edd57e9abd4ba3780ae11fe3f9e5ea59cdab9",
+      "kind": "unknown",
+      "label": "( e ) the subsidy, benefit, service, certificate, licence or permit for the provision or issuance of which, personal data may be processed under clause ( b ) of section 7;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( e ) the subsidy, benefit, service, certificate, licence or permit for the provision or issuance of which, personal data may be processed under clause ( b ) of section 7;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57330,
+      "end": 57501,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "64aae98ab86f80f320d5afef79c8dcdde5c665d5e60313a12e32d41c2a68423d",
+      "kind": "unknown",
+      "label": "( f ) the form and manner of intimation of personal data breach to the Board under sub-section ( 6 ) of section 8;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( f ) the form and manner of intimation of personal data breach to the Board under sub-section ( 6 ) of section 8;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57502,
+      "end": 57616,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "84265c8adf3cd7885450fd66c4d0ac5590931b015014185af88d67431e6a5f28",
+      "kind": "unknown",
+      "label": "( g ) the time period for the specified purpose to be deemed as no longer being served, under sub-section ( 8 ) of section 8;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( g ) the time period for the specified purpose to be deemed as no longer being served, under sub-section ( 8 ) of section 8;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57617,
+      "end": 57742,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "cd9b1de05f5623c1fe19f64b3e2e63cbccde481f5026bda956eacef851b5a604",
+      "kind": "unknown",
+      "label": "( h )  the  manner  of  publishing  the  business  contact  information  of  a  Data Protection Officer under sub-section ( 9 ) of section 8;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( h )  the  manner  of  publishing  the  business  contact  information  of  a  Data Protection Officer under sub-section ( 9 ) of section 8;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57743,
+      "end": 57884,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "3e1f7fb63528457d9bf1a6fed15ba49117a7aa7c167b0ff2210574ef8479348f",
+      "kind": "unknown",
+      "label": "( i )  the  manner  of  obtaining  verifiable  consent  under  sub-section  ( 1 )  of section 9;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( i )  the  manner  of  obtaining  verifiable  consent  under  sub-section  ( 1 )  of section 9;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57885,
+      "end": 57981,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f7c00cd8690f61a6c5ad06911b2f54fa7c31199642119d3779f33df7c3244928",
+      "kind": "unknown",
+      "label": "( j ) the classes of Data Fiduciaries, the purposes of processing of personal data of a child and the conditions relating thereto, under sub-section ( 4 ) of section 9;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( j ) the classes of Data Fiduciaries, the purposes of processing of personal data of a child and the conditions relating thereto, under sub-section ( 4 ) of section 9;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 57982,
+      "end": 58150,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "78d74ef54f2cf5a52e62933270dd7bacf529c0bd36b3fac18fb29a901382844e",
+      "kind": "unknown",
+      "label": "( k )  the  other  matters  comprising  the  process  of  Data  Protection  Impact Assessment under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( k )  the  other  matters  comprising  the  process  of  Data  Protection  Impact Assessment under sub-clause ( i ) of clause ( c ) of sub-section ( 2 ) of section 10;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 58151,
+      "end": 58319,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "65940ff3098ed7e29eecc48eed4c7c9a43b082d2e33b152e117aad08b56685c0",
+      "kind": "unknown",
+      "label": "( l ) the other measures that the Significant Data Fiduciary shall undertake under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( l ) the other measures that the Significant Data Fiduciary shall undertake under sub-clause ( iii ) of clause ( c ) of sub-section ( 2 ) of section 10;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 58320,
+      "end": 58473,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "4721955a589e0833e21c13b39a718688e3b86c5cdda28a7adac0cdd9ff8ad7d9",
+      "kind": "unknown",
+      "label": "( m ) the manner in which a Data Principal shall make a request to the Data Fiduciary to obtain information and any other information related to the personal data of such Data Principal and its processing, under sub-section ( 1 ) of section 11;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( m ) the manner in which a Data Principal shall make a request to the Data Fiduciary to obtain information and any other information related to the personal data of such Data Principal and its processing, under sub-section ( 1 ) of section 11;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 58474,
+      "end": 58718,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "cc540ffd742d6ec163f4a108172be045a1d3d3c347936446577f2784045c6554",
+      "kind": "unknown",
+      "label": "( n )  the  manner in which a Data Principal shall make a request to the Data Fiduciary for erasure of her personal data under sub-section ( 3 ) of section 12;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( n )  the  manner in which a Data Principal shall make a request to the Data Fiduciary for erasure of her personal data under sub-section ( 3 ) of section 12;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 58719,
+      "end": 58878,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0270f3c7100afe86c89b7033accf276ce0a637f697d0bc831d236f9254f1fa14",
+      "kind": "unknown",
+      "label": "( o ) the period within which the Data Fiduciary shall respond to any grievances under sub-section ( 2 ) of section 13;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( o ) the period within which the Data Fiduciary shall respond to any grievances under sub-section ( 2 ) of section 13;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 58879,
+      "end": 58998,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "dbf47ecbad02bc076e21d4d719005d393a3e9484ce0d32dfac2287f6a58a3ff2",
+      "kind": "unknown",
+      "label": "( p ) the manner of nomination of any other individual by the Data Principal under sub-section ( 1 ) of section 14;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( p ) the manner of nomination of any other individual by the Data Principal under sub-section ( 1 ) of section 14;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59045,
+      "end": 59160,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "2c4c24300f2cb77042d52ea10d5924d5576f50a30b29fe153a94e6099278d32c",
+      "kind": "unknown",
+      "label": "( q ) the standards for processing the personal data for exemption under clause ( b ) of sub-section ( 2 ) of section 17;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( q ) the standards for processing the personal data for exemption under clause ( b ) of sub-section ( 2 ) of section 17;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59161,
+      "end": 59282,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "18e8faf25a09629fcc7241a48c542ca68b2fc3dd37e9d9432b284c085495469d",
+      "kind": "unknown",
+      "label": "( r ) the manner of appointment of the Chairperson and other Members of the Board under sub-section ( 2 ) of section 19;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( r ) the manner of appointment of the Chairperson and other Members of the Board under sub-section ( 2 ) of section 19;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59283,
+      "end": 59403,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "1c3e11f6e6984d161aa6b7366dbd50af8a14b2cf492d80d9bc399df143b47212",
+      "kind": "unknown",
+      "label": "( s ) the salary, allowances and other terms and conditions of services of the Chairperson and other Members of the Board under sub-section ( 1 ) of section 20;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( s ) the salary, allowances and other terms and conditions of services of the Chairperson and other Members of the Board under sub-section ( 1 ) of section 20;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59404,
+      "end": 59564,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "b6687e8f305320605663f42e53648e51b7a8414f95dc0d50c7abeb6b2f38d2bb",
+      "kind": "unknown",
+      "label": "( t ) the manner of authentication of orders, directions and instruments under sub-section ( 1 ) of section 23;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( t ) the manner of authentication of orders, directions and instruments under sub-section ( 1 ) of section 23;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59565,
+      "end": 59676,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "18e88a7a789aeff79d3b779564b095a547980812b1d5056041992ca4f43030c0",
+      "kind": "unknown",
+      "label": "( u )  the  terms  and  conditions  of  appointment  and  service  of  officers  and employees of the Board under section 24;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( u )  the  terms  and  conditions  of  appointment  and  service  of  officers  and employees of the Board under section 24;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59677,
+      "end": 59802,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9686d76028a5ca18f2fe2382e25e4442ec0865d094e50a27bfcd71eaac923e4f",
+      "kind": "unknown",
+      "label": "( v ) the techno-legal measures to be adopted by the Board under sub-section ( 1 ) of section 28;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( v ) the techno-legal measures to be adopted by the Board under sub-section ( 1 ) of section 28;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59803,
+      "end": 59900,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "28e06957df1d5f57d53318cfe16424da613080f792426708f53c624040991cfc",
+      "kind": "unknown",
+      "label": "( w ) the other matters under clause ( d ) of sub-section ( 7 ) of section 28;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( w ) the other matters under clause ( d ) of sub-section ( 7 ) of section 28;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59901,
+      "end": 59979,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "3ef2c735ddada52f0eefab0f50af1b851c7dde2335f7fed3c0948f6ed6f416ee",
+      "kind": "unknown",
+      "label": "( x )  the  form,  manner  and  fee  for  filing  an  appeal  under  sub-section  ( 2 )  of section 29;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( x )  the  form,  manner  and  fee  for  filing  an  appeal  under  sub-section  ( 2 )  of section 29;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 59980,
+      "end": 60083,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "02639f68b40df02443d9d0cdedd76eb8178d1a22a74c5a6b55a73c0918c1484b",
+      "kind": "unknown",
+      "label": "( y ) the procedure for dealing an appeal under sub-section ( 8 ) of section 29;",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( y ) the procedure for dealing an appeal under sub-section ( 8 ) of section 29;"
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 60084,
+      "end": 60164,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "c4bb40449cad57481f5e07cb1dd750ebd9f97c1f21e3b5a198b2899616134cc6",
+      "kind": "unknown",
+      "label": "( z ) any other matter which is to be or may be prescribed or in respect of which provision is to be, or may be, made by rules.",
+      "structuralPath": [
+        "Section 40",
+        "Section 40",
+        "( z ) any other matter which is to be or may be prescribed or in respect of which provision is to be, or may be, made by rules."
+      ],
+      "parentId": "ede436ae40a46875862efe00e199e83523b58031b1ef1a3686b32e97b0e1c11d",
+      "start": 60165,
+      "end": 60292,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "1ea245c3d2a71638d292df9c2f519390fae22d54a9abe62f25cd65740d747d26",
+      "kind": "section",
+      "label": "41. Every rule made and every notification issued under section 16 and section 42 of this Act shall be laid, as soon as may be after it is made, before each House of Parliament, while it is in session, for a total period of thirty days which may be comprised in one session or in two or more successive sessions, and if before the expiry of the session immediately following the session or the successive sessions aforesaid, both Houses agree in making any modification in the rule or notification or",
+      "structuralPath": [
+        "Section 41"
+      ],
+      "parentId": null,
+      "start": 60293,
+      "end": 61149,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "89fce5714054a5deeaec5823275997a50d39b0d654dc4100d1d44f6bd73c9f9e",
+      "kind": "section",
+      "label": "42. ( 1 ) The Central Government may, by notification, amend the Schedule, subject to the restriction that no such notification shall have the effect of increasing any penalty specified therein to more than twice of what was specified in it when this Act was originally enacted.",
+      "structuralPath": [
+        "Section 42"
+      ],
+      "parentId": null,
+      "start": 61150,
+      "end": 61428,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "df159c7b7aebcf3370f3a6eb5be21990b95b65e4d5112ad4f85487a0a3b81910",
+      "kind": "subsection",
+      "label": "( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification.",
+      "structuralPath": [
+        "( 2 ) Any amendment notified under sub-section ( 1 ) shall have effect as if enacted in this Act and shall come into force on the date of the notification."
+      ],
+      "parentId": null,
+      "start": 61429,
+      "end": 61584,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "f2e337145c760247dbc4cca10a821ebf18be47502b9d28bcd725c9429beabea3",
+      "kind": "article",
+      "label": "43. ( 1 ) If any difficulty arises in giving effect to the provisions of this  Act, the Central Government may, by order published in the Official Gazette, make such provisions not inconsistent with the provisions of this Act as may appear to it to be necessary or expedient for removing the difficulty.",
+      "structuralPath": [
+        "Article 43"
+      ],
+      "parentId": null,
+      "start": 61585,
+      "end": 61888,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d543468869be6e93e2d49d06849153f8a312e54f75954188db1ae3e81e523109",
+      "kind": "subsection",
+      "label": "( 2 ) No order as referred to in sub-section ( 1 ) shall be made after the expiry of three years from the date of commencement of this Act.",
+      "structuralPath": [
+        "Article 43",
+        "Article 43"
+      ],
+      "parentId": "f2e337145c760247dbc4cca10a821ebf18be47502b9d28bcd725c9429beabea3",
+      "start": 61889,
+      "end": 62028,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "39def509c3049f145a21be96ccb1da6281fbce82d4d3634f682642951abb4040",
+      "kind": "subsection",
+      "label": "( 3 ) Every order made under this section shall be laid, as soon as may be after it is made, before each House of Parliament.",
+      "structuralPath": [
+        "Article 43",
+        "Article 43"
+      ],
+      "parentId": "f2e337145c760247dbc4cca10a821ebf18be47502b9d28bcd725c9429beabea3",
+      "start": 62029,
+      "end": 62154,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "kind": "article",
+      "label": "44. ( 1 ) In section 14 of the Telecom Regulatory Authority of India Act, 1997, in clause ( c ),  for  sub-clauses ( i )  and ( ii ),  the  following  sub-clauses  shall  be  substituted, namely:- 24  of  1997.",
+      "structuralPath": [
+        "Article 44"
+      ],
+      "parentId": null,
+      "start": 62155,
+      "end": 62845,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d169745d7c37c306b2f1b3e1d9d026c66fad5e6bfd2a4d660911699bb68494fb",
+      "kind": "unknown",
+      "label": "'( i ) the Appellate Tribunal under the Information Technology Act, 2000;",
+      "structuralPath": [
+        "Article 44",
+        "'( i ) the Appellate Tribunal under the Information Technology Act, 2000;"
+      ],
+      "parentId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "start": 62545,
+      "end": 62618,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "1369286f4fb1eb277b74f1133c931a06341fde44bf50dd341f4065c79eadee8f",
+      "kind": "unknown",
+      "label": "( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and",
+      "structuralPath": [
+        "Article 44",
+        "( ii ) the Appellate Tribunal under the Airports Economic Regulatory Authority of  India Act, 2008; and"
+      ],
+      "parentId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "start": 62619,
+      "end": 62722,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "edc06a603f23f12aa2a4d4feab5f9cafca7e165de36fb5e4bda289100b4d2a36",
+      "kind": "unknown",
+      "label": "( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'.",
+      "structuralPath": [
+        "Article 44",
+        "( iii )  the Appellate  Tribunal  under  the  Digital  Personal  Data  Protection Act, 2023.'."
+      ],
+      "parentId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "start": 62751,
+      "end": 62845,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9453a758da7f7a54cd03c2d2771a3844f721c814f3f5d3c19625bbb88e17a9cc",
+      "kind": "subsection",
+      "label": "( 2 ) The Information Technology Act, 2000 shall be amended in the following manner, namely:- 21  of  2000.",
+      "structuralPath": [
+        "Article 44",
+        "Article 44"
+      ],
+      "parentId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "start": 62846,
+      "end": 63279,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "75582564671209e9deeb6bc71705605ca9211a00b40158a7725d854a3e5d61b3",
+      "kind": "unknown",
+      "label": "( a ) section 43A shall be omitted;",
+      "structuralPath": [
+        "Article 44",
+        "Article 44",
+        "( a ) section 43A shall be omitted;"
+      ],
+      "parentId": "9453a758da7f7a54cd03c2d2771a3844f721c814f3f5d3c19625bbb88e17a9cc",
+      "start": 62954,
+      "end": 62989,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e7da3c31ee58606e16abdec7d7457a85b70bc40ebe8f17f5596d373a6906e857",
+      "kind": "unknown",
+      "label": "( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970.",
+      "structuralPath": [
+        "Article 44",
+        "Article 44",
+        "( b )  in  section  81,  in  the  proviso,  after  the  words  and  figures  'the  Patents Act, 1970', the words and figures 'or the Digital Personal Data Protection  Act, 2023' shall be inserted; and 39  of  1970."
+      ],
+      "parentId": "9453a758da7f7a54cd03c2d2771a3844f721c814f3f5d3c19625bbb88e17a9cc",
+      "start": 62990,
+      "end": 63204,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "31204b4bcffb677b93826fa1357c3787945861eaaa227c4d81d3068bf8557569",
+      "kind": "unknown",
+      "label": "( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted.",
+      "structuralPath": [
+        "Article 44",
+        "Article 44",
+        "( c ) in section 87, in sub-section ( 2 ), clause ( ob ) shall be omitted."
+      ],
+      "parentId": "9453a758da7f7a54cd03c2d2771a3844f721c814f3f5d3c19625bbb88e17a9cc",
+      "start": 63205,
+      "end": 63279,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "e3e6b0d7aec25aa0894880886107c35e5ea5ecf13aeaa0a2988bc23d19248b8a",
+      "kind": "subsection",
+      "label": "( 3 ) In section 8 of the Right to Information Act, 2005, in sub-section ( 1 ), for clause ( j ), the following clause shall be substituted, namely:- 22  of  2005.",
+      "structuralPath": [
+        "Article 44",
+        "Article 44"
+      ],
+      "parentId": "a14ab47b90fdb25b2018dcb1e77058924815b3ede68dddbf7e78996b7ab35199",
+      "start": 63280,
+      "end": 63503,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "d35396f777d1645bef236fb4931a4fb8ae59917b02183e0959543753c51828fe",
+      "kind": "unknown",
+      "label": "'( j ) information which relates to personal information;'.",
+      "structuralPath": [
+        "Article 44",
+        "Article 44",
+        "'( j ) information which relates to personal information;'."
+      ],
+      "parentId": "e3e6b0d7aec25aa0894880886107c35e5ea5ecf13aeaa0a2988bc23d19248b8a",
+      "start": 63444,
+      "end": 63503,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ee5469470499bdedb1ace7a2d92449f582f3c3d04f69ed5e747d8ebf4307790a",
+      "kind": "table",
+      "label": "Schedule Penalties Table Header",
+      "structuralPath": [
+        "Schedule Penalties Table Header"
+      ],
+      "parentId": null,
+      "start": 63550,
+      "end": 64135,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "d1758450ebf09ab2a527d4046a76098083fa4065a057545a37cc8f7d0dd4a669",
+      "kind": "table",
+      "label": "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.",
+      "structuralPath": [
+        "Schedule Penalties Table Header",
+        "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8."
+      ],
+      "parentId": "ee5469470499bdedb1ace7a2d92449f582f3c3d04f69ed5e747d8ebf4307790a",
+      "start": 63639,
+      "end": 63850,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "40f141b4be21214f1cfbe1cbd9c89ca19457427a0e7d99dd0d78cd978d1d846e",
+      "kind": "table",
+      "label": "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.",
+      "structuralPath": [
+        "Schedule Penalties Table Header",
+        "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8."
+      ],
+      "parentId": "ee5469470499bdedb1ace7a2d92449f582f3c3d04f69ed5e747d8ebf4307790a",
+      "start": 63854,
+      "end": 64044,
+      "reviewStatus": "candidate"
+    },
+    {
+      "provisionId": "9e881ee84e6d5540f81b8751d74472a1f4e45f46f0ae95d01c9d82be327b8bf0",
+      "kind": "unknown",
+      "label": "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+      "structuralPath": [
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10."
+      ],
+      "parentId": "36c59757cfead38df26e2dcfacfb39c4284e81481b5a992db39fcc09584b6f58",
+      "start": 64176,
+      "end": 64323,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "9530181b521b16e3168080188f8984b0e55549023d44167d1ee6bac3840859ce",
+      "kind": "unknown",
+      "label": "Breach in observance of the duties under section 15.",
+      "structuralPath": [
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+        "Breach in observance of the duties under section 15."
+      ],
+      "parentId": "36c59757cfead38df26e2dcfacfb39c4284e81481b5a992db39fcc09584b6f58",
+      "start": 64324,
+      "end": 64414,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "ed9b2dccfa784bb921ebdc01685b8727505fc690a50e4196ec91fce9d5c29cc4",
+      "kind": "unknown",
+      "label": "Breach of any term of voluntary undertaking accepted by the Board under section 32.",
+      "structuralPath": [
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+        "Breach of any term of voluntary undertaking accepted by the Board under section 32."
+      ],
+      "parentId": "36c59757cfead38df26e2dcfacfb39c4284e81481b5a992db39fcc09584b6f58",
+      "start": 64415,
+      "end": 64614,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "0f96f4df4b78ff7e3a85f4df71b44d4edbd09986e451838de84a0f836799f177",
+      "kind": "unknown",
+      "label": "Breach of any other provision of this Act or the rules made thereunder.",
+      "structuralPath": [
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+        "Breach of any other provision of this Act or the rules made thereunder."
+      ],
+      "parentId": "36c59757cfead38df26e2dcfacfb39c4284e81481b5a992db39fcc09584b6f58",
+      "start": 64615,
+      "end": 64723,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "36c59757cfead38df26e2dcfacfb39c4284e81481b5a992db39fcc09584b6f58",
+      "kind": "table",
+      "label": "Breach in observance of additional obligations of Significant Data Fiduciary under section 10.",
+      "structuralPath": [
+        "Breach in observance of additional obligations of Significant Data Fiduciary under section 10."
+      ],
+      "parentId": null,
+      "start": 64690,
+      "end": 64723,
+      "reviewStatus": "needs_review"
+    },
+    {
+      "provisionId": "7ff90f88b764e901156c48874ba2738e43e77f59f089dd235edbb7ad173ca4f8",
+      "kind": "annex",
+      "label": "THE  SCHEDULE [ See section 33 ( 1 )]",
+      "structuralPath": [
+        "THE  SCHEDULE [ See section 33 ( 1 )]"
+      ],
+      "parentId": null,
+      "start": 64967,
+      "end": 64993,
+      "reviewStatus": "candidate"
+    }
+  ]
+}

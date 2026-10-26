@@ -1,0 +1,2584 @@
+{
+  "schemaVersion": "focused-graph-checkpoint/2.0",
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "caseId": null,
+  "judgeModel": "glm-5.3-flash",
+  "updatedAt": "2026-10-25T20:12:32.336Z",
+  "calls": [
+    {
+      "caseId": "DPDPA-S1-01",
+      "field": "document_identity",
+      "kind": "expected",
+      "inputCharacters": 13149,
+      "verdict": "pass",
+      "reason": "Inventory shows '(NO. 22 OF 2023)' node afd2eb27... under title node.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-01",
+      "field": "exact_commencement_text",
+      "kind": "expected",
+      "inputCharacters": 13298,
+      "verdict": "fail",
+      "reason": "Inventory subsection (5b9dcda...) textStart begins '(2) It shall come into force on such date as the Central Government may, by n' but text is truncated at ~80 chars and detailedProvisions is empty; only the prefix, not the complete commencement text including the 'reference... construed' clause, is evidenced.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-01",
+      "field": "commencement_status_from_this_pdf",
+      "kind": "expected",
+      "inputCharacters": 13069,
+      "verdict": "pass",
+      "reason": "Section 1(2) subsection node (5b9dcda2) text: 'It shall come into force on such date as the Central Government may, by n...' with different dates for different provisions; inventory contains no notification content, matching the expected status.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-01",
+      "field": "forbidden:Claiming every provision commenced on 11 August 2023.",
+      "kind": "forbidden",
+      "inputCharacters": 14614,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved output contains Section 1(2) text stating the Act comes into force on dates appointed by Central Government notification, with different dates possible; 11 Aug 2023 appears only as publication/assent date.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-01",
+      "field": "forbidden:Treating this source as the 2025 Rules or as a current consolidated edition.",
+      "kind": "forbidden",
+      "inputCharacters": 15068,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved output identifies source as Digital Personal Data Protection Act, 2023 (No. 22 of 2023), Gazette 11 Aug 2023; no mention of 2025 Rules or consolidation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "physical_page_inventory",
+      "kind": "expected",
+      "inputCharacters": 59146,
+      "verdict": "fail",
+      "reason": "Expected pages 1-21; evidence.selection.physicalPages only lists [1,21]. No inventory entries for pages 2-20, so 19 pages are missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "schedule_heading_exact_text",
+      "kind": "expected",
+      "inputCharacters": 64545,
+      "verdict": "pass",
+      "reason": "Annex node id 7ff90f88... label is 'THE  SCHEDULE [ See section 33 ( 1 )]', and table on page 21 shows 'THE SCHEDULE' with '[See section 33 (1)]' in source; matches after normalization",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "schedule_type",
+      "kind": "expected",
+      "inputCharacters": 64571,
+      "verdict": "pass",
+      "reason": "Evidence annex node 'THE SCHEDULE [See section 33 ( 1 )]' and table 'Schedule Penalties Table Header' with 7 breach/penalty rows match the penalty table under section 33(1), not seven numbered Act sections.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "page_1_matter",
+      "kind": "expected",
+      "inputCharacters": 59191,
+      "verdict": "pass",
+      "reason": "Inventory nodes for page 1 capture Gazette metadata (masthead, date, Ministry), title 'THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023', '(NO. 22 OF 2023)', long title, enactment clause, and Chapter I 'PRELIMINARY' with Section 1(1) and 1(2), all complete; no operative-obligation claim attached to the masthead.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "forbidden:Dropping page 21 as footer material.",
+      "kind": "forbidden",
+      "inputCharacters": 60981,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved selection includes physicalPages [1,21]; Schedule table header, all 7 penalty rows, and annex node are captured with relationships to Sections 8,9,10,15; page 21 was not dropped.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S1-02",
+      "field": "forbidden:Treating Schedule rows 1–7 as Sections 1–7.",
+      "kind": "forbidden",
+      "inputCharacters": 64524,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence models the Schedule as a table (rows 1–7 with Sl. No./Breach/Penalty columns) and an annex 'THE SCHEDULE [See section 33(1)]'; no node or label identifies any row as a Section 1–7.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "exact_subsection_text",
+      "kind": "expected",
+      "inputCharacters": 36580,
+      "verdict": "pass",
+      "reason": "Inventory contains complete subsection (7) node (id c969f13b..., boundaryStatus complete) with parentLabel 'Section 8', its points (a) erase personal data upon withdrawal/whichever is earlier and (b) cause its Data Processor to erase, plus both Illustrations (I) marketplace and (II) bank ten-year retention, all status candidate/complete, matching expected text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "point_a_exact_text",
+      "kind": "expected",
+      "inputCharacters": 35664,
+      "verdict": "needs_review",
+      "reason": "Inventory node 724fceb... (point under 8(7)) textStart shows only '(a) erase personal data, upon the Data Principal withdrawing her consent or as'; detailedProvisions empty and full text omitted, so the clause through 'whichever is earlier; and' cannot be verified.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "point_b_exact_text",
+      "kind": "expected",
+      "inputCharacters": 35610,
+      "verdict": "pass",
+      "reason": "Inventory node bfff2cb5... (point under Section 8(7)) textStart reads '( b ) cause its Data Processor to erase any personal data that was made availabl' matching expected text through 'made available', boundaryStatus complete, so the expected clause is present and untruncated.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "boundary",
+      "kind": "expected",
+      "inputCharacters": 35538,
+      "verdict": "fail",
+      "reason": "Pages [7,8] match, but inventory includes Section 8(8) subsection 797b71... and later nodes (8(9)-8(11), Sections 9, 10), so selection does not end immediately before Section 8(8).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "condition",
+      "kind": "expected",
+      "inputCharacters": 35550,
+      "verdict": "pass",
+      "reason": "Inventory shows complete subsection 8(7) node 'A Data Fiduciary shall, unless retention is necessary for compliance with ...' with both points (a) erase and (b) cause its Data Processor to erase as children, so the retention-necessity exception governs both clauses.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "forbidden:Stopping point (a) at the page break.",
+      "kind": "forbidden",
+      "inputCharacters": 38206,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Inventory/detail nodes extend past the page 7 break: point (b) of s8(7), both Illustrations, s8(8)-(11), Section 9 subsections and Section 10 are all captured, disproving a stop at clause (a).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "forbidden:Attaching the page-8 continuation to a new section.",
+      "kind": "forbidden",
+      "inputCharacters": 40921,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence shows page-8 subsections 8(8) and 8(11) have parentId 8e1562... equal to the Section 8 node; Section 8 text is complete spanning pages 7-8 with no new section started.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-01",
+      "field": "forbidden:Dropping point (b) or the opening retention exception.",
+      "kind": "forbidden",
+      "inputCharacters": 41362,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence detailedProvisions for Section 8(7) includes both the exception 'unless retention is necessary for compliance with any law for the time being in force' and point (b) 'cause its Data Processor to erase any personal data that was made available...'; nothing dropped.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "field": "exact_subsection_text",
+      "kind": "expected",
+      "inputCharacters": 32752,
+      "verdict": "needs_review",
+      "reason": "Section 33 node exists (label 'Penalties.', parent CHAPTER VIII) but boundaryStatus='cross_chunk' and status='needs_review'; textStart is cut mid-sentence and full subsection text is not shown in saved output, so completeness of s.33(1) cannot be verified.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "field": "boundary",
+      "kind": "expected",
+      "inputCharacters": 32554,
+      "verdict": "needs_review",
+      "reason": "No saved-output evidence confirms the phrase 'person an opportunity of being heard' continues Section 33(1) on page 17; the 'Penalties.' node (f1289c4...) is only marked boundaryStatus cross_chunk with status needs_review, with no page-17 continuation recorded.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "field": "required_facts",
+      "kind": "expected",
+      "inputCharacters": 32601,
+      "verdict": "pass",
+      "reason": "Section 33 'Penalties.' node textStart: 'If the Board determines on conclusion of an inquiry that breach... is significant' — supported in inventory evidence f1289c42.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "field": "forbidden:Ending the sentence at the page-16 footer.",
+      "kind": "forbidden",
+      "inputCharacters": 35317,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Section 33 node is marked boundaryStatus cross_chunk/needs_review rather than treated as complete; no output text terminates the sentence at the page-16 footer, so the truncation claim is absent/disproved.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-02",
+      "field": "forbidden:Treating the page-17 continuation as Section 33(2).",
+      "kind": "forbidden",
+      "inputCharacters": 37916,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No separate Section 33(2) node exists; page-17 factors (a)-(g) are children of the single 'Penalties.' section 33 node (cross_chunk/needs_review), not split as 33(2).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "table_heading_exact_text",
+      "kind": "expected",
+      "inputCharacters": 53284,
+      "verdict": "pass",
+      "reason": "Annex node 7ff90f88b has label 'THE SCHEDULE [ See section 33 ( 1 )]'; after harmless space/bracket normalization matches expected 'THE SCHEDULE [See section 33 (1)]'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "column_headers",
+      "kind": "expected",
+      "inputCharacters": 53319,
+      "verdict": "pass",
+      "reason": "Saved table headerCells contain 'Sl. No.', 'Breach of provisions of this Act or rules made thereunder', and 'Penalty' (tables[0].headerCells row 0), matching the expected headers exactly.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:1",
+      "kind": "expected",
+      "inputCharacters": 59751,
+      "verdict": "pass",
+      "reason": "Row 1 node d1758450... text matches: 'Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.' (spacing-normalized)",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:2",
+      "kind": "expected",
+      "inputCharacters": 59688,
+      "verdict": "pass",
+      "reason": "Table row 3 (Sl. No. 2) on page 21 matches: breach text 'Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.' and penalty 'May extend to two hundred crore rupees.'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:3",
+      "kind": "expected",
+      "inputCharacters": 59642,
+      "verdict": "pass",
+      "reason": "Table cell row 4 col 1 has breach text 'Breach in observance of additional obligations in relation to children under section 9.' and col 2 'May extend to two hundred crore rupees.', both pages [21], matching source row 3.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:4",
+      "kind": "expected",
+      "inputCharacters": 59659,
+      "verdict": "pass",
+      "reason": "Tables row 5 ('4.') shows breach text 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10.' and penalty 'May extend to one hundred and fifty crore rupees.' on page 21; matches expected exactly.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:5",
+      "kind": "expected",
+      "inputCharacters": 59459,
+      "verdict": "pass",
+      "reason": "Table row '5.' on page 21 (sourceStarts 64324-64414) matches: breach text 'Breach in observance of the duties under section 15.' and penalty 'May extend to ten thousand rupees.' in both tables and detailedProvisions node.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:6",
+      "kind": "expected",
+      "inputCharacters": 59745,
+      "verdict": "pass",
+      "reason": "DetailedProvisions node ed9b2dcc... row 6 text contains exact breach text and penalty 'Up to the extent applicable for the breach... section 28 were instituted'; table row 7 with sourceStarts 64418/64502 on page 21 matches expected physical_page 21.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "schedule-row:7",
+      "kind": "expected",
+      "inputCharacters": 59534,
+      "verdict": "pass",
+      "reason": "Table row 8 has Sl. No. 7 with breach text 'Breach of any other provision of this Act or the rules made thereunder.', penalty 'May extend to fifty crore rupees.', all on page 21.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "row_count",
+      "kind": "expected",
+      "inputCharacters": 53234,
+      "verdict": "pass",
+      "reason": "Saved tables array contains rows for all 7 schedule entries (rows 2-8, sl. nos 1-7) with breach descriptions and penalties matching the schedule.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "forbidden:Pairing a breach description with the following row's penalty.",
+      "kind": "forbidden",
+      "inputCharacters": 60096,
+      "verdict": "fail",
+      "found": true,
+      "reason": "Node 36c59757 labeled 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10' has textStart 'May extend to fifty crore rupees' (row 7's penalty), a cross-row mispairing; cross_chunk needs_review nodes 9e881, 953018, ed9b2 inherit it.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "forbidden:Interpreting 'May extend to' as a fixed automatic penalty.",
+      "kind": "forbidden",
+      "inputCharacters": 56223,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence contains no statement treating 'May extend to' as a fixed automatic penalty; tables render 'May extend to...' as the source text states.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-03",
+      "field": "forbidden:Inventing a fixed amount for Schedule row 6.",
+      "kind": "forbidden",
+      "inputCharacters": 58996,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Table row 7 (Sl. 6) cell reads 'Up to the extent applicable for the breach in respect of which the proceedings under section 28 were instituted.'; no fixed rupee amount stated.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:1",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:1",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:2",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:2",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:3",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:3",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:4",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:4",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:5",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:5",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:6",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:6",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:7",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:7",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:8",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:8",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:9",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:9",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:10",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:10",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:11",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:11",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:12",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:12",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:13",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:13",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:14",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:14",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:15",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:15",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:16",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:16",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:17",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:17",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:18",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:18",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:19",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:19",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:20",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:20",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:21",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:21",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:22",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:22",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:23",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:23",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:24",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:24",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:25",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:25",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:26",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:26",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:27",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:27",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:28",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:28",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:29",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:29",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:30",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:30",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:31",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:31",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:32",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:32",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:33",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:33",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:34",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:34",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:35",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:35",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:36",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:36",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:37",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:37",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:38",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:38",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:39",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:39",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:40",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:40",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:41",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:41",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:42",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:42",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:43",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:43",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "section-start:44",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/section-start:44",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER I",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER I",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER II",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER II",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER III",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER III",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER IV",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IV",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER V",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER V",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER VI",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VI",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER VII",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VII",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER VIII",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER VIII",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter:CHAPTER IX",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter:CHAPTER IX",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "act_section_count",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/act_section_count",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "chapter_count",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/chapter_count",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "schedule_presence",
+      "kind": "expected",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/schedule_presence",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "forbidden:Missing a section whose number and start line are printed in the PDF.",
+      "kind": "forbidden",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "forbidden:Treating Schedule rows as Sections 45–51.",
+      "kind": "forbidden",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S2-04",
+      "field": "forbidden:Using the printed Gazette page number as the physical PDF page number.",
+      "kind": "forbidden",
+      "inputCharacters": 0,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: Focused graph evidence remains too large for DPDPA-S2-04/",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8",
+      "kind": "expected",
+      "inputCharacters": 45263,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains complete Section 8 text with all sub-sections (1)-(11) and both illustrations verbatim; boundaryStatus=complete, status=candidate",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(1)",
+      "kind": "expected",
+      "inputCharacters": 41768,
+      "verdict": "pass",
+      "reason": "DetailedProvisions contains subsection node (id 07930bf...) with parentId Section 8, kind 'subsection', complete non-truncated text matching 8(1): 'A Data Fiduciary shall, irrespective of any agreement to the contrary or failure of a Data Principal...' including Data Processor clause.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(2)",
+      "kind": "expected",
+      "inputCharacters": 41521,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains id 9cb8a31e... labeled Section 8 subsection (2) with text matching expected exactly: 'A Data Fiduciary may engage, appoint, use or otherwise involve a Data Processor... only under a valid contract'; parentId is Section 8; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)",
+      "kind": "expected",
+      "inputCharacters": 41364,
+      "verdict": "pass",
+      "reason": "evidence.detailedProvisions contains id 80c6111e... kind=subsection, parentLabel 'Section 8', complete text covering clauses (a) and (b) and the completeness/accuracy/consistency duty, matching expected source text; boundaryStatus complete, no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(4)",
+      "kind": "expected",
+      "inputCharacters": 41123,
+      "verdict": "pass",
+      "reason": "detailedProvisions include subsection id 8ac88dd... labeled Section 8 with complete text matching source: '( 4 ) A Data Fiduciary shall implement appropriate technical and organisational measures to ensure effective observance of the provisions of this Act and the rules made thereunder.'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 41501,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains subsection (5) with complete text: 'A Data Fiduciary shall protect personal data... by taking reasonable security safeguards to prevent personal data breach.' Matches expected wording; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 41226,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains subsection '( 6 ) In the event of a personal data breach, the Data Fiduciary shall give the Board and each affected Data Principal, intimation of such breach in such form and manner as may be prescribed.' under parent Section 8, complete and matching exact_source_text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 42581,
+      "verdict": "pass",
+      "reason": "detailedProvisions id c969f13b... contains full 8(7) text including both clauses; illustrations I and II captured as separate complete child nodes and also fully embedded in the Section 8 parent text with no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)",
+      "kind": "expected",
+      "inputCharacters": 41339,
+      "verdict": "pass",
+      "reason": "Node 797b71c4... exists with parentLabel 'Section 8' and chapeau text in detailedProvisions; child points (a) and (b) captured, and full Section 8 node text contains the complete (8) including 'different time periods may be prescribed for different classes of Data Fiduciaries and for different purposes'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(9)",
+      "kind": "expected",
+      "inputCharacters": 41536,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains subsection id 549c2ea4... with parentLabel 'Section 8' and full text matching the expected verbatim text including publish manner prescribed, DPO contact info, and answering Data Principal questions",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(10)",
+      "kind": "expected",
+      "inputCharacters": 40928,
+      "verdict": "pass",
+      "reason": "Inventory id b7f131... has kind=subsection, parentLabel 'Section 8', and detailedProvisions text '( 10 ) A Data Fiduciary shall establish an effective mechanism to redress the grievances of Data Principals.' complete, matching source.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(11)",
+      "kind": "expected",
+      "inputCharacters": 41643,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains subsection '( 11 ) For the purposes of this section...' with full text matching the source including 'in person or by way of communication in electronic or physical form', parentLabel 'Section 8', boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)(a)",
+      "kind": "expected",
+      "inputCharacters": 41079,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains point node (a) with text 'used to make a decision that affects the Data Principal; or', parentId points to Section 8(3) subsection, boundaryStatus complete, matches exact source text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)(b)",
+      "kind": "expected",
+      "inputCharacters": 41033,
+      "verdict": "pass",
+      "reason": "DetailedProvisions contain point node '(b) disclosed to another Data Fiduciary,' (id 96f44f72...) with parent Section 8(3) (80c6111e...) and complete text matching the source.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)(a)",
+      "kind": "expected",
+      "inputCharacters": 41608,
+      "verdict": "pass",
+      "reason": "Node exists in detailedProvisions (id 724fceb3..., point, parentId c969f13b..., parentLabel 'Section 8' matching Section 8(7)); text '(a) erase personal data, upon the Data Principal withdrawing her consent or as soon as it is reasonable to assume that the specified purpose is no longer being served, whichever is earlier; and' matches exact_source_text modulo line-wrap; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)(b)",
+      "kind": "expected",
+      "inputCharacters": 41390,
+      "verdict": "pass",
+      "reason": "Point node 'bfff2cb51...' with text '( b ) cause its Data Processor to erase any personal data that was made available by the Data Fiduciary for processing to such Data Processor.' matches expected exact_source_text after line-wrap normalization; parent label 'Section 8', boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)(a)",
+      "kind": "expected",
+      "inputCharacters": 41272,
+      "verdict": "pass",
+      "reason": "Point node present in detailedProvisions with exact text '( a ) approach the Data Fiduciary for the performance of the specified purpose; and', parented to Section 8(8) (797b71c4...), boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)(b)",
+      "kind": "expected",
+      "inputCharacters": 41391,
+      "verdict": "pass",
+      "reason": "Node 31da1de4... kind=point with parentLabel Section 8(8); detailed text '(b) exercise any of her rights in relation to such processing, for such time period as may be prescribed...' matches expected '(b) exercise any of her rights in relation to such processing,' with continuation; complete, no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3) shared consequence",
+      "kind": "expected",
+      "inputCharacters": 41655,
+      "verdict": "pass",
+      "reason": "DetailedProvisions node 80c6111e (Section 8(3)) contains complete text: 'the Data Fiduciary processing such personal data shall ensure its completeness, accuracy and consistency.' matching the expected source text after line-wrap normalization; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7) illustrations",
+      "kind": "expected",
+      "inputCharacters": 41927,
+      "verdict": "pass",
+      "reason": "Both illustrations present as separate illustration nodes under Section 8(7) and inline in Section 8 text; Illustration (I) marketplace text and Illustration (II) bank ten-year retention text match expected source wording completely, no truncation (boundaryStatus complete)",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8) shared time condition",
+      "kind": "expected",
+      "inputCharacters": 41480,
+      "verdict": "pass",
+      "reason": "Section 8(8) node (id 797b71c4...) exists in inventory and detailedProvisions with full text including 'for such time period as may be prescribed, and different time periods may be prescribed for different classes of Data Fiduciaries and for different purposes', matching expected source text with points (a) and (b) and boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(8) -> Section 8(7)(a)",
+      "kind": "expected",
+      "inputCharacters": 36164,
+      "verdict": "fail",
+      "reason": "No relationship exists connecting Section 8(8) to Section 8(7)(a); only edges from 8(8) are 'under this Act' (unresolved) and external_reference 'Act and'. Missing graph edge, relation explicit_reference unmet.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(11) -> Section 8",
+      "kind": "expected",
+      "inputCharacters": 36374,
+      "verdict": "pass",
+      "reason": "relationships contain an edge from Section 8(11) (a917699d...) to targetIds 8e1562f87... ('Section 8'), relationType explicit_relative_reference, exactMention 'For the purposes of this section', status proposed",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(5) -> Section 2(u)",
+      "kind": "expected",
+      "inputCharacters": 37174,
+      "verdict": "pass",
+      "reason": "Relationship exists: sourceId 88adc714... (Section 8(5) subsection) has defined_term edge to target f2d72078... (Definition (u) 'personal data breach') with exactMention 'personal data breach'; status proposed.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(6) -> Section 2(u)",
+      "kind": "expected",
+      "inputCharacters": 36297,
+      "verdict": "pass",
+      "reason": "Relationships contain an edge from sourceId e5053e... (Section 8(6), 'personal data breach') to targetId f2d720... (Definition (u) 'personal data breach') with relationType defined_term, exactMention 'personal data breach'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "inherited-condition:Section 8(3)(a),Section 8(3)(b)",
+      "kind": "expected",
+      "inputCharacters": 35699,
+      "verdict": "pass",
+      "reason": "Inventory contains parent subsection (3) 'Where personal data processed by a Data Fiduciary is likely to be-' and child points (a) 'used to make a decision that affects the Data Principal; or' and (b) 'disclosed to another Data Fiduciary,' each with parentId of that subsection; matches parent_text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "inherited-condition:Section 8(7)(a),Section 8(7)(b)",
+      "kind": "expected",
+      "inputCharacters": 35745,
+      "verdict": "pass",
+      "reason": "Inventory has Section 8(7) subsection c969f13b... ('( 7 ) A Data Fiduciary shall, unless retention is necessary for compliance with...') with child points 724fceb3 (a) erase and bfff2cb5 (b) cause its Data Processor to erase, both parentLabel 'Section 8'; parent wording matches source 8(7) chapeau",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "paragraph_count",
+      "kind": "expected",
+      "inputCharacters": 35528,
+      "verdict": "pass",
+      "reason": "Inventory contains subsection nodes for Section 8(1) through 8(11) — items (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11) all present as 'subsection' candidates with parentLabel 'Section 8'; count equals 11.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "lettered_points",
+      "kind": "expected",
+      "inputCharacters": 35635,
+      "verdict": "pass",
+      "reason": "Inventory point '(a) used to make a decision that affects the Data Principal; or' under Section 8(3) exists with complete text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Eleven unrelated rules without Section 8 parent context.",
+      "kind": "forbidden",
+      "inputCharacters": 41329,
+      "verdict": "pass",
+      "found": false,
+      "reason": "All 11 subsections in inventory carry parentId 8e1562f8... with parentLabel 'Section 8'; the section node has structuralPath ['Section 8'], so parent context exists and the claim is disproved.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Treating a defined-term link as a printed section citation.",
+      "kind": "forbidden",
+      "inputCharacters": 40991,
+      "verdict": "pass",
+      "found": false,
+      "reason": "All defined-term edges in evidence.relationships use relationType 'defined_term' with target definition nodes (e.g., 'personal data breach', 'prescribed'), never typed as printed section citations.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Attaching the page-8 continuation of Section 8(7)(a) to Section 8(8).",
+      "kind": "forbidden",
+      "inputCharacters": 40939,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Section 8(7)(a) text ends completely within Section 8 node; Section 8(8) node (797b71...) text begins only with '( 8 ) The purpose referred to...' with no 8(7)(a) continuation attached; full Section 8 detailed provision is complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33",
+      "kind": "expected",
+      "inputCharacters": 97403,
+      "verdict": "fail",
+      "reason": "Section 33 node exists in detailedProvisions but text is cross_chunk/needs_review and ends after '(2)... namely:-' without factors (a)-(g); only points appear as orphaned inventory items with parentId null, so the node text is incomplete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(1)",
+      "kind": "expected",
+      "inputCharacters": 97621,
+      "verdict": "fail",
+      "reason": "No subsection node for Section 33(1) exists in inventory or detailedProvisions; Section 33 appears only as a section-level node (f1289c42..., label 'Penalties.') with sub-section (1) text embedded inline, not as kind=subsection under parent Section 33.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)",
+      "kind": "expected",
+      "inputCharacters": 92798,
+      "verdict": "fail",
+      "reason": "No subsection node for Section 33(2) exists in inventory or detailedProvisions; the Section 33 section node is cross_chunk/needs_review and only points (a)-(g) appear as fragmented items (e.g., (e) and (f) truncated at 'effective,'). Subsection text incomplete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(a)",
+      "kind": "expected",
+      "inputCharacters": 89476,
+      "verdict": "needs_review",
+      "reason": "No parent linkage exists to Section 33(2) or any Section 33 subsection; the point node is captured but its hierarchical context is absent.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(b)",
+      "kind": "expected",
+      "inputCharacters": 89608,
+      "verdict": "fail",
+      "reason": "Point text '( b ) the type and nature of the personal data affected by the breach;' exists complete in evidence.detailedProvisions (id 986ebae…), but expected parent 'Section 33(2)' is unsupported: parentId and parentLabel are null and no Section 33(2) node exists in inventory.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(c)",
+      "kind": "expected",
+      "inputCharacters": 85637,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains point id dcab32fc... label '( c ) repetitive nature of the breach;' with complete text matching exact_source_text",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(d)",
+      "kind": "expected",
+      "inputCharacters": 89768,
+      "verdict": "pass",
+      "reason": "Node present in detailedProvisions (id 87c2a34...) with complete text '( d ) whether the person, as a result of the breach, has realised a gain or avoided any loss;' matching expected exact_source_text after normalization; no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(e)",
+      "kind": "expected",
+      "inputCharacters": 91040,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains point '(e) whether the person took any action to mitigate the effects and consequences of the breach, and the timeliness and effectiveness of such action;' with boundaryStatus complete; full expected wording incl. timeliness clause present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(f)",
+      "kind": "expected",
+      "inputCharacters": 94882,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains point '( f ) whether the monetary penalty to be imposed is proportionate and effective, having regard to the need to secure observance of and deter breach of the provisions of this Act; and' with boundaryStatus complete, matching expected text after line-wrap normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(g)",
+      "kind": "expected",
+      "inputCharacters": 92305,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains point node id 4c3833e0 with complete text '( g ) the likely impact of the imposition of the monetary penalty on the person.' matching the exact source text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:The Schedule",
+      "kind": "expected",
+      "inputCharacters": 96101,
+      "verdict": "pass",
+      "reason": "Schedule content fully captured: annex node 'THE SCHEDULE [See section 33 (1)]' plus table with all 7 rows and exact penalties (250/200/200/150 crore, 10 thousand, sec 28 extent, 50 crore) matching source.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 1",
+      "kind": "expected",
+      "inputCharacters": 92412,
+      "verdict": "needs_review",
+      "reason": "Node exists with complete exact text incl. penalty 'May extend to two hundred and fifty crore rupees' (node d1758450..., complete/candidate). But kind is 'table' not 'table_row' and parentLabel is 'Schedule Penalties Table Header' not 'The Schedule'; match policy forgives only internal IDs, not kind/parent, so structural mismatch needs review.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 2",
+      "kind": "expected",
+      "inputCharacters": 92391,
+      "verdict": "pass",
+      "reason": "detailedProvisions id 40f141b4... contains full row 2 text 'Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8. May extend to two hundred crore rupees.' matching expected verbatim; boundaryStatus complete, no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 3",
+      "kind": "expected",
+      "inputCharacters": 92345,
+      "verdict": "pass",
+      "reason": "Tables array row 4 contains complete expected text: 'Breach in observance of additional obligations in relation to children under section 9.' and penalty 'May extend to two hundred crore rupees.' (cells at sourceStarts 64048/64136, page 21).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 4",
+      "kind": "expected",
+      "inputCharacters": 92362,
+      "verdict": "pass",
+      "reason": "detailedProvisions contain Schedule row 4 node with exact text 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10. May extend to one hundred and fifty crore rupees.' matching source row 4 verbatim after line-wrap normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 5",
+      "kind": "expected",
+      "inputCharacters": 95404,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains Schedule row 5 with complete text 'Breach in observance of the duties under section 15. May extend to ten thousand rupees.' matching expected source text; table row 6 cells confirm same content.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 6",
+      "kind": "expected",
+      "inputCharacters": 96405,
+      "verdict": "pass",
+      "reason": "detailedProvisions row 6 node (ed9b2dcc...) contains full text: 'Breach of any term of voluntary undertaking accepted by the Board under section 32.' plus penalty 'Up to the extent applicable for the breach in respect of which the proceedings under section 28 were instituted.' Matches expected source text; only boundaryStatus cross_chunk but text complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 7",
+      "kind": "expected",
+      "inputCharacters": 95479,
+      "verdict": "needs_review",
+      "reason": "Node 0f96f4df... in detailedProvisions has complete text '7. Breach of any other provision of this Act or the rules made thereunder. May extend to fifty crore rupees.' matching source, and tables row 8 confirms. But expected parent 'The Schedule' is wrong: parentLabel is mislabeled 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10.'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Section 33(1) -> The Schedule",
+      "kind": "expected",
+      "inputCharacters": 90290,
+      "verdict": "fail",
+      "reason": "Source 'Penalties.' (33) has relationship exactMention 'the Schedule' with targetIds [] and status 'unresolved'; no resolved edge to a Schedule node exists in evidence.relationships.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Section 33(2) -> Section 33(1)",
+      "kind": "expected",
+      "inputCharacters": 87437,
+      "verdict": "fail",
+      "reason": "evidence.relationships contains no edge from Section 33(2) to Section 33(1) with relationType explicit_relative_reference; section 33 node f1289c42 is cross_chunk/needs_review and only 'the Schedule' external_reference edge exists, no 'sub-section (1)' relative edge.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 1 -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 89306,
+      "verdict": "pass",
+      "reason": "Relationships include row-1 schedule node (d1758450...) with targetId 88adc714 (Section 8(5) subsection node), relationType explicit_reference, exactMention 'section 8' from row text citing sub-section (5) of section 8.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 2 -> Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 89306,
+      "verdict": "needs_review",
+      "reason": "Relationships show row-2 node 40f141b4 -> e5053e281 (Section 8(6)) with explicit_reference, but exactMention is only 'section 8', status 'ambiguous' with 17 over-broad targets; the source_words 'sub-section (6) of section 8' was not resolved to the specific subsection.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 89281,
+      "verdict": "pass",
+      "reason": "Relationship exists: source 'Schedule Penalties Table Header' (containing row 3 text '...children under section 9') -> target 'Section 9' (4f4f9ff3...), relationType 'explicit_reference', exactMention 'section 9', status proposed; ID difference acceptable.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 4 -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 89284,
+      "verdict": "pass",
+      "reason": "relationships include sourceId 9e881ee8... (row 4 'Breach in observance of additional obligations of Significant Data Fiduciary under section 10') targeting Section 10 nodes (2ddd77d3...) with relationType explicit_reference",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 5 -> Section 15",
+      "kind": "expected",
+      "inputCharacters": 89284,
+      "verdict": "pass",
+      "reason": "relationships contains edge from 'Breach in observance of the duties under section 15.' targeting Section 15 node 4a40591058b42eeba6ad1701f7bdcbadfc573cab923784949a3561b380519e33 with relationType explicit_reference, exactMention 'section 15'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 6 -> Section 32",
+      "kind": "expected",
+      "inputCharacters": 89284,
+      "verdict": "fail",
+      "reason": "Schedule row 6 node ed9b2dcc has a relationship with exactMention 'section 32' but targetIds is empty and status 'unresolved'; no edge connects row 6 to the Section 32 'Voluntary undertaking.' node (93f4f3cf) in evidence.relationships.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 6 -> Section 28",
+      "kind": "expected",
+      "inputCharacters": 89407,
+      "verdict": "fail",
+      "reason": "No directed edge exists from the Schedule row 6 node to Section 28. The relationships array shows only an unresolved 'explicit_reference' with targetIds [] and targetLabels [] for exactMention 'section 28'; the section-28 mention was never resolved to a Section 28 target, and no edge with relationType explicit_procedural_reference to Section 28 exists.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 89487,
+      "verdict": "fail",
+      "reason": "Nodes exist (33(1) node f1289c...; Schedule row 1 node d1758450...; Section 8(5) node 88adc714...) but the required edge chain is incomplete: Section 33's explicit_reference to 'the Schedule' is unresolved with empty targetIds, and no 'contains' relationship links the Schedule to Schedule row 1 (only parent-child metadata). Only row1->Section 8 edge exists (ambiguous, includes Section 8(5)).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 89479,
+      "verdict": "fail",
+      "reason": "Path incomplete: edge Section 33(1) -> Schedule has exactMention 'the Schedule' but targetIds/targetLabels are empty and status 'unresolved', so no directed edge to Schedule exists in evidence.relationships. Row 2 node (40f141b4...) and its edge to Section 8(6) (e5053e281) exist, and table row 2 shows 'May extend to two hundred crore rupees', but the required 33(1)->Schedule->row chain is broken.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 89478,
+      "verdict": "fail",
+      "reason": "No edge Section 33(1) -> Schedule exists in relationships: the 'the Schedule' reference from 'Penalties.' has empty targetIds/status unresolved. No Schedule row 3 node exists in inventory (rows 4-7 only, mislabeled), and no edge from Schedule row 3 to Section 9; only 'Schedule Penalties Table Header' -> Section 9 exists. Full path cannot be supported.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 89484,
+      "verdict": "fail",
+      "reason": "Only row4->Section 10 explicit_reference edge exists (id 9e881ee8...). No edge from Section 33(1)/Penalties to the Schedule resolves to a target ('the Schedule' edge status unresolved, empty targetIds), and no 'contains' edge links the Schedule to row 4 (id 36c59757... is cross_chunk table with no relationship).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15",
+      "kind": "expected",
+      "inputCharacters": 89480,
+      "verdict": "fail",
+      "reason": "Middle hop missing: Section 33 'the Schedule' reference exists only as unresolved with targetIds=[]; no directed edge 33(1)->Schedule node, so full path (explicit_reference, contains, explicit_reference) is not present in relationships.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32",
+      "kind": "expected",
+      "inputCharacters": 89498,
+      "verdict": "fail",
+      "reason": "Row 6 and Section 32 nodes exist, but edge row6→Section 32 (id ed9b2dcc) is unresolved with empty targetIds, and Section 33→Schedule edge is likewise unresolved with no targetIds; no directed edges actually connect the path.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28",
+      "kind": "expected",
+      "inputCharacters": 89484,
+      "verdict": "fail",
+      "reason": "No resolved edges: 33(1)->Schedule explicit_reference has empty targetIds (status unresolved); row 6's section 28 mention is explicit_reference with empty targetIds, no explicit_procedural_reference edge to a Section 28 node; graph omission despite path nodes existing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 7",
+      "kind": "expected",
+      "inputCharacters": 89424,
+      "verdict": "fail",
+      "reason": "Section 33(1) node exists ('Penalties.' cross_chunk) with explicit_reference to 'the Schedule' (unresolved), and row 7 node exists in inventory/table with 'May extend to fifty crore rupees', but no 'contains' relationship edge exists in evidence.relationships linking the Schedule to Schedule row 7; the required second edge is missing, so the relation_sequence is incomplete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Inventing a direct printed citation from Section 8(5) to the Schedule.",
+      "kind": "forbidden",
+      "inputCharacters": 95693,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No edge from Section 8(5) node 88adc714 to any Schedule node; its only relationships are defined_term edges to 'personal data' and 'personal data breach'. The Schedule reference exists only from Section 33 (Penalties) as an unresolved explicit_reference, which is genuine per the source text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Calling a Schedule ceiling an automatically imposed penalty.",
+      "kind": "forbidden",
+      "inputCharacters": 91337,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved output renders penalties as 'May extend to...' and s.33(1) as Board-imposed after inquiry and hearing; no automatic-penalty claim present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Conflating Schedule row 1 security and row 2 breach notice.",
+      "kind": "forbidden",
+      "inputCharacters": 95432,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Rows kept distinct: row 1 node (d1758...) ties security safeguards u/s 8(5) to 250 crore; row 2 node (40f14...) ties breach notice u/s 8(6) to 200 crore in table cells and separate relationships.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17",
+      "kind": "expected",
+      "inputCharacters": 83318,
+      "verdict": "pass",
+      "reason": "Node 5ebf53... exists as section in detailedProvisions under CHAPTER IV; text includes (1)(a)-(f), Explanation, Illustration, (2)(a)-(b), (3) with startup Explanation, (4), and (5); matches expected source text; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)",
+      "kind": "expected",
+      "inputCharacters": 80761,
+      "verdict": "pass",
+      "reason": "detailedProvisions id 5ebf53... contains full Section 17(1) text with all clauses (a)-(f), Explanation citing IBC s.3(12),(14), and Illustration; boundaryStatus complete, matches source text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)",
+      "kind": "expected",
+      "inputCharacters": 71436,
+      "verdict": "fail",
+      "reason": "No node for Section 17(2) exists in evidence.inventory or detailedProvisions; only a Section 17 section-level node appears (id 5ebf5371...). Expected subsection with clauses (a)-(b) including notified State instrumentality and research/archiving/statistics conditions is missing entirely.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(3)",
+      "kind": "expected",
+      "inputCharacters": 71998,
+      "verdict": "fail",
+      "reason": "No Section 17(3) node exists in evidence.inventory or detailedProvisions; only the section-level '17. ( 1 )...' node (5ebf53...) is captured, and no subsection child for (3) or its startup Explanation is present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(4)",
+      "kind": "expected",
+      "inputCharacters": 75164,
+      "verdict": "pass",
+      "reason": "Section 17 detailedProvisions text verbatim includes '( 4 ) In respect of processing by the State or any instrumentality of the State... sub-section ( 2 ) of section 12 shall not apply', complete with all conditions",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(5)",
+      "kind": "expected",
+      "inputCharacters": 75422,
+      "verdict": "pass",
+      "reason": "Section 17 detailed provision includes full sub-section (5) text verbatim (five years, notification, Data Fiduciary/classes, specified period), complete not truncated; internal IDs may differ so embedding under Section 17 node is acceptable.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(a)",
+      "kind": "expected",
+      "inputCharacters": 78935,
+      "verdict": "pass",
+      "reason": "Node 'Section 17(1)(a)' exists as point within Section 17(1) with complete text including exact phrase 'necessary for enforcing any legal right or claim'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(b)",
+      "kind": "expected",
+      "inputCharacters": 79129,
+      "verdict": "fail",
+      "reason": "No provision node 'Section 17(1)(b)' of kind 'point' exists in inventory or detailedProvisions; only a combined Section 17 section node (5ebf5371...) embeds the clause text, so the expected point-level node is missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(c)",
+      "kind": "expected",
+      "inputCharacters": 79188,
+      "verdict": "fail",
+      "reason": "No dedicated node with id 'Section 17(1)(c)' or parent 'Section 17(1)' exists in inventory or detailedProvisions; clause (c) text appears only embedded inside the Section 17 section node (id 5ebf...), so the expected point-level node is omitted.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(d)",
+      "kind": "expected",
+      "inputCharacters": 79204,
+      "verdict": "pass",
+      "reason": "Clause (d) text present and complete inside Section 17 node in detailedProvisions: '( d ) personal data of Data Principals not within the territory of India is processed pursuant to any contract entered into with any person outside the territory of India by any person based in India;'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(e)",
+      "kind": "expected",
+      "inputCharacters": 79273,
+      "verdict": "pass",
+      "reason": "Section 17 node (5ebf5371...) in detailedProvisions contains clause (e) verbatim and complete: 'the processing is necessary for a scheme of compromise or arrangement or merger or amalgamation... approved by a court or tribunal or other authority competent to do so'; no truncation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f)",
+      "kind": "expected",
+      "inputCharacters": 79413,
+      "verdict": "fail",
+      "reason": "No dedicated point node 'Section 17(1)(f)' with parent 'Section 17(1)' exists in inventory or detailedProvisions; clause (f) text appears only inline within the Section 17 section node, so the expected node structure is missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)(a)",
+      "kind": "expected",
+      "inputCharacters": 75804,
+      "verdict": "pass",
+      "reason": "Full expected text of 17(2)(a) appears verbatim (PDF-normalized) inside Section 17 detailedProvision id 5ebf5371..., complete through 'furnish to it; and', no truncation; internal IDs may differ per match_policy",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)(b)",
+      "kind": "expected",
+      "inputCharacters": 79037,
+      "verdict": "fail",
+      "reason": "No node for Section 17(2)(b) exists in evidence.inventory or detailedProvisions (no point-kind child of Section 17(2)); its text appears only embedded inside the full Section 17 section node.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f) explanation",
+      "kind": "expected",
+      "inputCharacters": 78932,
+      "verdict": "fail",
+      "reason": "No standalone node with kind 'explanation' for the 17(1)(f) Explanation exists in inventory or detailedProvisions; the explanation text appears only embedded within the Section 17 section node, not as a separate explanation provision.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f) illustration",
+      "kind": "expected",
+      "inputCharacters": 79812,
+      "verdict": "pass",
+      "reason": "Section 17 detailedProvisions text contains the full illustration verbatim: 'X, an individual, takes a loan from Y, a bank... ascertaining her financial information and assets and liabilities.' complete, not truncated; matches expected exact_source_text after whitespace normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(3) explanation",
+      "kind": "expected",
+      "inputCharacters": 79535,
+      "verdict": "fail",
+      "reason": "No node of kind 'explanation' for the s17(3) startup Explanation exists in evidence.inventory or detailedProvisions; the text only appears embedded inside the Section 17 section node, so the expected standalone node is missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Chapter II",
+      "kind": "expected",
+      "inputCharacters": 73744,
+      "verdict": "fail",
+      "reason": "No edge exists in evidence.relationships from Section 17(1) to a Chapter II node. All Section 17 exception_to_exemption edges target only Section 8 or Section 16 nodes; the Chapter II reference ('The provisions of Chapter II...') was not resolved to a Chapter II target, so the conditional_exemption edge to Chapter II is missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Chapter III",
+      "kind": "expected",
+      "inputCharacters": 73747,
+      "verdict": "fail",
+      "reason": "No relationship in evidence connects Section 17 to a Chapter III target; Section 17 edges target Section 8, 16, 3, 12 and definitions only. No Chapter III node exists, and no conditional_exemption edge to Chapter III is present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 16",
+      "kind": "expected",
+      "inputCharacters": 73744,
+      "verdict": "fail",
+      "reason": "Saved relationships contain a Section 17 -> Section 16 edge only with relationType 'exception_to_exemption' (status 'proposed'), not the expected 'conditional_exemption'; the conditional_exemption edge is absent from evidence.relationships, so the expected edge does not exist.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 8(1)",
+      "kind": "expected",
+      "inputCharacters": 73776,
+      "verdict": "pass",
+      "reason": "evidence.relationships has Section 17 -> Section 8 (id 8e156..., incl. subsections 8(1)-8(11)) edges with relationType 'exception_to_exemption'; one exactMention reads 'The provisions of Chapter II, except sub-sections ( 1 ) and ( 5 ) of section 8', matching source words and relation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 73776,
+      "verdict": "pass",
+      "reason": "Relationships include Section 17 -> Section 8 (node 88adc...=8(5)) with relationType exception_to_exemption and exactMention 'except sub-sections ( 1 ) and ( 5 ) of section 8', matching source words.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 5",
+      "kind": "expected",
+      "inputCharacters": 71333,
+      "verdict": "fail",
+      "reason": "No edge exists connecting Section 17 to Section 5: relationships only include an 'explicit_procedural_reference' with empty targetIds/unresolved 'section 5', and section 5 mentions resolved to Section 8 nodes with relationType 'exception_to_exemption'/'explicit_procedural_reference', not 'notification_dependent_exemption'; Section 5 node absent from inventory.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 8(3)",
+      "kind": "expected",
+      "inputCharacters": 71357,
+      "verdict": "fail",
+      "reason": "No directed edge from Section 17(3) to Section 8(3) with relationType notification_dependent_exemption exists. Related edges carry sourceLabel 'Section 17' with relationType explicit_procedural_reference/exception_to_exemption and ambiguous status, none at subsection 17(3) level with the required relation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 71357,
+      "verdict": "fail",
+      "reason": "No edge with relationType 'notification_dependent_exemption' exists in evidence.relationships; the only related edges are 'Section 17' with relationType 'explicit_procedural_reference' (exactMention 'sub-sections ( 3 ) and ( 7 ) of section 8...', status ambiguous). Relation mismatch, so edge fails.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 71344,
+      "verdict": "fail",
+      "reason": "No relationship from Section 17(3) to Section 10 exists in evidence.relationships; the Section 17 explicit_procedural_reference with exactMention 'sections 10 and 11' has empty targetIds/targetLabels, and relationType is not notification_dependent_exemption. Per anti-false-pass rule, edge fails.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 11",
+      "kind": "expected",
+      "inputCharacters": 71344,
+      "verdict": "fail",
+      "reason": "No relationship from Section 17(3) to Section 11 exists in evidence.relationships. The 'sections 10...' mention edge has empty targetIds and status unresolved; the explicit_procedural_reference edge for s.17(3) targets only Sections 8, not Section 11. Edge omitted.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 69738,
+      "verdict": "fail",
+      "reason": "No edge exists in evidence.relationships with source 'Section 17(4)' targeting Section 8(7) with relationType 'conditional_exemption'. Section 17 edges exist only from 'Section 17' (subsection-level), status ambiguous, typed 'explicit_reference'/'exception_to_exemption', and bundle all 8(1)-8(11) targets without isolating 8(7).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 12(3)",
+      "kind": "expected",
+      "inputCharacters": 69741,
+      "verdict": "fail",
+      "reason": "No edge in evidence.relationships from Section 17(4) to Section 12(3) with conditional_exemption. Only section-level Section 17 edges exist with relationType explicit_reference/ambiguous mentioning section 12; no subsection-scoped 17(4) source or conditional_exemption relation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 12(2)",
+      "kind": "expected",
+      "inputCharacters": 69741,
+      "verdict": "fail",
+      "reason": "No directed relationship from Section 17(4) to Section 12(2) with relationType 'conditional_exemption' exists in evidence.relationships; Section 17 edges only target Section 8/12/16/3/definitions as section-level reference/exemption edges.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12)",
+      "kind": "expected",
+      "inputCharacters": 68741,
+      "verdict": "fail",
+      "reason": "No edge in evidence.relationships from a 'Section 17(1)(f) explanation' node to IBC 2016 s.3(12) with relationType external_defined_term_reference. Closest entry is Section 17 → Section 3 as explicit_procedural_reference with IBC text, wrong source node, wrong target, wrong relation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14)",
+      "kind": "expected",
+      "inputCharacters": 68741,
+      "verdict": "fail",
+      "reason": "No edge with relationType 'external_defined_term_reference' to IBC 2016 Section 3(14) exists in evidence.relationships. Closest is sourceLabel 'Section 17' with relationType 'explicit_procedural_reference' targeting DPDPA's internal Section 3 node (proposed, no external IBC target). Source also is Section 17, not the 17(1)(f) explanation; edge omitted.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "exemption_scope",
+      "kind": "expected",
+      "inputCharacters": 68753,
+      "verdict": "pass",
+      "reason": "Section 17 node present (label '17. (1) The provisions of Chapter II, except sub-sections (1) and (5) of section 8, and those of Chapter III and section 16...') with exception_to_exemption edges to Section 8 and Section 16 in relationships; matches expected exclusion scope.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Exempting Section 8(1) or 8(5) through Section 17(1).",
+      "kind": "forbidden",
+      "inputCharacters": 73931,
+      "verdict": "fail",
+      "found": true,
+      "reason": "Relationships from Section 17 with exactMention 'except sub-sections (1) and (5) of section 8' still target sub-section nodes 88adc (8(5)) and 8ac88 (8(4)) under exception_to_exemption, asserting 8(5) is exempted, contradicting the carve-out.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Applying Section 17(3) to all startups without a notification.",
+      "kind": "forbidden",
+      "inputCharacters": 75556,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved Section 17(3) text states the Central Government 'may... notify certain Data Fiduciaries or class of Data Fiduciaries, including startups'; no claim of automatic application without notification exists.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Treating the different Section 17 subsections as one blanket exemption.",
+      "kind": "forbidden",
+      "inputCharacters": 78379,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved Section 17 node text preserves each subsection (1)-(5) separately with distinct content (exemptions (a)-(f), notified State instrumentalities, startup carve-outs, State processing, five-year exemption); no blanket-exemption claim appears.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9",
+      "kind": "expected",
+      "inputCharacters": 80087,
+      "verdict": "fail",
+      "reason": "Section 9 node exists (4f4f...) but its saved text contains only sub-section (1) plus Explanation, omitting sub-sections (2)-(5); those appear in detached subsection nodes with parentId null / structuralPath ['subsection'] and one cross_chunk needs_review, so the node's legal text is incomplete and subsections are not linked to Section 9.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 81737,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains complete Section 9(1) text: verifiable consent of parent/lawful guardian before processing child data, 'in such manner as may be prescribed', plus Explanation that 'consent of the parent' includes lawful guardian; matches source.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(2)",
+      "kind": "expected",
+      "inputCharacters": 79516,
+      "verdict": "pass",
+      "reason": "detailedProvisions id 47a1... contains complete text: '(2) A Data Fiduciary shall not undertake such processing of personal data that is likely to cause any detrimental effect on the well-being of a child.' matching source verbatim; boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 78540,
+      "verdict": "pass",
+      "reason": "detailedProvisions id ac25e36... contains complete text '(3) A Data Fiduciary shall not undertake tracking or behavioural monitoring of children or targeted advertising directed at children.', boundaryStatus complete, matching expected text after line-wrap normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(4)",
+      "kind": "expected",
+      "inputCharacters": 78497,
+      "verdict": "pass",
+      "reason": "detailedProvisions include Section 9(4) with complete, boundaryStatus=complete text: '(4) The provisions of sub-sections (1) and (3) shall not be applicable... as may be prescribed', matching source verbatim (page 8).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(5)",
+      "kind": "expected",
+      "inputCharacters": 81631,
+      "verdict": "pass",
+      "reason": "detailedProvisions contains complete subsection (5) text matching source verbatim: Central Government may notify age above which Data Fiduciary exempt from obligations under sub-sections (1) and (3).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(1) explanation",
+      "kind": "expected",
+      "inputCharacters": 78548,
+      "verdict": "pass",
+      "reason": "Explanation node exists as paragraph a8763a... under Section 9 with complete text 'Explanation. - For the purpose of this sub-section, the expression 'consent of the parent' includes the consent of lawful guardian, wherever applicable.' matching expected source text (line-wrap normalized); boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(1) -> Section 2(f)",
+      "kind": "expected",
+      "inputCharacters": 77958,
+      "verdict": "fail",
+      "reason": "No relationship edge connects Section 9/9(1) to the Section 2(f) 'child' definition in evidence.relationships; only 'personal data' and 'prescribed' defined_term edges exist from Section 9. Graph omission per anti-false-pass rule.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(4) -> Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 77449,
+      "verdict": "fail",
+      "reason": "No relationships edge from Section 9(4) (id 60bca...) to Section 9(1); only defined_term edges to 'personal data' and 'prescribed' exist. Text mentions sub-sections (1) and (3) but graph edge missing.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(4) -> Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 77449,
+      "verdict": "fail",
+      "reason": "No relationship edge in evidence.connects Section 9(4) (id 60bca75c...) to Section 9(3) (id ac25e36a...); relationships only include a defined_term link to 'prescribed'. Section 9(3) target node itself is also missing from inventory. Edge omission.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(5) -> Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 77748,
+      "verdict": "fail",
+      "reason": "No directed edge from Section 9(5) (id 895ad83...) to Section 9(1) exists in evidence.relationships; the 9(5) node only has defined_term edges to 'personal data'/'prescribed' definitions, despite text mentioning 'sub-sections (1) and (3)'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(5) -> Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 77748,
+      "verdict": "fail",
+      "reason": "No relationship exists in evidence.relationships from Section 9(5) (id 895ad832...) to Section 9(3); its only outgoing edge is a defined_term edge to the 'personal data' definition, despite text mentioning 'sub-sections (1) and (3)'.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 80876,
+      "verdict": "pass",
+      "reason": "relationships include edge from Schedule Penalties Table Header to Section 9, relationType explicit_reference, exactMention 'section 9'; row 3 cell text '...children under section 9' matches source row 3.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "definition_exact_text",
+      "kind": "expected",
+      "inputCharacters": 76281,
+      "verdict": "pass",
+      "reason": "Section 2 clause (f) node in evidence.inventory contains '(f) 'child' means an individual who has not completed the age of eighteen year[s];' with boundaryStatus 'complete', matching the expected definition text after line-wrap normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "schedule_row_3",
+      "kind": "expected",
+      "inputCharacters": 87161,
+      "verdict": "pass",
+      "reason": "Table row '3.' contains breach text 'Breach in observance of additional obligations in relation to children under section 9.' and penalty 'May extend to two hundred crore rupees.' on page 21, matching expected exactly.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "exception_scope",
+      "kind": "expected",
+      "inputCharacters": 76287,
+      "verdict": "fail",
+      "reason": "No saved-output fact states that 9(4) or 9(5) concerns duties under 9(1) and 9(3) only, nor that 9(2) is not disapplied. detailedProvisions is empty; inventory 9(4)/9(5) nodes are unannotated textStarts, and relationships contain no exemption/exception edges from these subsections.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "forbidden:Treating Section 9(4) as exempting the harm restriction in Section 9(2).",
+      "kind": "forbidden",
+      "inputCharacters": 80733,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence shows 9(4) exempting sub-sections (1) and (3) only; no provision claims 9(4) exempts 9(2).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "forbidden:Treating an unissued class/purpose notification as already applicable.",
+      "kind": "forbidden",
+      "inputCharacters": 84666,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No saved-output node or edge treats s.9(4)/s.9(5) class/purpose notifications as applicable; s.9(4) node text is verbatim 'shall not be applicable... as may be prescribed' and s.9(5) is correctly framed as a future Central Government notification power.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "source_text",
+      "kind": "expected",
+      "inputCharacters": 35232,
+      "verdict": "pass",
+      "reason": "Section 8(7) present in evidence.inventory (id c969f13b) with points (a)/(b) and Illustrations (I)/(II); textStarts match expected passage including 'erase personal data, upon the Data Principal withdrawing her consent or as...'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "actor",
+      "kind": "expected",
+      "inputCharacters": 32977,
+      "verdict": "pass",
+      "reason": "Full Section 8 text repeatedly names 'A Data Fiduciary shall...' as the responsible/obligated actor across sub-sections (1)-(10); Section 8(1) evidence text matches the source passage verbatim.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "trigger",
+      "kind": "expected",
+      "inputCharacters": 33063,
+      "verdict": "pass",
+      "reason": "Section 8(7)(a) node captured: 'erase personal data, upon the Data Principal withdrawing her consent or as...' includes withdrawal of consent and reasonable assumption the specified purpose is no longer served; relationship edges for 'specified purpose' defined_term present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "condition",
+      "kind": "expected",
+      "inputCharacters": 33022,
+      "verdict": "fail",
+      "reason": "No saved output contains any condition about retention being an exception to erasure; detailedProvisions is empty and inventory textStarts omit sub-section (7) text, so expected fact is unsupported.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "duties",
+      "kind": "expected",
+      "inputCharacters": 33069,
+      "verdict": "pass",
+      "reason": "Point (a) present in inventory (724fceb...) complete, text 'erase personal data, upon the Data Principal withdrawing her consent or as...' matching 8(7)(a).",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "section_8_8",
+      "kind": "expected",
+      "inputCharacters": 33060,
+      "verdict": "pass",
+      "reason": "Section 8(8) node (id 797b71c4..., parentLabel 'Section 8') present, boundaryStatus complete, status candidate; point (b) textStart includes 'for such time p...' showing prescribed-period wording, and no numeric period appears anywhere in the saved output, matching the Act PDF's prescription-only rule.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "relationship_to_section_6",
+      "kind": "expected",
+      "inputCharacters": 33115,
+      "verdict": "fail",
+      "reason": "No Section 6 nodes appear in evidence.inventory, detailedProvisions is empty (candidateCount 0), and no relationships involve 6(4) withdrawal or 6(6) cessation-with-exceptions; clause:6(4)/clause:6(6) sources are wholly absent from saved output.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "forbidden:Inventing a fixed retention period from this Act PDF.",
+      "kind": "forbidden",
+      "inputCharacters": 38541,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No invented retention period: Section 8(7) states retention varies by law ('unless retention is necessary for compliance with any law'); 'ten years' appears only verbatim in Illustration (II), matching source, not asserted as an Act-imposed fixed period.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "forbidden:Ignoring the legal-retention exception.",
+      "kind": "forbidden",
+      "inputCharacters": 38854,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved Section 8(7) text includes 'unless retention is necessary for compliance with any law for the time being in force' and Illustration II expressly preserves retention for legal compliance, so the exception is captured, not ignored.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-01",
+      "field": "forbidden:Calling erasure and cessation identical duties.",
+      "kind": "forbidden",
+      "inputCharacters": 38747,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved evidence inventory/detailedProvisions only capture Section 8(7) erasure text; clauses 6(4)/6(6) cessation provisions are absent and no output asserts erasure equals cessation, so no such claim appears.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "source_text",
+      "kind": "expected",
+      "inputCharacters": 64073,
+      "verdict": "needs_review",
+      "reason": "Section 17 node (id 5ebf...24c6) exists in evidence.inventory with boundaryStatus 'complete', but evidence.detailedProvisions is empty and only the textStart chapeau is shown; clauses (a)-(f), Explanation, and Illustration text are not evidenced in saved output, so completeness of the expected passage cannot be confirmed.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "conditional_scope",
+      "kind": "expected",
+      "inputCharacters": 61894,
+      "verdict": "needs_review",
+      "reason": "Section 17 node (5ebf5371...) exists with boundaryStatus 'complete' and chapeau text 'provisions of Chapter II, except sub-sections (1) and (5) of section 8... shall not apply', supporting that only listed 17(1)(a)-(f) situations qualify; however detailedProvisions is empty and only textStart (chapeau) is shown, so clauses (a)-(f) content cannot be fully verified from saved output.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "removed_within_scope",
+      "kind": "expected",
+      "inputCharacters": 61914,
+      "verdict": "pass",
+      "reason": "Section 17 node label/textStart: 'Chapter II, except sub-sections (1) and (5) of section 8, and those of Chapter III and section 16 shall not apply'; edges Section17->Section8 and Section17->Section16 with relationType exception_to_exemption exist.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "retained",
+      "kind": "expected",
+      "inputCharacters": 61863,
+      "verdict": "pass",
+      "reason": "Inventory subsection 07930bf7 under Section 8 with textStart '8.(1) A Data Fiduciary shall, irrespective of any agreement to the contrary', boundaryStatus complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "subsection_3_dependency",
+      "kind": "expected",
+      "inputCharacters": 61923,
+      "verdict": "fail",
+      "reason": "No saved-output provision captures s.17(3) text requiring Central Government notification; relationships only contain s.17 references to s.8/12/16; s.17(3) notification content absent.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "forbidden:Saying all Section 8 duties disappear under 17(1).",
+      "kind": "forbidden",
+      "inputCharacters": 67377,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No output text asserts this; Section 17 edge records exactMention 'The provisions of Chapter II, except sub-sections (1) and (5) of section 8...' preserving the carve-out for 8(1) and 8(5), so the claim is absent.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-02",
+      "field": "forbidden:Combining 17(1) and 17(3) into one unconditional exemption.",
+      "kind": "forbidden",
+      "inputCharacters": 69351,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved evidence keeps 17(1) conditional ('shall not apply where-') with clauses (a)-(f), and 17(3) as a separate notification-dependent exemption for notified Data Fiduciaries; no merged unconditional exemption present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "source_text",
+      "kind": "expected",
+      "inputCharacters": 77907,
+      "verdict": "needs_review",
+      "reason": "Section 33 node (f1289c42...) exists but is cross_chunk/needs_review with textStart only; detailedProvisions is empty so full (1)-(2) verbatim text is not evidenced, though points (a)-(g) nodes are complete.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "conditions",
+      "kind": "expected",
+      "inputCharacters": 71898,
+      "verdict": "fail",
+      "reason": "expected includes three conditions: Board concludes inquiry, breach is significant, opportunity of being heard. The complete relevant saved evidence (inventory, detailedProvisions=[], detailSelection) contains no representation of these conditions anywhere; detailedProvisions is empty and no node or edge captures section 33(1) conditions. Omission.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "modality",
+      "kind": "expected",
+      "inputCharacters": 76481,
+      "verdict": "pass",
+      "reason": "Inventory Section 33 textStart shows Board may 'impose such monetary penalty specified in the Schedule' after hearing; schedule table rows state maxima per breach category ('May extend to two hundred and fifty crore rupees', etc.), confirming permissive modality and maximum-cap values.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "determination_factors",
+      "kind": "expected",
+      "inputCharacters": 71963,
+      "verdict": "pass",
+      "reason": "All seven factors present in evidence.inventory: point nodes '(a) the nature, gravity and duration of the breach' (e8b84cb4...), '(b) the type and nature of the personal data affected by the breach' (986ebae8...), '(c) repetitive nature of the breach' (dcab32fc...), '(d) whether the person... has realised a gain or avoided any loss' (87c2a349...), '(e) whether the person took any action to mitigate the effects and consequences of the breach' (ddcca9a8...), '(f) whether the monetary penalty to be",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "row_1_ceiling",
+      "kind": "expected",
+      "inputCharacters": 76405,
+      "verdict": "pass",
+      "reason": "Schedule table row 2 column 2 in evidence.tables records 'May extend to two hundred and fifty crore rupees.' for the section 8(5) security safeguards breach, matching the expected 250 crore rupees ceiling.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "row_2_ceiling",
+      "kind": "expected",
+      "inputCharacters": 76405,
+      "verdict": "pass",
+      "reason": "Schedule table row 3 cell col 2 (page 21) reads 'May extend to two hundred crore rupees.' for breach of notice obligation under s.8(6), matching expected 200 crore rupees.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "forbidden:Automatic fine whenever a breach occurs.",
+      "kind": "forbidden",
+      "inputCharacters": 77679,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Penalties section requires Board inquiry determining breach as 'significant' plus opportunity of being heard before penalty; output section 33 text is conditional, not automatic.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "forbidden:Confusing row 1 and row 2 ceilings.",
+      "kind": "forbidden",
+      "inputCharacters": 82226,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved table row 2 correctly shows 250 crore rupees for security-safeguard breach under s.8(5) and row 3 shows 200 crore rupees for notice-of-breach under s.8(6); ceilings are correctly distinguished, no confusion present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S4-03",
+      "field": "forbidden:Omitting the hearing or significant-breach condition.",
+      "kind": "forbidden",
+      "inputCharacters": 74615,
+      "verdict": "fail",
+      "found": true,
+      "reason": "DetailedProvisions Section 33 includes both conditions: 'breach ... is significant' and 'after giving the person an opportunity of being heard' — wait, forbidden requires their OMISSION; both ARE present, so claim not found.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "field": "legal_source",
+      "kind": "expected",
+      "inputCharacters": 86766,
+      "verdict": "pass",
+      "reason": "Inventory subsection 88adc714... boundaryStatus complete, textStart matches 8(5) security safeguards text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "field": "analysis_checks",
+      "kind": "expected",
+      "inputCharacters": 81378,
+      "verdict": "fail",
+      "reason": "No analysis answer exists in saved output: detailedProvisions is empty and only a textStart snippet of Section 8(5) appears in inventory; no safeguards answer or proof examples (security policy, control records, incident prevention evidence) are present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "field": "unknown_from_act_alone",
+      "kind": "expected",
+      "inputCharacters": 81048,
+      "verdict": "pass",
+      "reason": "Saved output contains no notification hour or prescribed form claim; inventory includes s.8(6) 'in such form and manner as may be prescribed' and s.8(8) 'time period as may be prescribed' only, correctly leaving specifics unresolved.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "field": "forbidden:Demanding a 72-hour deadline from this Act PDF.",
+      "kind": "forbidden",
+      "inputCharacters": 88494,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No deadline, including any 72-hour period, appears anywhere in saved evidence for section 8, section 33, the Schedule rows, or the breach definition; breach intimation under s.8(6) is 'as may be prescribed' with no fixed hours.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-01",
+      "field": "forbidden:Treating an example proof document as a statutory form required by the Act.",
+      "kind": "forbidden",
+      "inputCharacters": 89787,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No saved-output node, relationship, or annotation treats an example proof document (illustration document) as a statutory form required by the Act; illustrations only appear within Section 8 text verbatim.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "legal_source",
+      "kind": "expected",
+      "inputCharacters": 51635,
+      "verdict": "pass",
+      "reason": "Inventory node 07930bf7... (Section 8 subsection) is boundaryStatus=complete and textStart begins '8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary ', matching the expected text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "mandatory_from_act",
+      "kind": "expected",
+      "inputCharacters": 51145,
+      "verdict": "pass",
+      "reason": "Inventory contains Section 8(2) node 'A Data Fiduciary may engage, appoint, use or otherwise involve a Data Pro...' (valid contract requirement) and 8(1) node 'irrespective of any agreement to the contrary...' (fiduciary responsibility), both status complete/candidate",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "drafting_guidance",
+      "kind": "expected",
+      "inputCharacters": 51125,
+      "verdict": "fail",
+      "reason": "No drafting guidance present in saved evidence: detailedProvisions is empty and inventory/relationships contain only statutory node and edge data; no recommendations about fiduciary/processor roles, processing activity, or security/breach cooperation appear.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "preference_label",
+      "kind": "expected",
+      "inputCharacters": 51096,
+      "verdict": "fail",
+      "reason": "No saved-output node, inventory entry, or relationship carries any label stating extra contract terms are drafting recommendations or sourced to another instrument; Section 8(2) text contains only the valid-contract requirement with no annotation.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "forbidden:Presenting a GDPR Article 28-style list as mandatory wording of this Act.",
+      "kind": "forbidden",
+      "inputCharacters": 55829,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No GDPR references or Article 28-style mandatory list appear in evidence inventory, detailedProvisions, or relationships; Section 8 text matches Act wording.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S5-02",
+      "field": "forbidden:Claiming a contract removes the Data Fiduciary's Section 8(1) responsibility.",
+      "kind": "forbidden",
+      "inputCharacters": 59228,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved Section 8(1) text states responsibility applies 'irrespective of any agreement to the contrary'; nothing in detailedProvisions/inventory asserts a contract removes this responsibility.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "query",
+      "kind": "expected",
+      "inputCharacters": 80990,
+      "verdict": "pass",
+      "reason": "Evidence inventory covers all needed provisions: s2(u) personal data breach definition, full s8 incl. 8(4), 8(5) security safeguards and 8(6) breach notice, s33(1)-(2) penalty factors, Schedule rows for ₹250 crore (8(5)) and ₹200 crore (8(6)). Relationships include defined_term edges to 'personal data breach' and schedule-row references to s8. All query components directly supported.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "direct_retrieval",
+      "kind": "expected",
+      "inputCharacters": 85647,
+      "verdict": "needs_review",
+      "reason": "Section 8(5) node 88adc71 (complete), Section 8(6) node e5053e2 (complete), Schedule row 1 (table row 2, Rs. 250 crore) and row 2 (table row 3, Rs. 200 crore) all present. But Section 33(1) node f1289c4 is boundaryStatus=cross_chunk/needs_review, so 33(1) text completeness is not established; 4 of 5 passages covered.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "context_expansion",
+      "kind": "expected",
+      "inputCharacters": 81012,
+      "verdict": "pass",
+      "reason": "Inventory contains definition node f2d72078... labeled '( u ) 'personal data breach' means...' with boundaryStatus complete, candidate; matches source ref definition:breach text.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "source_text",
+      "kind": "expected",
+      "inputCharacters": 86765,
+      "verdict": "pass",
+      "reason": "Node id 88adc714... subsection Section 8(5), boundaryStatus complete, textStart begins '8. ( 5 ) A Data Fiduciary shall protect personal data... reasonable security safeguards to prevent personal data breach'",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "forbidden:Returning Schedule row 7 alone as if it were the specific security penalty.",
+      "kind": "forbidden",
+      "inputCharacters": 91072,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved tables include row 1 'security safeguards... sub-section (5) of section 8' with 'May extend to two hundred and fifty crore rupees' alongside row 7; no output presents row 7 (fifty crore) as the security penalty.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-01",
+      "field": "forbidden:Reporting a direct Section 8(5) to Schedule citation that is absent from source.",
+      "kind": "forbidden",
+      "inputCharacters": 93730,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Source Section 8(5) contains no citation to the Schedule; schedule rows only reference Section 8(5) via the penalty table, not vice versa.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "query",
+      "kind": "expected",
+      "inputCharacters": 12975,
+      "verdict": "pass",
+      "reason": "query asking whether all DPDPA duties are in force",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "source_identity",
+      "kind": "expected",
+      "inputCharacters": 13006,
+      "verdict": "fail",
+      "reason": "Saved evidence contains no source identity hash or fingerprint; inventory node IDs exist but none equals 4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15, so identity is unsupported/omitted.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "this_pdf_supports",
+      "kind": "expected",
+      "inputCharacters": 13028,
+      "verdict": "pass",
+      "reason": "Inventory contains complete Section 1(2) subsection node (id 5b9dcda2..., boundaryStatus complete) whose text begins 'It shall come into force on such date as the Central Government may, by n…', matching source '(2)… different dates may be appointed for different provisions'. Supported.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "this_pdf_does_not_supply",
+      "kind": "expected",
+      "inputCharacters": 13019,
+      "verdict": "pass",
+      "reason": "Evidence contains only Section 1(2) commencement-enabling text; no later notification dates or consolidated commencement status appear anywhere in inventory or relationships, so the documented absence holds.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "retrieval_action",
+      "kind": "expected",
+      "inputCharacters": 13073,
+      "verdict": "fail",
+      "reason": "No commencement notifications located and no explicit return that current status cannot be established from this PDF; evidence only contains section 1(2) commencement text and spurious external_reference edges.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "forbidden:Answering that every duty commenced when this Gazette Act was published.",
+      "kind": "forbidden",
+      "inputCharacters": 15169,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved output contains no such answer; Section 1(2) text states commencement is on a Central Government notified date, not publication, and no contrary claim appears.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S6-02",
+      "field": "forbidden:Silently using model memory without identifying an external versioned source.",
+      "kind": "forbidden",
+      "inputCharacters": 13001,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Evidence records external_reference entries with status external_unavailable, showing source identification is used, not silent model memory.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "user_question",
+      "kind": "expected",
+      "inputCharacters": 76969,
+      "verdict": "pass",
+      "reason": "Evidence correctly anchors s.8(6) notice obligation 'in such form and manner as may be prescribed' and Schedule row 2 penalty; no hour limit exists in the Act and the extraction supports that answer.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "answer_requirements",
+      "kind": "expected",
+      "inputCharacters": 77177,
+      "verdict": "fail",
+      "reason": "Saved output contains only an inventory of nodes/edges; no answer text exists. Node for 8(6) (e5053e28...) appears in inventory, but requirement 'Cite Section 8(6)' in the answer is not supported by any saved answer content.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "supporting_exact_text",
+      "kind": "expected",
+      "inputCharacters": 77097,
+      "verdict": "pass",
+      "reason": "Inventory node e5053e28... (Section 8 subsection) textStart '( 6 ) In the event of a personal data breach, the Data Fiduciary shall give the ' with boundaryStatus complete matches the expected exact text after line-wrap normalization.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "answer_status",
+      "kind": "expected",
+      "inputCharacters": 76970,
+      "verdict": "fail",
+      "reason": "No answer_status field or statement that an additional current legal source is needed for a numeric deadline appears in saved evidence; evidence contains only inventory, relationships, and section/table text, so expected status is unsupported.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "forbidden:Inventing a 72-hour deadline from this Act PDF.",
+      "kind": "forbidden",
+      "inputCharacters": 82768,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved evidence for section 8(6) and Schedule row 2 contains no 72-hour deadline; breach intimation is only 'in such form and manner as may be prescribed', so no such invention appears in output.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-01",
+      "field": "forbidden:Claiming no deadline exists anywhere in Indian law merely because this PDF has no hour count.",
+      "kind": "forbidden",
+      "inputCharacters": 82635,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved output contains no statement asserting absence of deadlines in Indian law; no such claim appears in evidence.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "field": "scenario",
+      "kind": "expected",
+      "inputCharacters": 51083,
+      "verdict": "needs_review",
+      "reason": "detailedProvisions is empty; only textStart snippets exist. No saved fact that a contract exists in this scenario, nor that safeguards/breach-cooperation evidence is absent; s.8(2)/(5)/(6) appear only as bare inventory nodes.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "field": "required_conclusion",
+      "kind": "expected",
+      "inputCharacters": 51161,
+      "verdict": "fail",
+      "reason": "No conclusion about contract validity under Section 8(2) appears anywhere in saved evidence; detailedProvisions is empty and no analysis output is present.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "field": "supporting_exact_text",
+      "kind": "expected",
+      "inputCharacters": 51999,
+      "verdict": "needs_review",
+      "reason": "Inventory node 07930bf (Section 8(1), boundaryStatus complete) has textStart '8. ( 1 ) A Data Fiduciary shall, irrespective of any agreement to the contrary ' matching the expected opening verbatim, but detailedProvisions is empty (fullTextOmittedForOtherNodes) so the full subsection text cannot be confirmed.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "field": "forbidden:Concluding the processor contract transfers all statutory responsibility.",
+      "kind": "forbidden",
+      "inputCharacters": 59405,
+      "verdict": "pass",
+      "found": false,
+      "reason": "Saved Section 8(1) text states the Data Fiduciary remains responsible irrespective of any agreement to the contrary, including for processing by a Data Processor; no statement of transferred responsibility exists.",
+      "attempts": 1
+    },
+    {
+      "caseId": "DPDPA-S7-02",
+      "field": "forbidden:Calling absence of supplied evidence proof of a real-world breach.",
+      "kind": "forbidden",
+      "inputCharacters": 57822,
+      "verdict": "pass",
+      "found": false,
+      "reason": "No statement in the saved evidence asserts that absence of evidence proves a real-world breach; the evidence contains only section text, inventory and relationships.",
+      "attempts": 1
+    }
+  ]
+}

@@ -1,0 +1,1708 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_019",
+    "coreRange": {
+      "start": 41897,
+      "end": 44522
+    },
+    "coreSourceIds": [
+      "src:312",
+      "src:313",
+      "src:314",
+      "src:315",
+      "src:316",
+      "src:317",
+      "src:318",
+      "src:319",
+      "src:320",
+      "src:321",
+      "src:322",
+      "src:323",
+      "src:324",
+      "src:325",
+      "src:326",
+      "src:327",
+      "src:328",
+      "src:329",
+      "src:330",
+      "src:331",
+      "src:332",
+      "src:333"
+    ],
+    "contextBefore": [
+      "src:311"
+    ],
+    "contextAfter": [
+      "src:334"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:311",
+        "start": 41807,
+        "end": 41896,
+        "text": "Disqualifications for appointment and continuation as Chairperson and  Members of  Board.",
+        "group": "native:16",
+        "headings": [
+          "CHAPTER VI"
+        ]
+      },
+      {
+        "id": "src:312",
+        "start": 41897,
+        "end": 41945,
+        "text": "Resignation by  Members and filling  of vacancy.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:313",
+        "start": 41946,
+        "end": 41968,
+        "text": "Proceedings of  Board.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:314",
+        "start": 41969,
+        "end": 42003,
+        "text": "Officers  and employees  of Board.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:315",
+        "start": 42004,
+        "end": 42049,
+        "text": "Members and officers  to  be public servants.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:316",
+        "start": 42050,
+        "end": 42052,
+        "text": "14",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:317",
+        "start": 42053,
+        "end": 42087,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:318",
+        "start": 42088,
+        "end": 42097,
+        "text": "[PART II-",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:319",
+        "start": 42098,
+        "end": 42120,
+        "text": "Powers of Chairperson.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:320",
+        "start": 42121,
+        "end": 42156,
+        "text": "Procedure  to be followed by Board.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:321",
+        "start": 42157,
+        "end": 42222,
+        "text": "26. The Chairperson shall exercise the following powers, namely:-",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:322",
+        "start": 42223,
+        "end": 42328,
+        "text": "( a ) general superintendence and giving direction in respect of all administrative matters of the Board;",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:323",
+        "start": 42329,
+        "end": 42466,
+        "text": "( b ) authorise any officer of the Board to scrutinise any intimation, complaint, reference or correspondence addressed to the Board; and",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:324",
+        "start": 42467,
+        "end": 42652,
+        "text": "( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:325",
+        "start": 42653,
+        "end": 42663,
+        "text": "CHAPTER VI",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:326",
+        "start": 42664,
+        "end": 42719,
+        "text": "POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:327",
+        "start": 42720,
+        "end": 42843,
+        "text": "27. ( 1 ) The Board shall exercise and perform the following powers and functions, namely:- Powers and functions  of Board.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:328",
+        "start": 42844,
+        "end": 43122,
+        "text": "( a ) on receipt of an intimation of personal data breach under sub-section ( 6 ) of section 8, to direct any urgent remedial or mitigation measures in the event of a personal data breach, and to inquire into such personal data breach and impose penalty as provided in this Act;",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:329",
+        "start": 43123,
+        "end": 43566,
+        "text": "( b ) on a complaint made by a Data Principal in respect of a personal data breach or a breach in observance by a Data Fiduciary of its obligations in relation to her personal data or the exercise of her rights under the provisions of this Act, or on a reference made to it by the Central Government or a State Government, or in compliance of the directions of any court, to inquire into such breach and impose penalty as provided in this Act;",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:330",
+        "start": 43567,
+        "end": 43795,
+        "text": "( c ) on a complaint made by a Data Principal in respect of a breach in observance by a Consent Manager of its obligations in relation to her personal data, to inquire into such breach and impose penalty as provided in this Act;",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:331",
+        "start": 43796,
+        "end": 43970,
+        "text": "( d ) on receipt of an intimation of breach of any condition of registration of a Consent Manager, to inquire into such breach and impose penalty as provided in this Act; and",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:332",
+        "start": 43971,
+        "end": 44206,
+        "text": "( e ) on a reference made by the Central Government in respect of the breach in observance of the provisions of sub-section ( 2 ) of section 37 by an intermediary, to inquire into such breach and impose penalty as provided in this Act.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:333",
+        "start": 44207,
+        "end": 44522,
+        "text": "( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.",
+        "group": "native:17",
+        "headings": [
+          "CHAPTER VII",
+          "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+        ]
+      },
+      {
+        "id": "src:334",
+        "start": 44523,
+        "end": 44927,
+        "text": "( 3 ) The Board may, on a representation made to it by a person affected by a direction issued under sub-section ( 1 )  or  sub-section ( 2 ),  or  on  a  reference made by the Central Government, modify, suspend, withdraw or cancel such direction and, while doing so, impose such conditions as it may deem fit, subject to which the modification, suspension, withdrawal or cancellation shall have effect.",
+        "group": "native:18",
+        "headings": [
+          "CHAPTER VIII",
+          "PENALTIES AND ADJUDICATION"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER VII",
+      "APPEAL AND ALTERNATE DISPUTE RESOLUTION"
+    ],
+    "inputHash": "b70d828e722b05ead237ef0ed6052f45271c881bc5275c483f8b731105c221e5",
+    "assembledInputCharacters": 7425,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 41897,
+          "end": 41945
+        },
+        "code": {
+          "start": 41897,
+          "end": 41945
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/308",
+            "physicalPage": 13,
+            "start": 41897,
+            "end": 41945,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 559.14,
+                  "r": 531.08,
+                  "b": 521.32,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  48
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_002",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 41946,
+          "end": 41968
+        },
+        "code": {
+          "start": 41946,
+          "end": 41968
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/309",
+            "physicalPage": 13,
+            "start": 41946,
+            "end": 41968,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 373.31,
+                  "r": 528.76,
+                  "b": 355.22,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  22
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_003",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 41969,
+          "end": 42003
+        },
+        "code": {
+          "start": 41969,
+          "end": 42003
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/310",
+            "physicalPage": 13,
+            "start": 41969,
+            "end": 42003,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 187.48,
+                  "r": 533.41,
+                  "b": 159.52,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_004",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42004,
+          "end": 42049
+        },
+        "code": {
+          "start": 42004,
+          "end": 42049
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/311",
+            "physicalPage": 13,
+            "start": 42004,
+            "end": 42049,
+            "provenance": [
+              {
+                "page_no": 13,
+                "bbox": {
+                  "l": 486.92,
+                  "t": 133.21,
+                  "r": 533.41,
+                  "b": 95.38,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  45
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_005",
+        "kind": "unit",
+        "type": "page-number",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42050,
+          "end": 42087
+        },
+        "code": {
+          "start": 42050,
+          "end": 42052
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/312",
+            "physicalPage": 14,
+            "start": 42050,
+            "end": 42052,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 123.18,
+                  "t": 774.57,
+                  "r": 133.64,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  2
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/313",
+            "physicalPage": 14,
+            "start": 42053,
+            "end": 42087,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_006",
+        "kind": "unit",
+        "type": "publication-running-head",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42053,
+          "end": 42087
+        },
+        "code": {
+          "start": 42053,
+          "end": 42087
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/313",
+            "physicalPage": 14,
+            "start": 42053,
+            "end": 42087,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 202.21,
+                  "t": 774.57,
+                  "r": 393.96,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  34
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_007",
+        "kind": "unit",
+        "type": "publication-part-marker",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42088,
+          "end": 42097
+        },
+        "code": {
+          "start": 42088,
+          "end": 42097
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/314",
+            "physicalPage": 14,
+            "start": 42088,
+            "end": 42097,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 438.12,
+                  "t": 774.57,
+                  "r": 478.79,
+                  "b": 764.71,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  9
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "page_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_008",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42098,
+          "end": 42120
+        },
+        "code": {
+          "start": 42098,
+          "end": 42120
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/315",
+            "physicalPage": 14,
+            "start": 42098,
+            "end": 42120,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 744.97,
+                  "r": 102.27,
+                  "b": 725.24,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  22
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_009",
+        "kind": "unit",
+        "type": "unknown-heading",
+        "category": "structure",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 42121,
+          "end": 42156
+        },
+        "code": {
+          "start": 42121,
+          "end": 42156
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/316",
+            "physicalPage": 14,
+            "start": 42121,
+            "end": 42156,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 180.9,
+                  "r": 108.08,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  35
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_010",
+        "kind": "unit",
+        "type": "section",
+        "category": "provision",
+        "parent": null,
+        "children": [
+          "seg_011",
+          "seg_012",
+          "seg_013"
+        ],
+        "span": {
+          "start": 42157,
+          "end": 42652
+        },
+        "code": {
+          "start": 42157,
+          "end": 42222
+        },
+        "title": {
+          "start": 42098,
+          "end": 42120
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/317",
+            "physicalPage": 14,
+            "start": 42157,
+            "end": 42222,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 746.62,
+                  "r": 412.55,
+                  "b": 735.11,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  65
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/318",
+            "physicalPage": 14,
+            "start": 42223,
+            "end": 42328,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 728.53,
+                  "r": 477.63,
+                  "b": 705.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  105
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/319",
+            "physicalPage": 14,
+            "start": 42329,
+            "end": 42466,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 697.28,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  137
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/320",
+            "physicalPage": 14,
+            "start": 42467,
+            "end": 42652,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 667.68,
+                  "r": 477.63,
+                  "b": 633.14,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  185
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_011",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_010",
+        "children": [],
+        "span": {
+          "start": 42223,
+          "end": 42328
+        },
+        "code": {
+          "start": 42223,
+          "end": 42328
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/318",
+            "physicalPage": 14,
+            "start": 42223,
+            "end": 42328,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 728.53,
+                  "r": 477.63,
+                  "b": 705.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  105
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_012",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_010",
+        "children": [],
+        "span": {
+          "start": 42329,
+          "end": 42466
+        },
+        "code": {
+          "start": 42329,
+          "end": 42466
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/319",
+            "physicalPage": 14,
+            "start": 42329,
+            "end": 42466,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 697.28,
+                  "r": 477.63,
+                  "b": 674.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  137
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_013",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_010",
+        "children": [],
+        "span": {
+          "start": 42467,
+          "end": 42652
+        },
+        "code": {
+          "start": 42467,
+          "end": 42652
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/320",
+            "physicalPage": 14,
+            "start": 42467,
+            "end": 42652,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 667.68,
+                  "r": 477.63,
+                  "b": 633.14,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  185
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_014",
+        "kind": "unit",
+        "type": "chapter",
+        "category": "structure",
+        "parent": null,
+        "children": [
+          "seg_015",
+          "seg_016"
+        ],
+        "span": {
+          "start": 42653,
+          "end": 42719
+        },
+        "code": {
+          "start": 42653,
+          "end": 42663
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/321",
+            "physicalPage": 14,
+            "start": 42653,
+            "end": 42663,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 269.61,
+                  "t": 626.57,
+                  "r": 325.39,
+                  "b": 615.05,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  10
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/322",
+            "physicalPage": 14,
+            "start": 42664,
+            "end": 42719,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 175.48,
+                  "t": 608.48,
+                  "r": 419.52,
+                  "b": 596.96,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  55
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_015",
+        "kind": "unit",
+        "type": "chapter-heading",
+        "category": "structure",
+        "parent": "seg_014",
+        "children": [],
+        "span": {
+          "start": 42664,
+          "end": 42719
+        },
+        "code": {
+          "start": 42664,
+          "end": 42719
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/322",
+            "physicalPage": 14,
+            "start": 42664,
+            "end": 42719,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 175.48,
+                  "t": 608.48,
+                  "r": 419.52,
+                  "b": 596.96,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  55
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_016",
+        "kind": "unit",
+        "type": "section",
+        "category": "provision",
+        "parent": "seg_014",
+        "children": [
+          "seg_017",
+          "seg_018",
+          "seg_019",
+          "seg_020",
+          "seg_021",
+          "seg_022"
+        ],
+        "span": {
+          "start": 42720,
+          "end": 44522
+        },
+        "code": {
+          "start": 42720,
+          "end": 42843
+        },
+        "title": {
+          "start": 42121,
+          "end": 42156
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/323",
+            "physicalPage": 14,
+            "start": 42720,
+            "end": 42843,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 590.39,
+                  "r": 477.63,
+                  "b": 560.79,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  123
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/324",
+            "physicalPage": 14,
+            "start": 42844,
+            "end": 43122,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 560.79,
+                  "r": 477.63,
+                  "b": 513.09,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  278
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/325",
+            "physicalPage": 14,
+            "start": 43123,
+            "end": 43566,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 506.52,
+                  "r": 477.63,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  443
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/326",
+            "physicalPage": 14,
+            "start": 43567,
+            "end": 43795,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 393.04,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  228
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/327",
+            "physicalPage": 14,
+            "start": 43796,
+            "end": 43970,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 386.46,
+                  "r": 477.63,
+                  "b": 350.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  174
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/328",
+            "physicalPage": 14,
+            "start": 43971,
+            "end": 44206,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 343.71,
+                  "r": 477.63,
+                  "b": 309.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  235
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/329",
+            "physicalPage": 14,
+            "start": 44207,
+            "end": 44522,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 302.59,
+                  "r": 477.63,
+                  "b": 254.9,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  315
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_017",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 42844,
+          "end": 43122
+        },
+        "code": {
+          "start": 42844,
+          "end": 43122
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/324",
+            "physicalPage": 14,
+            "start": 42844,
+            "end": 43122,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 560.79,
+                  "r": 477.63,
+                  "b": 513.09,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  278
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_018",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 43123,
+          "end": 43566
+        },
+        "code": {
+          "start": 43123,
+          "end": 43566
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/325",
+            "physicalPage": 14,
+            "start": 43123,
+            "end": 43566,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 506.52,
+                  "r": 477.63,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  443
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_019",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 43567,
+          "end": 43795
+        },
+        "code": {
+          "start": 43567,
+          "end": 43795
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/326",
+            "physicalPage": 14,
+            "start": 43567,
+            "end": 43795,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 393.04,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  228
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_020",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 43796,
+          "end": 43970
+        },
+        "code": {
+          "start": 43796,
+          "end": 43970
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/327",
+            "physicalPage": 14,
+            "start": 43796,
+            "end": 43970,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 386.46,
+                  "r": 477.63,
+                  "b": 350.29,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  174
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_021",
+        "kind": "unit",
+        "type": "list-point",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 43971,
+          "end": 44206
+        },
+        "code": {
+          "start": 43971,
+          "end": 44206
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/328",
+            "physicalPage": 14,
+            "start": 43971,
+            "end": 44206,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 343.71,
+                  "r": 477.63,
+                  "b": 309.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  235
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_022",
+        "kind": "unit",
+        "type": "subsection",
+        "category": "provision",
+        "parent": "seg_016",
+        "children": [],
+        "span": {
+          "start": 44207,
+          "end": 44522
+        },
+        "code": {
+          "start": 44207,
+          "end": 44522
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/329",
+            "physicalPage": 14,
+            "start": 44207,
+            "end": 44522,
+            "provenance": [
+              {
+                "page_no": 14,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 302.59,
+                  "r": 477.63,
+                  "b": 254.9,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  315
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "Units src:312 through src:320 appear to be marginal headings (likely for sections preceding section 26) rendered without their numbered section text in this chunk; section numbers are unknown and the corresponding section bodies are not supplied.",
+      "src:316 ('14') and src:317/src:318 are gazette publication artifacts (page number, running head, part marker), retained as structure for review but carrying no legal scope.",
+      "CHAPTER VII / APPEAL AND ALTERNATE DISPUTE RESOLUTION appears only in headingContext, not in any core source unit, so it is not emitted as a structure.",
+      "Subsection (3) of section 27 (src:334) is supplied only as context-after; its parentage to section 27 is inferred from the sub-section numbering pattern and is marked as pending confirmation."
+    ],
+    "warnings": [
+      "Subsection (3) at src:334 is context-after material; it is emitted as part of the continuation of section 27 (seg_016) which extends beyond the supplied core range (continuesAfterChunk=true).",
+      "Section 27 title anchor ('Procedure  to be followed by Board.' at src:320) is placed before the section number line and may belong to a preceding section; parentage is tentative.",
+      "Ignored 1 context-only segments in chunk_019"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Resignation by  Members and filling  of vacancy.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:312\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_001\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Resignation by  Members and filling  of vacancy.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:312\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Proceedings of  Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:313\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_002\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Proceedings of  Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:313\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Officers  and employees  of Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:314\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_003\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Officers  and employees  of Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:314\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Members and officers  to  be public servants.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:315\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_004\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Members and officers  to  be public servants.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:315\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"14\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:316\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_005\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"14\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:316\"\n        },\n        {\n          \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:317\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"page-number\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:317\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_006\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"THE GAZETTE OF INDIA EXTRAORDINARY\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:317\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"publication-running-head\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"[PART II-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:318\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_007\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"[PART II-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:318\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"publication-part-marker\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Powers of Chairperson.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:319\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_008\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Powers of Chairperson.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:319\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Procedure  to be followed by Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:320\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_009\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Procedure  to be followed by Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:320\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"unknown-heading\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"26. The Chairperson shall exercise the following powers, namely:-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:321\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_010\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"26. The Chairperson shall exercise the following powers, namely:-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:321\"\n        },\n        {\n          \"exactQuote\": \"( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:324\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Powers of Chairperson.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:319\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) general superintendence and giving direction in respect of all administrative matters of the Board;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:322\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_011\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_010\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) general superintendence and giving direction in respect of all administrative matters of the Board;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:322\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) authorise any officer of the Board to scrutinise any intimation, complaint, reference or correspondence addressed to the Board; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:323\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_012\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_010\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) authorise any officer of the Board to scrutinise any intimation, complaint, reference or correspondence addressed to the Board; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:323\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:324\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_013\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_010\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) authorise performance of any of the functions of the Board and conduct any of its proceedings, by an individual Member or groups of Members and to allocate proceedings among them.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:324\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"CHAPTER VI\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:325\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_014\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"CHAPTER VI\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:325\"\n        },\n        {\n          \"exactQuote\": \"POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:326\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"chapter\"\n    },\n    {\n      \"category\": \"structure\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:326\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_015\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_014\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"POWERS, FUNCTIONS AND PROCEDURE TO BE FOLLOWED BY BOARD\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:326\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"chapter-heading\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"27. ( 1 ) The Board shall exercise and perform the following powers and functions, namely:- Powers and functions  of Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:327\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_016\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_014\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"27. ( 1 ) The Board shall exercise and perform the following powers and functions, namely:- Powers and functions  of Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:327\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:333\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Procedure  to be followed by Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:320\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) on receipt of an intimation of personal data breach under sub-section ( 6 ) of section 8, to direct any urgent remedial or mitigation measures in the event of a personal data breach, and to inquire into such personal data breach and impose penalty as provided in this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:328\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_017\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) on receipt of an intimation of personal data breach under sub-section ( 6 ) of section 8, to direct any urgent remedial or mitigation measures in the event of a personal data breach, and to inquire into such personal data breach and impose penalty as provided in this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:328\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) on a complaint made by a Data Principal in respect of a personal data breach or a breach in observance by a Data Fiduciary of its obligations in relation to her personal data or the exercise of her rights under the provisions of this Act, or on a reference made to it by the Central Government or a State Government, or in compliance of the directions of any court, to inquire into such breach and impose penalty as provided in this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:329\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_018\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) on a complaint made by a Data Principal in respect of a personal data breach or a breach in observance by a Data Fiduciary of its obligations in relation to her personal data or the exercise of her rights under the provisions of this Act, or on a reference made to it by the Central Government or a State Government, or in compliance of the directions of any court, to inquire into such breach and impose penalty as provided in this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:329\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) on a complaint made by a Data Principal in respect of a breach in observance by a Consent Manager of its obligations in relation to her personal data, to inquire into such breach and impose penalty as provided in this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:330\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_019\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) on a complaint made by a Data Principal in respect of a breach in observance by a Consent Manager of its obligations in relation to her personal data, to inquire into such breach and impose penalty as provided in this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:330\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( d ) on receipt of an intimation of breach of any condition of registration of a Consent Manager, to inquire into such breach and impose penalty as provided in this Act; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:331\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_020\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( d ) on receipt of an intimation of breach of any condition of registration of a Consent Manager, to inquire into such breach and impose penalty as provided in this Act; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:331\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( e ) on a reference made by the Central Government in respect of the breach in observance of the provisions of sub-section ( 2 ) of section 37 by an intermediary, to inquire into such breach and impose penalty as provided in this Act.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:332\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_021\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( e ) on a reference made by the Central Government in respect of the breach in observance of the provisions of sub-section ( 2 ) of section 37 by an intermediary, to inquire into such breach and impose penalty as provided in this Act.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:332\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:333\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_022\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) The Board may, for the effective discharge of its functions under the provisions of this  Act, after giving the person concerned an opportunity of being heard and after recording reasons in writing, issue such directions as it may consider necessary to such person, who shall be bound to comply with the same.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:333\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    },\n    {\n      \"category\": \"provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) The Board may, on a representation made to it by a person affected by a direction issued under sub-section ( 1 )  or  sub-section ( 2 ),  or  on  a  reference made by the Central Government, modify, suspend, withdraw or cancel such direction and, while doing so, impose such conditions as it may deem fit, subject to which the modification, suspension, withdrawal or cancellation shall have effect.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:334\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_023\",\n      \"kind\": \"unit\",\n      \"parent\": \"seg_016\",\n      \"parentHint\": \"seg_016\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) The Board may, on a representation made to it by a person affected by a direction issued under sub-section ( 1 )  or  sub-section ( 2 ),  or  on  a  reference made by the Central Government, modify, suspend, withdraw or cancel such direction and, while doing so, impose such conditions as it may deem fit, subject to which the modification, suspension, withdrawal or cancellation shall have effect.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:334\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": null,\n      \"type\": \"subsection\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"Units src:312 through src:320 appear to be marginal headings (likely for sections preceding section 26) rendered without their numbered section text in this chunk; section numbers are unknown and the corresponding section bodies are not supplied.\",\n    \"src:316 ('14') and src:317/src:318 are gazette publication artifacts (page number, running head, part marker), retained as structure for review but carrying no legal scope.\",\n    \"CHAPTER VII / APPEAL AND ALTERNATE DISPUTE RESOLUTION appears only in headingContext, not in any core source unit, so it is not emitted as a structure.\",\n    \"Subsection (3) of section 27 (src:334) is supplied only as context-after; its parentage to section 27 is inferred from the sub-section numbering pattern and is marked as pending confirmation.\"\n  ]\n  ,\"warnings\": [\n    \"Subsection (3) at src:334 is context-after material; it is emitted as part of the continuation of section 27 (seg_016) which extends beyond the supplied core range (continuesAfterChunk=true).\",\n    \"Section 27 title anchor ('Procedure  to be followed by Board.' at src:320) is placed before the section number line and may belong to a preceding section; parentage is tentative.\"\n  ]\n}",
+          "reasoning_content": "Extract structures: sections 26, 27 with clauses; chapter VII heading? Actually core includes src:312-334. Chapter VI heading src:325-326. Sections 26 (src:321-324), 27 (327-334, but (3) is context after — section 27 extends beyond chunk: continuesAfterChunk since src:334 is context-after role). Wait src:334 role is \"a\" (context after). So section 27's last part within core ends at (2) src:333; (3) is in context after → section 27 continues after chunk. Mark continuations. Also earlier \"sections\" src:312-321 are short heading-like lines (\"Resignation...\", \"Proceedings of Board\") — those are marginal headings from gazette. I'll emit as observed headings for sections (likely sections 22-25 etc.) with unknown labels; but instructions: extract only structures whose boundary anchors include core units. These are core units. Emit as unknown/heading items. Chapter VI heading src:325-326 core. Chapter VII is headingContext only, not core—do not emit.\n\nReferences: sub-section (6) of section 8; section 37 sub-section (2); \"this Act\".",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951691,
+    "id": "chatcmpl-6910c74e-518f-4e39-883d-1b4cdec9a344",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 5599,
+      "prompt_tokens": 1359,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 6958
+    }
+  },
+  "usage": {
+    "inputTokens": 1359,
+    "outputTokens": 5599,
+    "totalTokens": 6958
+  },
+  "finishReason": "stop",
+  "durationMs": 106864
+}

@@ -1,0 +1,490 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_010",
+    "coreRange": {
+      "start": 7836,
+      "end": 12957
+    },
+    "coreSourceIds": [
+      "src:93",
+      "src:94",
+      "src:95",
+      "src:96",
+      "src:97",
+      "src:98",
+      "src:99",
+      "src:100",
+      "src:101",
+      "src:102",
+      "src:103",
+      "src:104",
+      "src:105",
+      "src:106",
+      "src:107",
+      "src:108",
+      "src:109",
+      "src:110",
+      "src:111",
+      "src:112",
+      "src:113",
+      "src:114",
+      "src:115",
+      "src:116",
+      "src:117",
+      "src:118",
+      "src:119",
+      "src:120",
+      "src:121",
+      "src:122",
+      "src:123",
+      "src:124"
+    ],
+    "contextBefore": [
+      "src:92"
+    ],
+    "contextAfter": [
+      "src:125"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:92",
+        "start": 7671,
+        "end": 7835,
+        "text": "X, an individual, while blogging her views, has publicly made available her personal data on social media. In such case, the provisions of this Act shall not apply.",
+        "group": "native:7",
+        "headings": [
+          "CHAPTER II",
+          "OBLIGATIONS OF DATA FIDUCIARY"
+        ]
+      },
+      {
+        "id": "src:93",
+        "start": 7836,
+        "end": 7846,
+        "text": "CHAPTER II",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:94",
+        "start": 7847,
+        "end": 7876,
+        "text": "OBLIGATIONS OF DATA FIDUCIARY",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:95",
+        "start": 7877,
+        "end": 8061,
+        "text": "4. ( 1 ) A person may process the personal data of a Data Principal only in accordance with the provisions of this Act and for a lawful purpose,- Grounds for processing personal  data.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:96",
+        "start": 8062,
+        "end": 8122,
+        "text": "( a ) for which the Data Principal has given her consent; or",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:97",
+        "start": 8123,
+        "end": 8157,
+        "text": "( b ) for certain legitimate uses.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:98",
+        "start": 8158,
+        "end": 8288,
+        "text": "( 2 ) For the purposes of this section, the expression 'lawful purpose' means any purpose which is not expressly forbidden by law.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:99",
+        "start": 8289,
+        "end": 8485,
+        "text": "5. ( 1 ) Every request made to a Data Principal under section 6 for consent shall be accompanied or preceded by a notice given by the Data Fiduciary to the Data Principal, informing her, - Notice.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:100",
+        "start": 8486,
+        "end": 8573,
+        "text": "( i ) the personal data and the purpose for which the same is proposed to be processed;",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:101",
+        "start": 8574,
+        "end": 8685,
+        "text": "( ii ) the manner in which she may exercise her rights under sub-section ( 4 ) of section 6 and section 13; and",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:102",
+        "start": 8686,
+        "end": 8808,
+        "text": "( iii ) the manner in which the Data Principal may make a complaint to the Board, in such manner and as may be prescribed.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:103",
+        "start": 8809,
+        "end": 8822,
+        "text": "Illustration.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:104",
+        "start": 8823,
+        "end": 9243,
+        "text": "X, an individual, opens a bank account using the mobile app or website of Y, a bank. To complete the Know-Your-Customer requirements under law for opening of bank account, X opts for processing of her personal data by Y in a live, video-based customer identification process. Y shall accompany or precede the request for the personal data with notice to X, describing the personal data and the purpose of its processing.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:105",
+        "start": 9244,
+        "end": 9380,
+        "text": "( 2 ) Where a Data Principal has given her consent for the processing of her personal data before the date of commencement of this Act,-",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:106",
+        "start": 9381,
+        "end": 9506,
+        "text": "( a ) the Data Fiduciary shall, as soon as it is reasonably practicable, give to the Data Principal a notice informing her,--",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:107",
+        "start": 9507,
+        "end": 9596,
+        "text": "( i ) the  personal  data  and  the  purpose  for  which  the  same  has  been processed;",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:108",
+        "start": 9597,
+        "end": 9708,
+        "text": "( ii ) the manner in which she may exercise her rights under sub-section ( 4 ) of section 6 and section 13; and",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:109",
+        "start": 9709,
+        "end": 9831,
+        "text": "( iii ) the manner in which the Data Principal may make a complaint to the Board, in such manner and as may be prescribed.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:110",
+        "start": 9832,
+        "end": 9833,
+        "text": "5",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:111",
+        "start": 9834,
+        "end": 9841,
+        "text": "SEC. 1]",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:112",
+        "start": 9842,
+        "end": 9876,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:113",
+        "start": 9877,
+        "end": 10002,
+        "text": "( b ) the Data Fiduciary may continue to process the personal data until and unless the Data Principal withdraws her consent.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:114",
+        "start": 10003,
+        "end": 10016,
+        "text": "Illustration.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:115",
+        "start": 10017,
+        "end": 10423,
+        "text": "X, an individual, gave her consent to the processing of her personal data for an online shopping app or website operated by Y, an e-commerce service provider, before the commencement of this Act. Upon commencement of the Act, Y shall, as soon as practicable, give through email, in-app notification or other effective method information to X, describing the personal data and the purpose of its processing.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:116",
+        "start": 10424,
+        "end": 10651,
+        "text": "( 3 ) The Data Fiduciary shall give the Data Principal the option to access the contents of the notice referred to in sub-sections ( 1 ) and ( 2 ) in English or any language specified in the Eighth Schedule to the Constitution.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:117",
+        "start": 10652,
+        "end": 10987,
+        "text": "6. ( 1 )  The  consent  given  by  the  Data  Principal  shall  be  free,  specific,  informed, unconditional and unambiguous with a clear affirmative action, and shall signify an agreement to the processing of her personal data for the specified purpose and be limited to such personal data as is necessary for such specified purpose.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:118",
+        "start": 10988,
+        "end": 11001,
+        "text": "Illustration.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:119",
+        "start": 11002,
+        "end": 11457,
+        "text": "X, an individual, downloads Y, a telemedicine app. Y requests the consent of X for ( i ) the processing of her personal data for making available telemedicine services, and ( ii ) accessing her mobile phone contact list, and X signifies her consent to both. Since phone contact list is not necessary for making available telemedicine services, her consent shall be limited to the processing of her personal data for making available telemedicine services.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:120",
+        "start": 11458,
+        "end": 11706,
+        "text": "( 2 )  Any part of consent referred in sub-section ( 1 ) which constitutes an infringement of the provisions of this  Act or the rules made thereunder or any other law for the time being in force shall be invalid to the extent of such infringement.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:121",
+        "start": 11707,
+        "end": 11720,
+        "text": "Illustration.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:122",
+        "start": 11721,
+        "end": 12119,
+        "text": "X, an individual, buys an insurance policy using the mobile app or website of Y , an insurer. She gives to Y her consent for ( i ) the processing of her personal data by Y for the purpose of issuing the policy, and ( ii ) waiving her right to file a complaint to the Data Protection Board of India. Part ( ii ) of the consent , relating to waiver of her right to file a complaint, shall be invalid.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:123",
+        "start": 12120,
+        "end": 12696,
+        "text": "( 3 )  Every request for consent under the provisions of this Act or the rules made thereunder shall be presented to the Data Principal in a clear and plain language, giving her the  option  to  access  such  request  in  English  or  any  language  specified  in  the  Eighth Schedule to the Constitution and providing the contact details of a Data Protection Officer, where applicable, or of any other person authorised by the Data Fiduciary to respond to any communication from the Data Principal for the purpose of exercise of  her rights under the provisions of this Act.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:124",
+        "start": 12697,
+        "end": 12957,
+        "text": "( 4 ) Where consent given by the Data Principal is the basis of processing of personal data, such Data Principal shall have the right to withdraw her consent at any time, with the ease of doing so being comparable to the ease with which such consent was given.",
+        "group": "native:8",
+        "headings": [
+          "CHAPTER II",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:125",
+        "start": 12958,
+        "end": 13194,
+        "text": "( 5 ) The consequences of the withdrawal referred to in sub-section ( 4 ) shall be borne by the Data Principal, and such withdrawal shall not affect the legality of processing of the personal data based on consent before its withdrawal.",
+        "group": "native:9",
+        "headings": [
+          "CHAPTER II",
+          "Illustrations."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER II",
+      "Illustration."
+    ],
+    "inputHash": "98ec159d2f6440d5526f254250d0fcfd785e1a48975625ee85d178eb07a92190",
+    "assembledInputCharacters": 9971,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": []
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [],\n  \"unresolvedItems\": []\n   , \"warnings\": []\n}",
+          "reasoning_content": null,
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950655,
+    "id": "chatcmpl-4c2509b8-9c11-451a-b8e5-5a525128ad08",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 32,
+      "prompt_tokens": 1948,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 1980
+    }
+  },
+  "usage": {
+    "inputTokens": 1948,
+    "outputTokens": 32,
+    "totalTokens": 1980
+  },
+  "finishReason": "stop",
+  "durationMs": 1754
+}

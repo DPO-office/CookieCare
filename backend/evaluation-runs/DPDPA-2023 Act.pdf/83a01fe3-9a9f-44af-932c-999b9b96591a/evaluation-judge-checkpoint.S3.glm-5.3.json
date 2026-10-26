@@ -1,0 +1,1136 @@
+{
+  "schemaVersion": "focused-graph-checkpoint/2.0",
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "caseId": null,
+  "judgeModel": "glm-5.3",
+  "updatedAt": "2026-10-25T19:49:10.829Z",
+  "calls": [
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8",
+      "kind": "expected",
+      "inputCharacters": 44032,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(1)",
+      "kind": "expected",
+      "inputCharacters": 41026,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(2)",
+      "kind": "expected",
+      "inputCharacters": 37234,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)",
+      "kind": "expected",
+      "inputCharacters": 39926,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(4)",
+      "kind": "expected",
+      "inputCharacters": 39685,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 40063,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 39788,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 41350,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)",
+      "kind": "expected",
+      "inputCharacters": 39904,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(9)",
+      "kind": "expected",
+      "inputCharacters": 40098,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(10)",
+      "kind": "expected",
+      "inputCharacters": 40571,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(11)",
+      "kind": "expected",
+      "inputCharacters": 40205,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)(a)",
+      "kind": "expected",
+      "inputCharacters": 39644,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3)(b)",
+      "kind": "expected",
+      "inputCharacters": 39598,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)(a)",
+      "kind": "expected",
+      "inputCharacters": 40584,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7)(b)",
+      "kind": "expected",
+      "inputCharacters": 40162,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)(a)",
+      "kind": "expected",
+      "inputCharacters": 40044,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8)(b)",
+      "kind": "expected",
+      "inputCharacters": 40163,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(3) shared consequence",
+      "kind": "expected",
+      "inputCharacters": 40424,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(7) illustrations",
+      "kind": "expected",
+      "inputCharacters": 40489,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "node:Section 8(8) shared time condition",
+      "kind": "expected",
+      "inputCharacters": 40045,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(8) -> Section 8(7)(a)",
+      "kind": "expected",
+      "inputCharacters": 34469,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(11) -> Section 8",
+      "kind": "expected",
+      "inputCharacters": 34679,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(5) -> Section 2(u)",
+      "kind": "expected",
+      "inputCharacters": 35479,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "edge:Section 8(6) -> Section 2(u)",
+      "kind": "expected",
+      "inputCharacters": 34602,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "inherited-condition:Section 8(3)(a),Section 8(3)(b)",
+      "kind": "expected",
+      "inputCharacters": 34004,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "inherited-condition:Section 8(7)(a),Section 8(7)(b)",
+      "kind": "expected",
+      "inputCharacters": 34050,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "paragraph_count",
+      "kind": "expected",
+      "inputCharacters": 33833,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "lettered_points",
+      "kind": "expected",
+      "inputCharacters": 33940,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Eleven unrelated rules without Section 8 parent context.",
+      "kind": "forbidden",
+      "inputCharacters": 39891,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Treating a defined-term link as a printed section citation.",
+      "kind": "forbidden",
+      "inputCharacters": 39570,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-01",
+      "field": "forbidden:Attaching the page-8 continuation of Section 8(7)(a) to Section 8(8).",
+      "kind": "forbidden",
+      "inputCharacters": 39518,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33",
+      "kind": "expected",
+      "inputCharacters": 81439,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(1)",
+      "kind": "expected",
+      "inputCharacters": 81732,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)",
+      "kind": "expected",
+      "inputCharacters": 76517,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(a)",
+      "kind": "expected",
+      "inputCharacters": 73462,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(b)",
+      "kind": "expected",
+      "inputCharacters": 73589,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(c)",
+      "kind": "expected",
+      "inputCharacters": 69371,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(d)",
+      "kind": "expected",
+      "inputCharacters": 73754,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(e)",
+      "kind": "expected",
+      "inputCharacters": 75021,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(f)",
+      "kind": "expected",
+      "inputCharacters": 78923,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Section 33(2)(g)",
+      "kind": "expected",
+      "inputCharacters": 76089,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:The Schedule",
+      "kind": "expected",
+      "inputCharacters": 80077,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 1",
+      "kind": "expected",
+      "inputCharacters": 76131,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 2",
+      "kind": "expected",
+      "inputCharacters": 76110,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 3",
+      "kind": "expected",
+      "inputCharacters": 79565,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 4",
+      "kind": "expected",
+      "inputCharacters": 76083,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 5",
+      "kind": "expected",
+      "inputCharacters": 79382,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 6",
+      "kind": "expected",
+      "inputCharacters": 80383,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "node:Schedule row 7",
+      "kind": "expected",
+      "inputCharacters": 79457,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Section 33(1) -> The Schedule",
+      "kind": "expected",
+      "inputCharacters": 74069,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Section 33(2) -> Section 33(1)",
+      "kind": "expected",
+      "inputCharacters": 71156,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 1 -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 73025,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 2 -> Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 73025,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 73000,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 4 -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 73003,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 5 -> Section 15",
+      "kind": "expected",
+      "inputCharacters": 73003,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 6 -> Section 32",
+      "kind": "expected",
+      "inputCharacters": 73003,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "edge:Schedule row 6 -> Section 28",
+      "kind": "expected",
+      "inputCharacters": 73126,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 1 -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 73206,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 2 -> Section 8(6)",
+      "kind": "expected",
+      "inputCharacters": 73198,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 73197,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 4 -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 73203,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 5 -> Section 15",
+      "kind": "expected",
+      "inputCharacters": 73199,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 32",
+      "kind": "expected",
+      "inputCharacters": 73217,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 6 -> Section 28",
+      "kind": "expected",
+      "inputCharacters": 73203,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "path:Section 33(1) -> The Schedule -> Schedule row 7",
+      "kind": "expected",
+      "inputCharacters": 73143,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Inventing a direct printed citation from Section 8(5) to the Schedule.",
+      "kind": "forbidden",
+      "inputCharacters": 79487,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Calling a Schedule ceiling an automatically imposed penalty.",
+      "kind": "forbidden",
+      "inputCharacters": 75126,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-02",
+      "field": "forbidden:Conflating Schedule row 1 security and row 2 breach notice.",
+      "kind": "forbidden",
+      "inputCharacters": 79408,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17",
+      "kind": "expected",
+      "inputCharacters": 77352,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)",
+      "kind": "expected",
+      "inputCharacters": 75270,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)",
+      "kind": "expected",
+      "inputCharacters": 65564,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(3)",
+      "kind": "expected",
+      "inputCharacters": 65109,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(4)",
+      "kind": "expected",
+      "inputCharacters": 68403,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(5)",
+      "kind": "expected",
+      "inputCharacters": 68661,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(a)",
+      "kind": "expected",
+      "inputCharacters": 72638,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(b)",
+      "kind": "expected",
+      "inputCharacters": 72832,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(c)",
+      "kind": "expected",
+      "inputCharacters": 72733,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(d)",
+      "kind": "expected",
+      "inputCharacters": 73238,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(e)",
+      "kind": "expected",
+      "inputCharacters": 72976,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f)",
+      "kind": "expected",
+      "inputCharacters": 72909,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)(a)",
+      "kind": "expected",
+      "inputCharacters": 72748,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(2)(b)",
+      "kind": "expected",
+      "inputCharacters": 72533,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f) explanation",
+      "kind": "expected",
+      "inputCharacters": 72428,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(1)(f) illustration",
+      "kind": "expected",
+      "inputCharacters": 73308,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "node:Section 17(3) explanation",
+      "kind": "expected",
+      "inputCharacters": 73447,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Chapter II",
+      "kind": "expected",
+      "inputCharacters": 66983,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Chapter III",
+      "kind": "expected",
+      "inputCharacters": 66986,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 16",
+      "kind": "expected",
+      "inputCharacters": 66983,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 8(1)",
+      "kind": "expected",
+      "inputCharacters": 67015,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1) -> Section 8(5)",
+      "kind": "expected",
+      "inputCharacters": 67015,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 5",
+      "kind": "expected",
+      "inputCharacters": 64444,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 8(3)",
+      "kind": "expected",
+      "inputCharacters": 64468,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 64468,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 10",
+      "kind": "expected",
+      "inputCharacters": 64455,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(3) -> Section 11",
+      "kind": "expected",
+      "inputCharacters": 64455,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 8(7)",
+      "kind": "expected",
+      "inputCharacters": 62849,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 12(3)",
+      "kind": "expected",
+      "inputCharacters": 62852,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(4) -> Section 12(2)",
+      "kind": "expected",
+      "inputCharacters": 62852,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(12)",
+      "kind": "expected",
+      "inputCharacters": 61852,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "edge:Section 17(1)(f) explanation -> Insolvency and Bankruptcy Code 2016 Section 3(14)",
+      "kind": "expected",
+      "inputCharacters": 61852,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "exemption_scope",
+      "kind": "expected",
+      "inputCharacters": 61864,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Exempting Section 8(1) or 8(5) through Section 17(1).",
+      "kind": "forbidden",
+      "inputCharacters": 67316,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Applying Section 17(3) to all startups without a notification.",
+      "kind": "forbidden",
+      "inputCharacters": 68795,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-03",
+      "field": "forbidden:Treating the different Section 17 subsections as one blanket exemption.",
+      "kind": "forbidden",
+      "inputCharacters": 72120,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9",
+      "kind": "expected",
+      "inputCharacters": 62971,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 61116,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(2)",
+      "kind": "expected",
+      "inputCharacters": 58804,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 57828,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(4)",
+      "kind": "expected",
+      "inputCharacters": 57785,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(5)",
+      "kind": "expected",
+      "inputCharacters": 61010,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "node:Section 9(1) explanation",
+      "kind": "expected",
+      "inputCharacters": 57822,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(1) -> Section 2(f)",
+      "kind": "expected",
+      "inputCharacters": 57246,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(4) -> Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 56737,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(4) -> Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 56737,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(5) -> Section 9(1)",
+      "kind": "expected",
+      "inputCharacters": 57036,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Section 9(5) -> Section 9(3)",
+      "kind": "expected",
+      "inputCharacters": 57036,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "edge:Schedule row 3 -> Section 9",
+      "kind": "expected",
+      "inputCharacters": 60164,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "definition_exact_text",
+      "kind": "expected",
+      "inputCharacters": 55569,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "schedule_row_3",
+      "kind": "expected",
+      "inputCharacters": 66708,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "exception_scope",
+      "kind": "expected",
+      "inputCharacters": 55575,
+      "verdict": "needs_review",
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "forbidden:Treating Section 9(4) as exempting the harm restriction in Section 9(2).",
+      "kind": "forbidden",
+      "inputCharacters": 60112,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    },
+    {
+      "caseId": "DPDPA-S3-04",
+      "field": "forbidden:Treating an unissued class/purpose notification as already applicable.",
+      "kind": "forbidden",
+      "inputCharacters": 64302,
+      "verdict": "needs_review",
+      "found": false,
+      "reason": "Judge error after 2 attempts: DO_MODEL_ACCESS_KEY is required for DigitalOcean inference",
+      "attempts": 2
+    }
+  ]
+}

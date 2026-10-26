@@ -1,0 +1,59 @@
+{
+  "runId": "83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "pipelineVersion": "kb-run-pdf-v1",
+  "pdfPath": "/Users/avinav/CookieCare/DPDPA-2023 Act.pdf",
+  "pdfFileName": "DPDPA-2023 Act.pdf",
+  "pdfSha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "sourceSha256": "4deb23981d3010c8225a2ff6149e7243dc2268455b299e283afebdd7b72a7d15",
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "byteSize": 182082,
+  "pageCount": 21,
+  "provider": "llm",
+  "model": "glm-5.3",
+  "datasetId": null,
+  "structureConfiguration": {
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "configurationVersion": "llm-digitalocean-v3",
+    "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377"
+  },
+  "outputDir": "/Users/avinav/CookieCare/backend/evaluation-runs/DPDPA-2023 Act.pdf/83a01fe3-9a9f-44af-932c-999b9b96591a",
+  "status": "completed",
+  "currentStage": "S3",
+  "stages": {
+    "S1": "completed",
+    "S2": "completed",
+    "S3": "completed"
+  },
+  "stageArtifacts": {
+    "S1": [
+      "original.pdf",
+      "stage-s1.json"
+    ],
+    "S2": [
+      "docling.json",
+      "source-map.json",
+      "stage-s2.json"
+    ],
+    "S3": [
+      "chunk-plan.json",
+      "structure-attempts.json",
+      "structure-response.json",
+      "structure-candidate.json",
+      "references.json",
+      "reconstruction.json",
+      "document-model.json",
+      "stage-s3.json",
+      "validation.json"
+    ]
+  },
+  "provisionCount": 267,
+  "relationshipCount": 316,
+  "tableCount": 2,
+  "validationStatus": "needs_review",
+  "validationIssueCount": 788,
+  "durationMs": 332743,
+  "createdAt": "2026-10-25T19:46:07.600Z"
+}

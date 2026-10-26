@@ -1,0 +1,2426 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024bb",
+    "coreRange": {
+      "start": 63558,
+      "end": 64135
+    },
+    "coreSourceIds": [
+      "src:477",
+      "src:478",
+      "src:479",
+      "src:480",
+      "src:481",
+      "src:482",
+      "src:483",
+      "src:484",
+      "src:485",
+      "src:486",
+      "src:487",
+      "src:488",
+      "src:489"
+    ],
+    "contextBefore": [
+      "src:476"
+    ],
+    "contextAfter": [
+      "src:490"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:476",
+        "start": 63550,
+        "end": 63557,
+        "text": "Sl. No.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:477",
+        "start": 63558,
+        "end": 63615,
+        "text": "Breach of provisions of this Act or rules made thereunder",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:478",
+        "start": 63616,
+        "end": 63623,
+        "text": "Penalty",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:479",
+        "start": 63624,
+        "end": 63627,
+        "text": "(1)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:480",
+        "start": 63628,
+        "end": 63631,
+        "text": "(2)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:481",
+        "start": 63632,
+        "end": 63635,
+        "text": "(3)",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:482",
+        "start": 63636,
+        "end": 63638,
+        "text": "1.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:483",
+        "start": 63639,
+        "end": 63800,
+        "text": "Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:484",
+        "start": 63801,
+        "end": 63850,
+        "text": "May extend to two hundred and fifty crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:485",
+        "start": 63851,
+        "end": 63853,
+        "text": "2.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:486",
+        "start": 63854,
+        "end": 64004,
+        "text": "Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:487",
+        "start": 64005,
+        "end": 64044,
+        "text": "May extend to two hundred crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:488",
+        "start": 64045,
+        "end": 64047,
+        "text": "3.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:489",
+        "start": 64048,
+        "end": 64135,
+        "text": "Breach in observance of additional obligations in relation to children under section 9.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:490",
+        "start": 64136,
+        "end": 64175,
+        "text": "May extend to two hundred crore rupees.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "2a6852e8ed9d330c1a1912e0fbb7113075391760c4fde4da0660624135bc4164",
+    "assembledInputCharacters": 4743
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "container",
+        "type": "table-column-header",
+        "category": "table",
+        "parent": "seg_003",
+        "children": [],
+        "span": {
+          "start": 63558,
+          "end": 64135
+        },
+        "code": {
+          "start": 63558,
+          "end": 63615
+        },
+        "title": {
+          "start": 63558,
+          "end": 63615
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63558,
+            "end": 63615,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63616,
+            "end": 63623,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63624,
+            "end": 63627,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64045,
+            "end": 64047,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_002",
+        "kind": "container",
+        "type": "table-column-header",
+        "category": "table",
+        "parent": "seg_003",
+        "children": [],
+        "span": {
+          "start": 63616,
+          "end": 64135
+        },
+        "code": {
+          "start": 63616,
+          "end": 63623
+        },
+        "title": {
+          "start": 63616,
+          "end": 63623
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63616,
+            "end": 63623,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63624,
+            "end": 63627,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64045,
+            "end": 64047,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_003",
+        "kind": "container",
+        "type": "table",
+        "category": "schedule",
+        "parent": null,
+        "children": [
+          "seg_001",
+          "seg_002",
+          "seg_004",
+          "seg_005",
+          "seg_006"
+        ],
+        "span": {
+          "start": 63558,
+          "end": 64135
+        },
+        "code": {
+          "start": 63558,
+          "end": 63615
+        },
+        "title": {
+          "start": 63558,
+          "end": 63615
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63558,
+            "end": 63615,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63616,
+            "end": 63623,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": true
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63624,
+            "end": 63627,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64045,
+            "end": 64047,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_004",
+        "kind": "container",
+        "type": "table-row-group",
+        "category": "table",
+        "parent": "seg_003",
+        "children": [
+          "seg_007"
+        ],
+        "span": {
+          "start": 63624,
+          "end": 63800
+        },
+        "code": {
+          "start": 63624,
+          "end": 63627
+        },
+        "title": {
+          "start": 63624,
+          "end": 63627
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63624,
+            "end": 63627,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_005",
+        "kind": "container",
+        "type": "table-row-group",
+        "category": "table",
+        "parent": "seg_003",
+        "children": [
+          "seg_008"
+        ],
+        "span": {
+          "start": 63628,
+          "end": 64004
+        },
+        "code": {
+          "start": 63628,
+          "end": 63631
+        },
+        "title": {
+          "start": 63628,
+          "end": 63631
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63628,
+            "end": 63631,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_006",
+        "kind": "container",
+        "type": "table-row-group",
+        "category": "table",
+        "parent": "seg_003",
+        "children": [
+          "seg_009"
+        ],
+        "span": {
+          "start": 63632,
+          "end": 64135
+        },
+        "code": {
+          "start": 63632,
+          "end": 63635
+        },
+        "title": {
+          "start": 63632,
+          "end": 63635
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63632,
+            "end": 63635,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63636,
+            "end": 63638,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63851,
+            "end": 63853,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64045,
+            "end": 64047,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_007",
+        "kind": "container",
+        "type": "table-row",
+        "category": "list-point",
+        "parent": "seg_004",
+        "children": [],
+        "span": {
+          "start": 63639,
+          "end": 63850
+        },
+        "code": {
+          "start": 63636,
+          "end": 63638
+        },
+        "title": {
+          "start": 63639,
+          "end": 63800
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63639,
+            "end": 63800,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63801,
+            "end": 63850,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 2,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_008",
+        "kind": "container",
+        "type": "table-row",
+        "category": "list-point",
+        "parent": "seg_005",
+        "children": [],
+        "span": {
+          "start": 63854,
+          "end": 64044
+        },
+        "code": {
+          "start": 63851,
+          "end": 63853
+        },
+        "title": {
+          "start": 63854,
+          "end": 64004
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 63854,
+            "end": 64004,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64005,
+            "end": 64044,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 3,
+            "column": 2,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_009",
+        "kind": "container",
+        "type": "table-row",
+        "category": "list-point",
+        "parent": "seg_006",
+        "children": [],
+        "span": {
+          "start": 64048,
+          "end": 64135
+        },
+        "code": {
+          "start": 64045,
+          "end": 64047
+        },
+        "title": {
+          "start": 64048,
+          "end": 64135
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/tables/1",
+            "physicalPage": 21,
+            "start": 64048,
+            "end": 64135,
+            "provenance": [
+              {
+                "page_no": 21,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 690.7,
+                  "r": 478.79,
+                  "b": 299.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 4,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:488 and src:489 form row 3 of the penalty table; its Penalty column entry ('May extend to two hundred crore rupees.') is supplied as context-after (src:490) and thus outside the core range. Row 3 is marked as continuing after the chunk and its penalty value is pending resolution.",
+      "The heading context indicates CHAPTER IX (MISCELLANEOUS); this appears to be a penalty Schedule/table associated with the Act (commonly the Schedule under section 33 of the DPDP Act, 2023), but the schedule title/number itself is not present in the supplied units; parent identification is provisional.",
+      "Rows for numbered items beyond row 3 (if any) may follow after src:490 but are not present in the supplied core range."
+    ],
+    "warnings": [
+      "Row 3's penalty amount lies in context-after (src:490) and is not emitted as a provision boundary; it is flagged as a continuation.",
+      "Column structure inferred from src:477 (breach description) and src:478 (Penalty); this is a tabular schedule, not a textual provision."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:477\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_001\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_003\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:477\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:477\"\n      },\n      \"type\": \"table-column-header\"\n    },\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Penalty\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:478\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_002\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_003\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Penalty\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:478\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Penalty\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:478\"\n      },\n      \"type\": \"table-column-header\"\n    },\n    {\n      \"category\": \"schedule\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:477\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_003\",\n      \"kind\": \"container\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:477\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach of provisions of this Act or rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:477\"\n      },\n      \"type\": \"table\"\n    },\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"(1)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:479\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_004\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_003\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"(1)\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:479\"\n        },\n        {\n          \"exactQuote\": \"Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:483\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"(1)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:479\"\n      },\n      \"type\": \"table-row-group\"\n    },\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"(2)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:480\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_005\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_003\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"(2)\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:480\"\n        },\n        {\n          \"exactQuote\": \"Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:486\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"(2)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:480\"\n      },\n      \"type\": \"table-row-group\"\n    },\n    {\n      \"category\": \"table\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"(3)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:481\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_006\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_003\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"(3)\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:481\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"(3)\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:481\"\n      },\n      \"type\": \"table-row-group\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"1.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:482\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_007\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_004\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:483\"\n        },\n        {\n          \"exactQuote\": \"May extend to two hundred and fifty crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:484\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach in observing the obligation of Data Fiduciary to take reasonable security safeguards to prevent personal data breach under sub-section ( 5 ) of section 8.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:483\"\n      },\n      \"type\": \"table-row\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"2.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:485\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_008\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_005\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:486\"\n        },\n        {\n          \"exactQuote\": \"May extend to two hundred crore rupees.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:487\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach in observing the obligation to give the Board or affected Data Principal notice of a personal data breach under sub-section ( 6 ) of section 8.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:486\"\n      },\n      \"type\": \"table-row\"\n    },\n    {\n      \"category\": \"list-point\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"3.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:488\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_009\",\n      \"kind\": \"container\",\n      \"parent\": \"seg_006\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        },\n        {\n          \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:489\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"Breach in observance of additional obligations in relation to children under section 9.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:489\"\n      },\n      \"type\": \"table-row\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:488 and src:489 form row 3 of the penalty table; its Penalty column entry ('May extend to two hundred crore rupees.') is supplied as context-after (src:490) and thus outside the core range. Row 3 is marked as continuing after the chunk and its penalty value is pending resolution.\",\n    \"The heading context indicates CHAPTER IX (MISCELLANEOUS); this appears to be a penalty Schedule/table associated with the Act (commonly the Schedule under section 33 of the DPDP Act, 2023), but the schedule title/number itself is not present in the supplied units; parent identification is provisional.\",\n    \"Rows for numbered items beyond row 3 (if any) may follow after src:490 but are not present in the supplied core range.\"\n  ]\n  ,\n  \"warnings\": [\n    \"Row 3's penalty amount lies in context-after (src:490) and is not emitted as a provision boundary; it is flagged as a continuation.\",\n    \"Column structure inferred from src:477 (breach description) and src:478 (Penalty); this is a tabular schedule, not a textual provision.\"\n  ]\n}",
+          "reasoning_content": "DPDP Act schedule table of penalties. Extract provisions.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952343,
+    "id": "chatcmpl-2e853a92-dd52-4c3b-af62-f03763656422",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 2490,
+      "prompt_tokens": 765,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 3255
+    }
+  },
+  "usage": {
+    "inputTokens": 765,
+    "outputTokens": 2490,
+    "totalTokens": 3255
+  },
+  "finishReason": "stop",
+  "durationMs": 45461
+}

@@ -1,0 +1,155 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_024bab",
+    "coreRange": {
+      "start": 63504,
+      "end": 63557
+    },
+    "coreSourceIds": [
+      "src:473",
+      "src:474",
+      "src:475",
+      "src:476"
+    ],
+    "contextBefore": [
+      "src:472"
+    ],
+    "contextAfter": [
+      "src:477"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:472",
+        "start": 63444,
+        "end": 63503,
+        "text": "'( j ) information which relates to personal information;'.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:473",
+        "start": 63504,
+        "end": 63506,
+        "text": "21",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:474",
+        "start": 63507,
+        "end": 63514,
+        "text": "SEC. 1]",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:475",
+        "start": 63515,
+        "end": 63549,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:476",
+        "start": 63550,
+        "end": 63557,
+        "text": "Sl. No.",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      },
+      {
+        "id": "src:477",
+        "start": 63558,
+        "end": 63615,
+        "text": "Breach of provisions of this Act or rules made thereunder",
+        "group": "native:20",
+        "headings": [
+          "CHAPTER IX",
+          "MISCELLANEOUS"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IX",
+      "MISCELLANEOUS"
+    ],
+    "inputHash": "519df60d6cbd3f3fcccd200e485805a3f57093de24bcd7437bc3c2cf15ca6452",
+    "assembledInputCharacters": 4128
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "None"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\": [], \"segments\": [], \"unresolvedItems\": [], \"warnings\": [\"None\"]}",
+          "reasoning_content": "The core units are odd: \"21\", \"SEC. 1]\", \"THE GAZETTE OF INDIA EXTRAORDINARY\", \"Sl. No.\" — this looks like a page header/gazette masthead fragment, not a provision. Extract as unresolved/unknown structure.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792952338,
+    "id": "chatcmpl-5e2dbd76-99a3-4c35-9ca3-88faa5848f12",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 83,
+      "prompt_tokens": 586,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 669
+    }
+  },
+  "usage": {
+    "inputTokens": 586,
+    "outputTokens": 83,
+    "totalTokens": 669
+  },
+  "finishReason": "stop",
+  "durationMs": 4679
+}

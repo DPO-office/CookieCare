@@ -1,0 +1,293 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_004",
+    "coreRange": {
+      "start": 401,
+      "end": 696
+    },
+    "coreSourceIds": [
+      "src:13",
+      "src:14",
+      "src:15"
+    ],
+    "contextBefore": [
+      "src:12"
+    ],
+    "contextAfter": [
+      "src:16"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:12",
+        "start": 286,
+        "end": 400,
+        "text": "ubZ fnYyh] 'kqØ okj] vxLr 11] 2023@Jko.k 20] 1945 ¼'kd½ NEW DELHI, FRIDAY, AUGUST 11, 2023/SRAVANA 20, 1945 (SAKA)",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:13",
+        "start": 401,
+        "end": 580,
+        "text": "bl Hkkx esa fHkUu i`\"B la[;k nh tkrh gS ftlls fd ;g vyx ladyu ds :i esa j[kk tk ldsA Separate paging is given to this Part in order that it may be filed as a separate compilation.",
+        "group": "native:3",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+        ]
+      },
+      {
+        "id": "src:14",
+        "start": 581,
+        "end": 633,
+        "text": "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+        "group": "native:3",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+        ]
+      },
+      {
+        "id": "src:15",
+        "start": 634,
+        "end": 696,
+        "text": "New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )",
+        "group": "native:3",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+        ]
+      },
+      {
+        "id": "src:16",
+        "start": 697,
+        "end": 850,
+        "text": "The following Act  of  Parliament  received  the  assent  of  the  President  on  the 11th August, 2023 and is hereby published for general information:-",
+        "group": "native:4",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)",
+          "THE DIGITAL PERSONAL DATA PROTECTION ACT, 2023"
+        ]
+      }
+    ],
+    "headingContext": [
+      "vlk/kkj.k",
+      "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+    ],
+    "inputHash": "84de13eda24f642fc93c232c62367862e781f8d35bd27af47a8bfa0d80a92668",
+    "assembledInputCharacters": 4528,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "unit",
+        "type": "explanatory_material",
+        "category": "provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 486,
+          "end": 580
+        },
+        "code": {
+          "start": 486,
+          "end": 580
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/9",
+            "physicalPage": 1,
+            "start": 486,
+            "end": 580,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 125.51,
+                  "t": 467.05,
+                  "r": 471.82,
+                  "b": 442.38,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  179
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_002",
+        "kind": "unit",
+        "type": "heading",
+        "category": "heading",
+        "parent": null,
+        "children": [
+          "seg_003"
+        ],
+        "span": {
+          "start": 581,
+          "end": 633
+        },
+        "code": {
+          "start": 581,
+          "end": 633
+        },
+        "title": {
+          "start": 581,
+          "end": 633
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/10",
+            "physicalPage": 1,
+            "start": 581,
+            "end": 633,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 201.04,
+                  "t": 421,
+                  "r": 393.96,
+                  "b": 393.04,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  52
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_003",
+        "kind": "unit",
+        "type": "notification",
+        "category": "notification",
+        "parent": "seg_002",
+        "children": [],
+        "span": {
+          "start": 634,
+          "end": 696
+        },
+        "code": {
+          "start": 634,
+          "end": 696
+        },
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/11",
+            "physicalPage": 1,
+            "start": 634,
+            "end": 696,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 228.94,
+                  "t": 383.18,
+                  "r": 477.63,
+                  "b": 373.31,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  62
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [],
+    "warnings": [
+      "seg_004 continues into content after the supplied core range (coreRange end 696); the Act text referenced is not included in this chunk.",
+      "Ignored 1 context-only segments in chunk_004"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"references\":[],\"segments\":[{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"Separate paging is given to this Part in order that it may be filed as a separate compilation.\",\"occurrence\":0,\"sourceId\":\"src:13\"},\"continuesAfterChunk\":false,\"id\":\"seg_001\",\"kind\":\"unit\",\"parent\":null,\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"Separate paging is given to this Part in order that it may be filed as a separate compilation.\",\"occurrence\":0,\"sourceId\":\"src:13\"}] , \"startsBeforeChunk\":false,\"titleAnchor\":null,\"type\":\"explanatory_material\"},{\"category\":\"heading\",\"codeAnchor\":{\"exactQuote\":\"MINISTRY OF LAW AND JUSTICE (Legislative Department)\",\"occurrence\":0,\"sourceId\":\"src:14\"},\"continuesAfterChunk\":false,\"id\":\"seg_002\",\"kind\":\"unit\",\"parent\":null,\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"MINISTRY OF LAW AND JUSTICE (Legislative Department)\",\"occurrence\":0,\"sourceId\":\"src:14\"}],\"startsBeforeChunk\":false,\"titleAnchor\":{\"exactQuote\":\"MINISTRY OF LAW AND JUSTICE (Legislative Department)\",\"occurrence\":0,\"sourceId\":\"src:14\"},\"type\":\"heading\"},{\"category\":\"notification\",\"codeAnchor\":{\"exactQuote\":\"New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )\",\"occurrence\":0,\"sourceId\":\"src:15\"},\"continuesAfterChunk\":false,\"id\":\"seg_003\",\"kind\":\"unit\",\"parent\":\"seg_002\",\"parentHint\":\"MINISTRY OF LAW AND JUSTICE (Legislative Department)\",\"sourceAnchors\":[{\"exactQuote\":\"New Delhi, the 11 th August, 2023/ Sravana 20 , 1945  ( Saka )\",\"occurrence\":0,\"sourceId\":\"src:15\"}],\"startsBeforeChunk\":false,\"titleAnchor\":null,\"type\":\"notification\"},{\"category\":\"provision\",\"codeAnchor\":{\"exactQuote\":\"The following Act  of  Parliament  received  the  assent of the  President  on  the 11th August, 2023 and is hereby published for general information:-\",\"occurrence\":0,\"sourceId\":\"src:16\"},\"continuesAfterChunk\":true,\"id\":\"seg_004\",\"kind\":\"unit\",\"parent\":null,\"parentHint\":null,\"sourceAnchors\":[{\"exactQuote\":\"The following Act  of  Parliament  received  the  assent of the  President  on  the 11th August, 2023 and is hereby published for general information:-\",\"occurrence\":0,\"sourceId\":\"src:16\"}],\"startsBeforeChunk\":false,\"titleAnchor\":null,\"type\":\"notification\"}],\"unresolvedItems\":[],\"warnings\":[\"seg_004 continues into content after the supplied core range (coreRange end 696); the Act text referenced is not included in this chunk.\"]}",
+          "reasoning_content": "Extract core structures: src:13 note (separate paging), src:14 heading, src:15 date/notification line. src:16 is context after, not emitted.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950419,
+    "id": "chatcmpl-0e64995e-f9c3-4354-827e-5ce20bb33467",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 704,
+      "completion_tokens": 673,
+      "prompt_tokens": 747,
+      "prompt_tokens_details": {
+        "cached_tokens": 704
+      },
+      "speed": null,
+      "total_tokens": 1420
+    }
+  },
+  "usage": {
+    "inputTokens": 747,
+    "outputTokens": 673,
+    "totalTokens": 1420
+  },
+  "finishReason": "stop",
+  "durationMs": 13204
+}

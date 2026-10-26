@@ -1,0 +1,376 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_003",
+    "coreRange": {
+      "start": 223,
+      "end": 400
+    },
+    "coreSourceIds": [
+      "src:7",
+      "src:8",
+      "src:9",
+      "src:10",
+      "src:11",
+      "src:12"
+    ],
+    "contextBefore": [
+      "src:6"
+    ],
+    "contextAfter": [
+      "src:13"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:6",
+        "start": 203,
+        "end": 222,
+        "text": "PART II - Section 1",
+        "group": "native:1",
+        "headings": [
+          "vlk/kkj.k",
+          "EXTRAORDINARY"
+        ]
+      },
+      {
+        "id": "src:7",
+        "start": 223,
+        "end": 244,
+        "text": "izkf/kdkj ls izdkf'kr",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:8",
+        "start": 245,
+        "end": 269,
+        "text": "PUBLISHED  BY  AUTHORITY",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:9",
+        "start": 270,
+        "end": 273,
+        "text": "lañ",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:10",
+        "start": 274,
+        "end": 277,
+        "text": "25]",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:11",
+        "start": 278,
+        "end": 285,
+        "text": "No. 25]",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:12",
+        "start": 286,
+        "end": 400,
+        "text": "ubZ fnYyh] 'kqØ okj] vxLr 11] 2023@Jko.k 20] 1945 ¼'kd½ NEW DELHI, FRIDAY, AUGUST 11, 2023/SRAVANA 20, 1945 (SAKA)",
+        "group": "native:2",
+        "headings": [
+          "vlk/kkj.k",
+          "PUBLISHED  BY  AUTHORITY"
+        ]
+      },
+      {
+        "id": "src:13",
+        "start": 401,
+        "end": 580,
+        "text": "bl Hkkx esa fHkUu i`\"B la[;k nh tkrh gS ftlls fd ;g vyx ladyu ds :i esa j[kk tk ldsA Separate paging is given to this Part in order that it may be filed as a separate compilation.",
+        "group": "native:3",
+        "headings": [
+          "vlk/kkj.k",
+          "MINISTRY OF LAW AND JUSTICE (Legislative Department)"
+        ]
+      }
+    ],
+    "headingContext": [
+      "vlk/kkj.k",
+      "PUBLISHED  BY  AUTHORITY"
+    ],
+    "inputHash": "e655cc383ba804fa3e2bf0b2ba3657d0ea7d293999884deb4fbb5c6effb3324e",
+    "assembledInputCharacters": 4359,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_003_masthead",
+        "kind": "unit",
+        "type": "unknown",
+        "category": "gazetteMasthead",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 223,
+          "end": 400
+        },
+        "code": null,
+        "title": {
+          "start": 223,
+          "end": 244
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/7",
+            "physicalPage": 1,
+            "start": 223,
+            "end": 244,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 262.64,
+                  "t": 544.34,
+                  "r": 333.53,
+                  "b": 527.89,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  21
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/8",
+            "physicalPage": 1,
+            "start": 245,
+            "end": 269,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 220.8,
+                  "t": 529.54,
+                  "r": 376.52,
+                  "b": 516.38,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  24
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "section_header",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/tables/0",
+            "physicalPage": 1,
+            "start": 270,
+            "end": 273,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 504.87,
+                  "r": 475.3,
+                  "b": 475.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/0",
+            "physicalPage": 1,
+            "start": 274,
+            "end": 277,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 504.87,
+                  "r": 475.3,
+                  "b": 475.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 0,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/0",
+            "physicalPage": 1,
+            "start": 278,
+            "end": 285,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 504.87,
+                  "r": 475.3,
+                  "b": 475.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 0,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          },
+          {
+            "itemRef": "#/tables/0",
+            "physicalPage": 1,
+            "start": 286,
+            "end": 400,
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 504.87,
+                  "r": 475.3,
+                  "b": 475.27,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "kind": "table_cell",
+            "blockType": "table_cell",
+            "extractionWarnings": [],
+            "row": 1,
+            "column": 1,
+            "rowSpan": 1,
+            "columnSpan": 1,
+            "isHeader": false
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "The core range (src:7-src:12) consists only of the Gazette of India masthead and date line ('PUBLISHED BY AUTHORITY', issue number 'No. 25', 'NEW DELHI, FRIDAY, AUGUST 11, 2023'). No statutory provision, section, article, rule, or schedule text begins in this chunk. Heading context 'vlk/kkj.k' (Gazette) and the context-after note about separate paging ('bl Hkkx esa fHkUu i`\"B la[;k nh tkrh gS...') indicate this is a gazette part header, not substantive legal content. The masthead is preserved as an unknown/gazetteMasthead structure for review; no legal provision can be extracted from this chunk.",
+      "No connection to 'PART II - Section 1' (src:6, context-before) can be established as a parent structure from this chunk alone; the Part header itself falls outside the core range and its content is not supplied."
+    ],
+    "warnings": [
+      "No provision-level legal text found in the core range; chunk_003 appears to be a gazette front matter/masthead fragment. Annotated uncertainty: high."
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"gazetteMasthead\",\n      \"codeAnchor\": null,\n      \"id\": \"seg_003_masthead\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"izkf/kdkj ls izdkf'kr\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:7\"\n        },\n        {\n          \"exactQuote\": \"ubZ fnYyh] 'kqØ okj] vxLr 11] 2023@Jko.k 20] 1945 ¼'kd½ NEW DELHI, FRIDAY, AUGUST 11, 2023/SRAVANA 20, 1945 (SAKA)\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:12\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"izkf/kdkj ls izdkf'kr\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:7\"\n      },\n      \"type\": \"unknown\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"The core range (src:7-src:12) consists only of the Gazette of India masthead and date line ('PUBLISHED BY AUTHORITY', issue number 'No. 25', 'NEW DELHI, FRIDAY, AUGUST 11, 2023'). No statutory provision, section, article, rule, or schedule text begins in this chunk. Heading context 'vlk/kkj.k' (Gazette) and the context-after note about separate paging ('bl Hkkx esa fHkUu i`\\\"B la[;k nh tkrh gS...') indicate this is a gazette part header, not substantive legal content. The masthead is preserved as an unknown/gazetteMasthead structure for review; no legal provision can be extracted from this chunk.\",\n    \"No connection to 'PART II - Section 1' (src:6, context-before) can be established as a parent structure from this chunk alone; the Part header itself falls outside the core range and its content is not supplied.\"\n  ],\n  \"warnings\": [\n    \"No provision-level legal text found in the core range; chunk_003 appears to be a gazette front matter/masthead fragment. Annotated uncertainty: high.\"\n  ]\n}",
+          "reasoning_content": "This is a gazette masthead fragment, no provisions. Heading context \"vlk/kkj.k\" = Gazette of India, \"PUBLISHED BY AUTHORITY\" is part of the masthead. Core units are masthead lines. No legal provisions; record as unresolved/uncertain? Best: emit one structure of type unknown/gazette header with anchors, or put in unresolvedItems. I'll emit a structure \"gazetteMasthead\" type unknown with anchors src:7 to src:12, plus unresolvedItems entry.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950406,
+    "id": "chatcmpl-36cb7aa3-2c85-4ec3-a6d8-5f03dccf6e97",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 704,
+      "completion_tokens": 648,
+      "prompt_tokens": 715,
+      "prompt_tokens_details": {
+        "cached_tokens": 704
+      },
+      "speed": null,
+      "total_tokens": 1363
+    }
+  },
+  "usage": {
+    "inputTokens": 715,
+    "outputTokens": 648,
+    "totalTokens": 1363
+  },
+  "finishReason": "stop",
+  "durationMs": 13651
+}

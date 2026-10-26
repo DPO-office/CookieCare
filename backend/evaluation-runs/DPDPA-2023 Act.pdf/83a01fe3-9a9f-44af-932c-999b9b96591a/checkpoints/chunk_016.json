@@ -1,0 +1,1438 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_016",
+    "coreRange": {
+      "start": 28879,
+      "end": 31340
+    },
+    "coreSourceIds": [
+      "src:231",
+      "src:232",
+      "src:233",
+      "src:234",
+      "src:235",
+      "src:236",
+      "src:237",
+      "src:238",
+      "src:239",
+      "src:240",
+      "src:241",
+      "src:242",
+      "src:243",
+      "src:244"
+    ],
+    "contextBefore": [
+      "src:230"
+    ],
+    "contextAfter": [
+      "src:245"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:230",
+        "start": 28821,
+        "end": 28878,
+        "text": "( a ) correct the inaccurate or misleading personal data;",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:231",
+        "start": 28879,
+        "end": 28927,
+        "text": "( b ) complete the incomplete personal data; and",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:232",
+        "start": 28928,
+        "end": 28959,
+        "text": "( c ) update the personal data.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:233",
+        "start": 28960,
+        "end": 29308,
+        "text": "( 3 ) A Data Principal shall make a request in such manner as may be prescribed to the Data Fiduciary for erasure of her personal data, and upon receipt of such a request, the Data Fiduciary shall erase her personal data unless retention of the same is necessary for the specified purpose or for compliance with any law for the time being in force.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:234",
+        "start": 29309,
+        "end": 29730,
+        "text": "13. ( 1 ) A Data Principal shall have the right to have readily available means of grievance redressal provided by a Data Fiduciary or Consent Manager in respect of any act or omission of such Data Fiduciary or Consent Manager regarding the performance of its obligations in relation to the personal data of such Data Principal or the exercise of her rights under the provisions of this Act and the rules made thereunder.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:235",
+        "start": 29731,
+        "end": 29950,
+        "text": "( 2 ) The Data Fiduciary or Consent Manager shall respond to any grievances referred to in sub-section ( 1 ) within such period as may be prescribed from the date of its receipt for all or any class of Data Fiduciaries.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:236",
+        "start": 29951,
+        "end": 30083,
+        "text": "( 3 )  The Data Principal shall exhaust the opportunity of redressing her grievance under this section before approaching the Board.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:237",
+        "start": 30084,
+        "end": 30412,
+        "text": "14. ( 1 ) A Data Principal shall have the right to nominate, in such manner as may be prescribed, any other individual, who shall, in the event of death or incapacity of the Data Principal, exercise the rights of the Data Principal in accordance with the provisions of this Act and the rules made thereunder. Right  to nominate.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:238",
+        "start": 30413,
+        "end": 30653,
+        "text": "( 2 ) For the purposes of this section, the expression 'incapacity' means inability to exercise the rights of the Data Principal under the provisions of this Act or the rules made thereunder due to unsoundness of mind or infirmity of  body.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:239",
+        "start": 30654,
+        "end": 30681,
+        "text": "Duties  of  Data Principal.",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:240",
+        "start": 30682,
+        "end": 30747,
+        "text": "15. A Data Principal shall perform the following duties, namely:-",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:241",
+        "start": 30748,
+        "end": 30889,
+        "text": "( a ) comply with the provisions of all applicable laws for the time being in force while exercising rights under the provisions of this Act;",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:242",
+        "start": 30890,
+        "end": 30998,
+        "text": "( b ) to ensure not to impersonate another person while providing her personal data for a specified purpose;",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:243",
+        "start": 30999,
+        "end": 31224,
+        "text": "( c )  to  ensure  not  to  suppress  any  material information while providing her personal data for any document, unique identifier, proof of identity or proof of address issued by the State or any of its instrumentalities;",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:244",
+        "start": 31225,
+        "end": 31340,
+        "text": "( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      },
+      {
+        "id": "src:245",
+        "start": 31341,
+        "end": 31522,
+        "text": "( e ) to furnish only such information as is verifiably authentic, while exercising the right to correction or erasure under the provisions of this Act or the rules made thereunder.",
+        "group": "native:15",
+        "headings": [
+          "CHAPTER V"
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IV",
+      "Illustration."
+    ],
+    "inputHash": "8b00cf708587c08e9a921e44649aa5c00b90d320dba50e47f4b0b981d2e5187f",
+    "assembledInputCharacters": 6835,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "list_12_2_b",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 28879,
+          "end": 28927
+        },
+        "code": {
+          "start": 28879,
+          "end": 28927
+        },
+        "title": {
+          "start": 28879,
+          "end": 28927
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/227",
+            "physicalPage": 10,
+            "start": 28879,
+            "end": 28927,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 601.9,
+                  "r": 354.44,
+                  "b": 590.39,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  48
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "List concluding in section 12(2) whose first item (a) lies in context-before range"
+      },
+      {
+        "id": "list_12_2_c",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 28928,
+          "end": 28959
+        },
+        "code": {
+          "start": 28928,
+          "end": 28959
+        },
+        "title": {
+          "start": 28928,
+          "end": 28959
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/228",
+            "physicalPage": 10,
+            "start": 28928,
+            "end": 28959,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 583.81,
+                  "r": 281.23,
+                  "b": 572.3,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  31
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "List concluding in section 12(2) whose first item (a) lies in context-before range"
+      },
+      {
+        "id": "section_12_3",
+        "kind": "item",
+        "type": "subSection",
+        "category": "section",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 28960,
+          "end": 29308
+        },
+        "code": {
+          "start": 28960,
+          "end": 29308
+        },
+        "title": {
+          "start": 28960,
+          "end": 29039
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/229",
+            "physicalPage": 10,
+            "start": 28960,
+            "end": 29308,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 565.72,
+                  "r": 477.63,
+                  "b": 519.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  348
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 12 of the Act (heading unit for section 12 lies outside supplied core range)"
+      },
+      {
+        "id": "section_13",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "section_13_2",
+          "section_13_3"
+        ],
+        "span": {
+          "start": 29309,
+          "end": 30083
+        },
+        "code": {
+          "start": 29309,
+          "end": 29730
+        },
+        "title": {
+          "start": 29309,
+          "end": 29312
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/230",
+            "physicalPage": 10,
+            "start": 29309,
+            "end": 29730,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 511.45,
+                  "r": 477.63,
+                  "b": 452.25,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  421
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/231",
+            "physicalPage": 10,
+            "start": 29731,
+            "end": 29950,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 445.67,
+                  "r": 477.63,
+                  "b": 411.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  219
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/232",
+            "physicalPage": 10,
+            "start": 29951,
+            "end": 30083,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 404.55,
+                  "r": 477.63,
+                  "b": 381.53,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  132
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)"
+      },
+      {
+        "id": "section_13_2",
+        "kind": "item",
+        "type": "subSection",
+        "category": "section",
+        "parent": "section_13",
+        "children": [],
+        "span": {
+          "start": 29731,
+          "end": 29950
+        },
+        "code": {
+          "start": 29731,
+          "end": 29950
+        },
+        "title": {
+          "start": 29731,
+          "end": 29806
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/231",
+            "physicalPage": 10,
+            "start": 29731,
+            "end": 29950,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 445.67,
+                  "r": 477.63,
+                  "b": 411.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  219
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 13 (grievance redressal)"
+      },
+      {
+        "id": "section_13_3",
+        "kind": "item",
+        "type": "subSection",
+        "category": "section",
+        "parent": "section_13",
+        "children": [],
+        "span": {
+          "start": 29951,
+          "end": 30083
+        },
+        "code": {
+          "start": 29951,
+          "end": 30083
+        },
+        "title": {
+          "start": 29951,
+          "end": 30006
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/232",
+            "physicalPage": 10,
+            "start": 29951,
+            "end": 30083,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 404.55,
+                  "r": 477.63,
+                  "b": 381.53,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  132
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 13 (grievance redressal)"
+      },
+      {
+        "id": "section_14",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "section_14_2"
+        ],
+        "span": {
+          "start": 30084,
+          "end": 30653
+        },
+        "code": {
+          "start": 30084,
+          "end": 30412
+        },
+        "title": {
+          "start": 30393,
+          "end": 30412
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/233",
+            "physicalPage": 10,
+            "start": 30084,
+            "end": 30412,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 373.31,
+                  "r": 477.63,
+                  "b": 327.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  328
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/234",
+            "physicalPage": 10,
+            "start": 30413,
+            "end": 30653,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 320.68,
+                  "r": 477.63,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  240
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)"
+      },
+      {
+        "id": "section_14_2",
+        "kind": "item",
+        "type": "subSection",
+        "category": "section",
+        "parent": "section_14",
+        "children": [],
+        "span": {
+          "start": 30413,
+          "end": 30653
+        },
+        "code": {
+          "start": 30413,
+          "end": 30653
+        },
+        "title": {
+          "start": 30413,
+          "end": 30480
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/234",
+            "physicalPage": 10,
+            "start": 30413,
+            "end": 30653,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 320.68,
+                  "r": 477.63,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  240
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Section 14 (Right to nominate)"
+      },
+      {
+        "id": "section_15",
+        "kind": "item",
+        "type": "section",
+        "category": "section",
+        "parent": null,
+        "children": [
+          "list_15_a",
+          "list_15_b",
+          "list_15_c",
+          "list_15_d"
+        ],
+        "span": {
+          "start": 30682,
+          "end": 31340
+        },
+        "code": {
+          "start": 30682,
+          "end": 30747
+        },
+        "title": {
+          "start": 30654,
+          "end": 30681
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/236",
+            "physicalPage": 10,
+            "start": 30682,
+            "end": 30747,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 277.93,
+                  "r": 406.74,
+                  "b": 266.41,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  65
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/237",
+            "physicalPage": 10,
+            "start": 30748,
+            "end": 30889,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 259.84,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  141
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/238",
+            "physicalPage": 10,
+            "start": 30890,
+            "end": 30998,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 207.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  108
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/239",
+            "physicalPage": 10,
+            "start": 30999,
+            "end": 31224,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 200.63,
+                  "r": 477.63,
+                  "b": 164.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  225
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/240",
+            "physicalPage": 10,
+            "start": 31225,
+            "end": 31340,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 157.88,
+                  "r": 477.63,
+                  "b": 134.85,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  115
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)"
+      },
+      {
+        "id": "list_15_a",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": "section_15",
+        "children": [],
+        "span": {
+          "start": 30748,
+          "end": 30889
+        },
+        "code": {
+          "start": 30748,
+          "end": 30889
+        },
+        "title": {
+          "start": 30748,
+          "end": 30803
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/237",
+            "physicalPage": 10,
+            "start": 30748,
+            "end": 30889,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 259.84,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  141
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Duties of Data Principal list under section 15"
+      },
+      {
+        "id": "list_15_b",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": "section_15",
+        "children": [],
+        "span": {
+          "start": 30890,
+          "end": 30998
+        },
+        "code": {
+          "start": 30890,
+          "end": 30998
+        },
+        "title": {
+          "start": 30890,
+          "end": 30939
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/238",
+            "physicalPage": 10,
+            "start": 30890,
+            "end": 30998,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 230.23,
+                  "r": 477.63,
+                  "b": 207.21,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  108
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Duties of Data Principal list under section 15"
+      },
+      {
+        "id": "list_15_c",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": "section_15",
+        "children": [],
+        "span": {
+          "start": 30999,
+          "end": 31224
+        },
+        "code": {
+          "start": 30999,
+          "end": 31224
+        },
+        "title": {
+          "start": 30999,
+          "end": 31062
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/239",
+            "physicalPage": 10,
+            "start": 30999,
+            "end": 31224,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 200.63,
+                  "r": 477.63,
+                  "b": 164.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  225
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Duties of Data Principal list under section 15"
+      },
+      {
+        "id": "list_15_d",
+        "kind": "item",
+        "type": "listItem",
+        "category": "listPoint",
+        "parent": "section_15",
+        "children": [],
+        "span": {
+          "start": 31225,
+          "end": 31340
+        },
+        "code": {
+          "start": 31225,
+          "end": 31340
+        },
+        "title": {
+          "start": 31225,
+          "end": 31300
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/240",
+            "physicalPage": 10,
+            "start": 31225,
+            "end": 31340,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 157.88,
+                  "r": 477.63,
+                  "b": 134.85,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  115
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Duties of Data Principal list under section 15"
+      }
+    ],
+    "references": [
+      {
+        "start": 29252,
+        "end": 29307,
+        "exactMention": "for compliance with any law for the time being in force",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/229",
+            "physicalPage": 10,
+            "start": 29252,
+            "end": 29307,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 565.72,
+                  "r": 477.63,
+                  "b": 519.67,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  348
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "All laws of general application currently in force in India",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 29667,
+        "end": 29729,
+        "exactMention": "under the provisions of this Act and the rules made thereunder",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/230",
+            "physicalPage": 10,
+            "start": 29667,
+            "end": 29729,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 511.45,
+                  "r": 477.63,
+                  "b": 452.25,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  421
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Self-reference to the parent Act (Digital Personal Data Protection Act) and its subordinate rules",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 29796,
+        "end": 29839,
+        "exactMention": "grievances referred to in sub-section ( 1 )",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/231",
+            "physicalPage": 10,
+            "start": 29796,
+            "end": 29839,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 445.67,
+                  "r": 477.63,
+                  "b": 411.13,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  219
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Sub-section (1) of the same section 13",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 30073,
+        "end": 30082,
+        "exactMention": "the Board",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/232",
+            "physicalPage": 10,
+            "start": 30073,
+            "end": 30082,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 404.55,
+                  "r": 477.63,
+                  "b": 381.53,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  132
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Data Protection Board established under the Act",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 30335,
+        "end": 30391,
+        "exactMention": "the provisions of this Act and the rules made thereunder",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/233",
+            "physicalPage": 10,
+            "start": 30335,
+            "end": 30391,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 373.31,
+                  "r": 477.63,
+                  "b": 327.26,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  328
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Self-reference to the parent Act and its rules",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 30509,
+        "end": 30603,
+        "exactMention": "the rights of the Data Principal under the provisions of this Act or the rules made thereunder",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/234",
+            "physicalPage": 10,
+            "start": 30509,
+            "end": 30603,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 320.68,
+                  "r": 477.63,
+                  "b": 284.5,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  240
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Self-reference to the parent Act and its rules",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 30784,
+        "end": 30831,
+        "exactMention": "all applicable laws for the time being in force",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/237",
+            "physicalPage": 10,
+            "start": 30784,
+            "end": 30831,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 259.84,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  141
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "All applicable laws in force in India",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 31172,
+        "end": 31223,
+        "exactMention": "issued by the State or any of its instrumentalities",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/239",
+            "physicalPage": 10,
+            "start": 31172,
+            "end": 31223,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 200.63,
+                  "r": 477.63,
+                  "b": 164.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  225
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "The State and its instrumentalities (issuing authorities)",
+        "resolutionStatus": "pending"
+      },
+      {
+        "start": 31306,
+        "end": 31335,
+        "exactMention": "a Data Fiduciary or the Board",
+        "targetSegmentIds": [],
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/240",
+            "physicalPage": 10,
+            "start": 31306,
+            "end": 31335,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 157.88,
+                  "r": 477.63,
+                  "b": 134.85,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  115
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "targetHint": "Data Fiduciary; Data Protection Board",
+        "resolutionStatus": "pending"
+      }
+    ],
+    "unresolvedItems": [
+      "Section 12(2) list item (a) - '( a ) correct the inaccurate or misleading personal data;' appears in context-before unit src:230 only; the list opener for section 12(2) is outside the supplied range. Items (b) and (c) are emitted with startsBeforeChunk=true; the parent section 12(2) anchor and item (a) need a prior chunk to be confirmed.",
+      "Section 15 duties list item (e) - '( e ) to furnish only such information as is verifiably authentic...' appears in context-after unit src:245 only; not emitted as a segment because its anchor is outside the core range. The section 15 entry is marked continuesAfterChunk=true; item (e) requires a following chunk.",
+      "Heading context 'CHAPTER IV' and 'Illustration.' were supplied as navigation hints only; no core unit anchors them, so they are not emitted as provisions.",
+      "Side-note headings 'Duties of Data Principal.' (src:239) and 'Right to nominate.' (within src:237) are marginal titles attached to their sections and emitted as title anchors, not standalone provisions."
+    ],
+    "warnings": [
+      "Cross-chunk parent left pending for list_12_2_b: section_12_2",
+      "Cross-chunk parent left pending for list_12_2_c: section_12_2",
+      "Cross-chunk parent left pending for section_12_3: section_12",
+      "Cross-chunk parent left pending for section_13: act_main_body",
+      "Cross-chunk parent left pending for section_14: act_main_body",
+      "Cross-chunk parent left pending for section_15: act_main_body",
+      "Ignored 1 context-only references in chunk_016"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [\n    {\n      \"mention\": {\n        \"exactQuote\": \"for compliance with any law for the time being in force\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:233\"\n      },\n      \"targetHint\": \"All laws of general application currently in force in India\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"under the provisions of this Act and the rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:234\"\n      },\n      \"targetHint\": \"Self-reference to the parent Act (Digital Personal Data Protection Act) and its subordinate rules\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"grievances referred to in sub-section ( 1 )\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:235\"\n      },\n      \"targetHint\": \"Sub-section (1) of the same section 13\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the Board\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:236\"\n      },\n      \"targetHint\": \"Data Protection Board established under the Act\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the provisions of this Act and the rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:237\"\n      },\n      \"targetHint\": \"Self-reference to the parent Act and its rules\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"the rights of the Data Principal under the provisions of this Act or the rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:238\"\n      },\n      \"targetHint\": \"Self-reference to the parent Act and its rules\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"all applicable laws for the time being in force\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:241\"\n      },\n      \"targetHint\": \"All applicable laws in force in India\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"issued by the State or any of its instrumentalities\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:243\"\n      },\n      \"targetHint\": \"The State and its instrumentalities (issuing authorities)\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"a Data Fiduciary or the Board\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:244\"\n      },\n      \"targetHint\": \"Data Fiduciary; Data Protection Board\",\n      \"targetSegmentIds\": []\n    },\n    {\n      \"mention\": {\n        \"exactQuote\": \"under the provisions of this Act or the rules made thereunder\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:245\"\n      },\n      \"targetHint\": \"Self-reference to the parent Act and its rules (appears in context-after unit)\",\n      \"targetSegmentIds\": []\n    }\n  ],\n  \"segments\": [\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) complete the incomplete personal data; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:231\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_12_2_b\",\n      \"kind\": \"item\",\n      \"parent\": \"section_12_2\",\n      \"parentHint\": \"List concluding in section 12(2) whose first item (a) lies in context-before range\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) complete the incomplete personal data; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:231\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( b ) complete the incomplete personal data; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:231\"\n      }\n   ,\n    \"type\": \"listItem\"},\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c ) update the personal data.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:232\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_12_2_c\",\n      \"kind\": \"item\",\n      \"parent\": \"section_12_2\",\n      \"parentHint\": \"List concluding in section 12(2) whose first item (a) lies in context-before range\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) update the personal data.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:232\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( c ) update the personal data.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:232\"\n      },\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 ) A Data Principal shall make a request in such manner as may be prescribed to the Data Fiduciary for erasure of her personal data, and upon receipt of such a request, the Data Fiduciary shall erase her personal data unless retention of the same is necessary for the specified purpose or for compliance with any law for the time being in force.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:233\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_12_3\",\n      \"kind\": \"item\",\n      \"parent\": \"section_12\",\n      \"parentHint\": \"Section 12 of the Act (heading unit for section 12 lies outside supplied core range)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 ) A Data Principal shall make a request in such manner as may be prescribed to the Data Fiduciary for erasure of her personal data, and upon receipt of such a request, the Data Fiduciary shall erase her personal data unless retention of the same is necessary for the specified purpose or for compliance with any law for the time being in force.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:233\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 3 ) A Data Principal shall make a request in such manner as may be prescribed\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:233\"\n      },\n      \"type\": \"subSection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"13. ( 1 ) A Data Principal shall have the right to have readily available means of grievance redressal provided by a Data Fiduciary or Consent Manager in respect of any act or omission of such Data Fiduciary or Consent Manager regarding the performance of its obligations in relation to the personal data of such Data Principal or the exercise of her rights under the provisions of this Act and the rules made thereunder.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:234\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_13\",\n      \"kind\": \"item\",\n      \"parent\": \"act_main_body\",\n      \"parentHint\": \"Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"13. ( 1 ) A Data Principal shall have the right to have readily available means of grievance redressal provided by a Data Fiduciary or Consent Manager in respect of any act or omission of such Data Fiduciary or Consent Manager regarding the performance of its obligations in relation to the personal data of such Data Principal or the exercise of her rights under the provisions of this Act and the rules made thereunder.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:234\"\n        },\n        {\n          \"exactQuote\": \"( 3 )  The Data Principal shall exhaust the opportunity of redressing her grievance under this section before approaching the Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:236\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"13.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:234\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) The Data Fiduciary or Consent Manager shall respond to any grievances referred to in sub-section ( 1 ) within such period as may be prescribed from the date of its receipt for all or any class of Data Fiduciaries.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:235\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_13_2\",\n      \"kind\": \"item\",\n      \"parent\": \"section_13\",\n      \"parentHint\": \"Section 13 (grievance redressal)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) The Data Fiduciary or Consent Manager shall respond to any grievances referred to in sub-section ( 1 ) within such period as may be prescribed from the date of its receipt for all or any class of Data Fiduciaries.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:235\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 2 ) The Data Fiduciary or Consent Manager shall respond to any grievances\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:235\"\n      },\n      \"type\": \"subSection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 3 )  The Data Principal shall exhaust the opportunity of redressing her grievance under this section before approaching the Board.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:236\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_13_3\",\n      \"kind\": \"item\",\n      \"parent\": \"section_13\",\n      \"parentHint\": \"Section 13 (grievance redressal)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 3 )  The Data Principal shall exhaust the opportunity of redressing her grievance under this section before approaching the Board.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:236\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 3 )  The Data Principal shall exhaust the opportunity\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:236\"\n      },\n      \"type\": \"subSection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"14. ( 1 ) A Data Principal shall have the right to nominate, in such manner as may be prescribed, any other individual, who shall, in the event of death or incapacity of the Data Principal, exercise the rights of the Data Principal in accordance with the provisions of this Act and the rules made thereunder. Right  to nominate.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:237\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_14\",\n      \"kind\": \"item\",\n      \"parent\": \"act_main_body\",\n      \"parentHint\": \"Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"14. ( 1 ) A Data Principal shall have the right to nominate, in such manner as may be prescribed, any other individual, who shall, in the event of death or incapacity of the Data Principal, exercise the rights of the Data Principal in accordance with the provisions of this Act and the rules made thereunder. Right  to nominate.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:237\"\n        },\n        {\n          \"exactQuote\": \"( 2 ) For the purposes of this section, the expression 'incapacity' means inability to exercise the rights of the Data Principal under the provisions of this Act or the rules made thereunder due to unsoundness of mind or infirmity of  body.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:238\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Right  to nominate.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:237\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( 2 ) For the purposes of this section, the expression 'incapacity' means inability to exercise the rights of the Data Principal under the provisions of this Act or the rules made thereunder due to unsoundness of mind or infirmity of  body.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:238\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"section_14_2\",\n      \"kind\": \"item\",\n      \"parent\": \"section_14\",\n      \"parentHint\": \"Section 14 (Right to nominate)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) For the purposes of this section, the expression 'incapacity' means inability to exercise the rights of the Data Principal under the provisions of this Act or the rules made thereunder due to unsoundness of mind or infirmity of  body.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:238\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( 2 ) For the purposes of this section, the expression 'incapacity'\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:238\"\n      },\n      \"type\": \"subSection\"\n    },\n    {\n      \"category\": \"section\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"15. A Data Principal shall perform the following duties, namely:-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:240\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"section_15\",\n      \"kind\": \"item\",\n      \"parent\": \"act_main_body\",\n      \"parentHint\": \"Chapter of the Act containing Data Principal rights and duties (heading context: CHAPTER IV)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"15. A Data Principal shall perform the following duties, namely:-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:240\"\n        },\n        {\n          \"exactQuote\": \"( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:244\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"Duties  of  Data Principal.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:239\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( a ) comply with the provisions of all applicable laws for the time being in force while exercising rights under the provisions of this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:241\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_15_a\",\n      \"kind\": \"item\",\n      \"parent\": \"section_15\",\n      \"parentHint\": \"Duties of Data Principal list under section 15\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) comply with the provisions of all applicable laws for the time being in force while exercising rights under the provisions of this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:241\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( a ) comply with the provisions of all applicable laws\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:241\"\n      },\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) to ensure not to impersonate another person while providing her personal data for a specified purpose;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:242\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_15_b\",\n      \"kind\": \"item\",\n      \"parent\": \"section_15\",\n      \"parentHint\": \"Duties of Data Principal list under section 15\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) to ensure not to impersonate another person while providing her personal data for a specified purpose;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:242\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( b ) to ensure not to impersonate another person\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:242\"\n      },\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( c )  to  ensure  not  to  suppress  any  material information while providing her personal data for any document, unique identifier, proof of identity or proof of address issued by the State or any of its instrumentalities;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:243\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_15_c\",\n      \"kind\": \"item\",\n      \"parent\": \"section_15\",\n      \"parentHint\": \"Duties of Data Principal list under section 15\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c )  to  ensure  not  to  suppress  any  material information while providing her personal data for any document, unique identifier, proof of identity or proof of address issued by the State or any of its instrumentalities;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:243\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( c )  to  ensure  not  to  suppress  any  material information\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:243\"\n      },\n      \"type\": \"listItem\"\n    },\n    {\n      \"category\": \"listPoint\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:244\"\n      },\n      \"continuesAfterChunk\": false,\n      \"id\": \"list_15_d\",\n      \"kind\": \"item\",\n      \"parent\": \"section_15\",\n      \"parentHint\": \"Duties of Data Principal list under section 15\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( d ) to ensure not to register a false or frivolous grievance or complaint with a Data Fiduciary or the Board; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:244\"\n        }\n      ],\n      \"startsBeforeChunk\": false,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( d ) to ensure not to register a false or frivolous grievance or complaint\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:244\"\n      },\n      \"type\": \"listItem\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"Section 12(2) list item (a) - '( a ) correct the inaccurate or misleading personal data;' appears in context-before unit src:230 only; the list opener for section 12(2) is outside the supplied range. Items (b) and (c) are emitted with startsBeforeChunk=true; the parent section 12(2) anchor and item (a) need a prior chunk to be confirmed.\",\n    \"Section 15 duties list item (e) - '( e ) to furnish only such information as is verifiably authentic...' appears in context-after unit src:245 only; not emitted as a segment because its anchor is outside the core range. The section 15 entry is marked continuesAfterChunk=true; item (e) requires a following chunk.\",\n    \"Heading context 'CHAPTER IV' and 'Illustration.' were supplied as navigation hints only; no core unit anchors them, so they are not emitted as provisions.\",\n    \"Side-note headings 'Duties of Data Principal.' (src:239) and 'Right to nominate.' (within src:237) are marginal titles attached to their sections and emitted as title anchors, not standalone provisions.\"\n  ]\n  ,\n  \"warnings\": []\n}",
+          "reasoning_content": "Extract provisions. Core range covers src:231–244. src:230 is context before — clause (a) of section 12's list must not be emitted alone. src:245 is context after — clause (e) belongs to section 15 list; since parent 15 anchor is core, but the item itself is context-after... The rules: extract structures whose boundary anchors include a core unit. Lists items individually anchored to their sources. The (e) item is context after — must not be emitted on its own. But the list under s.15 starts before chunk (items a–d core) and continues after (e). So mark continuesAfterChunk on the list, and parent hint for (e)? I'll include list items a–d as core, mark continuation for (e) as unresolved? Better: include s.15 list with parent hint and continuation, and record (e) in unresolvedItems as continuation beyond core range. Actually rules say extract structures whose boundary anchors include a core unit; neighboring context must not be emitted on its own. So (e) excluded, but noted as continuation.\n\nAlso heading contexts: \"CHAPTER IV\" and \"Illustration.\" — headings aren't provisions with core anchors... headings in core? src:239 \"Duties of Data Principal\" is a heading side-note within core — that's a section heading label for section 15, part of provision 15.\n\nReferences: \"any law for the time being in force\" (src:233, 241), \"the Board\" (src:236, 244), \"rules made thereunder\" (relatives to this Act), \"the provisions of this Act\", \"sub-section (1)\" (src:235), \"this section\" (src:238, 236).",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951320,
+    "id": "chatcmpl-04b5fdc7-4401-47d0-b682-a7117659a765",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 5196,
+      "prompt_tokens": 1197,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 6393
+    }
+  },
+  "usage": {
+    "inputTokens": 1197,
+    "outputTokens": 5196,
+    "totalTokens": 6393
+  },
+  "finishReason": "stop",
+  "durationMs": 104048
+}

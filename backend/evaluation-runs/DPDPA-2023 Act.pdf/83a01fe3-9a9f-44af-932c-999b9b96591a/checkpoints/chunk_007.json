@@ -1,0 +1,1116 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_007",
+    "coreRange": {
+      "start": 4862,
+      "end": 6944
+    },
+    "coreSourceIds": [
+      "src:61",
+      "src:62",
+      "src:63",
+      "src:64",
+      "src:65",
+      "src:66",
+      "src:67",
+      "src:68",
+      "src:69",
+      "src:70",
+      "src:71",
+      "src:72",
+      "src:73",
+      "src:74",
+      "src:75",
+      "src:76",
+      "src:77",
+      "src:78",
+      "src:79",
+      "src:80"
+    ],
+    "contextBefore": [
+      "src:60"
+    ],
+    "contextAfter": [
+      "src:81"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:60",
+        "start": 4837,
+        "end": 4861,
+        "text": "( s ) 'person' includes-",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:61",
+        "start": 4862,
+        "end": 4882,
+        "text": "( i ) an individual;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:62",
+        "start": 4883,
+        "end": 4915,
+        "text": "( ii ) a Hindu undivided family;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:63",
+        "start": 4916,
+        "end": 4934,
+        "text": "( iii ) a company;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:64",
+        "start": 4935,
+        "end": 4949,
+        "text": "( iv ) a firm;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:65",
+        "start": 4950,
+        "end": 5046,
+        "text": "( v )  an  association  of  persons  or  a  body  of  individuals,  whether incorporated or not;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:66",
+        "start": 5047,
+        "end": 5068,
+        "text": "( vi ) the State; and",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:67",
+        "start": 5069,
+        "end": 5163,
+        "text": "( vii ) every artificial juristic person, not falling within any of the preceding sub-clauses;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:68",
+        "start": 5164,
+        "end": 5272,
+        "text": "( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:69",
+        "start": 5273,
+        "end": 5556,
+        "text": "( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:70",
+        "start": 5557,
+        "end": 5622,
+        "text": "( v ) 'prescribed' means prescribed by rules made under this Act;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:71",
+        "start": 5623,
+        "end": 5711,
+        "text": "( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:72",
+        "start": 5712,
+        "end": 6147,
+        "text": "( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:73",
+        "start": 6148,
+        "end": 6254,
+        "text": "( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:74",
+        "start": 6255,
+        "end": 6406,
+        "text": "( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:75",
+        "start": 6407,
+        "end": 6607,
+        "text": "( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:76",
+        "start": 6608,
+        "end": 6687,
+        "text": "( zb ) 'State' means the State as defined under article 12 of the Constitution.",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:77",
+        "start": 6688,
+        "end": 6739,
+        "text": "3. Subject to the provisions of this Act, it shall-",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:78",
+        "start": 6740,
+        "end": 6863,
+        "text": "( a ) apply to the processing of digital personal data within the territory of India where the personal data is collected--",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:79",
+        "start": 6864,
+        "end": 6889,
+        "text": "( i ) in digital form; or",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:80",
+        "start": 6890,
+        "end": 6944,
+        "text": "( ii ) in non-digital form and digitised subsequently;",
+        "group": "native:5",
+        "headings": [
+          "CHAPTER I"
+        ]
+      },
+      {
+        "id": "src:81",
+        "start": 6945,
+        "end": 7177,
+        "text": "( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;",
+        "group": "native:6",
+        "headings": [
+          "CHAPTER I",
+          "Illustration."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER I"
+    ],
+    "inputHash": "d89667e309dbb5efacbe2672dc8ce24fa17d86dc5a0bb399361c2987fb676ded",
+    "assembledInputCharacters": 6539,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "prov_002_s",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 4862,
+          "end": 5163
+        },
+        "code": {
+          "start": 4862,
+          "end": 4882
+        },
+        "title": {
+          "start": 4837,
+          "end": 4861
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/57",
+            "physicalPage": 3,
+            "start": 4862,
+            "end": 4882,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 679.19,
+                  "r": 255.66,
+                  "b": 669.32,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  20
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/58",
+            "physicalPage": 3,
+            "start": 4883,
+            "end": 4915,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 662.75,
+                  "r": 309.12,
+                  "b": 651.23,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  32
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/59",
+            "physicalPage": 3,
+            "start": 4916,
+            "end": 4934,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 644.66,
+                  "r": 254.5,
+                  "b": 633.14,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  18
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/60",
+            "physicalPage": 3,
+            "start": 4935,
+            "end": 4949,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 626.57,
+                  "r": 231.26,
+                  "b": 615.05,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  14
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/61",
+            "physicalPage": 3,
+            "start": 4950,
+            "end": 5046,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 608.48,
+                  "r": 477.63,
+                  "b": 585.45,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  96
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/62",
+            "physicalPage": 3,
+            "start": 5047,
+            "end": 5068,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 577.23,
+                  "r": 261.47,
+                  "b": 567.36,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  21
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/63",
+            "physicalPage": 3,
+            "start": 5069,
+            "end": 5163,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 560.79,
+                  "r": 477.63,
+                  "b": 536.12,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  94
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": true,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_t",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 5164,
+          "end": 5272
+        },
+        "code": {
+          "start": 5164,
+          "end": 5272
+        },
+        "title": {
+          "start": 5164,
+          "end": 5272
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/64",
+            "physicalPage": 3,
+            "start": 5164,
+            "end": 5272,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 529.54,
+                  "r": 477.63,
+                  "b": 506.52,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  108
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": true,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_u",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 5273,
+          "end": 5556
+        },
+        "code": {
+          "start": 5273,
+          "end": 5556
+        },
+        "title": {
+          "start": 5273,
+          "end": 5556
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/65",
+            "physicalPage": 3,
+            "start": 5273,
+            "end": 5556,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 499.94,
+                  "r": 477.63,
+                  "b": 452.25,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  283
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_v",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 5557,
+          "end": 5622
+        },
+        "code": {
+          "start": 5557,
+          "end": 5622
+        },
+        "title": {
+          "start": 5557,
+          "end": 5622
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/66",
+            "physicalPage": 3,
+            "start": 5557,
+            "end": 5622,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 445.67,
+                  "r": 424.17,
+                  "b": 434.16,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  65
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_w",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 5623,
+          "end": 5711
+        },
+        "code": {
+          "start": 5623,
+          "end": 5711
+        },
+        "title": {
+          "start": 5623,
+          "end": 5711
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/67",
+            "physicalPage": 3,
+            "start": 5623,
+            "end": 5711,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 427.58,
+                  "r": 477.63,
+                  "b": 404.55,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  88
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_x",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 5712,
+          "end": 6147
+        },
+        "code": {
+          "start": 5712,
+          "end": 6147
+        },
+        "title": {
+          "start": 5712,
+          "end": 6147
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/68",
+            "physicalPage": 3,
+            "start": 5712,
+            "end": 6147,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 397.98,
+                  "r": 477.63,
+                  "b": 338.77,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  435
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_y",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6148,
+          "end": 6254
+        },
+        "code": {
+          "start": 6148,
+          "end": 6254
+        },
+        "title": {
+          "start": 6148,
+          "end": 6254
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/69",
+            "physicalPage": 3,
+            "start": 6148,
+            "end": 6254,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 332.2,
+                  "r": 477.63,
+                  "b": 309.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  106
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_z",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6255,
+          "end": 6406
+        },
+        "code": {
+          "start": 6255,
+          "end": 6406
+        },
+        "title": {
+          "start": 6255,
+          "end": 6406
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/70",
+            "physicalPage": 3,
+            "start": 6255,
+            "end": 6406,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 302.59,
+                  "r": 477.63,
+                  "b": 279.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  151
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_za",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6407,
+          "end": 6607
+        },
+        "code": {
+          "start": 6407,
+          "end": 6607
+        },
+        "title": {
+          "start": 6407,
+          "end": 6607
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/71",
+            "physicalPage": 3,
+            "start": 6407,
+            "end": 6607,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 271.35,
+                  "r": 477.63,
+                  "b": 236.81,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  200
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_002_zb",
+        "kind": "unit",
+        "type": "definition",
+        "category": "definition",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6608,
+          "end": 6687
+        },
+        "code": {
+          "start": 6608,
+          "end": 6687
+        },
+        "title": {
+          "start": 6608,
+          "end": 6687
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/72",
+            "physicalPage": 3,
+            "start": 6608,
+            "end": 6687,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 230.23,
+                  "r": 468.33,
+                  "b": 218.72,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  79
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "prov_002_definitions"
+      },
+      {
+        "id": "prov_003_scope",
+        "kind": "unit",
+        "type": "section",
+        "category": "scope_provision",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 6688,
+          "end": 6944
+        },
+        "code": {
+          "start": 6688,
+          "end": 6739
+        },
+        "title": {
+          "start": 6688,
+          "end": 6739
+        },
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/73",
+            "physicalPage": 3,
+            "start": 6688,
+            "end": 6739,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 212.14,
+                  "r": 339.34,
+                  "b": 200.63,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  51
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/74",
+            "physicalPage": 3,
+            "start": 6740,
+            "end": 6863,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 194.05,
+                  "r": 477.63,
+                  "b": 171.03,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  123
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/75",
+            "physicalPage": 3,
+            "start": 6864,
+            "end": 6889,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 164.45,
+                  "r": 269.61,
+                  "b": 152.94,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  25
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          },
+          {
+            "itemRef": "#/texts/76",
+            "physicalPage": 3,
+            "start": 6890,
+            "end": 6944,
+            "provenance": [
+              {
+                "page_no": 3,
+                "bbox": {
+                  "l": 189.42,
+                  "t": 146.36,
+                  "r": 393.96,
+                  "b": 134.85,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  54
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "list_item",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "Definition clause (s) 'person' begins before the core range (heading in src:60, role b); clause (vii) is the last sub-clause available in this chunk, and clause (s) is marked as continuing from prior material (startsBeforeChunk=true).",
+      "Section 3 continues after the supplied chunk range (src:81 is context after, role a); any subsequent text of section 3 is not available here.",
+      "Definition clause (z) explicitly references 'section 10' of this Act and clause (zb) references 'article 12 of the Constitution'; these are external/forward references recorded as pending targets not present in the chunk."
+    ],
+    "warnings": [
+      "Ignored 1 context-only segments in chunk_007",
+      "Cross-chunk parent left pending for prov_002_s: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_t: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_u: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_v: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_w: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_x: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_y: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_z: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_za: prov_002_definitions",
+      "Cross-chunk parent left pending for prov_002_zb: prov_002_definitions"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( i ) an individual;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:61\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"prov_002_s\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( i ) an individual;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:61\"\n        },\n        {\n          \"exactQuote\": \"( ii ) a Hindu undivided family;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:62\"\n        },\n        {\n          \"exactQuote\": \"( iii ) a company;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:63\"\n        },\n        {\n          \"exactQuote\": \"( iv ) a firm;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:64\"\n        },\n        {\n          \"exactQuote\": \"( v )  an  association  of  persons  or  a  body  of  individuals,  whether incorporated or not;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:65\"\n        },\n        {\n          \"exactQuote\": \"( vi ) the State; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:66\"\n        },\n        {\n          \"exactQuote\": \"( vii ) every artificial juristic person, not falling within any of the preceding sub-clauses;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:67\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( s ) 'person' includes-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:60\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:68\"\n      },\n      \"id\": \"prov_002_t\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:68\"\n        }\n      ],\n      \"startsBeforeChunk\": true,\n      \"titleAnchor\": {\n        \"exactQuote\": \"( t ) 'personal data' means any data about an individual who is identifiable by or in relation to such data;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:68\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:69\"\n      },\n      \"id\": \"prov_002_u\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:69\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( u )  'personal  data  breach'  means  any  unauthorised  processing  of  personal data or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the confidentiality, integrity or availability of personal data;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:69\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( v ) 'prescribed' means prescribed by rules made under this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:70\"\n      },\n      \"id\": \"prov_002_v\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( v ) 'prescribed' means prescribed by rules made under this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:70\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( v ) 'prescribed' means prescribed by rules made under this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:70\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:71\"\n      },\n      \"id\": \"prov_002_w\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:71\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( w ) 'proceeding' means any action taken by the Board under the provisions of this Act;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:71\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:72\"\n      },\n      \"id\": \"prov_002_x\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:72\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( x ) 'processing' in relation to personal data, means a wholly or partly automated operation  or  set  of  operations  performed  on  digital  personal  data,  and  includes operations such as collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:72\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:73\"\n      },\n      \"id\": \"prov_002_y\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:73\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( y ) 'she' in relation to an individual includes the reference to such individual irrespective of gender;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:73\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:74\"\n      },\n      \"id\": \"prov_002_z\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:74\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( z ) 'Significant Data Fiduciary' means any Data Fiduciary or class of Data Fiduciaries as may be notified by the Central Government under section 10;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:74\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:75\"\n      },\n      \"id\": \"prov_002_za\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:75\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( za ) 'specified purpose' means the purpose mentioned in the notice given by the Data Fiduciary to the Data Principal in accordance with the provisions of this  Act and the rules made thereunder; and\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:75\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"definition\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( zb ) 'State' means the State as defined under article 12 of the Constitution.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:76\"\n      },\n      \"id\": \"prov_002_zb\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_002_definitions\",\n      \"parentHint\": \"prov_002_definitions\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( zb ) 'State' means the State as defined under article 12 of the Constitution.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:76\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( zb ) 'State' means the State as defined under article 12 of the Constitution.\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:76\"\n      },\n      \"type\": \"definition\"\n    },\n    {\n      \"category\": \"scope_provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"3. Subject to the provisions of this Act, it shall-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:77\"\n      },\n      \"continuesAfterChunk\": true,\n      \"id\": \"prov_003_scope\",\n      \"kind\": \"unit\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"3. Subject to the provisions of this Act, it shall-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:77\"\n        },\n        {\n          \"exactQuote\": \"( a ) apply to the processing of digital personal data within the territory of India where the personal data is collected--\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:78\"\n        },\n        {\n          \"exactQuote\": \"( i ) in digital form; or\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:79\"\n        },\n        {\n          \"exactQuote\": \"( ii ) in non-digital form and digitised subsequently;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:80\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"3. Subject to the provisions of this Act, it shall-\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:77\"\n      },\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"scope_provision\",\n      \"codeAnchor\": {\n        \"exactQuote\": \"( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:81\"\n      },\n      \"id\": \"prov_003_scope_b\",\n      \"kind\": \"unit\",\n      \"parent\": \"prov_003_scope\",\n      \"parentHint\": \"prov_003_scope\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:81\"\n        }\n      ],\n      \"titleAnchor\": {\n        \"exactQuote\": \"( b ) also apply to processing of digital personal data outside the territory of India, if such processing is in connection with any activity related to offering of goods or services to Data Principals within the territory of India;\",\n        \"occurrence\": 0,\n        \"sourceId\": \"src:81\"\n      },\n      \"type\": \"paragraph\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"Definition clause (s) 'person' begins before the core range (heading in src:60, role b); clause (vii) is the last sub-clause available in this chunk, and clause (s) is marked as continuing from prior material (startsBeforeChunk=true).\",\n    \"Section 3 continues after the supplied chunk range (src:81 is context after, role a); any subsequent text of section 3 is not available here.\",\n    \"Definition clause (z) explicitly references 'section 10' of this Act and clause (zb) references 'article 12 of the Constitution'; these are external/forward references recorded as pending targets not present in the chunk.\"\n  ]\n  , \"warnings\": []\n}",
+          "reasoning_content": "DPDP Act 2023, sections 2 definitions (s)-(zb), section 3. Build JSON per schema.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792950543,
+    "id": "chatcmpl-344962cf-052f-46cd-b799-9bf5b9e01fdc",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 3680,
+      "prompt_tokens": 1159,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 4839
+    }
+  },
+  "usage": {
+    "inputTokens": 1159,
+    "outputTokens": 3680,
+    "totalTokens": 4839
+  },
+  "finishReason": "stop",
+  "durationMs": 66163
+}

@@ -1,0 +1,5493 @@
+{
+  "schemaVersion": 1,
+  "sourceVersionId": "pdf-4deb23981d3010c8",
+  "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "detectorVersion": "2",
+  "references": [
+    {
+      "id": "cb7b04d53dc720123beea5bdb60392c41155ef26c31e681b1c37a29565102782",
+      "start": 213,
+      "end": 222,
+      "exactMention": "Section 1",
+      "kind": "section",
+      "targetHint": "Section 1",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/6",
+          "physicalPage": 1,
+          "start": 213,
+          "end": 222,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 255.66,
+                "t": 557.5,
+                "r": 341.66,
+                "b": 545.98,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                19
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "e07705fe122f39728c06e0a5246f70f029b12d937376ea34124e36dff3349c70",
+      "start": 711,
+      "end": 718,
+      "exactMention": "Act  of",
+      "kind": "external",
+      "targetHint": "Act  of",
+      "externalInstrumentHint": "Act  of",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/12",
+          "physicalPage": 1,
+          "start": 711,
+          "end": 718,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 117.37,
+                "t": 360.15,
+                "r": 477.63,
+                "b": 337.13,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                153
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "754aa1df2ecf64a055613564e0d509cb18cdcc1fe20fe91e92eed01fd143aa90",
+      "start": 941,
+      "end": 947,
+      "exactMention": "Act to",
+      "kind": "external",
+      "targetHint": "Act to",
+      "externalInstrumentHint": "Act to",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/16",
+          "physicalPage": 1,
+          "start": 941,
+          "end": 947,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 117.37,
+                "t": 272.99,
+                "r": 477.63,
+                "b": 215.43,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                272
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b9d90ae1487c2c7e56dc80ccfa6b5b9bb2dec96996d2e6484b170dd9026dfc0b",
+      "start": 1341,
+      "end": 1348,
+      "exactMention": "Act may",
+      "kind": "external",
+      "targetHint": "Act may",
+      "externalInstrumentHint": "Act may",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/20",
+          "physicalPage": 1,
+          "start": 1341,
+          "end": 1348,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 141.78,
+                "t": 144.72,
+                "r": 445.09,
+                "b": 133.21,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                79
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "241199735d53df6abbab113aba7c991b07214571f945dfb91c45e73f459d5225",
+      "start": 1602,
+      "end": 1609,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/21",
+          "physicalPage": 1,
+          "start": 1602,
+          "end": 1609,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 117.37,
+                "t": 126.63,
+                "r": 477.63,
+                "b": 78.94,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                348
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "list_item",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "dff16dc3fded8e4de18697377b5f89f4a96a3675348beb00f3502ca39c70aceb",
+      "start": 1674,
+      "end": 1683,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/21",
+          "physicalPage": 1,
+          "start": 1674,
+          "end": 1683,
+          "provenance": [
+            {
+              "page_no": 1,
+              "bbox": {
+                "l": 117.37,
+                "t": 126.63,
+                "r": 477.63,
+                "b": 78.94,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                348
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "list_item",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "7a5752dc01a63ec9fecb43cae1db9105258c3572339fe5335d03c42268383e8f",
+      "start": 1851,
+      "end": 1862,
+      "exactMention": "In this Act",
+      "kind": "relative",
+      "targetHint": "In this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/27",
+          "physicalPage": 2,
+          "start": 1851,
+          "end": 1862,
+          "provenance": [
+            {
+              "page_no": 2,
+              "bbox": {
+                "l": 141.78,
+                "t": 746.62,
+                "r": 360.25,
+                "b": 735.11,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                55
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "20df8c4143ba3c0df3aeac1a2f8e8e04c9514737ae8fde1f626db850c7cabbb8",
+      "start": 2011,
+      "end": 2021,
+      "exactMention": "section 14",
+      "kind": "section",
+      "targetHint": "section 14",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/28",
+          "physicalPage": 2,
+          "start": 2011,
+          "end": 2021,
+          "provenance": [
+            {
+              "page_no": 2,
+              "bbox": {
+                "l": 141.78,
+                "t": 728.53,
+                "r": 477.63,
+                "b": 692.35,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                173
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a4636d1df0bae34449a55ed2305719cd3423d0a3017d79d06ed1acc06fffda15",
+      "start": 2339,
+      "end": 2349,
+      "exactMention": "section 18",
+      "kind": "section",
+      "targetHint": "section 18",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/30",
+          "physicalPage": 2,
+          "start": 2339,
+          "end": 2349,
+          "provenance": [
+            {
+              "page_no": 2,
+              "bbox": {
+                "l": 141.78,
+                "t": 656.17,
+                "r": 477.63,
+                "b": 633.14,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                110
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d3db661aed3b65c8fce652282d7d06ba5f1d20b23a479a3788b27b0ed5395c2a",
+      "start": 2413,
+      "end": 2422,
+      "exactMention": "section 7",
+      "kind": "section",
+      "targetHint": "section 7",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/31",
+          "physicalPage": 2,
+          "start": 2413,
+          "end": 2422,
+          "provenance": [
+            {
+              "page_no": 2,
+              "bbox": {
+                "l": 165.02,
+                "t": 626.57,
+                "r": 438.12,
+                "b": 615.05,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                72
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "65ba20be49687bbfb1de812224685b00fca06a3a8139efc28e038897752c4aad",
+      "start": 3663,
+      "end": 3673,
+      "exactMention": "section 10",
+      "kind": "section",
+      "targetHint": "section 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/41",
+          "physicalPage": 2,
+          "start": 3663,
+          "end": 3673,
+          "provenance": [
+            {
+              "page_no": 2,
+              "bbox": {
+                "l": 141.78,
+                "t": 338.77,
+                "r": 477.63,
+                "b": 314.11,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                150
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "6b4e557a89a2e2289374db23609f7d9284e2cb5983440a7772a07750190620b6",
+      "start": 5607,
+      "end": 5621,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/66",
+          "physicalPage": 3,
+          "start": 5607,
+          "end": 5621,
+          "provenance": [
+            {
+              "page_no": 3,
+              "bbox": {
+                "l": 165.02,
+                "t": 445.67,
+                "r": 424.17,
+                "b": 434.16,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                65
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "5373001f87eda58fec4dbe30a229949c18f0ed34e645a5c87d93bab7e931bbc9",
+      "start": 6395,
+      "end": 6405,
+      "exactMention": "section 10",
+      "kind": "section",
+      "targetHint": "section 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/70",
+          "physicalPage": 3,
+          "start": 6395,
+          "end": 6405,
+          "provenance": [
+            {
+              "page_no": 3,
+              "bbox": {
+                "l": 141.78,
+                "t": 302.59,
+                "r": 477.63,
+                "b": 279.57,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                151
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f50efe61a7ae2579fb8634dcc87577f23ccee342cf4ddb06f0c25c94586e8a73",
+      "start": 6569,
+      "end": 6576,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/71",
+          "physicalPage": 3,
+          "start": 6569,
+          "end": 6576,
+          "provenance": [
+            {
+              "page_no": 3,
+              "bbox": {
+                "l": 141.78,
+                "t": 271.35,
+                "r": 477.63,
+                "b": 236.81,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                200
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "c6ab3d351fa6fe6bf82a791f7bb1fdf0e15e049e962ed54212ba8ecfa3fe369e",
+      "start": 6656,
+      "end": 6666,
+      "exactMention": "article 12",
+      "kind": "article",
+      "targetHint": "article 12",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/72",
+          "physicalPage": 3,
+          "start": 6656,
+          "end": 6666,
+          "provenance": [
+            {
+              "page_no": 3,
+              "bbox": {
+                "l": 165.02,
+                "t": 230.23,
+                "r": 468.33,
+                "b": 218.72,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                79
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8010e11723a133f506b2dc9981947acf2675975ae2526dab2b4407916bcddd44",
+      "start": 7815,
+      "end": 7824,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/88",
+          "physicalPage": 4,
+          "start": 7815,
+          "end": 7824,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 117.37,
+                "t": 600.25,
+                "r": 477.63,
+                "b": 577.23,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                164
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b2fcac50a9c9cdf5859533af6fd4609da399abc0cd2f7eb4659d45a109c539d1",
+      "start": 7992,
+      "end": 7999,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/91",
+          "physicalPage": 4,
+          "start": 7992,
+          "end": 7999,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 56.94,
+                "t": 536.12,
+                "r": 477.63,
+                "b": 506.52,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                184
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "e3e7b62620b6d55d95847fd5965491a0429503defe9f5a320150b966bce97d5a",
+      "start": 8164,
+      "end": 8196,
+      "exactMention": "For the purposes of this section",
+      "kind": "relative",
+      "targetHint": "For the purposes of this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/94",
+          "physicalPage": 4,
+          "start": 8164,
+          "end": 8196,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 117.37,
+                "t": 471.98,
+                "r": 477.63,
+                "b": 448.96,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                130
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "fe27755d835cc4de71d1d00a5e7870438b86bd49ea065ed7e93e3cc681cd468d",
+      "start": 8343,
+      "end": 8352,
+      "exactMention": "section 6",
+      "kind": "section",
+      "targetHint": "section 6",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/95",
+          "physicalPage": 4,
+          "start": 8343,
+          "end": 8352,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 56.94,
+                "t": 442.38,
+                "r": 477.63,
+                "b": 407.84,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                196
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "2c68ff0a4197e3e062cdfef1c0ff3094adcac8e68dc19ff6246333188bd87014",
+      "start": 8656,
+      "end": 8665,
+      "exactMention": "section 6",
+      "kind": "section",
+      "targetHint": "section 6",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/97",
+          "physicalPage": 4,
+          "start": 8656,
+          "end": 8665,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 141.78,
+                "t": 371.66,
+                "r": 477.63,
+                "b": 348.64,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d42dc2638dd43cff95ceaa863e852fc78080f259695d50fc6bb0e0928b8af882",
+      "start": 8670,
+      "end": 8680,
+      "exactMention": "section 13",
+      "kind": "section",
+      "targetHint": "section 13",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/97",
+          "physicalPage": 4,
+          "start": 8670,
+          "end": 8680,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 141.78,
+                "t": 371.66,
+                "r": 477.63,
+                "b": 348.64,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "86c861333bdb42009c01c7464291c9a04a019e1c802d74a42a1151247a759c71",
+      "start": 9679,
+      "end": 9688,
+      "exactMention": "section 6",
+      "kind": "section",
+      "targetHint": "section 6",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/104",
+          "physicalPage": 4,
+          "start": 9679,
+          "end": 9688,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 165.02,
+                "t": 144.72,
+                "r": 477.63,
+                "b": 121.7,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "31001e53a9e91d4e758480bb261f7d82845d95e1d91db4ec838c9c22889b2e3d",
+      "start": 9693,
+      "end": 9703,
+      "exactMention": "section 13",
+      "kind": "section",
+      "targetHint": "section 13",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/104",
+          "physicalPage": 4,
+          "start": 9693,
+          "end": 9703,
+          "provenance": [
+            {
+              "page_no": 4,
+              "bbox": {
+                "l": 165.02,
+                "t": 144.72,
+                "r": 477.63,
+                "b": 121.7,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "e8ee153250dd6938656f8f9fa0c484f3a411ebe966f1c461136af0aebd1ee63b",
+      "start": 10615,
+      "end": 10630,
+      "exactMention": "Eighth Schedule",
+      "kind": "schedule",
+      "targetHint": "Eighth Schedule",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/112",
+          "physicalPage": 5,
+          "start": 10615,
+          "end": 10630,
+          "provenance": [
+            {
+              "page_no": 5,
+              "bbox": {
+                "l": 117.37,
+                "t": 646.3,
+                "r": 477.63,
+                "b": 613.41,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                227
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d56254ecb3c5a3a308c3be4d4a0811469264b9fbd1fbdea87f26b262236efbc6",
+      "start": 11576,
+      "end": 11582,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/116",
+          "physicalPage": 5,
+          "start": 11576,
+          "end": 11582,
+          "provenance": [
+            {
+              "page_no": 5,
+              "bbox": {
+                "l": 117.37,
+                "t": 486.78,
+                "r": 477.63,
+                "b": 453.89,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                248
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8a9f21fa19434d7ea84afad7b7eb14aa68ad0f420f0a21e510b6c6eba03c7b6b",
+      "start": 12182,
+      "end": 12188,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/119",
+          "physicalPage": 5,
+          "start": 12182,
+          "end": 12188,
+          "provenance": [
+            {
+              "page_no": 5,
+              "bbox": {
+                "l": 117.37,
+                "t": 376.6,
+                "r": 477.63,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                576
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "28a7175b293a4e68ffe5f3c5c6a9b9519eda14dee09b0923b6fe525e35aa2cc1",
+      "start": 12390,
+      "end": 12405,
+      "exactMention": "Eighth Schedule",
+      "kind": "schedule",
+      "targetHint": "Eighth Schedule",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/119",
+          "physicalPage": 5,
+          "start": 12390,
+          "end": 12405,
+          "provenance": [
+            {
+              "page_no": 5,
+              "bbox": {
+                "l": 117.37,
+                "t": 376.6,
+                "r": 477.63,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                576
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "086458fadc03056d8a688372f0c9407dd71ab75c31d9851c9b8c56ccecb15b1b",
+      "start": 14055,
+      "end": 14061,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/124",
+          "physicalPage": 5,
+          "start": 14055,
+          "end": 14061,
+          "provenance": [
+            {
+              "page_no": 5,
+              "bbox": {
+                "l": 117.37,
+                "t": 136.5,
+                "r": 477.63,
+                "b": 80.58,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                453
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "1aceeda51dae381f8e17c5fb9658aff51a2fc185449f036b048de701b231b9f7",
+      "start": 14854,
+      "end": 14860,
+      "exactMention": "act on",
+      "kind": "external",
+      "targetHint": "act on",
+      "externalInstrumentHint": "act on",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/132",
+          "physicalPage": 6,
+          "start": 14854,
+          "end": 14860,
+          "provenance": [
+            {
+              "page_no": 6,
+              "bbox": {
+                "l": 117.37,
+                "t": 639.72,
+                "r": 477.63,
+                "b": 616.7,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                165
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a9d3252c34b14ea578e59b6fa7f44925e08fa6b5d1b4855a2a5f6a59ace4cc3a",
+      "start": 15473,
+      "end": 15480,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/134",
+          "physicalPage": 6,
+          "start": 15473,
+          "end": 15480,
+          "provenance": [
+            {
+              "page_no": 6,
+              "bbox": {
+                "l": 117.37,
+                "t": 583.81,
+                "r": 477.63,
+                "b": 526.25,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                391
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "aa0068e15f5b3fd97fafe129a3e11891a74d69e82e513adb8a0bc4a85e9fa6c4",
+      "start": 19330,
+      "end": 19339,
+      "exactMention": "section 2",
+      "kind": "section",
+      "targetHint": "section 2",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/155",
+          "physicalPage": 7,
+          "start": 19330,
+          "end": 19339,
+          "provenance": [
+            {
+              "page_no": 7,
+              "bbox": {
+                "l": 141.78,
+                "t": 511.45,
+                "r": 477.63,
+                "b": 476.91,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                188
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "82df6436bdae0020c04eeb732ef50b880f89ec4f7bd942fc41227a143c0716f4",
+      "start": 19856,
+      "end": 19871,
+      "exactMention": "under this  Act",
+      "kind": "relative",
+      "targetHint": "under this  Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/157",
+          "physicalPage": 7,
+          "start": 19856,
+          "end": 19871,
+          "provenance": [
+            {
+              "page_no": 7,
+              "bbox": {
+                "l": 117.37,
+                "t": 417.71,
+                "r": 477.63,
+                "b": 370.02,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                335
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "7e628568d6819f529a1a708d890ee275ef12e46afbe55ca6598fac108702b09b",
+      "start": 19930,
+      "end": 19937,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/157",
+          "physicalPage": 7,
+          "start": 19930,
+          "end": 19937,
+          "provenance": [
+            {
+              "page_no": 7,
+              "bbox": {
+                "l": 117.37,
+                "t": 417.71,
+                "r": 477.63,
+                "b": 370.02,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                335
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "3dc9f4268afbf08e29ff68ce7e7e6eb2ccec5315ee707f6001bf2333cc52dcc6",
+      "start": 20741,
+      "end": 20748,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/163",
+          "physicalPage": 7,
+          "start": 20741,
+          "end": 20748,
+          "provenance": [
+            {
+              "page_no": 7,
+              "bbox": {
+                "l": 117.37,
+                "t": 243.39,
+                "r": 477.63,
+                "b": 220.37,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                182
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "92859a4078f7152b51fb34a08a4f6ecca64f62ca19c6ef409094e6492b506d6f",
+      "start": 23411,
+      "end": 23443,
+      "exactMention": "For the purposes of this section",
+      "kind": "relative",
+      "targetHint": "For the purposes of this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/183",
+          "physicalPage": 8,
+          "start": 23411,
+          "end": 23443,
+          "provenance": [
+            {
+              "page_no": 8,
+              "bbox": {
+                "l": 117.37,
+                "t": 388.11,
+                "r": 477.63,
+                "b": 342.06,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                367
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8bbe614cbbbbc50ef02f5bbda5130a6b5c19b7aab2851744e913ac6a70b9f3bb",
+      "start": 27052,
+      "end": 27061,
+      "exactMention": "section 7",
+      "kind": "section",
+      "targetHint": "section 7",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/213",
+          "physicalPage": 9,
+          "start": 27052,
+          "end": 27061,
+          "provenance": [
+            {
+              "page_no": 9,
+              "bbox": {
+                "l": 117.37,
+                "t": 284.5,
+                "r": 477.63,
+                "b": 236.81,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                340
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "eef58df011ef928bccc5a0a6c6f1b394c2ad654aca1b99458aea9948dbed50a8",
+      "start": 28601,
+      "end": 28610,
+      "exactMention": "section 7",
+      "kind": "section",
+      "targetHint": "section 7",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/224",
+          "physicalPage": 10,
+          "start": 28601,
+          "end": 28610,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 703.86,
+                "r": 477.63,
+                "b": 656.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                332
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "c50e9e6da9a32074899e00cb3e7857b21293a18cf01241364bb249c3bba8a454",
+      "start": 29478,
+      "end": 29484,
+      "exactMention": "act or",
+      "kind": "external",
+      "targetHint": "act or",
+      "externalInstrumentHint": "act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/230",
+          "physicalPage": 10,
+          "start": 29478,
+          "end": 29484,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 511.45,
+                "r": 477.63,
+                "b": 452.25,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                421
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4f2ec5671be764234adc628b21acb0d0d8db0f2af3973bf8388e46896f4d848b",
+      "start": 29696,
+      "end": 29703,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/230",
+          "physicalPage": 10,
+          "start": 29696,
+          "end": 29703,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 511.45,
+                "r": 477.63,
+                "b": 452.25,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                421
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "aa9d07b9d106d03f0053e37e09be4a792556c7bc18c544b1f6dcf752d367b49a",
+      "start": 30035,
+      "end": 30053,
+      "exactMention": "under this section",
+      "kind": "relative",
+      "targetHint": "under this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/232",
+          "physicalPage": 10,
+          "start": 30035,
+          "end": 30053,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 404.55,
+                "r": 477.63,
+                "b": 381.53,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                132
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "fa88004da467f34bb4069073489b4c90c768ec1fabc892787783378e46ff7a60",
+      "start": 30358,
+      "end": 30365,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/233",
+          "physicalPage": 10,
+          "start": 30358,
+          "end": 30365,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 56.94,
+                "t": 373.31,
+                "r": 477.63,
+                "b": 327.26,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                328
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b8f060c6c40eb7051330754ebbb6db45d3add307836c55f841a10b53d97de9aa",
+      "start": 30419,
+      "end": 30451,
+      "exactMention": "For the purposes of this section",
+      "kind": "relative",
+      "targetHint": "For the purposes of this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/234",
+          "physicalPage": 10,
+          "start": 30419,
+          "end": 30451,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 320.68,
+                "r": 477.63,
+                "b": 284.5,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                240
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4eb29c700886694302dd64172ddce49e73470b875680030cbce6bfb5a3e945da",
+      "start": 30571,
+      "end": 30577,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/234",
+          "physicalPage": 10,
+          "start": 30571,
+          "end": 30577,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 117.37,
+                "t": 320.68,
+                "r": 477.63,
+                "b": 284.5,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                240
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "18fb0fb862dcb8ac3dcf7482dd8e9137d335d695ec26be6a984b6ecbcea7942c",
+      "start": 31489,
+      "end": 31495,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/241",
+          "physicalPage": 10,
+          "start": 31489,
+          "end": 31495,
+          "provenance": [
+            {
+              "page_no": 10,
+              "bbox": {
+                "l": 141.78,
+                "t": 128.27,
+                "r": 477.63,
+                "b": 93.74,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                181
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "48ec63d4c29f7d9147623b50454352943a59a67fc1bc5077f86e64ae2885072a",
+      "start": 31832,
+      "end": 31847,
+      "exactMention": "in this section",
+      "kind": "relative",
+      "targetHint": "in this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/249",
+          "physicalPage": 11,
+          "start": 31832,
+          "end": 31847,
+          "provenance": [
+            {
+              "page_no": 11,
+              "bbox": {
+                "l": 117.37,
+                "t": 667.68,
+                "r": 477.63,
+                "b": 621.63,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                319
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d0664d3cad3f3327d8b6e4b7117827be0009e70a785559e8e69ed2a7eb5ed2a2",
+      "start": 32207,
+      "end": 32216,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/250",
+          "physicalPage": 11,
+          "start": 32207,
+          "end": 32216,
+          "provenance": [
+            {
+              "page_no": 11,
+              "bbox": {
+                "l": 117.37,
+                "t": 613.41,
+                "r": 477.63,
+                "b": 590.39,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                152
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "5eafba575faa6e3725aafeee59144cfd43f28533f901b24085956aa83d6dd7d1",
+      "start": 32247,
+      "end": 32257,
+      "exactMention": "section 16",
+      "kind": "section",
+      "targetHint": "section 16",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/250",
+          "physicalPage": 11,
+          "start": 32247,
+          "end": 32257,
+          "provenance": [
+            {
+              "page_no": 11,
+              "bbox": {
+                "l": 117.37,
+                "t": 613.41,
+                "r": 477.63,
+                "b": 590.39,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                152
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "09e4fdefcd88b2cfe8165434afc951debe24a83fc5681ccbc260cbd90a2d3727",
+      "start": 34059,
+      "end": 34068,
+      "exactMention": "section 3",
+      "kind": "section",
+      "targetHint": "section 3",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/257",
+          "physicalPage": 11,
+          "start": 34059,
+          "end": 34068,
+          "provenance": [
+            {
+              "page_no": 11,
+              "bbox": {
+                "l": 141.78,
+                "t": 271.35,
+                "r": 477.63,
+                "b": 236.81,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                256
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8851de6fb24e0eaec717b537f7097205e01622553ce0a6ee854d4e07b8ee0241",
+      "start": 34407,
+      "end": 34416,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/260",
+          "physicalPage": 11,
+          "start": 34407,
+          "end": 34416,
+          "provenance": [
+            {
+              "page_no": 11,
+              "bbox": {
+                "l": 117.37,
+                "t": 169.39,
+                "r": 477.63,
+                "b": 146.36,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                95
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "160758806464cade09bea721ae3bce2ffa7b355d9d3abb742b6c44c5be8f5bc7",
+      "start": 35634,
+      "end": 35644,
+      "exactMention": "section  5",
+      "kind": "section",
+      "targetHint": "section  5",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/271",
+          "physicalPage": 12,
+          "start": 35634,
+          "end": 35644,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 703.86,
+                "r": 477.63,
+                "b": 656.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                335
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8286b5755c4c2b53fa06c2248a9b9a7a8aa9a89708b90428b261268d2eed6e4b",
+      "start": 35683,
+      "end": 35692,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/271",
+          "physicalPage": 12,
+          "start": 35683,
+          "end": 35692,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 703.86,
+                "r": 477.63,
+                "b": 656.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                335
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "e5b0f4248597a15a05314efec5770a10b67a20a7ad42e6eed4e64c79a92a7700",
+      "start": 35697,
+      "end": 35708,
+      "exactMention": "sections 10",
+      "kind": "section",
+      "targetHint": "sections 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/271",
+          "physicalPage": 12,
+          "start": 35697,
+          "end": 35708,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 703.86,
+                "r": 477.63,
+                "b": 656.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                335
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "406bb09114b1b9082e48f2a5039b83b0c973cebdd4044d73f170369b4cc0ee59",
+      "start": 36236,
+      "end": 36245,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/273",
+          "physicalPage": 12,
+          "start": 36236,
+          "end": 36245,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 583.81,
+                "r": 477.63,
+                "b": 536.12,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                334
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "eafaebda0d399a288eacec1e06125949880a79be6fa1779bc342c2cc220fa0de",
+      "start": 36271,
+      "end": 36281,
+      "exactMention": "section 12",
+      "kind": "section",
+      "targetHint": "section 12",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/273",
+          "physicalPage": 12,
+          "start": 36271,
+          "end": 36281,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 583.81,
+                "r": 477.63,
+                "b": 536.12,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                334
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "820807ac69e459f59e0850121db8d3c3d8e6de001a0fe4c577f15049071766ca",
+      "start": 36423,
+      "end": 36433,
+      "exactMention": "section 12",
+      "kind": "section",
+      "targetHint": "section 12",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/273",
+          "physicalPage": 12,
+          "start": 36423,
+          "end": 36433,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 583.81,
+                "r": 477.63,
+                "b": 536.12,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                334
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "afb29310be6a8c3b1dffda4f0356e2ce4e2c797dde344d0a69a2a5fb640f6953",
+      "start": 36621,
+      "end": 36630,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/274",
+          "physicalPage": 12,
+          "start": 36621,
+          "end": 36630,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 529.54,
+                "r": 477.63,
+                "b": 483.49,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                300
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a721d5cb174298b0326cf03418ac7ebd2123ae7b2325e1aa0042db2dd353b462",
+      "start": 36915,
+      "end": 36943,
+      "exactMention": "for the purposes of this Act",
+      "kind": "relative",
+      "targetHint": "for the purposes of this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/277",
+          "physicalPage": 12,
+          "start": 36915,
+          "end": 36943,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 440.73,
+                "r": 477.63,
+                "b": 404.55,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                208
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f4fa23eb1c778244514a3543b5f3ba1bb708c6550f78148d171844a9ba54fe83",
+      "start": 37987,
+      "end": 38000,
+      "exactMention": "regulation or",
+      "kind": "external",
+      "targetHint": "regulation or",
+      "externalInstrumentHint": "regulation or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/282",
+          "physicalPage": 12,
+          "start": 37987,
+          "end": 38000,
+          "provenance": [
+            {
+              "page_no": 12,
+              "bbox": {
+                "l": 117.37,
+                "t": 249.97,
+                "r": 477.63,
+                "b": 166.1,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                547
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "71afc328ad5170f46b65296fb620e5e111bf5f769914751edb1f4d5ce1b9e0e9",
+      "start": 40696,
+      "end": 40702,
+      "exactMention": "act or",
+      "kind": "external",
+      "targetHint": "act or",
+      "externalInstrumentHint": "act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/300",
+          "physicalPage": 13,
+          "start": 40696,
+          "end": 40702,
+          "provenance": [
+            {
+              "page_no": 13,
+              "bbox": {
+                "l": 141.78,
+                "t": 330.55,
+                "r": 447.41,
+                "b": 320.68,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                77
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "57f7e26b3b4f85e600379008b45ad14a6c1379069e0b275cbc719e0af0b16172",
+      "start": 41682,
+      "end": 41688,
+      "exactMention": "act in",
+      "kind": "external",
+      "targetHint": "act in",
+      "externalInstrumentHint": "act in",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/306",
+          "physicalPage": 13,
+          "start": 41682,
+          "end": 41688,
+          "provenance": [
+            {
+              "page_no": 13,
+              "bbox": {
+                "l": 117.37,
+                "t": 133.21,
+                "r": 477.63,
+                "b": 98.67,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                236
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "23641311c262e6bc7373e264def15271b44b943e3dff4877c56feeb60a13eefb",
+      "start": 41770,
+      "end": 41780,
+      "exactMention": "section 21",
+      "kind": "section",
+      "targetHint": "section 21",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/306",
+          "physicalPage": 13,
+          "start": 41770,
+          "end": 41780,
+          "provenance": [
+            {
+              "page_no": 13,
+              "bbox": {
+                "l": 117.37,
+                "t": 133.21,
+                "r": 477.63,
+                "b": 98.67,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                236
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "39223b586636a04b478049b8fece9b27c61477ac4fc3e46626241eea272d4f6b",
+      "start": 42929,
+      "end": 42938,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/324",
+          "physicalPage": 14,
+          "start": 42929,
+          "end": 42938,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 560.79,
+                "r": 477.63,
+                "b": 513.09,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                278
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0134d249883575ae11395c72aa2544e8af7e800f3e97cd11f0a76e334900433d",
+      "start": 43110,
+      "end": 43121,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/324",
+          "physicalPage": 14,
+          "start": 43110,
+          "end": 43121,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 560.79,
+                "r": 477.63,
+                "b": 513.09,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                278
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "802a5662d5cc9f7b228653d0b32e3ef2d411dd22388c8338bf15cdbdee6faf95",
+      "start": 43554,
+      "end": 43565,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/325",
+          "physicalPage": 14,
+          "start": 43554,
+          "end": 43565,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 506.52,
+                "r": 477.63,
+                "b": 434.16,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                443
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f3688f67ec46cbf2b18c4b9c6f7c7426482eb10a806c058fa1d3da1544e9960d",
+      "start": 43783,
+      "end": 43794,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/326",
+          "physicalPage": 14,
+          "start": 43783,
+          "end": 43794,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 427.58,
+                "r": 477.63,
+                "b": 393.04,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                228
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0f48d3c5e9a86bb48df30a8edb99875d35036fd3ba6eb757fc4de5f21389bcd9",
+      "start": 43954,
+      "end": 43965,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/327",
+          "physicalPage": 14,
+          "start": 43954,
+          "end": 43965,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 386.46,
+                "r": 477.63,
+                "b": 350.29,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                174
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b52e3c399ba91defe41d6f0bcae5e324ad4778e76583530b10acb495012385e1",
+      "start": 44104,
+      "end": 44114,
+      "exactMention": "section 37",
+      "kind": "section",
+      "targetHint": "section 37",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/328",
+          "physicalPage": 14,
+          "start": 44104,
+          "end": 44114,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 343.71,
+                "r": 477.63,
+                "b": 309.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                235
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "5f93b52525f4f86a29311b06a9375b0fb355dc61d5980639b622b9e8bf856837",
+      "start": 44194,
+      "end": 44205,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/328",
+          "physicalPage": 14,
+          "start": 44194,
+          "end": 44205,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 141.78,
+                "t": 343.71,
+                "r": 477.63,
+                "b": 309.17,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                235
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0987e397483f87430644e58261f0ac9d6e7d4646841b9420aebfd002ee8e60ce",
+      "start": 45375,
+      "end": 45385,
+      "exactMention": "section 27",
+      "kind": "section",
+      "targetHint": "section 27",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/332",
+          "physicalPage": 14,
+          "start": 45375,
+          "end": 45385,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 117.37,
+                "t": 128.27,
+                "r": 477.63,
+                "b": 93.74,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                228
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d930f0c0011d0f412bb204384889330218b3a22acf4687e0416411724f384530",
+      "start": 45441,
+      "end": 45448,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/332",
+          "physicalPage": 14,
+          "start": 45441,
+          "end": 45448,
+          "provenance": [
+            {
+              "page_no": 14,
+              "bbox": {
+                "l": 117.37,
+                "t": 128.27,
+                "r": 477.63,
+                "b": 93.74,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                228
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "6a7a96bb73688d9ebc6f2544fc9ef75f77572ea4218a72ea4f9f6ba37d393697",
+      "start": 46260,
+      "end": 46274,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/340",
+          "physicalPage": 15,
+          "start": 46260,
+          "end": 46274,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 58.11,
+                "t": 605.19,
+                "r": 477.63,
+                "b": 569.01,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                222
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4ac2f92451dc9842baa7cc10dace805e361e90ef26a14f1d9aba29b9b890821d",
+      "start": 46354,
+      "end": 46361,
+      "exactMention": "Code of",
+      "kind": "external",
+      "targetHint": "Code of",
+      "externalInstrumentHint": "Code of",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/340",
+          "physicalPage": 15,
+          "start": 46354,
+          "end": 46361,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 58.11,
+                "t": 605.19,
+                "r": 477.63,
+                "b": 569.01,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                222
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a352590944d7abc9511af7161dc7b627b7bd4e4ff31eb057300779f472c2856f",
+      "start": 47078,
+      "end": 47110,
+      "exactMention": "for the purposes of this section",
+      "kind": "relative",
+      "targetHint": "for the purposes of this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/346",
+          "physicalPage": 15,
+          "start": 47078,
+          "end": 47110,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 117.37,
+                "t": 419.36,
+                "r": 477.63,
+                "b": 383.18,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                251
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f26943669ff47fdbafebf438be72669f86f6d674348e65bdef40df68708efb69",
+      "start": 47633,
+      "end": 47643,
+      "exactMention": "section 33",
+      "kind": "section",
+      "targetHint": "section 33",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/348",
+          "physicalPage": 15,
+          "start": 47633,
+          "end": 47643,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 117.37,
+                "t": 337.13,
+                "r": 477.63,
+                "b": 302.59,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                243
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "39303e5444ceca91b25396ac8ddc099413193b250662380cc017ccea4b27f1be",
+      "start": 47953,
+      "end": 47967,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/352",
+          "physicalPage": 15,
+          "start": 47953,
+          "end": 47967,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 117.37,
+                "t": 233.52,
+                "r": 477.63,
+                "b": 210.5,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                140
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a68f7ccaa80a487e2c92a5a397740c2eaad4521ff7de8ca383c6f3f2494a2785",
+      "start": 47964,
+      "end": 47971,
+      "exactMention": "Act may",
+      "kind": "external",
+      "targetHint": "Act may",
+      "externalInstrumentHint": "Act may",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/352",
+          "physicalPage": 15,
+          "start": 47964,
+          "end": 47971,
+          "provenance": [
+            {
+              "page_no": 15,
+              "bbox": {
+                "l": 117.37,
+                "t": 233.52,
+                "r": 477.63,
+                "b": 210.5,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                140
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "39af5a59fae6c41f0a3ee6a14a67763b1e04f318a96cd88f4facc5f2d7a694b1",
+      "start": 49562,
+      "end": 49573,
+      "exactMention": "section 14A",
+      "kind": "section",
+      "targetHint": "section 14A",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/364",
+          "physicalPage": 16,
+          "start": 49562,
+          "end": 49573,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 631.5,
+                "r": 477.63,
+                "b": 596.96,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                251
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "6a880d380f3e08ca4cf556a260ec93bb99cc9fbebee21a357d6e5b16ef5d626a",
+      "start": 49578,
+      "end": 49588,
+      "exactMention": "section 16",
+      "kind": "section",
+      "targetHint": "section 16",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/364",
+          "physicalPage": 16,
+          "start": 49578,
+          "end": 49588,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 631.5,
+                "r": 477.63,
+                "b": 596.96,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                251
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f08a543d8eee1a9bd0f86e98964fd1dfe2ece46c46e3540bde261d1652847573",
+      "start": 49694,
+      "end": 49712,
+      "exactMention": "under this section",
+      "kind": "relative",
+      "targetHint": "under this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/364",
+          "physicalPage": 16,
+          "start": 49694,
+          "end": 49712,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 631.5,
+                "r": 477.63,
+                "b": 596.96,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                251
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "40ba3d8bb8712d7ce9206542f7556ee2bdff599814ea828e59028cddda56adc0",
+      "start": 49845,
+      "end": 49859,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/365",
+          "physicalPage": 16,
+          "start": 49845,
+          "end": 49859,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 590.39,
+                "r": 477.63,
+                "b": 554.21,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                188
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ee427e6d2421b48ef9e62261e3da0954109097e1a03148aac3bc417439bd06da",
+      "start": 49879,
+      "end": 49889,
+      "exactMention": "section 18",
+      "kind": "section",
+      "targetHint": "section 18",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/365",
+          "physicalPage": 16,
+          "start": 49879,
+          "end": 49889,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 590.39,
+                "r": 477.63,
+                "b": 554.21,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                188
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "80b24c899abc5ce2580337c59448c33823866c0bf486f20ae0372957be4f25bc",
+      "start": 50278,
+      "end": 50292,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/367",
+          "physicalPage": 16,
+          "start": 50278,
+          "end": 50292,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 506.52,
+                "r": 477.63,
+                "b": 470.34,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                209
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b7335ad80e40642b98dc7b7daf513575d6abada65d7a1471ffbb681725dc993e",
+      "start": 50289,
+      "end": 50298,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/367",
+          "physicalPage": 16,
+          "start": 50289,
+          "end": 50298,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 506.52,
+                "r": 477.63,
+                "b": 470.34,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                209
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "6eeb24a328cb2ad97b9d15c12e270b9fa9426dbd298c245938b645396b126bee",
+      "start": 51153,
+      "end": 51161,
+      "exactMention": "Act from",
+      "kind": "external",
+      "targetHint": "Act from",
+      "externalInstrumentHint": "Act from",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/370",
+          "physicalPage": 16,
+          "start": 51153,
+          "end": 51161,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 56.94,
+                "t": 368.38,
+                "r": 477.63,
+                "b": 332.2,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                217
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8e145d81315ed61280f9807470d0890b999ed10c1bf1c231ee8658ca282ebdb4",
+      "start": 51208,
+      "end": 51218,
+      "exactMention": "section 28",
+      "kind": "section",
+      "targetHint": "section 28",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/370",
+          "physicalPage": 16,
+          "start": 51208,
+          "end": 51218,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 56.94,
+                "t": 368.38,
+                "r": 477.63,
+                "b": 332.2,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                217
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "bd33357947be42b6db02b27a9d55831b6e6d2eaee501ec4239feb9683b3f2cd2",
+      "start": 51808,
+      "end": 51814,
+      "exactMention": "Act as",
+      "kind": "external",
+      "targetHint": "Act as",
+      "externalInstrumentHint": "Act as",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/373",
+          "physicalPage": 16,
+          "start": 51808,
+          "end": 51814,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 241.75,
+                "r": 477.63,
+                "b": 207.21,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                233
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ea8111ec55f76ed5e33eeb27714313293440db6101720eb730ec9706fc7ba62e",
+      "start": 52080,
+      "end": 52087,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/374",
+          "physicalPage": 16,
+          "start": 52080,
+          "end": 52087,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 200.63,
+                "r": 477.63,
+                "b": 152.94,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                303
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "85e3bcccbbe04f624f1890c1dc2a48aed05d2e452b8d1cb3d9280b42be7f0c8e",
+      "start": 52204,
+      "end": 52214,
+      "exactMention": "section 33",
+      "kind": "section",
+      "targetHint": "section 33",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/374",
+          "physicalPage": 16,
+          "start": 52204,
+          "end": 52214,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 117.37,
+                "t": 200.63,
+                "r": 477.63,
+                "b": 152.94,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                303
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "09a35d51c1684266a5586307d418be1b99cafbd83910c974be4577e05da2d38d",
+      "start": 52356,
+      "end": 52362,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/377",
+          "physicalPage": 16,
+          "start": 52356,
+          "end": 52362,
+          "provenance": [
+            {
+              "page_no": 16,
+              "bbox": {
+                "l": 56.94,
+                "t": 110.18,
+                "r": 477.63,
+                "b": 87.16,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                196
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "1d359e343796b9c5b82c2cb8a7107bf5a8a00e9129769c1bac30541281a6b300",
+      "start": 52607,
+      "end": 52619,
+      "exactMention": "the Schedule",
+      "kind": "schedule",
+      "targetHint": "the Schedule",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/383",
+          "physicalPage": 17,
+          "start": 52607,
+          "end": 52619,
+          "provenance": [
+            {
+              "page_no": 17,
+              "bbox": {
+                "l": 117.37,
+                "t": 746.62,
+                "r": 477.63,
+                "b": 723.59,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                93
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8ff2bcbae49bc043cbaeae24388d2e618ffd9ce8844ffdb36aee267ea24b0e72",
+      "start": 53524,
+      "end": 53538,
+      "exactMention": "under this Act",
+      "kind": "relative",
+      "targetHint": "under this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/392",
+          "physicalPage": 17,
+          "start": 53524,
+          "end": 53538,
+          "provenance": [
+            {
+              "page_no": 17,
+              "bbox": {
+                "l": 117.37,
+                "t": 511.45,
+                "r": 477.63,
+                "b": 488.43,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                131
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "2b8ac3c12ccd50088aea6e554c626379e9b412b774014cee3dc765f8c0677e8e",
+      "start": 53886,
+      "end": 53892,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/395",
+          "physicalPage": 17,
+          "start": 53886,
+          "end": 53892,
+          "provenance": [
+            {
+              "page_no": 17,
+              "bbox": {
+                "l": 117.37,
+                "t": 409.49,
+                "r": 477.63,
+                "b": 363.44,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                301
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f60302f596afa8de7fbab167a504288c849e60e519eb6a9222b57246231c8b1a",
+      "start": 53952,
+      "end": 53980,
+      "exactMention": "for the purposes of this Act",
+      "kind": "relative",
+      "targetHint": "for the purposes of this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/396",
+          "physicalPage": 17,
+          "start": 53952,
+          "end": 53980,
+          "provenance": [
+            {
+              "page_no": 17,
+              "bbox": {
+                "l": 117.37,
+                "t": 355.22,
+                "r": 477.63,
+                "b": 332.2,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                166
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0a050e2739445fc050105789d28a4926ada2cce985011f8ec6fa7c05594d1d4d",
+      "start": 55755,
+      "end": 55764,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/410",
+          "physicalPage": 18,
+          "start": 55755,
+          "end": 55764,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 117.37,
+                "t": 746.62,
+                "r": 477.63,
+                "b": 723.59,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                128
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "83a325cade4e0f013e8433bbf96bbe187cffc85aaa0a2a6be39d4686591829d6",
+      "start": 55914,
+      "end": 55921,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/411",
+          "physicalPage": 18,
+          "start": 55914,
+          "end": 55921,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 117.37,
+                "t": 715.37,
+                "r": 477.63,
+                "b": 680.84,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                200
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0e9d041db592354c764383fae3a46e3df6aafc6f68dc6f254b8b77fb2d22efff",
+      "start": 56002,
+      "end": 56011,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/411",
+          "physicalPage": 18,
+          "start": 56002,
+          "end": 56011,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 117.37,
+                "t": 715.37,
+                "r": 477.63,
+                "b": 680.84,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                200
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d83b821d69fb67c77e0c0e4f51b57a1254676517771fa1f68944e81d54be2e59",
+      "start": 56222,
+      "end": 56229,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/412",
+          "physicalPage": 18,
+          "start": 56222,
+          "end": 56229,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 56.94,
+                "t": 674.26,
+                "r": 477.63,
+                "b": 626.57,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                368
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b02f29d26f354fc78f1067bd9423523b24d58dedb9b77407f1284670ef6dbf13",
+      "start": 56939,
+      "end": 56948,
+      "exactMention": "section 5",
+      "kind": "section",
+      "targetHint": "section 5",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/415",
+          "physicalPage": 18,
+          "start": 56939,
+          "end": 56948,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 547.63,
+                "r": 477.63,
+                "b": 524.61,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                140
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "39c4b855c52974ab7895c962befd5606215fb16f8db0f4ea7a4916055960f191",
+      "start": 57080,
+      "end": 57089,
+      "exactMention": "section 5",
+      "kind": "section",
+      "targetHint": "section 5",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/416",
+          "physicalPage": 18,
+          "start": 57080,
+          "end": 57089,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 518.03,
+                "r": 477.63,
+                "b": 495,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                140
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "7d9fbcd96838f7fa936390ac368fdc8caba8a3fd3d213710389c5808dd7eea10",
+      "start": 57192,
+      "end": 57201,
+      "exactMention": "section 6",
+      "kind": "section",
+      "targetHint": "section 6",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/417",
+          "physicalPage": 18,
+          "start": 57192,
+          "end": 57201,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 488.43,
+                "r": 477.63,
+                "b": 465.4,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ef4beba666e97e310aa6e86d8ff8a3aff9de30426efdeebe44aa1bc856f9d0dc",
+      "start": 57319,
+      "end": 57328,
+      "exactMention": "section 6",
+      "kind": "section",
+      "targetHint": "section 6",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/418",
+          "physicalPage": 18,
+          "start": 57319,
+          "end": 57328,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 457.18,
+                "r": 477.63,
+                "b": 434.16,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                126
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "c80f3f0d17768a86f0220e1cde6fc4008f5a230d049772d8ecbdcdafeb03e909",
+      "start": 57491,
+      "end": 57500,
+      "exactMention": "section 7",
+      "kind": "section",
+      "targetHint": "section 7",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/419",
+          "physicalPage": 18,
+          "start": 57491,
+          "end": 57500,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 427.58,
+                "r": 477.63,
+                "b": 404.55,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                171
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "753d025e440bde2479cd862b3cea11a80bea8ba2234e3447f2e79dcef791b926",
+      "start": 57606,
+      "end": 57615,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/420",
+          "physicalPage": 18,
+          "start": 57606,
+          "end": 57615,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 397.98,
+                "r": 477.63,
+                "b": 374.95,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                114
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "55a267f711091b8ff0effe4cc4c89ad78e0c3a016bd9ac98107b93326be446f7",
+      "start": 57732,
+      "end": 57741,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/421",
+          "physicalPage": 18,
+          "start": 57732,
+          "end": 57741,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 368.38,
+                "r": 477.63,
+                "b": 345.35,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                125
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "6255243947350fe6d75e50ec6a98f2a8f9bc0375bc9fa273588d2c15858d05ba",
+      "start": 57874,
+      "end": 57883,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/422",
+          "physicalPage": 18,
+          "start": 57874,
+          "end": 57883,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 338.77,
+                "r": 477.63,
+                "b": 314.11,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                141
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "403b5640f95660203273cda225c63e56e9dd43ec42b338e6a82ee0f5fbdf126b",
+      "start": 57971,
+      "end": 57980,
+      "exactMention": "section 9",
+      "kind": "section",
+      "targetHint": "section 9",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/423",
+          "physicalPage": 18,
+          "start": 57971,
+          "end": 57980,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 307.53,
+                "r": 477.63,
+                "b": 284.5,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                96
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "0eda957ab21a05bd93d167f068cad25848087d49275060439f1355cd83995281",
+      "start": 58140,
+      "end": 58149,
+      "exactMention": "section 9",
+      "kind": "section",
+      "targetHint": "section 9",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/424",
+          "physicalPage": 18,
+          "start": 58140,
+          "end": 58149,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 277.93,
+                "r": 477.63,
+                "b": 254.9,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                168
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "bbb6872d80ab7075915bae463ec6fdda749411593cb6698aaf7cf3cb9c3b6358",
+      "start": 58308,
+      "end": 58318,
+      "exactMention": "section 10",
+      "kind": "section",
+      "targetHint": "section 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/425",
+          "physicalPage": 18,
+          "start": 58308,
+          "end": 58318,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 249.97,
+                "r": 477.63,
+                "b": 225.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                168
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a2f53503484da0a0102c6dc5a228be7ba631e4c860ffb9a31179cb66541b338b",
+      "start": 58462,
+      "end": 58472,
+      "exactMention": "section 10",
+      "kind": "section",
+      "targetHint": "section 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/426",
+          "physicalPage": 18,
+          "start": 58462,
+          "end": 58472,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 218.72,
+                "r": 477.63,
+                "b": 195.7,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                153
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "97666ee2e419cb6aa65e3c0e19b9b9b43686df42521a627e9b2f3179037980b8",
+      "start": 58707,
+      "end": 58717,
+      "exactMention": "section 11",
+      "kind": "section",
+      "targetHint": "section 11",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/427",
+          "physicalPage": 18,
+          "start": 58707,
+          "end": 58717,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 189.12,
+                "r": 477.63,
+                "b": 154.59,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                244
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "9004c5172f4dbfcde52fb8679194dfcd8f9795b1e5d7e8425d0d74fdc626a50c",
+      "start": 58867,
+      "end": 58877,
+      "exactMention": "section 12",
+      "kind": "section",
+      "targetHint": "section 12",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/428",
+          "physicalPage": 18,
+          "start": 58867,
+          "end": 58877,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 148.01,
+                "r": 477.63,
+                "b": 124.98,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                159
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "888b40d2244a8925fccfcaf4807bef4e6ec7594d9e2c93f46cc582170ab7ad4b",
+      "start": 58987,
+      "end": 58997,
+      "exactMention": "section 13",
+      "kind": "section",
+      "targetHint": "section 13",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/429",
+          "physicalPage": 18,
+          "start": 58987,
+          "end": 58997,
+          "provenance": [
+            {
+              "page_no": 18,
+              "bbox": {
+                "l": 141.78,
+                "t": 118.41,
+                "r": 477.63,
+                "b": 95.38,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                119
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "99b56de65ee79c2db926d6710b6836bc32ca44bcb520b24eb34f21b877b4bc3d",
+      "start": 59149,
+      "end": 59159,
+      "exactMention": "section 14",
+      "kind": "section",
+      "targetHint": "section 14",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/433",
+          "physicalPage": 19,
+          "start": 59149,
+          "end": 59159,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 746.62,
+                "r": 477.63,
+                "b": 723.59,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                115
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "70ac4310759bdc3ba73caff0a51e5975b7cf8d3ae9d4f37a61398fed778105d0",
+      "start": 59271,
+      "end": 59281,
+      "exactMention": "section 17",
+      "kind": "section",
+      "targetHint": "section 17",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/434",
+          "physicalPage": 19,
+          "start": 59271,
+          "end": 59281,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 715.37,
+                "r": 477.63,
+                "b": 692.35,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                121
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "1729db1639d67033010782a6a5ae1558be2179c60a2bc09d71ebfcac7b5aa963",
+      "start": 59392,
+      "end": 59402,
+      "exactMention": "section 19",
+      "kind": "section",
+      "targetHint": "section 19",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/435",
+          "physicalPage": 19,
+          "start": 59392,
+          "end": 59402,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 685.77,
+                "r": 477.63,
+                "b": 662.75,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                120
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "386f05c8df76f8fb6470c3009b108a4f55ef5dd440db75494e45ebf4219096b4",
+      "start": 59553,
+      "end": 59563,
+      "exactMention": "section 20",
+      "kind": "section",
+      "targetHint": "section 20",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/436",
+          "physicalPage": 19,
+          "start": 59553,
+          "end": 59563,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 656.17,
+                "r": 477.63,
+                "b": 633.14,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                160
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d7261d5f483488ec9835024f01c33299d69455a219be79cef5002a369769c227",
+      "start": 59665,
+      "end": 59675,
+      "exactMention": "section 23",
+      "kind": "section",
+      "targetHint": "section 23",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/437",
+          "physicalPage": 19,
+          "start": 59665,
+          "end": 59675,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 626.57,
+                "r": 477.63,
+                "b": 603.54,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                111
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "c55844ea144db3bdd47fd7f53101bf252a0f5fed2d99fdda0d76948abbd69549",
+      "start": 59791,
+      "end": 59801,
+      "exactMention": "section 24",
+      "kind": "section",
+      "targetHint": "section 24",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/438",
+          "physicalPage": 19,
+          "start": 59791,
+          "end": 59801,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 595.32,
+                "r": 477.63,
+                "b": 572.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                125
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "c1a464a148a642c9aa95fc08cf6e41779a5d709895919fdf3bb89d8340f95f6f",
+      "start": 59889,
+      "end": 59899,
+      "exactMention": "section 28",
+      "kind": "section",
+      "targetHint": "section 28",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/439",
+          "physicalPage": 19,
+          "start": 59889,
+          "end": 59899,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 565.72,
+                "r": 477.63,
+                "b": 542.7,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                97
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b3763a9d6958ac80a1f69835d6458bb4df67d9d2963c2b85327802d4f717fb9c",
+      "start": 59968,
+      "end": 59978,
+      "exactMention": "section 28",
+      "kind": "section",
+      "targetHint": "section 28",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/440",
+          "physicalPage": 19,
+          "start": 59968,
+          "end": 59978,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 165.02,
+                "t": 536.12,
+                "r": 447.41,
+                "b": 524.61,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                78
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ad9f60b7b6ef22c4a311fbe447b092e88497bf6639d0f2f19e0dc7f6e11322c8",
+      "start": 60072,
+      "end": 60082,
+      "exactMention": "section 29",
+      "kind": "section",
+      "targetHint": "section 29",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/441",
+          "physicalPage": 19,
+          "start": 60072,
+          "end": 60082,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 141.78,
+                "t": 518.03,
+                "r": 477.63,
+                "b": 495,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                103
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8241b2c3ff6eaa6ce4443b1edccb5fd77e65d1c67a7c1138665f3a7ec3241b14",
+      "start": 60153,
+      "end": 60163,
+      "exactMention": "section 29",
+      "kind": "section",
+      "targetHint": "section 29",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/442",
+          "physicalPage": 19,
+          "start": 60153,
+          "end": 60163,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 165.02,
+                "t": 488.43,
+                "r": 467.17,
+                "b": 476.91,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                80
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f3f953e6abe23b17f865f147dee7936202e66e3d571b93d33de295ab981576d7",
+      "start": 60349,
+      "end": 60359,
+      "exactMention": "section 16",
+      "kind": "section",
+      "targetHint": "section 16",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/444",
+          "physicalPage": 19,
+          "start": 60349,
+          "end": 60359,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 440.73,
+                "r": 477.63,
+                "b": 320.68,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                856
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "21bb4a49d45284b812b6c5cb27ba001b9238fe2b371f7f6c0f1b55e12f189fc2",
+      "start": 60364,
+      "end": 60374,
+      "exactMention": "section 42",
+      "kind": "section",
+      "targetHint": "section 42",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/444",
+          "physicalPage": 19,
+          "start": 60364,
+          "end": 60374,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 440.73,
+                "r": 477.63,
+                "b": 320.68,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                856
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "b20f15d7b92dce4bd9916a111a2a34a4e74a5b5dd104227f7331b92f910b8f17",
+      "start": 60383,
+      "end": 60392,
+      "exactMention": "Act shall",
+      "kind": "external",
+      "targetHint": "Act shall",
+      "externalInstrumentHint": "Act shall",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/444",
+          "physicalPage": 19,
+          "start": 60383,
+          "end": 60392,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 440.73,
+                "r": 477.63,
+                "b": 320.68,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                856
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d9fb4d21971ba525a026a3078579763c8e54d726bbb2fb08e894c02c6ecad6c8",
+      "start": 61211,
+      "end": 61223,
+      "exactMention": "the Schedule",
+      "kind": "schedule",
+      "targetHint": "the Schedule",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/445",
+          "physicalPage": 19,
+          "start": 61211,
+          "end": 61223,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 314.11,
+                "r": 477.63,
+                "b": 266.41,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                278
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4f0f3ba11f893605e722108714bd2b6911d1922cb4c0c49965b981287990c9e0",
+      "start": 61401,
+      "end": 61408,
+      "exactMention": "Act was",
+      "kind": "external",
+      "targetHint": "Act was",
+      "externalInstrumentHint": "Act was",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/445",
+          "physicalPage": 19,
+          "start": 61401,
+          "end": 61408,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 314.11,
+                "r": 477.63,
+                "b": 266.41,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                278
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "976cdf9b6a30341b69b6f9fa4c3c28a6bb48190923d535b3be80c07f2cd6dcde",
+      "start": 61514,
+      "end": 61525,
+      "exactMention": "in this Act",
+      "kind": "relative",
+      "targetHint": "in this Act",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/446",
+          "physicalPage": 19,
+          "start": 61514,
+          "end": 61525,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 259.84,
+                "r": 477.63,
+                "b": 236.81,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                155
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ca3f37afda3c96f1c744292be0f28bc12803e54ca6e0a1d1ef2d0ec0d58051bb",
+      "start": 61522,
+      "end": 61529,
+      "exactMention": "Act and",
+      "kind": "external",
+      "targetHint": "Act and",
+      "externalInstrumentHint": "Act and",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/446",
+          "physicalPage": 19,
+          "start": 61522,
+          "end": 61529,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 259.84,
+                "r": 477.63,
+                "b": 236.81,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                155
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "10b53618b608bb8e4d2b381e7dafe9ebdf17c3446e7a8b8683441bc0705ad593",
+      "start": 61807,
+      "end": 61813,
+      "exactMention": "Act as",
+      "kind": "external",
+      "targetHint": "Act as",
+      "externalInstrumentHint": "Act as",
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/447",
+          "physicalPage": 19,
+          "start": 61807,
+          "end": 61813,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 230.23,
+                "r": 477.63,
+                "b": 182.54,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                303
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "3dd96fc58ee09742843ce1c36448bb9732aac4e9d1371c04b2ab6eb556df19f3",
+      "start": 62052,
+      "end": 62070,
+      "exactMention": "under this section",
+      "kind": "relative",
+      "targetHint": "under this section",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/449",
+          "physicalPage": 19,
+          "start": 62052,
+          "end": 62070,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 117.37,
+                "t": 146.36,
+                "r": 477.63,
+                "b": 123.34,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                125
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4bd40536d7cbe106784ff76e0570791b5c173e10a7eb2c8ac46d930327d4bafa",
+      "start": 62168,
+      "end": 62178,
+      "exactMention": "section 14",
+      "kind": "section",
+      "targetHint": "section 14",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/450",
+          "physicalPage": 19,
+          "start": 62168,
+          "end": 62178,
+          "provenance": [
+            {
+              "page_no": 19,
+              "bbox": {
+                "l": 58.11,
+                "t": 116.76,
+                "r": 477.63,
+                "b": 80.58,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                210
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "233e3c094eb83b4922fbdd5824b8dc4c1f5c7af8aeec4952370b45b445000caf",
+      "start": 62960,
+      "end": 62971,
+      "exactMention": "section 43A",
+      "kind": "section",
+      "targetHint": "section 43A",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/464",
+          "physicalPage": 20,
+          "start": 62960,
+          "end": 62971,
+          "provenance": [
+            {
+              "page_no": 20,
+              "bbox": {
+                "l": 165.02,
+                "t": 638.08,
+                "r": 296.34,
+                "b": 626.57,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                35
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "list_item",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "8e5b4b1ca28da0966115bdfa24d07f243e74ddade32c6887449ca2f5f7a2e03a",
+      "start": 63001,
+      "end": 63012,
+      "exactMention": "section  81",
+      "kind": "section",
+      "targetHint": "section  81",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/465",
+          "physicalPage": 20,
+          "start": 63001,
+          "end": 63012,
+          "provenance": [
+            {
+              "page_no": 20,
+              "bbox": {
+                "l": 141.78,
+                "t": 619.99,
+                "r": 532.25,
+                "b": 585.45,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                214
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "f0de59d90b3613c517084582e75693087b75034c9f98b266023c29c1770715d6",
+      "start": 63214,
+      "end": 63224,
+      "exactMention": "section 87",
+      "kind": "section",
+      "targetHint": "section 87",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/466",
+          "physicalPage": 20,
+          "start": 63214,
+          "end": 63224,
+          "provenance": [
+            {
+              "page_no": 20,
+              "bbox": {
+                "l": 165.02,
+                "t": 577.23,
+                "r": 423.01,
+                "b": 567.36,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                74
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "list_item",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "9596f70aedd3f7053d8bc4a794a1d4319a11cd7bf42a2076949835cf4cee1448",
+      "start": 63289,
+      "end": 63298,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/467",
+          "physicalPage": 20,
+          "start": 63289,
+          "end": 63298,
+          "provenance": [
+            {
+              "page_no": 20,
+              "bbox": {
+                "l": 117.37,
+                "t": 560.79,
+                "r": 532.25,
+                "b": 536.12,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                163
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "text",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "766e25fbc69deb65f09bd8094d3c86fb0ba07fff38346e7e3abf7f6bf7b22084",
+      "start": 63587,
+      "end": 63593,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 63587,
+          "end": 63593,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 0,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": true
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ad993a7fc8339ce51667b8644ac7d02a735e60d503bd33694d4c74b2b110dbdb",
+      "start": 63790,
+      "end": 63799,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 63790,
+          "end": 63799,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 2,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "2757e17e0973320043d1363af9666ec045ab6694653e545a07f108e873092060",
+      "start": 63994,
+      "end": 64003,
+      "exactMention": "section 8",
+      "kind": "section",
+      "targetHint": "section 8",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 63994,
+          "end": 64003,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 3,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "cac67cfa03f34e5e9cff2a65ac6e0848d31dd774b088cb38f05f7360e6deda16",
+      "start": 64125,
+      "end": 64134,
+      "exactMention": "section 9",
+      "kind": "section",
+      "targetHint": "section 9",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64125,
+          "end": 64134,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 4,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "7d1a6fd9bd81ef83c4b10f93c5f30fb8aa0c78fdfe5cbe799019148f8d767436",
+      "start": 64262,
+      "end": 64272,
+      "exactMention": "section 10",
+      "kind": "section",
+      "targetHint": "section 10",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64262,
+          "end": 64272,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 5,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "d61f6534aa6ff352d631ea73b358d4c14428966ef8dd7f1879f7288f9de7dd16",
+      "start": 64368,
+      "end": 64378,
+      "exactMention": "section 15",
+      "kind": "section",
+      "targetHint": "section 15",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64368,
+          "end": 64378,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 6,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "e9d98717336459f97583c68e298678365459c27f0de68ad933806e72a07c8269",
+      "start": 64490,
+      "end": 64500,
+      "exactMention": "section 32",
+      "kind": "section",
+      "targetHint": "section 32",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64490,
+          "end": 64500,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 7,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "a72b359448c8513b69e3b0d92b508d2b5e885e76ea68c0d59df96a8d7b777fac",
+      "start": 64587,
+      "end": 64597,
+      "exactMention": "section 28",
+      "kind": "section",
+      "targetHint": "section 28",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64587,
+          "end": 64597,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 7,
+          "column": 2,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "32ea7cf46988da62a876ed03f2628fccd4a7d53c4c64bc22364776486ea23bed",
+      "start": 64656,
+      "end": 64662,
+      "exactMention": "Act or",
+      "kind": "external",
+      "targetHint": "Act or",
+      "externalInstrumentHint": "Act or",
+      "sourceSpans": [
+        {
+          "itemRef": "#/tables/1",
+          "physicalPage": 21,
+          "start": 64656,
+          "end": 64662,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 117.37,
+                "t": 690.7,
+                "r": 478.79,
+                "b": 299.3,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                0
+              ]
+            }
+          ],
+          "kind": "table_cell",
+          "blockType": "table_cell",
+          "extractionWarnings": [],
+          "row": 8,
+          "column": 1,
+          "rowSpan": 1,
+          "columnSpan": 1,
+          "isHeader": false
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "4d643ff7a4c9093dbfbf70644d40ae9b1bf6db440c8bb68493107d7021be22fc",
+      "start": 64724,
+      "end": 64737,
+      "exactMention": "THE  SCHEDULE",
+      "kind": "schedule",
+      "targetHint": "THE  SCHEDULE",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/472",
+          "physicalPage": 21,
+          "start": 64724,
+          "end": 64737,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 259.15,
+                "t": 728.53,
+                "r": 335.85,
+                "b": 698.93,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                37
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "caption",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "id": "ffeea25626829b15ce7c6c6eef86b777e1e0383f548bf3e0a09cad6b93621c59",
+      "start": 64744,
+      "end": 64760,
+      "exactMention": "section 33 ( 1 )",
+      "kind": "section",
+      "targetHint": "section 33 ( 1 )",
+      "externalInstrumentHint": null,
+      "sourceSpans": [
+        {
+          "itemRef": "#/texts/472",
+          "physicalPage": 21,
+          "start": 64744,
+          "end": 64760,
+          "provenance": [
+            {
+              "page_no": 21,
+              "bbox": {
+                "l": 259.15,
+                "t": 728.53,
+                "r": 335.85,
+                "b": 698.93,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "charspan": [
+                0,
+                37
+              ]
+            }
+          ],
+          "kind": "text",
+          "blockType": "caption",
+          "extractionWarnings": []
+        }
+      ],
+      "resolutionStatus": "unresolved"
+    }
+  ],
+  "warnings": []
+}

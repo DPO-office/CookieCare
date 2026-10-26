@@ -1,0 +1,608 @@
+{
+  "checkpointSchemaVersion": 1,
+  "sourceTextHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+  "configurationHash": "0a619b14a5f16a41c4ab041deb5e1173168e3041f211548d36fb6b95670e9377",
+  "promptVersion": "legal-structure-v4",
+  "processingStrategy": "docling_small_chunks_reconcile-v4",
+  "chunk": {
+    "chunkId": "chunk_015",
+    "coreRange": {
+      "start": 27596,
+      "end": 28878
+    },
+    "coreSourceIds": [
+      "src:220",
+      "src:221",
+      "src:222",
+      "src:223",
+      "src:224",
+      "src:225",
+      "src:226",
+      "src:227",
+      "src:228",
+      "src:229",
+      "src:230"
+    ],
+    "contextBefore": [
+      "src:219"
+    ],
+    "contextAfter": [
+      "src:231"
+    ],
+    "sourceUnits": [
+      {
+        "id": "src:219",
+        "start": 27396,
+        "end": 27595,
+        "text": "( b ) the identities of all other Data Fiduciaries and Data Processors with whom the personal data has been shared by such Data Fiduciary, along with a description of the personal data so shared; and",
+        "group": "native:12",
+        "headings": [
+          "CHAPTER III"
+        ]
+      },
+      {
+        "id": "src:220",
+        "start": 27596,
+        "end": 27717,
+        "text": "( c ) any other information related to the personal data of such Data Principal and its processing, as may be prescribed.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:221",
+        "start": 27718,
+        "end": 28040,
+        "text": "( 2 ) Nothing contained in clause ( b ) or clause ( c ) of sub-section ( 1 ) shall apply in respect of the sharing of any personal data by the said Data Fiduciary with any other Data Fiduciary authorised by law to obtain such personal data, where such sharing is pursuant Right  to access information about  personal data.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:222",
+        "start": 28041,
+        "end": 28043,
+        "text": "10",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:223",
+        "start": 28044,
+        "end": 28078,
+        "text": "THE GAZETTE OF INDIA EXTRAORDINARY",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:224",
+        "start": 28079,
+        "end": 28088,
+        "text": "[PART II-",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:225",
+        "start": 28089,
+        "end": 28142,
+        "text": "Right  to correction  and erasure  of personal  data.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:226",
+        "start": 28143,
+        "end": 28173,
+        "text": "Right  of grievance redressal.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:227",
+        "start": 28174,
+        "end": 28369,
+        "text": "to a request made in writing by such other Data Fiduciary for the purpose of prevention or detection or investigation of offences or cyber incidents, or for prosecution or punishment of offences.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:228",
+        "start": 28370,
+        "end": 28702,
+        "text": "12. ( 1 ) A Data Principal shall have the right to correction, completion, updating and erasure of her personal data for the processing of which she has previously given consent, including consent as referred to in clause ( a ) of section 7, in accordance with any requirement or procedure under any law for the time being in force.",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:229",
+        "start": 28703,
+        "end": 28820,
+        "text": "( 2 ) A Data Fiduciary shall, upon receiving a request for correction, completion or updating from a Data Principal,-",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:230",
+        "start": 28821,
+        "end": 28878,
+        "text": "( a ) correct the inaccurate or misleading personal data;",
+        "group": "native:13",
+        "headings": [
+          "CHAPTER IV",
+          "SPECIAL PROVISIONS"
+        ]
+      },
+      {
+        "id": "src:231",
+        "start": 28879,
+        "end": 28927,
+        "text": "( b ) complete the incomplete personal data; and",
+        "group": "native:14",
+        "headings": [
+          "CHAPTER IV",
+          "Illustration."
+        ]
+      }
+    ],
+    "headingContext": [
+      "CHAPTER IV",
+      "SPECIAL PROVISIONS"
+    ],
+    "inputHash": "0590d559a26af2e1e179d1b237381ccd6e6c05057d7f957cf1c77fac99346889",
+    "assembledInputCharacters": 5616,
+    "omittedContextIds": []
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "textHash": "8b746bd1a88a3dfc0a225ff65ad5db484fcd902cf9342c06723e5d2dcc9a8f79",
+    "provider": "llm",
+    "model": "glm-5.3",
+    "promptVersion": "legal-structure-v4",
+    "processingStrategy": "docling_small_chunks_reconcile-v4",
+    "segments": [
+      {
+        "id": "seg_001",
+        "kind": "item",
+        "type": "list-point",
+        "category": "paragraph",
+        "parent": null,
+        "children": [],
+        "span": {
+          "start": 27596,
+          "end": 27717
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/216",
+            "physicalPage": 9,
+            "start": 27596,
+            "end": 27717,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 141.78,
+                  "t": 146.36,
+                  "r": 477.63,
+                  "b": 123.34,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  121
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Sub-section (1) list concerning right of access to information about personal data (partially outside core range)"
+      },
+      {
+        "id": "seg_002",
+        "kind": "item",
+        "type": "sub-section",
+        "category": "paragraph",
+        "parent": null,
+        "children": [
+          "seg_003",
+          "seg_004",
+          "seg_005"
+        ],
+        "span": {
+          "start": 27718,
+          "end": 28040
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/217",
+            "physicalPage": 9,
+            "start": 27718,
+            "end": 28040,
+            "provenance": [
+              {
+                "page_no": 9,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 116.76,
+                  "r": 477.63,
+                  "b": 80.58,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  322
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": "Same provision as the clause list; introduces a carve-out from clause (b) and clause (c) of sub-section (1)"
+      },
+      {
+        "id": "seg_003",
+        "kind": "item",
+        "type": "exception",
+        "category": "paragraph",
+        "parent": "seg_002",
+        "children": [],
+        "span": {
+          "start": 28174,
+          "end": 28369
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/223",
+            "physicalPage": 10,
+            "start": 28174,
+            "end": 28369,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 746.62,
+                  "r": 477.63,
+                  "b": 710.44,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  195
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Proviso/qualifying text attached to sub-section (2)"
+      },
+      {
+        "id": "seg_004",
+        "kind": "item",
+        "type": "marginal-note",
+        "category": "paragraph",
+        "parent": "seg_002",
+        "children": [],
+        "span": {
+          "start": 28089,
+          "end": 28142
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/221",
+            "physicalPage": 10,
+            "start": 28089,
+            "end": 28142,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 703.86,
+                  "r": 108.08,
+                  "b": 666.04,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  53
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Marginal heading immediately following the exception text; heading context indicates SPECIAL PROVISIONS chapter"
+      },
+      {
+        "id": "seg_005",
+        "kind": "item",
+        "type": "marginal-note",
+        "category": "paragraph",
+        "parent": "seg_002",
+        "children": [],
+        "span": {
+          "start": 28143,
+          "end": 28173
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/222",
+            "physicalPage": 10,
+            "start": 28143,
+            "end": 28173,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 56.94,
+                  "t": 511.45,
+                  "r": 91.81,
+                  "b": 483.49,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  30
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": "Marginal heading for the subsequent section on grievance redressal"
+      },
+      {
+        "id": "seg_006",
+        "kind": "item",
+        "type": "section",
+        "category": "paragraph",
+        "parent": null,
+        "children": [
+          "seg_007"
+        ],
+        "span": {
+          "start": 28370,
+          "end": 28702
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/224",
+            "physicalPage": 10,
+            "start": 28370,
+            "end": 28702,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 703.86,
+                  "r": 477.63,
+                  "b": 656.17,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  332
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": false,
+        "parentHint": null
+      },
+      {
+        "id": "seg_007",
+        "kind": "item",
+        "type": "sub-section",
+        "category": "paragraph",
+        "parent": "seg_006",
+        "children": [
+          "seg_008"
+        ],
+        "span": {
+          "start": 28703,
+          "end": 28820
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/225",
+            "physicalPage": 10,
+            "start": 28703,
+            "end": 28820,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 117.37,
+                  "t": 649.59,
+                  "r": 477.63,
+                  "b": 626.57,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  117
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      },
+      {
+        "id": "seg_008",
+        "kind": "item",
+        "type": "list-point",
+        "category": "paragraph",
+        "parent": "seg_007",
+        "children": [],
+        "span": {
+          "start": 28821,
+          "end": 28878
+        },
+        "code": null,
+        "title": null,
+        "sourceSpans": [
+          {
+            "itemRef": "#/texts/226",
+            "physicalPage": 10,
+            "start": 28821,
+            "end": 28878,
+            "provenance": [
+              {
+                "page_no": 10,
+                "bbox": {
+                  "l": 165.02,
+                  "t": 619.99,
+                  "r": 382.33,
+                  "b": 608.48,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  57
+                ]
+              }
+            ],
+            "kind": "text",
+            "blockType": "text",
+            "extractionWarnings": []
+          }
+        ],
+        "startsBeforeChunk": false,
+        "continuesAfterChunk": true,
+        "parentHint": null
+      }
+    ],
+    "references": [],
+    "unresolvedItems": [
+      "src:222 ('10'), src:223 ('THE GAZETTE OF INDIA EXTRAORDINARY') and src:224 ('[PART II-') are page-number and gazette masthead fragments of the printed Official Gazette appearing within the core range; they are layout artifacts, not legal provisions, and are preserved here for review rather than emitted as provisions.",
+      "The parent provision of clause (c) at src:220 and the full sub-section (1) list (including clauses (a) and (b)) lie outside the supplied core range and before the context range; the parent is inferred from internal references in src:221 ('sub-section ( 1 )') and heading context and remains pending.",
+      "The text between src:221 and src:227 (ending of the exception relating to sharing pursuant to a written request) is partially outside the supplied core range; the exception at seg_003 likely attaches to sub-section (2), but its full opening wording is not supplied and is pending confirmation.",
+      "The relation between the marginal notes at src:225 and src:226 and the numbered sections that follow cannot be confirmed from the supplied fragments alone; the marginal note 'Right of grievance redressal' (seg_005) presumably introduces a section following section 12, but that section text is not supplied."
+    ],
+    "warnings": [
+      "src:221 appears truncated mid-sentence ('...where such sharing is pursuant'); the boundary quote uses only the verbatim supplied text and the continuation into the subsequent exception text (src:227) crosses the supplied fragment gaps and remains pending.",
+      "Heading context 'CHAPTER IV - SPECIAL PROVISIONS' is used only as a navigation hint, not as proof of legal scope; no structure was emitted solely on that basis.",
+      "Cross-chunk parent left pending for seg_001: seg_000",
+      "Cross-chunk parent left pending for seg_002: seg_000"
+    ]
+  },
+  "rawResponse": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"references\": [],\n  \"segments\": [\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_001\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_000\",\n      \"parentHint\": \"Sub-section (1) list concerning right of access to information about personal data (partially outside core range)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( c ) any other information related to the personal data of such Data Principal and its processing, as may be prescribed.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:220\"\n        }\n      ],\n      \"titleAnchor\": null\n   , \"type\": \"list-point\"},\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_002\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_000\",\n      \"parentHint\": \"Same provision as the clause list; introduces a carve-out from clause (b) and clause (c) of sub-section (1)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) Nothing contained in clause ( b ) or clause ( c ) of sub-section ( 1 ) shall apply in respect of the sharing of any personal data by the said Data Fiduciary with any other Data Fiduciary authorised by law to obtain such personal data, where such sharing is pursuant\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:221\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"sub-section\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_003\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_002\",\n      \"parentHint\": \"Proviso/qualifying text attached to sub-section (2)\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"to a request made in writing by such other Data Fiduciary for the purpose of prevention or detection or investigation of offences or cyber incidents, or for prosecution or punishment of offences.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:227\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"exception\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_004\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_002\",\n      \"parentHint\": \"Marginal heading immediately following the exception text; heading context indicates SPECIAL PROVISIONS chapter\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Right  to correction  and erasure  of personal  data.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:225\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"marginal-note\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_005\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_002\",\n      \"parentHint\": \"Marginal heading for the subsequent section on grievance redressal\",\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"Right  of grievance redressal.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:226\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"marginal-note\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": false,\n      \"id\": \"seg_006\",\n      \"kind\": \"item\",\n      \"parent\": null,\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"12. ( 1 ) A Data Principal shall have the right to correction, completion, updating and erasure of her personal data for the processing of which she has previously given consent, including consent as referred to in clause ( a ) of section 7, in accordance with any requirement or procedure under any law for the time being in force.\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:228\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"section\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_007\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_006\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( 2 ) A Data Fiduciary shall, upon receiving a request for correction, completion or updating from a Data Principal,-\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:229\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"sub-section\"\n    },\n    {\n      \"category\": \"paragraph\",\n      \"codeAnchor\": null,\n      \"continuesAfterChunk\": true,\n      \"id\": \"seg_008\",\n      \"kind\": \"item\",\n      \"parent\": \"seg_007\",\n      \"parentHint\": null,\n      \"sourceAnchors\": [\n        {\n          \"exactQuote\": \"( a ) correct the inaccurate or misleading personal data;\",\n          \"occurrence\": 0,\n          \"sourceId\": \"src:230\"\n        }\n      ],\n      \"titleAnchor\": null,\n      \"type\": \"list-point\"\n    }\n  ],\n  \"unresolvedItems\": [\n    \"src:222 ('10'), src:223 ('THE GAZETTE OF INDIA EXTRAORDINARY') and src:224 ('[PART II-') are page-number and gazette masthead fragments of the printed Official Gazette appearing within the core range; they are layout artifacts, not legal provisions, and are preserved here for review rather than emitted as provisions.\",\n    \"The parent provision of clause (c) at src:220 and the full sub-section (1) list (including clauses (a) and (b)) lie outside the supplied core range and before the context range; the parent is inferred from internal references in src:221 ('sub-section ( 1 )') and heading context and remains pending.\",\n    \"The text between src:221 and src:227 (ending of the exception relating to sharing pursuant to a written request) is partially outside the supplied core range; the exception at seg_003 likely attaches to sub-section (2), but its full opening wording is not supplied and is pending confirmation.\",\n    \"The relation between the marginal notes at src:225 and src:226 and the numbered sections that follow cannot be confirmed from the supplied fragments alone; the marginal note 'Right of grievance redressal' (seg_005) presumably introduces a section following section 12, but that section text is not supplied.\"\n  ],\n  \"warnings\": [\n    \"src:221 appears truncated mid-sentence ('...where such sharing is pursuant'); the boundary quote uses only the verbatim supplied text and the continuation into the subsequent exception text (src:227) crosses the supplied fragment gaps and remains pending.\",\n    \"Heading context 'CHAPTER IV - SPECIAL PROVISIONS' is used only as a navigation hint, not as proof of legal scope; no structure was emitted solely on that basis.\"\n  ]\n}",
+          "reasoning_content": "DPDP Act. Extract clauses from core units. Anchors: clause (c) src:220; sub-section (2) src:221; marginal headings src:225, 226; proviso text src:227; section 12 sub-section (1) src:228; sub-section (2) src:229 with clause (a) src:230. Also src:222-224 are page furniture (Gazette header) — not legal provisions, record as unresolved? They're core-marked but not provisions; classify as header material, put in unresolvedItems or just skip/record. Include parent hints since continuations.",
+          "refusal": null,
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792951287,
+    "id": "chatcmpl-8d52588f-f22a-46e6-b28a-69050bac8d19",
+    "model": "glm-5.3",
+    "object": "chat.completion",
+    "usage": {
+      "cache_created_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_read_input_tokens": 384,
+      "completion_tokens": 1794,
+      "prompt_tokens": 931,
+      "prompt_tokens_details": {
+        "cached_tokens": 384
+      },
+      "speed": null,
+      "total_tokens": 2725
+    }
+  },
+  "usage": {
+    "inputTokens": 931,
+    "outputTokens": 1794,
+    "totalTokens": 2725
+  },
+  "finishReason": "stop",
+  "durationMs": 33800
+}
