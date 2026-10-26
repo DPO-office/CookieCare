@@ -62,3 +62,5 @@ tsc-errors.txt
 .vscode/
 # Generated negotiation evaluation outputs
 backend/src/modules/negotiate/eval/_out/
+
+DPDPA-2023 Act.pdf

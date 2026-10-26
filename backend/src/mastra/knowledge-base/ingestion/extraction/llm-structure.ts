@@ -77,18 +77,53 @@ export class StructureGroundingError extends Error {
   constructor(message: string) { super(message); this.name = "StructureGroundingError"; }
 }
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findFlexibleWhitespace(text: string, quote: string, fromIndex = 0): { index: number; length: number } | null {
+  const words = quote.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return null;
+  const pattern = words.map(escapeRegex).join("\\s+");
+  try {
+    const regex = new RegExp(pattern, "u");
+    const match = text.slice(fromIndex).match(regex);
+    if (match && match.index !== undefined) {
+      return { index: fromIndex + match.index, length: match[0].length };
+    }
+  } catch {
+    // Regex fallback
+  }
+  return null;
+}
+
 function locate(anchor: z.infer<typeof AnchorSchema>, units: Map<string, SourceUnit>): TextRange {
   const unit = units.get(anchor.sourceId);
   if (!unit) throw new StructureGroundingError(`LLM invented source ID: ${anchor.sourceId}`);
   let from = 0;
   let index = -1;
+  let matchLen = anchor.exactQuote.length;
   for (let occurrence = 0; occurrence <= anchor.occurrence; occurrence++) {
     index = unit.text.indexOf(anchor.exactQuote, from);
+    matchLen = anchor.exactQuote.length;
+    if (index < 0 && anchor.exactQuote.trim().length > 0) {
+      const trimmed = anchor.exactQuote.trim();
+      index = unit.text.indexOf(trimmed, from);
+      if (index >= 0) {
+        matchLen = trimmed.length;
+      } else {
+        const flexible = findFlexibleWhitespace(unit.text, trimmed, from);
+        if (flexible) {
+          index = flexible.index;
+          matchLen = flexible.length;
+        }
+      }
+    }
     if (index < 0) throw new StructureGroundingError(
       `LLM quote is absent or occurrence is invalid: ${anchor.sourceId}`);
-    from = index + Math.max(1, anchor.exactQuote.length);
+    from = index + Math.max(1, matchLen);
   }
-  return { start: unit.start + index, end: unit.start + index + anchor.exactQuote.length };
+  return { start: unit.start + index, end: unit.start + index + matchLen };
 }
 
 function normalize(raw: unknown, map: SourceMap, configuration: StructureProviderConfig,

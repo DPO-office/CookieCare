@@ -8,14 +8,11 @@ export type RelationshipType =
   | "explicit_procedural_reference"
   | "explicit_relative_reference"
   | "range_reference"
-  | "conditional_exemption"
   | "exception_to_exemption"
   | "exception_to"
-  | "notification_dependent_exemption"
   | "penalty_for"
   | "defined_term"
   | "external_reference"
-  | "external_defined_term_reference"
   | "interprets";
 
 export interface DraftProvision {
@@ -270,6 +267,21 @@ export function computeCanonicalCitation(
 function targetCandidates(mention: string, provisions: DraftProvision[]): DraftProvision[] {
   const citations = citationPaths(mention);
   if (!citations.length) return [];
+  // Break any parent cycles (e.g. from LLM hallucinations where provisions mutually parent each other)
+  for (const provision of provisions) {
+    let curr = provision.parentId;
+    const seen = new Set<string>([provision.id]);
+    while (curr) {
+      if (seen.has(curr)) {
+        provision.parentId = null;
+        break;
+      }
+      seen.add(curr);
+      const parent = provisions.find(p => p.id === curr);
+      curr = parent?.parentId ?? null;
+    }
+  }
+
   const byId = new Map(provisions.map(p => [p.id, p]));
   const matched: DraftProvision[] = [];
   for (const citation of citations) {
@@ -302,6 +314,21 @@ function referencedRange(mention: string, provisions: DraftProvision[]) {
   const kind = match[1]!.toLocaleLowerCase("en").replace(/s$/, "") as "article" | "rule" | "section";
   const from = Number(match[2]), to = Number(match[3]);
   if (to < from || to - from > 500) return null;
+  // Break any parent cycles (e.g. from LLM hallucinations where provisions mutually parent each other)
+  for (const provision of provisions) {
+    let curr = provision.parentId;
+    const seen = new Set<string>([provision.id]);
+    while (curr) {
+      if (seen.has(curr)) {
+        provision.parentId = null;
+        break;
+      }
+      seen.add(curr);
+      const parent = provisions.find(p => p.id === curr);
+      curr = parent?.parentId ?? null;
+    }
+  }
+
   const byId = new Map(provisions.map(p => [p.id, p]));
   const byNumber = new Map<number, DraftProvision[]>();
   for (const provision of provisions) {
@@ -325,11 +352,13 @@ function relativeTargets(mention: string, owner: DraftProvision | null,
 
   const match = /\b(paragraph|subparagraph|point|sub-section|clause)\s+\(?([A-Za-z0-9]+)\)?\s+of\s+this\s+(article|rule|section)\b/iu.exec(mention);
   if (match) {
+    const seen = new Set<string>();
     let container: DraftProvision | undefined = owner;
-    while (container && container.kind !== match[3]!.toLocaleLowerCase("en")) {
+    while (container && container.kind !== match[3]!.toLocaleLowerCase("en") && !seen.has(container.id)) {
+      seen.add(container.id);
       container = container.parentId ? byId.get(container.parentId) : undefined;
     }
-    if (!container) return [];
+    if (!container || seen.has(container.id)) return [];
     const token = match[2]!.toLocaleLowerCase("en");
     const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const localLabel = new RegExp(`^(?:paragraph|subparagraph|point|sub-section|clause)?\\s*\\(${escapedToken}\\)(?:\\s|$)`, "iu");
@@ -339,24 +368,27 @@ function relativeTargets(mention: string, owner: DraftProvision | null,
       localLabel.test((provision.label ?? provision.text.slice(0, 60)).trim()));
   }
 
-  const compoundSiblingMatch = /\b(?:clause|sub-clause|paragraph|point)\s+\(?([a-z0-9]+)\)?\s+of\s+(?:sub-?section|paragraph)\s+\(?(\d+[a-z]?)\)?\b/iu.exec(mention);
+  const compoundSiblingMatch = /\b(?:clause|sub-clause|paragraph|point)\s*\(?\s*([a-z0-9]+)\s*\)?\s*of\s*(?:sub-?section|paragraph)\s*\(?\s*(\d+[a-z]?)\s*\)?\b/iu.exec(mention);
   if (compoundSiblingMatch) {
     const clauseToken = compoundSiblingMatch[1]!.toLocaleLowerCase("en");
     const subSectionToken = compoundSiblingMatch[2]!.toLocaleLowerCase("en");
+    const seen = new Set<string>();
     let container: DraftProvision | undefined = owner;
-    while (container && container.kind !== "section" && container.kind !== "article") {
+    while (container && container.kind !== "section" && container.kind !== "article" && !seen.has(container.id)) {
+      seen.add(container.id);
       container = container.parentId ? byId.get(container.parentId) : undefined;
     }
-    if (container) {
+    if (container && !seen.has(container.id)) {
       const siblingSubsections = provisions.filter(p =>
         (p.parentId === container!.id || p.inheritedParentIds.includes(container!.id)) &&
         ["paragraph", "subsection", "point"].includes(p.kind) &&
-        new RegExp(`^\\(?${subSectionToken}\\)?(?:\\s|$)`, "iu").test((p.label ?? p.text).trim())
+        new RegExp(`^\\(?\\s*${subSectionToken}\\s*\\)?(?:\\s|$)`, "iu").test((p.label ?? p.text).trim())
       );
       for (const sub of siblingSubsections) {
         const clauseTargets = provisions.filter(p =>
           (p.parentId === sub.id || p.inheritedParentIds.includes(sub.id)) &&
-          new RegExp(`^\\(?${clauseToken}\\)?(?:\\s|$)`, "iu").test((p.label ?? p.text).trim())
+          ["paragraph", "subsection", "point"].includes(p.kind) &&
+          new RegExp(`^\\(?\\s*${clauseToken}\\s*\\)?(?:\\s|$)`, "iu").test((p.label ?? p.text).trim())
         );
         if (clauseTargets.length) return clauseTargets;
       }
@@ -364,22 +396,17 @@ function relativeTargets(mention: string, owner: DraftProvision | null,
     }
   }
 
-  const selfRelativeMatch = /\b(?:for the purposes of|under|in|of)?\s*this\s+(section|chapter|act|rule|schedule|article)\b/iu.exec(mention);
+  const selfRelativeMatch = /^\s*(?:for the purposes of|under|in|of)?\s*this\s+(section|chapter|act|rule|schedule|article)\b/iu.exec(mention);
   if (selfRelativeMatch) {
     const targetKind = selfRelativeMatch[1]!.toLocaleLowerCase("en");
-    let container: DraftProvision | undefined = owner.parentId ? byId.get(owner.parentId) : undefined;
-    while (container) {
-      if (
-        container.kind === targetKind ||
-        (targetKind === "section" && (container.kind === "section" || container.label?.toLowerCase().includes("section") || /^\d+\./.test(container.label ?? ""))) ||
-        (targetKind === "chapter" && (container.kind === "chapter" || container.label?.toLowerCase().includes("chapter")))
-      ) {
-        return [container];
-      }
+    const seen = new Set<string>();
+    let container: DraftProvision | undefined = owner;
+    while (container && container.kind !== targetKind && !seen.has(container.id)) {
+      seen.add(container.id);
       container = container.parentId ? byId.get(container.parentId) : undefined;
     }
-    if (owner.parentId && byId.has(owner.parentId) && targetKind === "section") {
-      return [byId.get(owner.parentId)!];
+    if (container && container.id !== owner.id) {
+      return [container];
     }
   }
 
@@ -406,14 +433,11 @@ function structuralPaths(provisions: DraftProvision[]): void {
 
 function extractDefinedTerms(provisions: DraftProvision[]): Map<string, DraftProvision> {
   const terms = new Map<string, DraftProvision>();
-  const definitionProvisions = provisions.filter(p =>
-    p.kind === "definition" ||
-    /["'“]([^"'“”]{2,60})["'”]\s*(?:means|has the meaning|refers to|includes)/iu.test(p.text)
-  );
+  const definitionProvisions = provisions.filter(p => p.kind === "definition");
   for (const p of definitionProvisions) {
     const match = /["'“]([^"'“”]{2,60})["'”]\s*(?:means|has the meaning|refers to|includes)/iu.exec(p.text);
     if (match) {
-      const term = match[1]!.trim();
+      const term = match[1]!.replace(/\s+/g, " ").trim();
       if (term.length >= 2 && !terms.has(term)) {
         terms.set(term, p);
       }
@@ -431,11 +455,9 @@ function determineRelationType(
   isRelative: boolean,
   isDefinedTerm: boolean
 ): RelationshipType {
-  if (isDefinedTerm) {
-    return isExternal ? "external_defined_term_reference" : "defined_term";
-  }
   if (isExternal) return "external_reference";
   if (isRange) return "range_reference";
+  if (isDefinedTerm) return "defined_term";
 
   const ownerText = (owner?.text ?? "").toLowerCase();
   const ownerLabel = (owner?.canonicalCitation ?? owner?.label ?? "").toLowerCase();
@@ -446,12 +468,8 @@ function determineRelationType(
     ? ownerText.slice(Math.max(0, mentionIndex - 80), Math.min(ownerText.length, mentionIndex + mentionText.length + 80))
     : ownerText;
 
-  if (owner?.kind === "table_row" || ownerLabel.includes("schedule") || surroundingContext.includes("penalty") || surroundingContext.includes("breach in observing")) {
-    return "penalty_for";
-  }
-
-  if (surroundingContext.includes("notification") && (surroundingContext.includes("exempt") || surroundingContext.includes("shall not apply"))) {
-    return "notification_dependent_exemption";
+  if (surroundingContext.includes("in accordance with") || surroundingContext.includes("manner referred to")) {
+    return "explicit_procedural_reference";
   }
 
   if (surroundingContext.includes("except") || surroundingContext.includes("exception")) {
@@ -461,16 +479,19 @@ function determineRelationType(
     return "exception_to";
   }
 
-  if (ownerLabel.includes("17") || ownerText.includes("shall not apply") || surroundingContext.includes("shall not apply")) {
-    return "conditional_exemption";
-  }
-
-  if (surroundingContext.includes("in accordance with") || surroundingContext.includes("manner referred to") || surroundingContext.includes("procedure under")) {
-    return "explicit_procedural_reference";
-  }
-
   if (isRelative) return "explicit_relative_reference";
   return "explicit_reference";
+}
+
+function cleanGazetteNoise(text: string): string {
+  return text
+    .replace(/(?:General obligations\s+of Data Fiduciary\.|Processing\s+of personal\s+data of\s+children\.|Additional obligations\s+of Significant Data Fiduciary\.)/giu, "")
+    .replace(/THE GAZETTE OF INDIA EXTRAORDINARY/giu, "")
+    .replace(/\[PART II-[^\n]*\n?/giu, "")
+    .replace(/(?:^|\n)\s*\d+\s*(?:\n|$)/gu, "\n")
+    .replace(/[ \t]+/gu, " ")
+    .replace(/\s*\n\s*/gu, " ")
+    .trim();
 }
 
 /** Drafts only. A legal reviewer must accept coverage and relationships before publication. */
@@ -490,14 +511,20 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
     let kind = KINDS.has(rawKind) ? rawKind : "unknown";
     if (kind === "unknown") {
       if (rawKind.includes("table") || rawKind.includes("header")) kind = "table";
-      else if (rawKind.includes("clause")) kind = "point";
+      else if (rawKind.includes("clause") || rawKind.includes("point") || rawKind.includes("list")) kind = "point";
       else if (rawKind.includes("sub-section") || rawKind.includes("subsection")) kind = "subsection";
+      else if (rawKind.includes("explanation") || rawKind.includes("para")) kind = "paragraph";
+      else if (rawKind.includes("sec")) kind = "section";
+      else if (rawKind.includes("illus")) kind = "illustration";
     }
     let label = labelOf(segment, map.text);
-    const segText = map.text.slice(segment.span.start, segment.span.end);
+    let segText = map.text.slice(segment.span.start, segment.span.end);
     if (/^\s*Sl\.\s*No\./iu.test(label ?? "") && /penalty/iu.test(segText)) {
       kind = "table";
       label = "Schedule Penalties Table Header";
+    }
+    if (/THE GAZETTE OF INDIA|General obligations\s+of Data Fiduciary/i.test(segText)) {
+      segText = cleanGazetteNoise(segText);
     }
 
     if (kind === "unknown") warnings.push(`Unknown structure: ${segment.id}`);
@@ -523,6 +550,21 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
     }
   }
 
+  // Break any parent cycles (e.g. from LLM hallucinations where provisions mutually parent each other)
+  for (const provision of provisions) {
+    let curr = provision.parentId;
+    const seen = new Set<string>([provision.id]);
+    while (curr) {
+      if (seen.has(curr)) {
+        provision.parentId = null;
+        break;
+      }
+      seen.add(curr);
+      const parent = provisions.find(p => p.id === curr);
+      curr = parent?.parentId ?? null;
+    }
+  }
+
   const byId = new Map(provisions.map(p => [p.id, p]));
   for (const provision of provisions) {
     const identity = provisionIdentity(provision, byId);
@@ -537,10 +579,8 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
     targetHint?: string | null; externalInstrumentHint?: string | null }, detectedBy: "model" | "source_detector",
     directTargetIds: string[] = [], resolutionStatus?: string) => {
     const owner = containingProvision(occurrence.start, occurrence.end, provisions);
-    const directTargets = directTargetIds.map(id => {
-      const provId = bySegment.get(id) ?? id;
-      return provisions.find(provision => provision.id === provId || provision.candidateSegmentId === id);
-    }).filter((p): p is DraftProvision => !!p);
+    const directTargets = directTargetIds.map(id => bySegment.get(id)).filter((id): id is string => !!id)
+      .map(id => provisions.find(provision => provision.id === id)!).filter(Boolean);
     const range = referencedRange(occurrence.exactMention, provisions);
     const targets = [...targetCandidates(occurrence.exactMention, provisions),
       ...relativeTargets(occurrence.exactMention, owner, provisions), ...(range?.candidates ?? [])]
@@ -614,8 +654,8 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
   const definedTerms = extractDefinedTerms(provisions);
   if (definedTerms.size > 0) {
     for (const [term, defProvision] of definedTerms.entries()) {
-      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(`\\b${escaped}\\b`, "gu");
+      const escaped = term.split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+");
+      const regex = new RegExp(`\\b${escaped}\\b`, "giu");
       for (const provision of provisions) {
         if (provision.kind === "definition" || provision.parentId === defProvision.parentId) continue;
         for (const match of provision.text.matchAll(regex)) {

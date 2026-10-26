@@ -7,6 +7,8 @@ import { evaluateReviewDataset, expectedForJudge } from "../src/mastra/knowledge
 import { DigitalOceanEvaluationJudge } from "../src/mastra/knowledge-base/ingestion/evaluation/digitalocean-judge.js";
 import { FocusedGraphJudge, focusGraphJudgeInput } from "../src/mastra/knowledge-base/ingestion/evaluation/focused-graph-judge.js";
 
+config({ path: "backend/.env", quiet: true });
+config({ path: ".env", quiet: true });
 config({ path: "../.env", quiet: true });
 const { values } = parseArgs({ options: { run: { type: "string" }, source: { type: "string" },
   fixture: { type: "string" }, "judge-model": { type: "string" },
@@ -56,7 +58,7 @@ for (const row of selectedCases) {
   }
   const byId = new Map<string, any>(draft.provisions.map((p: any) => [p.id, p]));
   const selected = draft.provisions.filter((p: any) => ids.has(p.id));
-  const label = (id: string) => byId.get(id)?.label ?? id;
+  const label = (id: string) => byId.get(id)?.canonicalCitation ?? byId.get(id)?.label ?? id;
   const tables = model.tables.filter((t: any) => ids.has(t.provisionId) ||
     t.cells.some((cell: any) => cell.pages?.some((page: number) => pages.has(page))));
   artifacts[row.id] = {

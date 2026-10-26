@@ -31,9 +31,16 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
   }));
   const units: Array<StructureSourceUnit & { group: string; headings: string[] }> = [];
   const warnings: string[] = [];
+  let lastOwner: number | undefined;
+  for (const span of map.spans) {
+    const o = firstOwner.get(span.itemRef);
+    if (o !== undefined) { lastOwner = o; break; }
+  }
   map.spans.forEach((span, index) => {
-    const owner = firstOwner.get(span.itemRef);
-    if (owner === undefined) warnings.push(`native_chunker_omitted_item:${span.itemRef}; original retained`);
+    const directOwner = firstOwner.get(span.itemRef);
+    if (directOwner === undefined) warnings.push(`native_chunker_omitted_item:${span.itemRef}; original retained`);
+    else lastOwner = directOwner;
+    const effectiveOwner = directOwner !== undefined ? directOwner : lastOwner;
     // Bound source fragments too: one oversized OCR block must not defeat small requests.
     let start = span.start;
     while (start < span.end) {
@@ -45,10 +52,11 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
         else if (/[\uD800-\uDBFF]/u.test(map.text[end - 1]!)) end--;
       }
       units.push({ id: span.end - span.start <= 2000 ? `src:${index}` : `src:${index}@${start}`,
-        start, end, text: map.text.slice(start, end), group: owner === undefined ? `unmapped:${index}` : `native:${owner}`,
+        start, end, text: map.text.slice(start, end),
+        group: effectiveOwner === undefined ? "unmapped" : `native:${effectiveOwner}`,
         ...(span.end - span.start > 2000 ? { fragmentOf: `src:${index}`,
           continuesBefore: start > span.start, continuesAfter: end < span.end } : {}),
-        headings: owner === undefined ? [] : native[owner]!.headings ?? [] });
+        headings: effectiveOwner === undefined ? [] : native[effectiveOwner]!.headings ?? [] });
       start = end;
     }
   });
