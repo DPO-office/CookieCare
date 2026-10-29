@@ -6,6 +6,15 @@ export interface StructureSourceUnit {
   start: number;
   end: number;
   text: string;
+  itemRef?: string;
+  parentRef?: string;
+  blockType?: string;
+  physicalPage?: number | null;
+  row?: number;
+  column?: number;
+  rowSpan?: number;
+  columnSpan?: number;
+  isHeader?: boolean;
   fragmentOf?: string;
   continuesBefore?: boolean;
   continuesAfter?: boolean;
@@ -40,7 +49,9 @@ export interface StructureChunkPlan {
 
 export function structureSourceUnits(map: SourceMap): StructureSourceUnit[] {
   return map.spans.map((span, index) => ({ id: `src:${index}`, start: span.start,
-    end: span.end, text: map.text.slice(span.start, span.end) }));
+    end: span.end, text: map.text.slice(span.start, span.end), itemRef: span.itemRef,
+    parentRef: span.parentRef, blockType: span.blockType, physicalPage: span.page, row: span.row, column: span.column,
+    rowSpan: span.rowSpan, columnSpan: span.columnSpan, isHeader: span.isHeader }));
 }
 
 export function structureChunkPrompt(map: SourceMap, chunk: Omit<StructureChunk,
@@ -48,7 +59,17 @@ export function structureChunkPrompt(map: SourceMap, chunk: Omit<StructureChunk,
   const wanted = new Set([...chunk.contextBefore, ...chunk.coreSourceIds, ...chunk.contextAfter]);
   const before = new Set(chunk.contextBefore), after = new Set(chunk.contextAfter);
   return JSON.stringify({ textHash: map.textHash, chunk: { chunkId: chunk.chunkId,
+    sourcePages: units.filter(unit => wanted.has(unit.id)).map(unit => ({ id: unit.id, physicalPage: unit.physicalPage,
+      blockType: unit.blockType })),
     ...(chunk.headingContext ? { headingContext: chunk.headingContext } : {}),
+    ...(units.some(unit => wanted.has(unit.id) &&
+      (unit.row !== undefined || unit.parentRef?.startsWith("#/tables/"))) ? {
+      sourceLayout: units.filter(unit => wanted.has(unit.id) &&
+        (unit.row !== undefined || unit.parentRef?.startsWith("#/tables/"))).map(unit => ({ id: unit.id,
+        itemRef: unit.itemRef, parentRef: unit.parentRef, blockType: unit.blockType,
+        row: unit.row, column: unit.column, rowSpan: unit.rowSpan,
+        columnSpan: unit.columnSpan, isHeader: unit.isHeader })),
+    } : {}),
     sourceFragments: units.filter(unit => wanted.has(unit.id) && unit.fragmentOf).map(unit => ({
       id: unit.id, originalSourceId: unit.fragmentOf,
       continuesBefore: unit.continuesBefore, continuesAfter: unit.continuesAfter,

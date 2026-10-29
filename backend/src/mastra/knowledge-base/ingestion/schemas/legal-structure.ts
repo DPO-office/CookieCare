@@ -32,6 +32,7 @@ export const ExtractionRunSchema = z.strictObject({
 export const StructuralKindSchema = z.enum([
   "article", "paragraph", "point", "table", "footnote", "annex", "definition",
   "rule", "schedule", "recital", "chapter", "section", "illustration", "unknown",
+  "subsection", "subparagraph", "list_item", "table_row", "part", "title",
 ]);
 export const SemanticPurposeSchema = z.enum(["obligation", "definition", "interpretation", "procedure", "context"]);
 
@@ -84,8 +85,10 @@ export const LegalSupportSchema = z.strictObject({
 export const LegalRelationRevisionSchema = RevisionMetadataSchema.extend({
   source: RevisionRefSchema, target: RevisionRefSchema.nullable(),
   referenceOccurrence: RevisionRefSchema.nullable(),
-  kind: z.enum(["refers_to", "defines", "exception_to", "depends_on", "alternative_to", "interprets"]),
+  kind: z.enum(["refers_to", "defines", "exempts_from", "exception_to", "depends_on",
+    "alternative_to", "interprets", "penalty_for"]),
   basis: z.enum(["explicit", "inferred"]), supportingPassages: z.array(LegalSupportSchema).min(1),
+  role: IdSchema.optional(), ontologyVersion: IdSchema.optional(),
 });
 
 export type BooleanExpression =

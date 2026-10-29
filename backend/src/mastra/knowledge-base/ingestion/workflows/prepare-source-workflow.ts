@@ -6,6 +6,9 @@ import { DOCLING_CONFIG, DOCLING_VERSION, DoclingPdfExtractor, type PdfExtractor
 import { buildSourceMap, type SourceMap } from "../extraction/source-map.js";
 import { detectReferences } from "../extraction/reference-detection.js";
 import { reconstructSource } from "../extraction/reconstruct.js";
+import { enrichSemanticRelationships, SEMANTIC_ONTOLOGY_VERSION,
+  SEMANTIC_PROMPT_VERSION, type SemanticDecisionClient } from "../extraction/semantic-relationships.js";
+import { DigitalOceanSemanticClient } from "../extraction/do-semantic.js";
 import { validateReconstruction } from "../extraction/validate-reconstruction.js";
 import { buildDocumentModel, type DocumentModel } from "../extraction/document-model.js";
 import { kanonProviderConfiguration } from "../extraction/kanon.js";
@@ -27,7 +30,8 @@ const Artifact = z.object({ id: z.string(), jobId: z.string(), stage: z.string()
 const Extracted = JobInput.extend({ sourceVersionId: z.string(), inputHash: z.string(),
   originalPageCount: z.number().int().positive(), rawArtifact: Artifact,
   existingMapArtifact: Artifact.nullable(), extractionRunId: z.string().nullable(),
-  providerConfiguration: StructureProviderConfigSchema, replayedFromJobId: z.string().nullable() });
+  providerConfiguration: StructureProviderConfigSchema, replayedFromJobId: z.string().nullable(),
+  semanticMode: z.enum(["explicit", "off"]), semanticModel: z.string().nullable() });
 const Mapped = Extracted.omit({ existingMapArtifact: true }).extend({ mapArtifact: Artifact,
   mappingStatus: z.enum(["mapped", "needs_review"]), warningCount: z.number().int().nonnegative(),
   textHash: z.string() });
@@ -39,7 +43,8 @@ const Prepared = Projected.extend({ referencesArtifact: Artifact,
   preparationStatus: z.enum(["candidate_ready", "needs_review"]) });
 const Reconstructed = Prepared.extend({ reconstructionArtifact: Artifact,
   provisionCount: z.number().int().nonnegative(), relationshipCount: z.number().int().nonnegative() });
-const Modeled = Reconstructed.extend({ documentModelArtifact: Artifact,
+const Enriched = Reconstructed.extend({ semanticArtifact: Artifact.nullable() });
+const Modeled = Enriched.extend({ documentModelArtifact: Artifact,
   tableCount: z.number().int().nonnegative(), incompleteContextCount: z.number().int().nonnegative() });
 const Validated = Modeled.extend({ validationArtifact: Artifact,
   validationIssueCount: z.number().int().nonnegative() });
@@ -49,6 +54,7 @@ type ProviderEnvelope = StructureProviderResult;
 type PrepareDescriptor = Record<string, unknown> & {
   sourceVersionId?: string; checksum?: string; parser?: string; parserVersion?: string;
   configurationHash?: string; structureProvider?: unknown; kanonConfigurationHash?: unknown;
+  semanticMode?: "explicit" | "off"; semanticModel?: string;
   replay?: { sourceJobId: string; originalPageCount: number; extractionRunId: string;
     rawArtifact: ArtifactReference; mapArtifact: ArtifactReference; textHash: string };
 };
@@ -63,6 +69,7 @@ export interface PrepareSourceServices {
   pool: Pool; objects: ObjectStore; jobs: KbJobStore; artifacts: KbArtifactStore;
   extractor: PdfExtractor;
   providerFactory?: (configuration: StructureProviderConfig) => StructureProvider;
+  semanticFactory?: (model: string) => SemanticDecisionClient;
 }
 
 /** Fixed flow: Docling/map -> selected structure provider -> shared reconstruction/validation. */
@@ -83,6 +90,8 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
       if (!row?.source_version_id || !row.original_page_count) throw new Error("Preparation job or page count is invalid");
       const descriptor = row.input_descriptor;
       const configuration = providerConfiguration(descriptor);
+      const semanticMode = descriptor.semanticMode === "explicit" ? "explicit" as const : "off" as const;
+      const semanticModel = descriptor.semanticModel ?? null;
       if (descriptor.sourceVersionId !== row.source_version_id || descriptor.checksum !== row.checksum ||
           descriptor.parser !== "docling.rs" || descriptor.parserVersion !== DOCLING_VERSION ||
           descriptor.configurationHash !== hashRevision(DOCLING_CONFIG)) {
@@ -97,7 +106,8 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
         return { ...inputData, sourceVersionId: row.source_version_id, inputHash: row.input_hash,
           originalPageCount: row.original_page_count, rawArtifact: replay.rawArtifact,
           existingMapArtifact: replay.mapArtifact, extractionRunId: replay.extractionRunId,
-          providerConfiguration: configuration, replayedFromJobId: replay.sourceJobId };
+          providerConfiguration: configuration, replayedFromJobId: replay.sourceJobId,
+          semanticMode, semanticModel };
       }
       const stageHash = KbJobStore.stageHash(row.source_version_id, row.input_hash,
         "extract_docling", EXTRACT_STAGE_VERSION);
@@ -119,7 +129,8 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
         }
         return { ...inputData, sourceVersionId: row.source_version_id, inputHash: row.input_hash,
           originalPageCount: row.original_page_count, rawArtifact, existingMapArtifact: null,
-          extractionRunId: null, providerConfiguration: configuration, replayedFromJobId: null };
+          extractionRunId: null, providerConfiguration: configuration, replayedFromJobId: null,
+          semanticMode, semanticModel };
       } catch (error) {
         await jobs.recordStageFailure(inputData.jobId, inputData.leaseOwner,
           "extract_docling", EXTRACT_STAGE_VERSION, stageHash, error).catch(() => undefined);
@@ -132,15 +143,24 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
       const { jobs, artifacts } = resolve();
       let mapArtifact = inputData.existingMapArtifact;
       let sourceMap: SourceMap;
-      if (mapArtifact) sourceMap = await artifacts.readVerified(mapArtifact) as SourceMap;
+      if (mapArtifact) {
+        sourceMap = await artifacts.readVerified(mapArtifact) as SourceMap;
+        if (sourceMap.spans.some(span => span.kind === "table_cell") &&
+          !sourceMap.spans.some(span => span.parentRef?.startsWith("#/tables/"))) {
+          sourceMap = buildSourceMap(await artifacts.readVerified(inputData.rawArtifact), inputData.originalPageCount);
+          const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash, "source_map", "3");
+          mapArtifact = await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+            "source_map", "3", stageHash, "source_map", sourceMap);
+        }
+      }
       else {
-        const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash, "source_map", "2");
-        const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId, "source_map", "2", stageHash);
+        const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash, "source_map", "3");
+        const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId, "source_map", "3", stageHash);
         if (cached) { sourceMap = await artifacts.readVerified(cached) as SourceMap; mapArtifact = cached; }
         else {
           sourceMap = buildSourceMap(await artifacts.readVerified(inputData.rawArtifact), inputData.originalPageCount);
           mapArtifact = await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
-            "source_map", "2", stageHash, "source_map", sourceMap);
+            "source_map", "3", stageHash, "source_map", sourceMap);
         }
       }
       const { existingMapArtifact: _unused, ...rest } = inputData;
@@ -172,10 +192,10 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: ProviderCalled, execute: async ({ inputData }) => {
       const { jobs, artifacts, providerFactory = createAuthorizedProductionStructureProvider } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "structure_provider_response", "1");
+        "structure_provider_response", "2");
       try {
         const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-          "structure_provider_response", "1", stageHash);
+          "structure_provider_response", "2", stageHash);
         let providerResponseArtifact: ArtifactReference;
         if (cached) {
           await artifacts.readVerified(cached);
@@ -199,7 +219,8 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
                   configurationHash: inputData.providerConfiguration.configurationHash });
                 const stage = `structure_provider_${chunk.chunkId}`;
                 const cachedChunk = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-                  stage, "1", chunkHash);
+                  stage, "2", chunkHash) ?? await jobs.completedStep<ArtifactReference>(inputData.jobId,
+                  `${stage}_partial`, "2", chunkHash);
                 if (!cachedChunk) return null;
                 const value = await artifacts.readVerified(cachedChunk) as StructureChunkCheckpoint;
                 if (value.chunk.inputHash !== chunk.inputHash || value.candidate.textHash !== sourceMap.textHash) {
@@ -211,18 +232,26 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
                 const chunkHash = hashRevision({ chunkInputHash: checkpoint.chunk.inputHash,
                   configurationHash: inputData.providerConfiguration.configurationHash });
                 await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
-                  `structure_provider_${checkpoint.chunk.chunkId}`, "1", chunkHash,
+                  `structure_provider_${checkpoint.chunk.chunkId}${checkpoint.incomplete ? "_partial" : ""}`, "2", chunkHash,
                   "structure_provider_chunk", checkpoint);
               },
             } });
+          const unfinished = response.candidate.unresolvedItems.filter(item =>
+            /extraction incomplete:|: uncovered |model-call budget exhausted/u.test(item));
+          if (unfinished.length) {
+            await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+              "structure_provider_incomplete", "2", hashRevision({ stageHash, candidate: response.candidate }),
+              "structure_provider_response", response);
+            throw new Error(`Structure extraction incomplete; resume saved chunks: ${unfinished.join("; ")}`);
+          }
           providerResponseArtifact = await artifacts.writeCheckpointedJson(inputData.jobId,
-            inputData.leaseOwner, "structure_provider_response", "1", stageHash,
+            inputData.leaseOwner, "structure_provider_response", "2", stageHash,
             "structure_provider_response", response);
         }
         return { ...inputData, providerResponseArtifact };
       } catch (error) {
         await jobs.recordStageFailure(inputData.jobId, inputData.leaseOwner,
-          "structure_provider_response", "1", stageHash, error).catch(() => undefined);
+          "structure_provider_response", "2", stageHash, error).catch(() => undefined);
         throw error;
       }
     } });
@@ -231,16 +260,16 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: Projected, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "structure_candidate", "1");
+        "structure_candidate", "2");
       const envelope = await artifacts.readVerified(inputData.providerResponseArtifact) as ProviderEnvelope;
       if (envelope.candidate.textHash !== inputData.textHash ||
           envelope.candidate.provider !== inputData.providerConfiguration.provider) {
         throw new Error("Structure provider response does not match the saved job input");
       }
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "structure_candidate", "1", stageHash);
+        "structure_candidate", "2", stageHash);
       const candidateArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "structure_candidate", "1", stageHash,
+        inputData.leaseOwner, "structure_candidate", "2", stageHash,
         "structure_candidate", envelope.candidate);
       await artifacts.readVerified(candidateArtifact);
       return { ...inputData, candidateArtifact };
@@ -250,14 +279,14 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: Prepared, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "reference_detection", "2");
+        "reference_detection", "3");
       const sourceMap = await artifacts.readVerified(inputData.mapArtifact) as SourceMap;
       const candidate = await artifacts.readVerified(inputData.candidateArtifact) as CandidateStructure;
       const detection = detectReferences(sourceMap, inputData.sourceVersionId);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "reference_detection", "2", stageHash);
+        "reference_detection", "3", stageHash);
       const referencesArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "reference_detection", "2", stageHash,
+        inputData.leaseOwner, "reference_detection", "3", stageHash,
         "detected_references", detection);
       await artifacts.readVerified(referencesArtifact);
       const preparationStatus = inputData.mappingStatus === "needs_review" ||
@@ -272,7 +301,7 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: Reconstructed, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "reconstruct_source", "3");
+        "reconstruct_source", "5");
       const [sourceMap, candidate, detection] = await Promise.all([
         artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
         artifacts.readVerified(inputData.candidateArtifact) as Promise<CandidateStructure>,
@@ -280,9 +309,9 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
       ]);
       const draft = reconstructSource(sourceMap, candidate, detection);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "reconstruct_source", "3", stageHash);
+        "reconstruct_source", "5", stageHash);
       const reconstructionArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "reconstruct_source", "3", stageHash,
+        inputData.leaseOwner, "reconstruct_source", "5", stageHash,
         "reconstruction_draft", draft);
       await artifacts.readVerified(reconstructionArtifact);
       return { ...inputData, reconstructionArtifact, provisionCount: draft.provisions.length,
@@ -290,20 +319,68 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
         preparationStatus: draft.status === "needs_review" ? "needs_review" : inputData.preparationStatus };
     } });
 
-  const modelDocument = createStep({ id: "build-document-model-v1", inputSchema: Reconstructed,
+  const enrich = createStep({ id: "enrich-explicit-relations-v1", inputSchema: Reconstructed,
+    outputSchema: Enriched, execute: async ({ inputData }) => {
+      if (inputData.semanticMode !== "explicit") return { ...inputData, semanticArtifact: null };
+      const { jobs, artifacts, semanticFactory = (name: string) => new DigitalOceanSemanticClient(name) } = resolve();
+      const [sourceMap, draft] = await Promise.all([
+        artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
+        artifacts.readVerified(inputData.reconstructionArtifact) as Promise<ReturnType<typeof reconstructSource>>,
+      ]);
+      const model = inputData.semanticModel ?? inputData.providerConfiguration.model;
+      const stageHash = hashRevision({ inputHash: inputData.inputHash,
+        reconstructionHash: inputData.reconstructionArtifact.contentHash, model,
+        ontology: SEMANTIC_ONTOLOGY_VERSION, prompt: SEMANTIC_PROMPT_VERSION });
+      const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
+        "semantic_relationships", "1", stageHash);
+      let semanticArtifact: ArtifactReference;
+      let enrichedDraft: ReturnType<typeof reconstructSource>;
+      if (cached) {
+        semanticArtifact = cached;
+        const saved = await artifacts.readVerified(cached) as { draft: ReturnType<typeof reconstructSource> };
+        enrichedDraft = saved.draft;
+      } else {
+        const { draft: result, report } = await enrichSemanticRelationships(sourceMap, draft,
+          semanticFactory(model), Number.MAX_SAFE_INTEGER, {
+            load: async key => {
+              const saved = await jobs.completedStep<ArtifactReference>(inputData.jobId, `semantic_${key}`, "2", key);
+              return saved ? artifacts.readVerified(saved) : null;
+            },
+            save: async (key, decision) => { await artifacts.writeCheckpointedJson(inputData.jobId,
+              inputData.leaseOwner, `semantic_${key}`, "2", key, "semantic_decision", decision); },
+          });
+        enrichedDraft = result;
+        if (report.notAnalyzedRelationIds.length) {
+          await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+            "semantic_pending", "2", hashRevision({ stageHash, report }), "semantic_relationships", { draft: result, report });
+          throw new Error(`Semantic processing incomplete; resume saved decisions for ${report.notAnalyzedRelationIds.length} pending relations`);
+        }
+        semanticArtifact = await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+          "semantic_relationships", "1", stageHash, "semantic_relationships", { draft: result, report });
+      }
+      const reconstructionHash = hashRevision({ inputHash: inputData.inputHash,
+        semanticArtifactHash: semanticArtifact.contentHash, version: "1" });
+      const reconstructionArtifact = await artifacts.writeCheckpointedJson(inputData.jobId,
+        inputData.leaseOwner, "enriched_reconstruction", "1", reconstructionHash,
+        "reconstruction_draft", enrichedDraft);
+      return { ...inputData, reconstructionArtifact, semanticArtifact,
+        relationshipCount: enrichedDraft.relationships.length };
+    } });
+
+  const modelDocument = createStep({ id: "build-document-model-v2", inputSchema: Enriched,
     outputSchema: Modeled, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "document_model", "1");
+        "document_model", "3");
       const [sourceMap, draft] = await Promise.all([
         artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
         artifacts.readVerified(inputData.reconstructionArtifact) as Promise<ReturnType<typeof reconstructSource>>,
       ]);
       const document = buildDocumentModel(sourceMap, draft);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "document_model", "1", stageHash);
+        "document_model", "3", stageHash);
       const documentModelArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "document_model", "1", stageHash, "document_model", document);
+        inputData.leaseOwner, "document_model", "3", stageHash, "document_model", document);
       await artifacts.readVerified(documentModelArtifact);
       return { ...inputData, documentModelArtifact, tableCount: document.tables.length,
         incompleteContextCount: document.contextManifests.filter(manifest => !manifest.complete).length,
@@ -314,7 +391,7 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: Validated, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "validate_reconstruction", "3");
+        "validate_reconstruction", "5");
       const [sourceMap, draft, document] = await Promise.all([
         artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
         artifacts.readVerified(inputData.reconstructionArtifact) as Promise<ReturnType<typeof reconstructSource>>,
@@ -322,9 +399,9 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
       ]);
       const report = validateReconstruction(inputData.sourceVersionId, sourceMap, draft, document);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "validate_reconstruction", "3", stageHash);
+        "validate_reconstruction", "5", stageHash);
       const validationArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "validate_reconstruction", "3", stageHash,
+        inputData.leaseOwner, "validate_reconstruction", "5", stageHash,
         "validation_report", report);
       await artifacts.readVerified(validationArtifact);
       return { ...inputData, validationArtifact, validationIssueCount: report.issues.length,
@@ -335,12 +412,12 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
     outputSchema: FinalOutput, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "record_structure_provider_run", "1");
+        "record_structure_provider_run", "2");
       const envelope = await artifacts.readVerified(inputData.providerResponseArtifact) as ProviderEnvelope;
       const runId = hashRevision({ jobId: inputData.jobId, textHash: inputData.textHash,
         providerConfigurationHash: inputData.providerConfiguration.configurationHash });
       const { jobId, leaseOwner, inputHash: _inputHash, ...output } = inputData;
-      return jobs.checkpoint(jobId, leaseOwner, "record_structure_provider_run", "1", stageHash,
+      return jobs.checkpoint(jobId, leaseOwner, "record_structure_provider_run", "2", stageHash,
         output, async client => {
           await client.query(`INSERT INTO kb_structure_provider_runs
             (id, job_id, source_version_id, source_text_hash, provider, model, prompt_version,
@@ -362,7 +439,7 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
 
   return createWorkflow({ id: "kb-prepare-source-v2", inputSchema: JobInput,
     outputSchema: FinalOutput }).then(extract).then(map).then(record).then(callProvider)
-    .then(project).then(detect).then(reconstruct).then(modelDocument).then(validate).then(recordRun).commit();
+    .then(project).then(detect).then(reconstruct).then(enrich).then(modelDocument).then(validate).then(recordRun).commit();
 }
 
 const productionPool = process.env.DATABASE_URL

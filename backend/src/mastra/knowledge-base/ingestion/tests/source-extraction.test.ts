@@ -139,7 +139,7 @@ test("prepare_source workflow stores raw Docling JSON and a replayable map", asy
     await db.exec("INSERT INTO users VALUES ('alice','USER','APPROVED')");
     const query = async (sql: string, params?: unknown[]) => {
       if (["-- Versioned KB schema", "CREATE TABLE kb_upload_intents", "-- Legal identity", "-- One durable queue",
-        "-- One immutable record"]
+        "-- One immutable record", "-- Additive relation vocabulary"]
         .some(prefix => sql.startsWith(prefix))) { await db.exec(sql); return { rows: [], rowCount: 0 }; }
       const result = await db.query(sql, params);
       return { ...result, rowCount: result.rows.length || result.affectedRows };
@@ -214,11 +214,13 @@ test("prepare_source workflow stores raw Docling JSON and a replayable map", asy
           mapArtifact: result.mapArtifact, textHash: result.textHash } } });
     const llmWorker = new KbIngestionWorker(jobs, { prepare_source: createPrepareSourceWorkflow(() => ({
       pool, objects: originals, jobs, artifacts, extractor,
-      providerFactory: configuration => new LlmStructureProvider(configuration, { generate: async () => ({
-        output: { segments: [{ id: "llm:0", kind: "unit", type: "rule", category: "main",
-          parent: null, sourceAnchors: [{ sourceId: "src:0", exactQuote: docling.texts[0].text,
-            occurrence: 0 }], codeAnchor: null, titleAnchor: null }], references: [],
-          unresolvedItems: ["Remaining table text requires classification"], warnings: [] },
+      providerFactory: configuration => new LlmStructureProvider(configuration, { generate: async ({ prompt }) => ({
+        output: { segments: (JSON.parse(prompt).sourceUnits as Array<[string, string, string]>)
+          .filter(unit => unit[1] === "c").map((unit, index) => ({
+            id: `llm:${index}`, kind: "unit", type: "rule", category: "main",
+            parent: null, sourceAnchors: [{ sourceId: unit[0], exactQuote: unit[2],
+              occurrence: 0 }], codeAnchor: null, titleAnchor: null })), references: [],
+          unresolvedItems: [], warnings: [] },
         rawResponse: { provider: "local-test" }, usage: { inputTokens: 12, outputTokens: 4, totalTokens: 16 },
       }) }),
     })) });

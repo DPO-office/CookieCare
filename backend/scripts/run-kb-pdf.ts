@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import path from "node:path";
 import { config as loadDotEnv } from "dotenv";
 import { runPdfWorkflow } from "../src/mastra/knowledge-base/ingestion/workflows/run-pdf-workflow.js";
 
@@ -17,6 +18,11 @@ async function main() {
       pdf: { type: "string" },
       provider: { type: "string", default: "llm" },
       model: { type: "string" },
+      "semantic-mode": { type: "string", default: "explicit" },
+      "semantic-model": { type: "string" },
+      "replay-from": { type: "string" },
+      "resume-from": { type: "string" },
+      "require-complete": { type: "boolean", default: false },
       "dataset-id": { type: "string" },
       "run-id": { type: "string" },
       "output-dir": { type: "string" },
@@ -27,7 +33,14 @@ async function main() {
     strict: false,
   });
 
-  const pdfPath = typeof values.pdf === "string" ? values.pdf.trim() : "";
+  const replayFrom = typeof values["replay-from"] === "string" ? values["replay-from"].trim() : undefined;
+  const resumeFromValue = typeof values["resume-from"] === "string" ? values["resume-from"].trim() : undefined;
+  if (resumeFromValue && resumeFromValue !== "step-6") {
+    throw new Error(`Unsupported --resume-from value: ${resumeFromValue}. Expected "step-6".`);
+  }
+  const resumeFrom = resumeFromValue === "step-6" ? "step-6" as const : undefined;
+  const pdfPath = typeof values.pdf === "string" ? values.pdf.trim() :
+    replayFrom ? path.join(replayFrom, "original.pdf") : "";
   if (!pdfPath) {
     process.stderr.write("Error: --pdf <path> is required\n");
     process.exit(1);
@@ -35,6 +48,8 @@ async function main() {
 
   const provider = values.provider === "kanon" ? "kanon" : "llm";
   const model = typeof values.model === "string" ? values.model.trim() : undefined;
+  const semanticMode = values["semantic-mode"] === "off" ? "off" : "explicit";
+  const semanticModel = typeof values["semantic-model"] === "string" ? values["semantic-model"].trim() : undefined;
   const datasetId = typeof values["dataset-id"] === "string" ? values["dataset-id"].trim() : undefined;
   const displayedModel = model || (provider === "kanon" ? "kanon-2-enricher" :
     process.env.KB_STRUCTURE_LLM_MODEL || process.env.DO_LLM_REASONING_MODEL || "glm-5.3");
@@ -70,6 +85,10 @@ async function main() {
       pdfPath,
       provider,
       ...(model ? { model } : {}),
+      semanticMode,
+      ...(semanticModel ? { semanticModel } : {}),
+      ...(replayFrom ? { replayFrom } : {}),
+      ...(resumeFrom ? { resumeFrom } : {}),
       ...(datasetId ? { datasetId } : {}),
       ...(runId ? { runId } : {}),
       ...(outputDir ? { outputDir } : {}),
@@ -104,9 +123,12 @@ async function main() {
     process.stdout.write(`Number of provisions: ${result.provisionCount}\n`);
     process.stdout.write(`Number of relationships: ${result.relationshipCount}\n`);
     process.stdout.write(`Validation status: ${result.validationStatus}\n`);
+    process.stdout.write(`Semantic status: ${result.semanticStatus ?? "not_run"}\n`);
     process.stdout.write(`Validation issue count: ${result.validationIssueCount}\n`);
     process.stdout.write(`============================================================\n\n`);
   }
+  if (values["require-complete"] && (result.validationStatus !== "candidate_ready" ||
+    result.semanticStatus === "partial")) process.exitCode = 2;
 }
 
 main().catch(error => {

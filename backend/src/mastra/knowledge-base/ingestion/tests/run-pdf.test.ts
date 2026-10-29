@@ -295,6 +295,51 @@ test("confirm Docling is invoked during every new execution", async () => {
   }
 });
 
+test("replay reuses verified Docling input and writes semantic provenance to a new run", async () => {
+  const tempDir = path.join(os.tmpdir(), `kb-replay-${randomUUID()}`);
+  await mkdir(tempDir, { recursive: true });
+  try {
+    const pdfPath = path.join(tempDir, "law.pdf");
+    await writeFile(pdfPath, samplePdf("Replay source"));
+    const sourceDir = path.join(tempDir, "source");
+    const replayDir = path.join(tempDir, "replay");
+    let extractorCalls = 0;
+    const workflow = createRunPdfWorkflow(() => ({
+      extractor: { extract: async () => {
+        extractorCalls++;
+        return mockDoclingDocument("Section 1 Scope");
+      } },
+      providerFactory: config => ({ configuration: config,
+        extract: async input => mockStructureProvider(input.sourceMap, config).extract(input) }),
+      semanticFactory: model => ({ model, decide: async () => ({ links: [], issues: [] }) }),
+    }));
+    const first = await (await workflow.createRun()).start({ inputData: {
+      pdfPath, provider: "llm", model: "glm-5.3", outputDir: sourceDir,
+    } });
+    assert.equal(first.status, "success");
+    const replay = await (await workflow.createRun()).start({ inputData: {
+      pdfPath, provider: "llm", model: "glm-5.3", outputDir: replayDir,
+      replayFrom: sourceDir, semanticMode: "explicit", semanticModel: "glm-5.3-flash",
+    } });
+    assert.equal(replay.status, "success");
+    assert.equal(extractorCalls, 1);
+    assert.ok(existsSync(path.join(replayDir, "semantic-relationships.json")));
+    const semantic = JSON.parse(await readFile(path.join(replayDir, "semantic-relationships.json"), "utf8"));
+    assert.equal(semantic.model, "glm-5.3-flash");
+    const manifest = JSON.parse(await readFile(path.join(replayDir, "manifest.json"), "utf8"));
+    assert.equal(manifest.semanticStatus, "complete");
+    assert.equal(manifest.semanticMode, "explicit");
+
+    const overwrite = await (await workflow.createRun()).start({ inputData: {
+      pdfPath, provider: "llm", outputDir: sourceDir, replayFrom: sourceDir,
+    } });
+    assert.equal(overwrite.status, "failed");
+    assert.ok(existsSync(path.join(sourceDir, "docling.json")));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("reject missing, non-PDF, oversized, or unreadable files", async () => {
   const tempDir = path.join(os.tmpdir(), `kb-test-${randomUUID()}`);
   await mkdir(tempDir, { recursive: true });

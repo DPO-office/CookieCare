@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { DoclingPdfExtractor, type PdfExtractor } from "../extraction/docling-pd
 import { buildSourceMap, type SourceMap } from "../extraction/source-map.js";
 import { detectReferences } from "../extraction/reference-detection.js";
 import { reconstructSource } from "../extraction/reconstruct.js";
+import { enrichSemanticRelationships, type SemanticDecisionClient } from "../extraction/semantic-relationships.js";
+import { DigitalOceanSemanticClient } from "../extraction/do-semantic.js";
 import { buildDocumentModel } from "../extraction/document-model.js";
 import { validateReconstruction } from "../extraction/validate-reconstruction.js";
 import {
@@ -35,6 +37,10 @@ export const RunPdfInputSchema = z.object({
   pdfPath: z.string().min(1),
   provider: StructureProviderNameSchema.default("llm"),
   model: z.string().trim().min(1).optional(),
+  semanticMode: z.enum(["explicit", "off"]).optional(),
+  semanticModel: z.string().trim().min(1).optional(),
+  replayFrom: z.string().min(1).optional(),
+  resumeFrom: z.literal("step-6").optional(),
   datasetId: z.string().trim().min(1).optional(),
   runId: z.string().min(1).optional(),
   outputDir: z.string().min(1).optional(),
@@ -49,6 +55,7 @@ export const RunPdfOutputSchema = z.object({
   provisionCount: z.number().int().nonnegative(),
   relationshipCount: z.number().int().nonnegative(),
   validationStatus: z.enum(["needs_review", "candidate_ready"]),
+  semanticStatus: z.enum(["complete", "partial", "not_run"]).optional(),
   validationIssueCount: z.number().int().nonnegative(),
   manifestPath: z.string().min(1),
 });
@@ -90,6 +97,7 @@ export function resolveDefaultOutputDir(pdfFileName: string, runId: string): str
 export interface RunPdfWorkflowServices {
   extractor?: PdfExtractor;
   providerFactory?: (configuration: StructureProviderConfig) => StructureProvider;
+  semanticFactory?: (model: string) => SemanticDecisionClient;
 }
 
 async function withStageFailure<T>(inputData: { outputDir?: string }, stage: "S1" | "S2" | "S3",
@@ -131,6 +139,10 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
       pageCount: z.number(),
       provider: StructureProviderNameSchema,
       model: z.string(),
+      semanticMode: z.enum(["explicit", "off"]),
+      semanticModel: z.string().nullable(),
+      replayFrom: z.string().nullable(),
+      resumeFrom: z.literal("step-6").nullable(),
       datasetId: z.string().nullable(),
       runId: z.string(),
       outputDir: z.string(),
@@ -160,11 +172,22 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         throw new Error(`PDF exceeds the page limit of ${MAX_PDF_PAGES}`);
       }
       const pdfHash = createHash("sha256").update(bytes).digest("hex");
+      const replayFrom = inputData.replayFrom ? path.resolve(inputData.replayFrom) : null;
+      const resumeFrom = inputData.resumeFrom ?? null;
+      if (replayFrom) {
+        const oldManifest = JSON.parse(await readFile(path.join(replayFrom, "manifest.json"), "utf8"));
+        if (oldManifest.pdfSha256 !== pdfHash || oldManifest.pageCount !== inspection.pageCount) {
+          throw new Error("Replay source PDF does not match the saved run");
+        }
+      }
       const pdfFileName = path.basename(resolvedPath);
       const runId = inputData.runId || randomUUID();
       const outputDir = inputData.outputDir
         ? path.resolve(inputData.outputDir)
         : resolveDefaultOutputDir(pdfFileName, runId);
+      if (replayFrom && path.normalize(outputDir).toLowerCase() === path.normalize(replayFrom).toLowerCase()) {
+        throw new Error("Replay output must use a new run directory");
+      }
       const provider = inputData.provider ?? "llm";
       const configuration = buildStructureConfig(provider, inputData.model);
       const model = configuration.model;
@@ -184,6 +207,10 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         readability: inspection.readability,
         provider,
         model,
+        semanticMode: inputData.semanticMode ?? "off",
+        semanticModel: inputData.semanticModel ?? null,
+        replayFrom,
+        resumeFrom,
         datasetId: inputData.datasetId ?? null,
         runId,
         outputDir,
@@ -224,6 +251,10 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         pageCount: inspection.pageCount,
         provider,
         model,
+        semanticMode: inputData.semanticMode ?? "off",
+        semanticModel: inputData.semanticModel ?? null,
+        replayFrom,
+        resumeFrom,
         datasetId: inputData.datasetId ?? null,
         runId,
         outputDir,
@@ -238,10 +269,16 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S2", "docling_extraction", async () => {
       const started = Date.now();
-      process.stdout.write(`[2/8] Extracting text and layout with Docling (${inputData.pageCount} pages)...\n`);
+      if (inputData.resumeFrom === "step-6") {
+        const doclingDocument = JSON.parse(await readFile(path.join(inputData.outputDir, "docling.json"), "utf8"));
+        process.stdout.write(`[2/8] Resume mode: loaded saved Docling extraction\n`);
+        return { ...inputData, doclingDocument };
+      }
+      process.stdout.write(`[2/8] ${inputData.replayFrom ? "Loading saved Docling extraction" : "Extracting text and layout with Docling"} (${inputData.pageCount} pages)...\n`);
       const { extractor = new DoclingPdfExtractor() } = resolveServices();
-      const bytes = await readFile(inputData.pdfPath);
-      const doclingDocument = await extractor.extract(bytes, inputData.pdfFileName);
+      const doclingDocument = inputData.replayFrom
+        ? JSON.parse(await readFile(path.join(inputData.replayFrom, "docling.json"), "utf8"))
+        : await extractor.extract(await readFile(inputData.pdfPath), inputData.pdfFileName);
       const durationSec = ((Date.now() - started) / 1000).toFixed(1);
       process.stdout.write(`      ✓ Docling extraction finished in ${durationSec}s\n`);
 
@@ -262,6 +299,12 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S2", "source_mapping", async () => {
       const started = Date.now();
+      if (inputData.resumeFrom === "step-6") {
+        const sourceMap: SourceMap = JSON.parse(await readFile(path.join(inputData.outputDir, "source-map.json"), "utf8"));
+        if (sourceMap.pages.length !== inputData.pageCount) throw new Error("Saved source map page count does not match the PDF");
+        process.stdout.write(`[3/8] Resume mode: loaded saved source map (${sourceMap.text.length.toLocaleString()} characters)\n`);
+        return { ...inputData, sourceMap };
+      }
       process.stdout.write(`[3/8] Building canonical source map and text offsets...\n`);
       const sourceMap = buildSourceMap(inputData.doclingDocument, inputData.pageCount);
       const durationSec = ((Date.now() - started) / 1000).toFixed(1);
@@ -300,6 +343,24 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     inputSchema: z.any(),
     outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "structure_extraction", async () => {
+      if (inputData.resumeFrom === "step-6") {
+        const [candidate, structureResponse, chunkPlan] = await Promise.all([
+          readFile(path.join(inputData.outputDir, "structure-candidate.json"), "utf8").then(JSON.parse),
+          readFile(path.join(inputData.outputDir, "structure-response.json"), "utf8").then(JSON.parse),
+          readFile(path.join(inputData.outputDir, "chunk-plan.json"), "utf8").then(JSON.parse),
+        ]);
+        const configuration = buildStructureConfig(inputData.provider, inputData.model);
+        if (candidate.textHash !== inputData.sourceMap.textHash) throw new Error("Saved structure candidate does not match the source map");
+        if (candidate.provider !== configuration.provider || candidate.model !== configuration.model ||
+            candidate.promptVersion !== configuration.promptVersion ||
+            candidate.processingStrategy !== configuration.processingStrategy) {
+          throw new Error("Saved structure candidate does not match the requested provider configuration");
+        }
+        process.stdout.write(`[4/8] Resume mode: loaded saved structure candidate (${candidate.segments.length} segments)\n`);
+        return { ...inputData, chunkPlan, candidate, structureResponse,
+          structureUsage: null, structureUsageAccounting: { status: "unavailable", attemptedCalls: 0,
+            callsWithUsage: 0, includesDiscardedAttempts: false }, structureConfiguration: configuration };
+      }
       process.stdout.write(`[4/8] Extracting legal structure (${inputData.provider} / ${inputData.model})...\n`);
       const { providerFactory = createAuthorizedProductionStructureProvider } = resolveServices();
       const sourceMap: SourceMap = inputData.sourceMap;
@@ -393,11 +454,19 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
 
       process.stdout.write(`      ✓ Structure extraction complete (${providerResult.candidate.segments.length} segments identified)\n`);
 
+      await rm(path.join(inputData.outputDir, "stage-s3-error.json"), { force: true });
       // Immediately save chunk-plan.json, structure-response.json, structure-candidate.json
       await Promise.all([
         writeFile(path.join(inputData.outputDir, "chunk-plan.json"), `${JSON.stringify(chunkPlan, null, 2)}\n`),
         writeFile(path.join(inputData.outputDir, "structure-response.json"), `${JSON.stringify(providerResult.rawResponse, null, 2)}\n`),
         writeFile(path.join(inputData.outputDir, "structure-candidate.json"), `${JSON.stringify(providerResult.candidate, null, 2)}\n`),
+        writeFile(path.join(inputData.outputDir, "coverage-report.json"), `${JSON.stringify({
+          status: providerResult.candidate.unresolvedItems.length || providerResult.candidate.warnings.some(
+            (warning: string) => /coverage incomplete|uncovered|source coverage/i.test(warning)) ? "needs_review" : "candidate_ready",
+          unresolvedItems: providerResult.candidate.unresolvedItems,
+          incompleteAttempts: ((providerResult.rawResponse as { attempts?: Array<{ status: string }> })?.attempts ?? [])
+            .filter(attempt => attempt.status === "incomplete"),
+        }, null, 2)}\n`),
       ]);
       process.stdout.write(`      ✓ Saved structure artifacts (chunk-plan.json, structure-candidate.json) to ${inputData.outputDir}\n`);
 
@@ -420,6 +489,12 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reference_detection", async () => {
       const started = Date.now();
+      if (inputData.resumeFrom === "step-6") {
+        const references = JSON.parse(await readFile(path.join(inputData.outputDir, "references.json"), "utf8"));
+        const sourceVersionId = `pdf-${inputData.pdfHash.slice(0, 16)}`;
+        process.stdout.write(`[5/8] Resume mode: loaded ${references.references.length} saved references\n`);
+        return { ...inputData, sourceVersionId, references };
+      }
       process.stdout.write(`[5/8] Detecting legal references and cross-references...\n`);
       const sourceVersionId = `pdf-${inputData.pdfHash.slice(0, 16)}`;
       const references = detectReferences(inputData.sourceMap, sourceVersionId);
@@ -444,6 +519,15 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reconstruction", async () => {
       const started = Date.now();
+      if (inputData.resumeFrom === "step-6") {
+        const reconstruction = JSON.parse(await readFile(path.join(inputData.outputDir, "reconstruction.json"), "utf8"));
+        if (reconstruction.textHash !== inputData.sourceMap.textHash ||
+            reconstruction.sourceVersionId !== inputData.sourceVersionId) {
+          throw new Error("Saved reconstruction does not match the source map or source version");
+        }
+        process.stdout.write(`[6/8] Resume mode: loaded saved reconstruction (${reconstruction.provisions.length} provisions, ${reconstruction.relationships.length} relationships)\n`);
+        return { ...inputData, reconstruction };
+      }
       process.stdout.write(`[6/8] Reconstructing legal provisions and relationships...\n`);
       const reconstruction = reconstructSource(inputData.sourceMap, inputData.candidate, inputData.references);
       const durationSec = ((Date.now() - started) / 1000).toFixed(1);
@@ -497,6 +581,30 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     }),
   });
 
+  const enrichRelationships = createStep({
+    id: "enrich-explicit-relationships-v1",
+    inputSchema: z.any(), outputSchema: z.any(),
+    execute: async ({ inputData }) => withStageFailure(inputData, "S3", "semantic_relationships", async () => {
+      if (inputData.semanticMode !== "explicit") return inputData;
+      const model = inputData.semanticModel ?? inputData.model;
+      const { semanticFactory = (name: string) => new DigitalOceanSemanticClient(name) } = resolveServices();
+      const { draft, report } = await enrichSemanticRelationships(inputData.sourceMap,
+        inputData.reconstruction, semanticFactory(model), Number.MAX_SAFE_INTEGER, {
+          load: async key => {
+            try { return JSON.parse(await readFile(path.join(inputData.outputDir, `semantic-${key}.json`), "utf8")); }
+            catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
+          },
+          save: async (key, decision) => { await writeFile(path.join(inputData.outputDir,
+            `semantic-${key}.json`), JSON.stringify(decision)); },
+        });
+      await Promise.all([
+        writeFile(path.join(inputData.outputDir, "reconstruction.json"), `${JSON.stringify(draft, null, 2)}\n`),
+        writeFile(path.join(inputData.outputDir, "semantic-relationships.json"), `${JSON.stringify(report, null, 2)}\n`),
+      ]);
+      return { ...inputData, reconstruction: draft, semanticReport: report };
+    }),
+  });
+
   const validateReconstructionStructure = createStep({
     id: "validate-reconstruction-structure-v1",
     inputSchema: z.any(),
@@ -515,6 +623,14 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
 
       // Immediately save validation.json
       await writeFile(path.join(inputData.outputDir, "validation.json"), `${JSON.stringify(validation, null, 2)}\n`);
+      await writeFile(path.join(inputData.outputDir, "quality-report.json"), `${JSON.stringify({
+        execution: "completed", structure: validation.status,
+        semantic: inputData.semanticReport ? {
+          analyzed: inputData.semanticReport.analyzedRelationIds.length,
+          notAnalyzed: inputData.semanticReport.notAnalyzedRelationIds.length,
+          issues: inputData.semanticReport.issues.length,
+        } : { status: "not_run" }, issues: validation.issues,
+      }, null, 2)}\n`);
       process.stdout.write(`      ✓ Saved validation.json to ${inputData.outputDir}\n`);
 
       return {
@@ -564,7 +680,9 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         datasetId: inputData.datasetId,
         structureConfiguration: inputData.structureConfiguration,
         outputDir,
-        status: "completed",
+        status: inputData.validation.status === "candidate_ready" &&
+          (!inputData.semanticReport || !inputData.semanticReport.notAnalyzedRelationIds.length &&
+            !inputData.semanticReport.issues.length) ? "completed" : "partial",
         currentStage: "S3",
         stages: {
           S1: "completed",
@@ -574,13 +692,19 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         stageArtifacts: {
           S1: ["original.pdf", "stage-s1.json"],
           S2: ["docling.json", "source-map.json", "stage-s2.json"],
-          S3: ["chunk-plan.json", "structure-attempts.json", "structure-response.json", "structure-candidate.json", "references.json", "reconstruction.json", "document-model.json", "stage-s3.json", "validation.json"],
+          S3: ["chunk-plan.json", "structure-attempts.json", "structure-response.json", "structure-candidate.json", "coverage-report.json", "references.json", "reconstruction.json", "document-model.json", "stage-s3.json", "validation.json", "quality-report.json",
+            ...(inputData.semanticReport ? ["semantic-relationships.json"] : [])],
         },
         provisionCount: inputData.reconstruction.provisions.length,
         relationshipCount: inputData.reconstruction.relationships.length,
         tableCount: inputData.documentModel.tables.length,
         validationStatus: inputData.validation.status,
         validationIssueCount: inputData.validation.issues.length,
+        semanticStatus: inputData.semanticReport ?
+          inputData.semanticReport.notAnalyzedRelationIds.length || inputData.semanticReport.issues.length
+            ? "partial" as const : "complete" as const : "not_run" as const,
+        semanticModel: inputData.semanticReport?.model ?? null,
+        semanticMode: inputData.semanticMode,
         durationMs,
         createdAt: new Date().toISOString(),
       };
@@ -612,6 +736,10 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
             prompt_version: inputData.structureConfiguration.promptVersion,
             processing_strategy: inputData.structureConfiguration.processingStrategy,
             configuration_hash: inputData.structureConfiguration.configurationHash },
+          ...(inputData.semanticReport ? [{ stage: "S3", task: "semantic_relationships",
+            provider: "llm", model: inputData.semanticReport.model,
+            reasoning_setting: null, prompt_version: inputData.semanticReport.promptVersion,
+            ontology_version: inputData.semanticReport.ontologyVersion }] : []),
         ],
         artifacts: {
           page_inventory: { pages: inputData.sourceMap.pages },
@@ -624,6 +752,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
           reconstruction: inputData.reconstruction,
           document_model: inputData.documentModel,
           validation: inputData.validation,
+          semantic_relationships: inputData.semanticReport ?? null,
         },
         metrics: {
           duration_ms: durationMs,
@@ -663,6 +792,9 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         provisionCount: inputData.reconstruction.provisions.length,
         relationshipCount: inputData.reconstruction.relationships.length,
         validationStatus: inputData.validation.status,
+        semanticStatus: inputData.semanticReport ?
+          inputData.semanticReport.notAnalyzedRelationIds.length || inputData.semanticReport.issues.length
+            ? "partial" as const : "complete" as const : "not_run" as const,
         validationIssueCount: inputData.validation.issues.length,
         manifestPath,
       };
@@ -680,6 +812,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     .then(extractStructure)
     .then(detectStructureReferences)
     .then(reconstructStructure)
+    .then(enrichRelationships)
     .then(modelDocumentStructure)
     .then(validateReconstructionStructure)
     .then(saveRunOutput)

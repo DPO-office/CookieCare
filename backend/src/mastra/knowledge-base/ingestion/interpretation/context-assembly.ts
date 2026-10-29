@@ -75,7 +75,8 @@ export function assembleLegalContext(target: { id: string; revision: number },
     // Relation input must be the accepted publication's relation set. Do not reverse
     // generic citations: only typed modifiers have meaningful incoming semantics.
     for (const relation of relations.filter(item => item.target?.id === current.id &&
-        item.target.revision === current.revision && ["exception_to", "defines", "interprets"].includes(item.kind))) {
+        item.target.revision === current.revision && ["exception_to", "exempts_from", "defines",
+          "interprets", "penalty_for"].includes(item.kind))) {
       if (!usedRelations.includes(relation)) usedRelations.push(relation);
       queue.push({ ...relation.source, depth: current.depth + 1, reason: "incoming_modifier",
         path: [...current.path, identity] });

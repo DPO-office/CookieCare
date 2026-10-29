@@ -7,7 +7,7 @@ export interface SourceValidationIssue {
     "invalid_provision_span" | "invalid_source_location" | "unresolved_reference" | "missing_structure" |
     "unknown_structure" | "hierarchy_cycle" | "invalid_parent_containment" | "damaged_table" |
     "unresolved_footnote" | "unavailable_external_source" | "incomplete_context" | "source_quality" |
-    "unreconciled_boundary" | "heuristic_relationship";
+    "unreconciled_boundary" | "heuristic_relationship" | "duplicate_citation" | "missing_numbered_boundary";
   detail: string;
 }
 
@@ -38,6 +38,20 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     throw new Error("Reconstruction does not match the source map");
   }
   if (!draft.provisions.length) add("missing_structure", "No provisions were reconstructed");
+  const citations = new Map<string, string>();
+  for (const provision of draft.provisions) {
+    const citation = provision.canonicalCitation;
+    if (!citation || !/^(?:Section|Article|Rule)\s+\S/u.test(citation)) continue;
+    const existing = citations.get(citation);
+    if (existing && existing !== provision.id) add("duplicate_citation", `${citation}: ${existing}, ${provision.id}`);
+    else citations.set(citation, provision.id);
+  }
+  for (const span of map.spans.filter(s => s.kind === "text" && !["page_header", "page_footer"].includes(s.blockType ?? ""))) {
+    for (const marker of map.text.slice(span.start, span.end).matchAll(/(?:^|\n)[ \t]*(?:\d+[a-z]?\.[ \t]+|\((?:\d+[a-z]?|[a-z]|[ivxlcdm]+)\)[ \t]+)/giu)) {
+      const start = span.start + marker.index! + marker[0].search(/\S/u);
+      if (!draft.provisions.some(p => p.start === start)) add("missing_numbered_boundary", `Numbered source opening at ${start} has no distinct provision`);
+    }
+  }
   for (const provision of draft.provisions) {
     if (provision.start < 0 || provision.end > map.text.length ||
         provision.end <= provision.start ||
@@ -48,9 +62,21 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     if (provision.boundaryStatus !== "complete") {
       add("unreconciled_boundary", `Provision ${provision.id} has ${provision.boundaryStatus} boundaries`);
     }
+    if (["paragraph", "subsection", "point"].includes(provision.kind) && !/[.!?;:]\s*$/u.test(provision.text)) {
+      const next = draft.provisions.filter(p => p.start >= provision.end && p.id !== provision.id &&
+        p.kind === provision.kind && p.parentId === provision.parentId).sort((a, b) => a.start - b.start)[0];
+      const lastPage = provision.sourceSpans.at(-1)?.physicalPage;
+      const nextPage = next?.sourceSpans[0]?.physicalPage;
+      if (next && lastPage && nextPage === lastPage + 1 && /^\s*\p{Ll}/u.test(next.text)) {
+        add("unreconciled_boundary", `Possible cross-page continuation ${provision.id} -> ${next.id}; explicit evidence required`);
+      }
+    }
     if (provision.parentId) {
       const parent = draft.provisions.find(item => item.id === provision.parentId);
-      if (!parent || parent.start > provision.start || parent.end < provision.end) {
+      const attachedTableRow = parent && ["table_row", "table"].includes(provision.kind) && provision.tableItemRef &&
+        ["schedule", "annex"].includes(parent.kind) && parent.sourceSpans.some(location =>
+          map.spans.some(span => span.itemRef === location.itemRef && span.parentRef === provision.tableItemRef));
+      if (!parent || !attachedTableRow && (parent.start > provision.start || parent.end < provision.end)) {
         add("invalid_parent_containment", `Parent does not contain provision ${provision.id}`);
       }
       const seen = new Set([provision.id]);

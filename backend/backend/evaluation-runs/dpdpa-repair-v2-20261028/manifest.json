@@ -1,0 +1,12 @@
+{
+  "status": "failed",
+  "currentStage": "S1",
+  "stages": {
+    "S1": "failed"
+  },
+  "error": {
+    "name": "Error",
+    "message": "PDF file not found: backend/evaluation-runs/original.pdf/af6797b1-50fd-4e63-ab6b-5106d27e4ea0/original.pdf"
+  },
+  "failedAt": "2026-10-28T04:13:34.216Z"
+}

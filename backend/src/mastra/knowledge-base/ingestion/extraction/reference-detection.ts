@@ -25,17 +25,17 @@ export interface ReferenceDetection {
 const ORDINAL = "(?:First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)";
 const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> = [
   { kind: "schedule", expression: new RegExp(`\\b(?:${ORDINAL}\\s+Schedule|Schedule\\s+(?:[IVX]+|\\d+)|The\\s+Schedule)\\b`, "giu") },
-  { kind: "section", expression: /\b(?:sub-?sections?|clauses?|paragraphs?)\s+((?:\(?[a-z0-9]+\)?(?:\s*(?:and|,)\s*)?)+)\s+of\s+sections?\s+\d+[A-Za-z]?\b/giu },
+  { kind: "section", expression: /\b(?:sub-?sections?|clauses?|paragraphs?)\s+((?:\(\s*[a-z0-9]+\s*\)(?:\s*(?:and|,)\s*)?)+)\s+of\s+sections?\s+\d+[A-Za-z]?\b/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*[-–—]\s*\d+[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
-  { kind: "relative", expression: /\b(?:clauses?|paragraphs?|points?)\s+\(?[A-Za-z0-9]+\)?\s+of\s+(?:sub-?sections?|paragraphs?)\s+\(?\d+[A-Za-z]?\)?\b/giu },
+  { kind: "relative", expression: /\b(?:clauses?|paragraphs?|points?)\s+\(?\s*[A-Za-z0-9]+\s*\)?\s+of\s+(?:sub-?sections?|paragraphs?)\s+\(?\s*\d+[A-Za-z]?\s*\)?\b/giu },
   { kind: "relative", expression: /\b(?:paragraph|subparagraph|point|sub-section|clause)\s+\(?[A-Za-z0-9]+\)?\s+of\s+this\s+(?:article|rule|section)\b/giu },
   { kind: "relative", expression: /\b(?:for the purposes of|under|in)\s+this\s+(?:section|chapter|part|act|rule|schedule|article)\b/giu },
-  { kind: "external", expression: /\b(?:Regulation|Directive|Act|Code|Convention)\s+(?:\(EU\)\s*)?(?:No\s*)?[A-Za-z0-9][A-Za-z0-9/().-]*(?:\s+of\s+\d{4})?/giu },
+  { kind: "external", expression: /\b(?:(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,8}\s+)?(?:Act|Code|Regulation|Directive|Convention)[,\s]+\d{4}(?:\/\d+)?|[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,8}\s+(?:Act|Code|Regulation|Directive|Convention)(?:,?\s+\d{4})?|(?:Regulation|Directive)\s+\(EU\)\s+\d{4}\/\d+)\b/gu },
 ];
 
 /** Independent of Kanon so missed model references remain visible for review. */
@@ -59,7 +59,8 @@ export function detectReferences(map: SourceMap, sourceVersionId: string): Refer
     }
   }
   const completeReferences = references.filter(reference => !references.some(other =>
-    other !== reference && other.kind === reference.kind && other.start === reference.start && other.end > reference.end));
+    other !== reference && other.kind === reference.kind && other.start <= reference.start &&
+    other.end >= reference.end && other.end - other.start > reference.end - reference.start));
   completeReferences.sort((a, b) => a.start - b.start || a.end - b.end || a.kind.localeCompare(b.kind));
   return { schemaVersion: 1, sourceVersionId, textHash: map.textHash,
     detectorVersion: "2", references: completeReferences, warnings };

@@ -67,7 +67,11 @@ for (const scenario of ["discard-context", "invalid-core", "invalid-core-referen
     } });
     const extraction = provider.extract({ canonicalText: map.text, textHash: map.textHash, sourceMap: map, configuration });
     if (scenario !== "discard-context") {
-      await assert.rejects(extraction, /LLM (quote is absent|invented source ID)/);
+      const result = await extraction;
+      assert.equal(result.candidate.segments.length, 0);
+      assert.equal(result.candidate.references.length, 0);
+      assert.ok(result.candidate.unresolvedItems.some(item => /LLM (quote is absent|invented source ID)/.test(item)));
+      assert.ok((result.rawResponse as any).attempts.some((attempt: any) => attempt.status === "incomplete"));
       return;
     }
     const result = await extraction;

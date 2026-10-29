@@ -1,4 +1,5 @@
 import type { EvaluationJudge, JudgeDecision, JudgeInput } from "./review-dataset.js";
+import { hashRevision } from "../schemas/common.js";
 
 type RecordValue = Record<string, any>;
 
@@ -12,6 +13,7 @@ export interface FocusedJudgeCall {
   reason: string;
   attempts: number;
   reused?: boolean;
+  inputHash?: string;
 }
 
 export interface FocusedGraphJudgeOptions {
@@ -24,18 +26,56 @@ const words = (value: unknown) => String(value ?? "").toLowerCase().replace(/[^a
 const tokens = (value: unknown) => new Set(words(value).split(" ").filter(token => token.length > 2));
 const short = (value: unknown) => String(value).slice(0, 900);
 
+export function referenceTypeCompatible(expected: string, actual: string): boolean {
+  return expected === actual || expected === "explicit_reference" &&
+    ["explicit_relative_reference", "explicit_procedural_reference"].includes(actual);
+}
+
+export function deterministicGraphCheck(input: JudgeInput, field: string, expected: any) {
+  const graph = input.evidence[0]?.value as RecordValue | undefined;
+  if (!graph || !expected || typeof expected !== "object") return null;
+  if (field.startsWith("section-start:") && typeof expected.first_line_exact_text === "string" &&
+      typeof expected.physical_page === "number" && Array.isArray(graph.provisions)) {
+    const normal = (text: string) => text.replace(/\s+/gu, " ").trim();
+    const found = graph.provisions.filter((p: any) => ["section", "article", "rule"].includes(p.kind) &&
+      normal(String(p.text ?? "")).startsWith(normal(expected.first_line_exact_text)));
+    if (!found.length) return null; // Absence in a selected view is not proof of absence in the source.
+    const pages = found.flatMap((p: any) => {
+      const spans = p.sourceRanges ?? p.sourceSpans ?? [];
+      const start = typeof p.start === "number" ? p.start + String(p.text).search(/\S/u) : null;
+      if (start !== null) return spans.filter((s: any) => s.start <= start && s.end > start)
+        .map((s: any) => s.page ?? s.physicalPage);
+      const uniquePages = [...new Set(spans.map((s: any) => s.page ?? s.physicalPage))];
+      return uniquePages.length === 1 ? uniquePages : [];
+    });
+    if (pages.includes(expected.physical_page)) return { field, verdict: "pass" as const,
+      reason: "Exact first-line wording and physical page are present in saved graph evidence." };
+  }
+  if (field.startsWith("edge:") && typeof expected.relation === "string" &&
+      Object.keys(expected).every(key => ["from", "to", "relation", "source_words"].includes(key))) {
+    const edge = graph.relationships?.find((r: any) => r.sourceLabel === expected.from &&
+      r.targetLabels?.includes(expected.to) && ["proposed", "resolved"].includes(r.status) &&
+      (!expected.source_words || r.exactMention === expected.source_words) &&
+      referenceTypeCompatible(expected.relation, r.referenceType ?? r.relationType));
+    if (edge) return { field, verdict: "pass" as const,
+      reason: "Saved edge has matching source, target, mention and compatible reference subtype." };
+  }
+  return null;
+}
+
 function score(provision: RecordValue, value: unknown): number {
-  if (!value || typeof value !== "object") return 0;
-  const expected = value as RecordValue;
-  const exact = expected.exact_source_text ?? expected.breach_exact_text ?? expected.text_hint ?? "";
+  if (value === null || value === undefined) return 0;
+  const expected = typeof value === "object" ? value as RecordValue : { text_hint: String(value) };
+  const exact = expected.exact_source_text ?? expected.first_line_exact_text ?? expected.breach_exact_text ?? expected.text_hint ?? "";
   const expectedTokens = tokens(exact);
   const observedTokens = tokens(provision.text);
   const overlap = expectedTokens.size ? [...expectedTokens].filter(token => observedTokens.has(token)).length /
     expectedTokens.size : 0;
-  const id = words(expected.id ?? expected.from ?? expected.path?.[0] ?? "");
+  const identity = expected.id ?? expected.from ?? expected.section ?? expected.path?.[0] ?? "";
+  const id = words(identity);
   const label = words(provision.label);
   const headingMatch = id && (label.startsWith(id) || words(provision.text).startsWith(id)) ? 1 : 0;
-  const section = /^Section\s+(\d+)(?:\((\d+)\))?$/i.exec(String(expected.id ?? expected.from ?? ""));
+  const section = /^(?:Section\s+)?(\d+)(?:\((\d+)\))?$/i.exec(String(identity));
   const lead = String(provision.text ?? "").trimStart();
   const numberedHeading = section ? section[2]
     ? new RegExp(`^(?:${section[1]}\\.\\s*)?\\(\\s*${section[2]}\\s*\\)`).test(lead) &&
@@ -50,9 +90,9 @@ function sourceForField(input: JudgeInput, value: unknown) {
     const scoreRef = (ref: string) => tokens(ref).size ? [...tokens(ref)].filter(token => selector.includes(token)).length : 0;
     return scoreRef(b.ref) - scoreRef(a.ref);
   });
-  let budget = 7_000;
+  let budget = 16_000;
   return ranked.map(item => {
-    const text = item.text.slice(0, Math.max(0, Math.min(5_000, budget)));
+    const text = item.text.slice(0, Math.max(0, Math.min(12_000, budget)));
     budget -= text.length;
     return { ref: item.ref, text, sourceTruncated: text.length !== item.text.length };
   }).filter(item => item.text);
@@ -64,6 +104,9 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
   if (!artifact || !Array.isArray(artifact.provisions) || !Array.isArray(artifact.relationships))
     throw new Error(`Graph evidence missing for ${input.caseId}`);
   const provisions: RecordValue[] = artifact.provisions;
+  const isSectionStart = field.startsWith("section-start:");
+  const structuralOverview = isSectionStart || field.startsWith("chapter:") ||
+    ["act_section_count", "chapter_count", "schedule_presence"].includes(field);
   const ranked = [...provisions].map(provision => ({ provision, rank: score(provision, expected) }))
     .sort((a, b) => b.rank - a.rank);
   const detailed = ranked.slice(0, 3).filter(row => row.rank > 0).map(row => row.provision);
@@ -75,25 +118,36 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
     targetIds: relation.targetIds,
     targetLabels: relation.targetLabels?.map((label: string) => label?.slice(0, 120)),
     relationType: relation.relationType ?? relation.kind ?? relation.type ?? "explicit_reference",
+    referenceType: relation.referenceType,
     exactMention: relation.exactMention,
     status: relation.status,
     range: relation.range,
     external: relation.external,
   }));
-  const includeTables = /schedule|table|row|penalty/i.test(field + " " + JSON.stringify(expected) + " " + forbidden.join(" "));
+  const includeTables = !structuralOverview &&
+    /schedule|table|row|penalty/i.test(field + " " + JSON.stringify(expected) + " " + forbidden.join(" "));
   const evidence = {
     selection: artifact.selection,
-    inventory: provisions.map(provision => ({ id: provision.id, kind: provision.kind,
+    sourcePageInventory: artifact.sourcePageInventory ?? null,
+    inventory: (structuralOverview ? provisions.filter(provision =>
+      isSectionStart || field === "act_section_count" ?
+        ["section", "article", "rule"].includes(provision.kind) &&
+          /^\s*\d+\./u.test(String(provision.text ?? "")) :
+        ["section", "article", "rule", "chapter", "schedule", "annex"].includes(provision.kind)) :
+      provisions).map(provision => ({ id: provision.id, kind: provision.kind,
       label: provision.label?.slice(0, 130), parentId: provision.parentId,
       parentLabel: provision.parentLabel?.slice(0, 130),
       textStart: provision.text?.slice(0, 80), boundaryStatus: provision.boundaryStatus,
+      canonicalCitation: provision.canonicalCitation, sourceRanges: provision.sourceRanges,
+      sourceSpans: provision.sourceSpans,
       status: provision.status })),
     detailedProvisions: detailed.map(provision => ({ ...provision,
+      ...(structuralOverview ? { text: String(provision.text ?? "").slice(0, 2_000) } : {}),
       label: provision.label?.slice(0, 160), sourceRanges: provision.sourceRanges?.slice(0, 4) })),
     detailSelection: { policy: "top lexical candidates plus complete compact inventory",
       candidateCount: detailed.length, totalCount: provisions.length,
       fullTextOmittedForOtherNodes: true },
-    relationships: relationFacts,
+    relationships: structuralOverview ? [] : relationFacts,
     contextPaths: field.startsWith("path:") ? (artifact.contextPaths ?? [])
       .filter((path: RecordValue) => nearIds.has(path.targetId))
       .map((path: RecordValue) => ({ target: path.target?.slice(0, 130), complete: path.complete,
@@ -116,6 +170,7 @@ export class FocusedGraphJudge implements EvaluationJudge {
   private completedCalls = 0;
   private readonly maxAttempts: number;
   private readonly onProgress?: FocusedGraphJudgeOptions["onProgress"];
+  private inputHash = "";
 
   constructor(private readonly delegate: EvaluationJudge, options: FocusedGraphJudgeOptions = {}) {
     this.model = delegate.model;
@@ -125,11 +180,12 @@ export class FocusedGraphJudge implements EvaluationJudge {
   }
 
   private reusable(caseId: string, field: string) {
-    return this.calls.find(call => call.caseId === caseId && call.field === field &&
+    return this.calls.find(call => call.caseId === caseId && call.field === field && call.inputHash === this.inputHash &&
       (call.verdict === "pass" || call.verdict === "fail"));
   }
 
   private async save(call: FocusedJudgeCall) {
+    call.inputHash = this.inputHash;
     this.calls.push(call);
     await this.onProgress?.(this.calls);
   }
@@ -160,11 +216,19 @@ export class FocusedGraphJudge implements EvaluationJudge {
   }
 
   async judge(input: JudgeInput): Promise<JudgeDecision> {
+    this.inputHash = hashRevision({ evaluator: "focused-graph-v4", model: this.model, input });
     this.completedCalls = 0;
     const fields: JudgeDecision["fields"] = [];
     const total = Object.keys(input.expected).length + input.forbidden.length;
     process.stdout.write(`Scoring ${input.caseId}: ${total} focused checks (${Object.keys(input.expected).length} expected facts, ${input.forbidden.length} forbidden claims). Each failed response gets ${this.maxAttempts} attempt(s).\n`);
     for (const [field, expected] of Object.entries(input.expected)) {
+      const deterministic = deterministicGraphCheck(input, field, expected);
+      if (deterministic) {
+        fields.push(deterministic);
+        await this.save({ caseId: input.caseId, field, kind: "expected", inputCharacters: 0,
+          verdict: deterministic.verdict, reason: deterministic.reason, attempts: 0 });
+        continue;
+      }
       const cached = this.reusable(input.caseId, field);
       if (cached) {
         fields.push({ field, verdict: cached.verdict, reason: cached.reason });

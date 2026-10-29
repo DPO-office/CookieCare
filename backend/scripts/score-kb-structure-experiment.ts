@@ -6,6 +6,7 @@ import { config } from "dotenv";
 import { evaluateReviewDataset, expectedForJudge } from "../src/mastra/knowledge-base/ingestion/evaluation/review-dataset.js";
 import { DigitalOceanEvaluationJudge } from "../src/mastra/knowledge-base/ingestion/evaluation/digitalocean-judge.js";
 import { FocusedGraphJudge, focusGraphJudgeInput } from "../src/mastra/knowledge-base/ingestion/evaluation/focused-graph-judge.js";
+import { hashRevision } from "../src/mastra/knowledge-base/ingestion/schemas/common.js";
 
 config({ path: "backend/.env", quiet: true });
 config({ path: ".env", quiet: true });
@@ -19,6 +20,7 @@ const read = async (base: string, file: string) => JSON.parse(await readFile(pat
 const dataset = await read(values.fixture, "dataset.json"), pack = await read(values.fixture, "source-passages.json");
 const template = await read(values.fixture, "run-results.template.json");
 const draft = await read(values.run, "reconstruction.json"), model = await read(values.run, "document-model.json");
+const sourceMap = await read(values.source, "source-map.json");
 const experiment = existsSync(path.join(values.run, "experiment.json"))
   ? await read(values.run, "experiment.json") as Record<string, any>
   : null;
@@ -38,6 +40,13 @@ if (!selectedCases.length) throw new Error(`No test case matches ${values.case ?
 const artifacts: Record<string, unknown> = {};
 const results = [];
 for (const row of selectedCases) {
+  const stageAvailable = row.stage === "S1" || row.stage === "S2" || row.stage === "S3";
+  if (!stageAvailable) {
+    results.push({ case_id: row.id, status: "not_run", observed: null,
+      evidence_refs: [], failed_expected_fields: [], forbidden_claims_found: [],
+      reviewer_notes: `The saved ingestion run has no ${row.stage} output.` });
+    continue;
+  }
   const pages = new Set(row.physical_pages ?? []);
   const pageSpans = draft.provisions.flatMap((p: any) => p.sourceSpans.filter((s: any) =>
     pages.has(s.physicalPage)));
@@ -62,11 +71,13 @@ for (const row of selectedCases) {
   const tables = model.tables.filter((t: any) => ids.has(t.provisionId) ||
     t.cells.some((cell: any) => cell.pages?.some((page: number) => pages.has(page))));
   artifacts[row.id] = {
+    ...(row.stage === "S1" ? { sourcePageInventory: sourceMap.pages } : {}),
     selection: { physicalPages: [...pages], policy: "page-scoped nodes, adjacent unpaged nodes, outgoing reference targets",
       includedUnpagedAdjacentNodeIds: seeds.filter((p: any) => nearPage(p)).map((p: any) => p.id),
       excludedOversizedSeedNodes: draft.provisions.filter((p: any) => p.text.length >= 12_000 &&
         p.sourceSpans.some((s: any) => pages.has(s.physicalPage))).map((p: any) => p.id) },
-    provisions: selected.map((p: any) => ({ id: p.id, kind: p.kind, label: p.label, text: p.text,
+    provisions: selected.map((p: any) => ({ id: p.id, kind: p.kind, label: p.label, canonicalCitation: p.canonicalCitation, text: p.text,
+      start: p.start, end: p.end,
       parentId: p.parentId, parentLabel: p.parentId ? label(p.parentId) : null,
       structuralPath: p.structuralPath, boundaryStatus: p.boundaryStatus, status: p.status,
       sourceRanges: p.sourceSpans.map((s: any) => ({ page: s.physicalPage, start: s.start, end: s.end })) })),
@@ -75,6 +86,7 @@ for (const row of selectedCases) {
       targetIds: r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : []),
       targetLabels: (r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : [])).map(label),
       relationType: r.relationType ?? "explicit_reference",
+      referenceType: r.referenceType,
       exactMention: r.exactMention, status: r.status, range: r.rangeTarget, external: r.externalTarget,
     })),
     contextPaths: model.contextManifests.filter((m: any) => ids.has(m.targetProvisionId)).map((m: any) => ({
@@ -87,20 +99,25 @@ for (const row of selectedCases) {
   results.push({ case_id: row.id, status: "completed", observed: null, evidence_refs: [`${row.id}#`],
     failed_expected_fields: [], forbidden_claims_found: [], reviewer_notes: "Frozen candidate structure; not a published KB." });
 }
+// The judge receives JSON evidence. Normalize optional undefined fields before both
+// hashing and evaluation so the checkpoint identity matches the actual payload.
+const serializedArtifacts = JSON.parse(JSON.stringify(artifacts)) as typeof artifacts;
 const run = { ...template, run_id: path.basename(values.run), provider: configuration.provider,
   model: configuration.model, prompt_version: configuration.promptVersion,
-  pipeline_version: configuration.processingStrategy, artifacts, results,
+  pipeline_version: configuration.processingStrategy, artifacts: serializedArtifacts, results,
   metrics: { duration_ms: experiment?.durationMs ?? manifest?.durationMs ?? null,
     input_tokens: experiment?.usage?.inputTokens ?? null,
     output_tokens: experiment?.usage?.outputTokens ?? null, estimated_cost_usd: null } };
 await writeFile(path.join(values.run, "evaluation-input.json"), JSON.stringify(run, null, 2));
 const preview = selectedCases.map((row: any) => {
+  if (!artifacts[row.id]) return { caseId: row.id, fieldCount: 0, forbiddenCount: 0,
+    fields: [], status: "not_run" };
   const expected = expectedForJudge(row.expected);
   const input = { caseId: row.id, method: row.grading.method, grading: row.grading,
     evaluationScope: row.evaluation_scope ?? null, expected, forbidden: row.must_not,
     source: row.source_refs.map((ref: string) => ({ ref,
       text: pack.units[ref]?.comparison_text ?? pack.units[ref]?.fragments?.map((f: any) => f.text).join("\n") ?? "" })),
-    evidence: [{ ref: `${row.id}#`, value: artifacts[row.id] }] };
+    evidence: [{ ref: `${row.id}#`, value: serializedArtifacts[row.id] }] };
   return { caseId: row.id, fieldCount: Object.keys(expected).length, forbiddenCount: row.must_not.length,
     fields: Object.entries(expected).map(([field, value]) => {
       try {
@@ -114,6 +131,9 @@ const preview = selectedCases.map((row: any) => {
     }) };
 });
 await writeFile(path.join(values.run, "evaluation-focus-preview.json"), JSON.stringify(preview, null, 2));
+const judgeModel = values["judge-model"] ?? "glm-5.3";
+const evidenceHash = hashRevision({ datasetId: dataset.dataset_id, selectedCases,
+  artifacts: serializedArtifacts, sourcePackHash: hashRevision(pack), judgeModel, evaluatorVersion: "focused-graph-v3" });
 if (values["prepare-only"]) {
   console.log(JSON.stringify({ status: "prepared", cases: preview.length,
     fields: preview.reduce((n, row) => n + row.fieldCount, 0),
@@ -123,7 +143,6 @@ if (values["prepare-only"]) {
 }
 const focusedCallCount = preview.reduce((sum, row) => sum + row.fieldCount + row.forbiddenCount, 0);
 process.stdout.write(`Prepared ${selectedCases.length} case(s), ${focusedCallCount} focused judge calls. Starting judge requests...\n`);
-const judgeModel = values["judge-model"] ?? "glm-5.3";
 const stageLabel = targetStage === "ALL" || !targetStage ? (values.case ?? "all-cases") : (values.case ?? targetStage);
 const suffix = `${stageLabel}.${judgeModel}`.replace(/[^a-zA-Z0-9._-]/g, "_");
 const checkpointPath = path.join(values.run, `evaluation-judge-checkpoint.${suffix}.json`);
@@ -132,8 +151,9 @@ let previousCalls: any[] = [];
 if (existsSync(checkpointPath)) {
   try {
     const checkpoint = JSON.parse(await readFile(checkpointPath, "utf8"));
-    if (checkpoint.schemaVersion === "focused-graph-checkpoint/2.0" &&
+    if (checkpoint.schemaVersion === "focused-graph-checkpoint/3.0" &&
         checkpoint.runId === run.run_id && checkpoint.judgeModel === judgeModel &&
+        checkpoint.evidenceHash === evidenceHash &&
         Array.isArray(checkpoint.calls)) previousCalls = checkpoint.calls;
   } catch { /* An unreadable checkpoint is ignored; the new run starts cleanly. */ }
 }
@@ -143,8 +163,9 @@ const baseJudge = new DigitalOceanEvaluationJudge(judgeModel, undefined, async a
 });
 const judge = new FocusedGraphJudge(baseJudge, { previousCalls, maxAttempts: 2,
   onProgress: async calls => {
-    await writeFile(checkpointPath, JSON.stringify({ schemaVersion: "focused-graph-checkpoint/2.0",
-      runId: run.run_id, caseId: values.case ?? null, judgeModel, updatedAt: new Date().toISOString(),
+    await writeFile(checkpointPath, JSON.stringify({ schemaVersion: "focused-graph-checkpoint/3.0",
+      runId: run.run_id, caseId: values.case ?? null, judgeModel, evidenceHash,
+      updatedAt: new Date().toISOString(),
       calls }, null, 2));
   } });
 const report = await evaluateReviewDataset({ ...dataset, cases: selectedCases }, run, pack,

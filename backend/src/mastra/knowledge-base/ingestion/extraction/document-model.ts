@@ -1,6 +1,7 @@
 import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
 import type { DraftProvision, DraftRelationship, ReconstructionDraft } from "./reconstruct.js";
+import { collectDefinitions } from "./definitions.js";
 
 export interface DocumentDirectoryEntry {
   provisionId: string;
@@ -40,7 +41,7 @@ export interface DefinitionScope {
   scopeProvisionId: string | null;
   scopeStatus: "document" | "structural_parent" | "unresolved";
   reviewStatus: "candidate" | "needs_review";
-  basis: "structural_parent_heuristic" | "document_default_heuristic";
+  basis: "structural_parent_heuristic" | "document_default_heuristic" | "explicit_document_scope" | "unresolved";
 }
 
 export interface FootnoteAttachment {
@@ -62,7 +63,7 @@ export interface InferredLinkCandidate {
 export interface ContextManifest {
   targetProvisionId: string;
   includedProvisionIds: string[];
-  selections: Array<{ provisionId: string; reason: "target" | "parent_condition" | "explicit_reference" | "contained_provision" }>;
+  selections: Array<{ provisionId: string; reason: "target" | "parent_condition" | "explicit_reference" | "contained_provision" | "incoming_modifier" }>;
   unresolvedRelationshipIds: string[];
   unavailableExternalRelationshipIds: string[];
   missingTargetIds: string[];
@@ -103,7 +104,11 @@ function buildTables(map: SourceMap, provisions: DraftProvision[]): Reconstructe
   return [...groups.entries()].map(([key, spans]) => {
     const tableStart = Math.min(...spans.map(span => span.start));
     const tableEnd = Math.max(...spans.map(span => span.end));
-    const owner = provisions.filter(provision => provision.start <= tableStart && provision.end >= tableEnd)
+    const captionRefs = new Set(map.spans.filter(span => span.parentRef === key).map(span => span.itemRef));
+    const captionOwner = provisions.find(provision => ["schedule", "annex"].includes(provision.kind) &&
+      provision.sourceSpans.some(location => captionRefs.has(location.itemRef)));
+    const owner = captionOwner ?? provisions.filter(provision => provision.kind !== "table_row" &&
+      provision.start <= tableStart && provision.end >= tableEnd)
       .sort((a, b) => (a.end - a.start) - (b.end - b.start))[0] ?? null;
     const cells = new Map<string, ReconstructedTableCell>();
     const issues: string[] = [];
@@ -168,7 +173,10 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
   while (queue.length) {
     const next = queue.shift()!;
     queued.delete(next.id);
-    if (next.path.includes(next.id)) { omitted.push({ provisionId: next.id, reason: "cycle" }); continue; }
+    if (next.path.includes(next.id)) {
+      if (!visited.has(next.id)) omitted.push({ provisionId: next.id, reason: "cycle" });
+      continue;
+    }
     if (visited.has(next.id)) continue;
     visited.add(next.id);
     const provision = byId.get(next.id);
@@ -199,6 +207,15 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
         }
       }
     }
+    for (const relation of relationships.filter(item => item.targetProvisionId === provision.id &&
+      item.status === "proposed" && ["penalty_for", "exempts_from", "exception_to", "defines",
+        "interprets"].includes(item.relationType))) {
+      const sourceId = relation.sourceProvisionId;
+      if (sourceId && !visited.has(sourceId) && !queued.has(sourceId)) {
+        queue.push({ id: sourceId, reason: "incoming_modifier", path: [...next.path, provision.id] });
+        queued.add(sourceId);
+      }
+    }
   }
   return { targetProvisionId: target.id, includedProvisionIds: selected.map(provision => provision.id),
     selections, unresolvedRelationshipIds: [...new Set(unresolvedRelationshipIds)],
@@ -223,12 +240,21 @@ export function buildDocumentModel(map: SourceMap, draft: ReconstructionDraft,
       reviewStatus: "requires_review" as const,
       basis: target ? "nearest_preceding_provision" as const : "none" as const };
   });
-  const definitionScopes = draft.provisions.filter(provision => provision.kind === "definition").map(definition => ({
-    definitionProvisionId: definition.id, scopeProvisionId: definition.parentId,
-    scopeStatus: definition.parentId ? "structural_parent" as const : "document" as const,
+  const definitionScopes = collectDefinitions(draft.provisions).map(definition => ({
+    definitionProvisionId: definition.provisionId, scopeProvisionId: definition.scopeProvisionId,
+    scopeStatus: definition.scopeStatus,
     reviewStatus: "needs_review" as const,
-    basis: definition.parentId ? "structural_parent_heuristic" as const : "document_default_heuristic" as const,
+    basis: definition.scopeStatus === "document" ? "explicit_document_scope" as const :
+      definition.scopeStatus === "unresolved" ? "unresolved" as const : "structural_parent_heuristic" as const,
   }));
+  // Preserve model-identified definitions (e.g. table definitions) even when no
+  // quoted term pattern is available; do not invent a document-wide scope.
+  for (const provision of draft.provisions.filter(p => p.kind === "definition")) {
+    if (!definitionScopes.some(d => d.definitionProvisionId === provision.id)) definitionScopes.push({
+      definitionProvisionId: provision.id, scopeProvisionId: provision.parentId,
+      scopeStatus: provision.parentId ? "structural_parent" : "unresolved", reviewStatus: "needs_review",
+      basis: provision.parentId ? "structural_parent_heuristic" : "unresolved" });
+  }
   const sourceQualityIssues = [
     ...map.pages.filter(page => page.status === "missing" || page.itemCount === 0).map(page => ({
       code: "missing_or_empty_page", detail: `Physical page ${page.physicalPage} has no mapped content`,

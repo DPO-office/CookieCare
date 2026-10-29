@@ -13,13 +13,20 @@ export function reconcileBoundaries(map: SourceMap, input: CandidateStructure): 
     const span = s.code ?? s.title;
     return span ? map.text.slice(span.start, span.end).replace(/\s+/gu, " ").trim().toLowerCase() : "";
   };
+  const compatibleLabel = (left: CandidateSegment, right: CandidateSegment) => {
+    if (label(left) && label(left) === label(right)) return true;
+    // An unlabelled continuation may inherit the left label only with explicit
+    // continuation evidence on both sides. Never swallow the next numbered clause.
+    return !!label(left) && !label(right) &&
+      !/^\s*(?:\([a-z0-9ivxlcdm]+\)|\d+\.|section\b|article\b|rule\b)/iu.test(map.text.slice(right.span.start, right.span.end));
+  };
   let changed = true;
   while (changed) {
     changed = false;
     for (const left of segments.filter(s => !redirects.has(s.id) && s.continuesAfterChunk)) {
       const matches = segments.filter(right => right.id !== left.id && !redirects.has(right.id) &&
         right.startsBeforeChunk && right.span.start > left.span.start && right.span.end > left.span.end &&
-        right.type === left.type && right.kind === left.kind && label(left) !== "" && label(left) === label(right) &&
+        right.type === left.type && right.kind === left.kind && compatibleLabel(left, right) &&
         (left.parent && right.parent ? canonical(left.parent) === canonical(right.parent) :
           left.parent === null && right.parent === null && left.parentHint === right.parentHint) &&
         (right.span.start <= left.span.end || !map.text.slice(left.span.end, right.span.start).trim()));

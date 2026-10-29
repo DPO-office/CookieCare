@@ -53,6 +53,9 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
       }
       units.push({ id: span.end - span.start <= 2000 ? `src:${index}` : `src:${index}@${start}`,
         start, end, text: map.text.slice(start, end),
+        itemRef: span.itemRef, parentRef: span.parentRef, blockType: span.blockType, physicalPage: span.page,
+        row: span.row, column: span.column, rowSpan: span.rowSpan,
+        columnSpan: span.columnSpan, isHeader: span.isHeader,
         group: effectiveOwner === undefined ? "unmapped" : `native:${effectiveOwner}`,
         ...(span.end - span.start > 2000 ? { fragmentOf: `src:${index}`,
           continuesBefore: start > span.start, continuesAfter: end < span.end } : {}),
@@ -67,9 +70,17 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
     const id = `chunk_${String(chunks.length + 1).padStart(3, "0")}`;
     const make = (end: number, before: StructureSourceUnit[] = [], after: StructureSourceUnit[] = []) =>
       materialize(map, id, units.slice(start, end), before, after, fixed, headings, true);
-    while (cursor < units.length && units[cursor]!.group === group && cursor - start < 40) {
-      if (make(cursor + 1).assembledInputCharacters > LLM_TARGET_INPUT_CHARACTERS && cursor > start) break;
+    while (cursor < units.length && units[cursor]!.group === group) {
+      const previous = cursor > start ? units[cursor - 1]! : null;
+      const current = units[cursor]!;
+      const continuesRow = previous?.itemRef === current.itemRef &&
+        previous?.row !== undefined && previous.row === current.row;
+      if (make(cursor + 1).assembledInputCharacters > LLM_TARGET_INPUT_CHARACTERS && cursor > start && !continuesRow) break;
       if (make(cursor + 1).assembledInputCharacters > LLM_MAX_INPUT_CHARACTERS) {
+        if (cursor > start) {
+          if (continuesRow) warnings.push(`oversized_table_row_split:${current.itemRef}:${current.row}`);
+          break;
+        }
         throw new Error(`Chunk context cannot fit for ${units[cursor]!.id}`);
       }
       cursor++;
@@ -80,9 +91,13 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
       span.start < units[cursor - 1]!.end && span.end > units[start]!.start).map(span => span.itemRef));
     const headerSpans = map.spans.filter(span => span.isHeader && tableRefs.has(span.itemRef));
     const headers = units.filter(unit => headerSpans.some(span => unit.start >= span.start && unit.end <= span.end));
-    const before = [...new Map([...(start ? [units[start - 1]!] : []), ...headers]
+    const substantive = (unit: StructureSourceUnit) => !["page_header", "page_footer"].includes(unit.blockType ?? "");
+    const preceding = units.slice(0, start).filter(substantive).slice(-2);
+    const following = units.slice(cursor).filter(substantive).slice(0, 2);
+    const before = [...new Map([...preceding, ...(start ? [units[start - 1]!] : []), ...headers]
       .filter(unit => !coreIds.has(unit.id)).map(unit => [unit.id, unit])).values()];
-    const after = cursor < units.length ? [units[cursor]!] : [];
+    const after = [...new Map([...(cursor < units.length ? [units[cursor]!] : []), ...following]
+      .map(unit => [unit.id, unit])).values()];
     let chunk = make(cursor, before, after);
     const omitted: string[] = [];
     if (chunk.assembledInputCharacters > LLM_MAX_INPUT_CHARACTERS) {

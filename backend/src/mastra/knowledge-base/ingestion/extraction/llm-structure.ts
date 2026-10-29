@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { projectDoclingChunks, type NativeChunk } from "./docling-chunk-plan.js";
 import { reconcileBoundaries } from "./reconcile-boundaries.js";
+import { repairStructuralDirectory } from "./structural-directory.js";
 import type { SourceMap } from "./source-map.js";
 import { LLM_MAX_INPUT_CHARACTERS, LLM_TARGET_INPUT_CHARACTERS, STRUCTURE_PROMPT_VERSION, assertProviderInput,
   sourceLocations, type CandidateStructure, type StructureProvider,
   type StructureChunkCheckpoint, type StructureExtractionAttempt, type StructureProviderConfig,
   type StructureProviderInput, type StructureProviderResult,
   type TextRange } from "./structure-provider.js";
-import { planStructureChunks, splitStructureChunk, structureChunkPrompt, structureSourceUnits,
+import { materialize, planStructureChunks, splitStructureChunk, structureChunkPrompt, structureSourceUnits,
   type StructureChunk } from "./structure-chunk-plan.js";
 
 const AnchorSchema = z.strictObject({
@@ -40,7 +41,7 @@ export const LLM_STRUCTURE_RESPONSE_SCHEMA = {
   properties: {
     segments: { type: "array", items: { type: "object", additionalProperties: false,
       required: ["id", "kind", "type", "category", "parent", "sourceAnchors", "codeAnchor", "titleAnchor"],
-      properties: { id: { type: "string" }, kind: { type: "string", enum: ["container", "unit", "item", "figure"] },
+      properties: { id: { type: "string", minLength: 1 }, kind: { type: "string", enum: ["container", "unit", "item", "figure"] },
         type: { type: ["string", "null"] }, category: { type: ["string", "null"] },
         parent: { type: ["string", "null"] }, sourceAnchors: { type: "array", minItems: 1,
           items: { $ref: "#/$defs/anchor" } }, codeAnchor: { anyOf: [{ $ref: "#/$defs/anchor" }, { type: "null" }] },
@@ -49,7 +50,7 @@ export const LLM_STRUCTURE_RESPONSE_SCHEMA = {
         parentHint: { type: ["string", "null"], maxLength: 500 } } } },
     references: { type: "array", items: { type: "object", additionalProperties: false,
       required: ["mention", "targetSegmentIds"], properties: { mention: { $ref: "#/$defs/anchor" },
-        targetSegmentIds: { type: "array", items: { type: "string" } },
+        targetSegmentIds: { type: "array", items: { type: "string", minLength: 1 } },
         targetHint: { type: ["string", "null"], maxLength: 500 },
         resolutionStatus: { type: "string", enum: ["pending", "resolved", "ambiguous", "external"] } } } },
     unresolvedItems: { type: "array", items: { type: "string" } },
@@ -57,7 +58,8 @@ export const LLM_STRUCTURE_RESPONSE_SCHEMA = {
   },
   $defs: { anchor: { type: "object", additionalProperties: false,
     required: ["sourceId", "exactQuote", "occurrence"], properties: {
-      sourceId: { type: "string", maxLength: 200 }, exactQuote: { type: "string", maxLength: 500 },
+      sourceId: { type: "string", minLength: 1, maxLength: 200 },
+      exactQuote: { type: "string", minLength: 1, maxLength: 500 },
       occurrence: { type: "integer", minimum: 0 } } } },
 } as const;
 
@@ -72,9 +74,61 @@ export interface LlmStructureClient {
     responseSchema: unknown; signal?: AbortSignal }): Promise<LlmStructureCompletion>;
 }
 type SourceUnit = ReturnType<typeof structureSourceUnits>[number];
+const COVERAGE_VALIDATOR_VERSION = "union-and-numbered-heading-coverage-v4";
 
 export class StructureGroundingError extends Error {
   constructor(message: string) { super(message); this.name = "StructureGroundingError"; }
+}
+
+class StructureMalformedOutputError extends Error {
+  constructor(message: string) { super(message); this.name = "StructureMalformedOutputError"; }
+}
+
+class StructureCoverageError extends Error {
+  constructor(readonly missingSourceIds: string[], readonly candidate: CandidateStructure) {
+    super(`Substantive source units were not extracted: ${missingSourceIds.join(", ")}`);
+    this.name = "StructureCoverageError";
+  }
+}
+
+function isPublicationFurniture(unit: SourceUnit): boolean {
+  return unit.blockType === "page_header" || unit.blockType === "page_footer" ||
+    /^xxxGID[HE]xxx\b/iu.test(unit.text.trimStart()) ||
+    /Separate paging is given to this Part in order that it may be filed as a separate compilation/iu
+      .test(unit.text);
+}
+
+export function uncoveredCoreUnits(map: SourceMap, chunk: StructureChunk, candidate: CandidateStructure): string[] {
+  const ids = new Set(chunk.coreSourceIds);
+  const units = (chunk.sourceUnits ?? structureSourceUnits(map)).filter(unit => ids.has(unit.id));
+  return units.filter(unit => {
+    if (isPublicationFurniture(unit)) return false;
+    const text = unit.text.trim();
+    if (!/\p{L}/u.test(text) || /^(?:SEC\.\s*\d+\]|THE GAZETTE OF INDIA EXTRAORDINARY)$/iu.test(text)) return false;
+    let cursor = unit.start;
+    const intervals = candidate.segments.map(segment => segment.span)
+      .filter(span => span.start < unit.end && span.end > unit.start).sort((a, b) => a.start - b.start);
+    for (const span of intervals) {
+      if (span.start > cursor && map.text.slice(cursor, span.start).trim()) return true;
+      cursor = Math.max(cursor, Math.min(unit.end, span.end));
+    }
+    if (map.text.slice(cursor, unit.end).trim()) return true;
+    // A broad segment can cover every source unit while hiding a missed provision boundary.
+    // Require a distinct segment at strong, numbered legal headings.
+    if (unit.blockType === "table_cell") return false;
+    const heading = /^(?:section|article|rule)\s+\d+[a-z]?(?=\s|[.:(—–-]|$)/iu.exec(text);
+    if (!heading) {
+      // Bare section numbers and nested list markers must have their own boundary.
+      const markers = [...unit.text.matchAll(/(?:^|\n)[ \t]*(?:\d+[a-z]?\.[ \t]+|\((?:\d+[a-z]?|[a-z]|[ivxlcdm]+)\)[ \t]+)/giu)];
+      return markers.some(marker => {
+        const offset = unit.start + marker.index! + marker[0].search(/\S/u);
+        return !candidate.segments.some(segment => segment.span.start === offset);
+      });
+    }
+    const type = heading[0].split(/\s/u)[0]!.toLowerCase();
+    return !candidate.segments.some(segment => segment.type === type &&
+      segment.span.start >= unit.start && segment.span.start < unit.end);
+  }).map(unit => unit.id);
 }
 
 function escapeRegex(str: string): string {
@@ -128,12 +182,31 @@ function locate(anchor: z.infer<typeof AnchorSchema>, units: Map<string, SourceU
 
 function normalize(raw: unknown, map: SourceMap, configuration: StructureProviderConfig,
   chunk: StructureChunk): CandidateStructure {
-  const parsed = LlmOutputSchema.parse(raw);
+  // Segment IDs are local bookkeeping, not source evidence. Some constrained JSON
+  // responses leave them blank even when their quoted source anchors are valid.
+  const output = raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : null;
+  const rawSegments = Array.isArray(output?.segments) ? output.segments : null;
+  const rawReferences = Array.isArray(output?.references) ? output.references : null;
+  const unnamedCount = rawSegments?.filter(value => value && typeof value === "object" &&
+    !Array.isArray(value) && (value as Record<string, unknown>).id === "").length ?? 0;
+  const blankTargetCount = rawReferences?.reduce<number>((count, value) => count + (
+    value && typeof value === "object" && !Array.isArray(value) &&
+    Array.isArray((value as Record<string, unknown>).targetSegmentIds) ?
+      ((value as Record<string, unknown>).targetSegmentIds as unknown[]).filter(id => id === "").length : 0), 0) ?? 0;
+  const repaired = output && (unnamedCount || blankTargetCount) ? { ...output, segments: rawSegments?.map((value, index) =>
+    value && typeof value === "object" && !Array.isArray(value) &&
+      (value as Record<string, unknown>).id === "" ?
+      { ...value, id: `unnamed-${chunk.chunkId}-${index + 1}` } : value),
+    references: rawReferences?.map(value => value && typeof value === "object" && !Array.isArray(value) &&
+      Array.isArray((value as Record<string, unknown>).targetSegmentIds) ?
+      { ...value, targetSegmentIds: ((value as Record<string, unknown>).targetSegmentIds as unknown[])
+        .filter(id => id !== "") } : value) } : raw;
+  const parsed = LlmOutputSchema.parse(repaired);
   const includedIds = new Set([...chunk.contextBefore, ...chunk.coreSourceIds, ...chunk.contextAfter]);
   const coreIds = new Set(chunk.coreSourceIds);
   const units = new Map((chunk.sourceUnits ?? structureSourceUnits(map)).filter(unit => includedIds.has(unit.id)).map(unit => [unit.id, unit]));
   const allIds = new Set(parsed.segments.map(segment => segment.id));
-  if (allIds.size !== parsed.segments.length) throw new Error("LLM returned duplicate segment IDs");
+  if (allIds.size !== parsed.segments.length) throw new StructureMalformedOutputError("LLM returned duplicate segment IDs");
   // Reject invented IDs even in discarded records, but validate quotes only when
   // they contribute to retained output. Context-only duplicates are not evidence.
   const assertKnownSource = (anchor: z.infer<typeof AnchorSchema>) => {
@@ -146,7 +219,9 @@ function normalize(raw: unknown, map: SourceMap, configuration: StructureProvide
   }
   const ownedSegments = parsed.segments.filter(segment => segment.sourceAnchors.some(anchor => coreIds.has(anchor.sourceId)));
   const ids = new Set(ownedSegments.map(segment => segment.id));
-  const warnings = [...parsed.warnings];
+  const warnings = [...parsed.warnings,
+    ...(unnamedCount ? [`Assigned local IDs to ${unnamedCount} unnamed segments in ${chunk.chunkId}`] : []),
+    ...(blankTargetCount ? [`Discarded ${blankTargetCount} blank target IDs in ${chunk.chunkId}`] : [])];
   const discardedSegments = parsed.segments.length - ownedSegments.length;
   if (discardedSegments) warnings.push(`Ignored ${discardedSegments} context-only segments in ${chunk.chunkId}`);
   const children = new Map<string, string[]>();
@@ -158,18 +233,7 @@ function normalize(raw: unknown, map: SourceMap, configuration: StructureProvide
   const segments = ownedSegments.map(segment => {
     const anchors = segment.sourceAnchors.map(anchor => locate(anchor, units));
     const start = Math.min(...anchors.map(anchor => anchor.start));
-    let end = Math.max(...anchors.map(anchor => anchor.end));
-    const lastAnchor = segment.sourceAnchors[segment.sourceAnchors.length - 1];
-    if (lastAnchor) {
-      const unit = units.get(lastAnchor.sourceId);
-      if (unit && unit.end > end) {
-        const hasSubsequentInUnit = ownedSegments.some(s => s.id !== segment.id &&
-          s.sourceAnchors.some(a => a.sourceId === lastAnchor.sourceId && locate(a, units).start >= end));
-        if (!hasSubsequentInUnit) {
-          end = unit.end;
-        }
-      }
-    }
+    const end = Math.max(...anchors.map(anchor => anchor.end));
     const span = { start, end };
     const localParent = segment.parent && ids.has(segment.parent) ? segment.parent : null;
     return { id: segment.id, kind: segment.kind, type: segment.type, category: segment.category,
@@ -223,10 +287,18 @@ export function buildStructurePrompt(map: SourceMap, chunk?: StructureChunk): st
 export const LLM_STRUCTURE_SYSTEM_PROMPT = `You extract legal document structure only.
 Each supplied sourceUnits tuple is [sourceId, role, exactText], where role c means core,
 b means context before, and a means context after.
+sourceLayout records table row and column coordinates and caption parent references. Keep
+every row's description and penalty cells together, and attach captions to their tables.
 Return provisions and hierarchy, original labels, explicit reference mentions, possible targets,
 and uncertainty. Extract only structures whose boundary anchors include a source unit marked core;
 neighboring context is interpretation support and must not be emitted on its own.
 Heading context is a navigation hint, not proof of legal scope. A request can contain only
+part of a paragraph across PDF pages. sourcePages identifies physical pages and page furniture;
+page changes are not provision boundaries. Do not include page headers or footers as legal wording.
+Use source wording such as "Section 9" for parentHint, never a temporary ID such as "sec_9".
+Keep each numbered subsection and list point separate, including bare openings like "9. (1)".
+When an unlabelled paragraph continues, retain its parent and mark continuation on both fragments.
+The request can contain only
 part of a provision. Mark continuations explicitly. Use first AND last exact anchors for
 each complete provision, not a short quote from its middle. Preserve text after lists that
 qualifies the list. Do not turn a processing chunk into a legal provision.
@@ -247,7 +319,9 @@ export class StructureOutputTruncatedError extends Error {
 }
 
 function shouldSplitFailedChunk(error: unknown): boolean {
-  if (error instanceof StructureOutputTruncatedError || error instanceof StructureGroundingError) return true;
+  if (error instanceof StructureOutputTruncatedError || error instanceof StructureGroundingError ||
+    error instanceof StructureCoverageError || error instanceof StructureMalformedOutputError ||
+    error instanceof z.ZodError) return true;
   if (!(error instanceof Error)) return false;
   return error.name === "TimeoutError" ||
     /timed?\s*out|timeout|HTTP\s+(408|413)|context length|too many tokens|request.{0,20}too large/i.test(error.message);
@@ -349,7 +423,10 @@ export class LlmStructureProvider implements StructureProvider {
       attempts.push(attempt);
       await input.checkpoints?.saveAttempt?.(attempt);
     };
-    const extractChunk = async (chunk: StructureChunk): Promise<void> => {
+    // A binary split tree with N units has at most 2N-1 calls. Every child
+    // gets its own attempt; an early difficult branch cannot starve siblings.
+    const extractChunk = async (chunk: StructureChunk, rootId: string): Promise<void> => {
+      input.signal?.throwIfAborted();
       const prompt = buildStructurePrompt(input.sourceMap, chunk);
       if (fixedInputCharacters + prompt.length > LLM_MAX_INPUT_CHARACTERS) {
         throw new Error(`Assembled structure input ${chunk.chunkId} exceeds ${LLM_MAX_INPUT_CHARACTERS} characters`);
@@ -363,13 +440,42 @@ export class LlmStructureProvider implements StructureProvider {
           cached.sourceTextHash === input.textHash && cached.chunk.inputHash === chunk.inputHash &&
           cached.configurationHash === this.configuration.configurationHash &&
           cached.promptVersion === this.configuration.promptVersion &&
-          cached.processingStrategy === this.configuration.processingStrategy;
+          cached.processingStrategy === this.configuration.processingStrategy &&
+          !cached.incomplete && cached.coverageValidatorVersion === COVERAGE_VALIDATOR_VERSION &&
+          uncoveredCoreUnits(input.sourceMap, chunk, cached.candidate).length === 0;
         if (cached && cacheMatches) {
           process.stdout.write(`      ✓ Chunk ${chunk.chunkId} loaded from checkpoint cache (reused completed extraction)\n`);
           completed.push(cached);
           await saveAttempt({ attemptId: `${chunk.chunkId}:cache:${attempts.length + 1}`, chunk,
             status: "checkpoint_reused", usage: null, finishReason: cached.finishReason,
             durationMs: 0, error: null, childChunkIds: [] });
+          return;
+        }
+        if (cached?.incomplete && chunk.coreSourceIds.length > 1 && cached.candidate.segments.length &&
+            cached.sourceTextHash === input.textHash && cached.chunk.inputHash === chunk.inputHash &&
+            cached.configurationHash === this.configuration.configurationHash &&
+            cached.coverageValidatorVersion === COVERAGE_VALIDATOR_VERSION) {
+          throw new StructureCoverageError(uncoveredCoreUnits(input.sourceMap, chunk, cached.candidate), cached.candidate);
+        }
+        const coreUnits = (chunk.sourceUnits ?? structureSourceUnits(input.sourceMap))
+          .filter(unit => chunk.coreSourceIds.includes(unit.id));
+        if (coreUnits.every(isPublicationFurniture)) {
+          const candidate: CandidateStructure = { schemaVersion: 1, textHash: input.textHash,
+            provider: "llm", model: this.configuration.model,
+            promptVersion: this.configuration.promptVersion,
+            processingStrategy: this.configuration.processingStrategy,
+            segments: [], references: [], unresolvedItems: [], warnings: [] };
+          const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1,
+            sourceTextHash: input.textHash, configurationHash: this.configuration.configurationHash,
+            promptVersion: this.configuration.promptVersion,
+            processingStrategy: this.configuration.processingStrategy, chunk, candidate,
+            coverageValidatorVersion: COVERAGE_VALIDATOR_VERSION, rawResponse: null,
+            usage: null, finishReason: null, durationMs: 0 };
+          await input.checkpoints?.saveChunk(checkpoint);
+          completed.push(checkpoint);
+          await saveAttempt({ attemptId: `${chunk.chunkId}:furniture:${attempts.length + 1}`, chunk,
+            status: "completed", usage: null, finishReason: null, durationMs: 0,
+            error: null, childChunkIds: [] });
           return;
         }
         const chunkStarted = Date.now();
@@ -384,11 +490,14 @@ export class LlmStructureProvider implements StructureProvider {
           Object.assign(truncated, { usage: response.usage, finishReason: response.finishReason });
           throw truncated;
         }
+        const candidate = normalize(response.output, input.sourceMap, this.configuration, chunk);
+        const missing = uncoveredCoreUnits(input.sourceMap, chunk, candidate);
+        if (missing.length) throw new StructureCoverageError(missing, candidate);
         const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1,
           sourceTextHash: input.textHash, configurationHash: this.configuration.configurationHash,
           promptVersion: this.configuration.promptVersion,
           processingStrategy: this.configuration.processingStrategy, chunk,
-          candidate: normalize(response.output, input.sourceMap, this.configuration, chunk),
+          candidate, coverageValidatorVersion: COVERAGE_VALIDATOR_VERSION,
           rawResponse: response.rawResponse, usage: response.usage,
           finishReason: response.finishReason ?? null, durationMs: Date.now() - chunkStarted };
         await input.checkpoints?.saveChunk(checkpoint);
@@ -398,11 +507,79 @@ export class LlmStructureProvider implements StructureProvider {
           durationMs: checkpoint.durationMs, error: null, childChunkIds: [] });
         process.stdout.write(`      ✓ Chunk ${chunk.chunkId} completed in ${((Date.now() - chunkStarted) / 1000).toFixed(1)}s\n`);
       } catch (error) {
+        input.signal?.throwIfAborted();
         const durationMs = Date.now() - attemptStarted;
         const usage = error instanceof Error && "usage" in error ?
           (error as Error & { usage?: StructureExtractionAttempt["usage"] }).usage ?? receivedUsage : receivedUsage;
         const finishReason = error instanceof Error && "finishReason" in error ?
           String((error as Error & { finishReason?: unknown }).finishReason ?? "") || receivedFinishReason : receivedFinishReason;
+        if (error instanceof StructureCoverageError && chunk.coreSourceIds.length > 1) {
+          // Keep grounded work. Only uncovered units receive another model call.
+          const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1,
+            sourceTextHash: input.textHash, configurationHash: this.configuration.configurationHash,
+            promptVersion: this.configuration.promptVersion, processingStrategy: this.configuration.processingStrategy,
+            chunk, candidate: error.candidate, rawResponse: null, usage, finishReason, durationMs,
+            coverageValidatorVersion: COVERAGE_VALIDATOR_VERSION, incomplete: true,
+            missingSourceIds: error.missingSourceIds };
+          await input.checkpoints?.saveChunk(checkpoint);
+          completed.push(checkpoint);
+          const units = chunk.sourceUnits ?? structureSourceUnits(input.sourceMap);
+          const children = error.missingSourceIds.map((id, index) => {
+            const unit = units.find(value => value.id === id)!;
+            const ordered = [...units].sort((a, b) => a.start - b.start);
+            const position = ordered.findIndex(value => value.id === id);
+            const make = (before: typeof units, after: typeof units) => materialize(input.sourceMap,
+              `${chunk.chunkId}u${index + 1}`, [unit], before, after, fixedInputCharacters, chunk.headingContext, true);
+            let child = make(position > 0 ? [ordered[position - 1]!] : [], ordered[position + 1] ? [ordered[position + 1]!] : []);
+            if (child.assembledInputCharacters > LLM_MAX_INPUT_CHARACTERS) child = make([], []);
+            return child;
+          });
+          await saveAttempt({ attemptId: `${chunk.chunkId}:partial:${attempts.length + 1}`, chunk,
+            status: "incomplete", usage, finishReason, durationMs, error: error.message,
+            childChunkIds: children.map(child => child.chunkId) });
+          for (const child of children) await extractChunk(child, rootId);
+          return;
+        }
+        if (error instanceof StructureCoverageError &&
+          chunk.coreSourceIds.length < 2) {
+          const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1, sourceTextHash: input.textHash,
+            configurationHash: this.configuration.configurationHash, promptVersion: this.configuration.promptVersion,
+            processingStrategy: this.configuration.processingStrategy, chunk,
+            candidate: { ...error.candidate,
+              unresolvedItems: [...error.candidate.unresolvedItems,
+                `${chunk.chunkId}: uncovered ${error.missingSourceIds.join(", ")}`],
+              warnings: [...error.candidate.warnings, error.message] },
+            rawResponse: null, usage, finishReason, durationMs, incomplete: true,
+            missingSourceIds: error.missingSourceIds, coverageValidatorVersion: COVERAGE_VALIDATOR_VERSION };
+          await input.checkpoints?.saveChunk(checkpoint);
+          completed.push(checkpoint);
+          await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
+            status: "incomplete", usage, finishReason, durationMs,
+            error: error.message, childChunkIds: [] });
+          return;
+        }
+        if (shouldSplitFailedChunk(error) && chunk.coreSourceIds.length < 2) {
+          const message = error instanceof Error ? error.message : String(error);
+          const candidate: CandidateStructure = { schemaVersion: 1, textHash: input.textHash,
+            provider: "llm", model: this.configuration.model,
+            promptVersion: this.configuration.promptVersion,
+            processingStrategy: this.configuration.processingStrategy,
+            segments: [], references: [],
+            unresolvedItems: [`${chunk.chunkId}: extraction incomplete: ${message}`],
+            warnings: [`${chunk.chunkId}: source unit needs review after ${message}`] };
+          const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1, sourceTextHash: input.textHash,
+            configurationHash: this.configuration.configurationHash,
+            promptVersion: this.configuration.promptVersion,
+            processingStrategy: this.configuration.processingStrategy, chunk, candidate,
+            rawResponse: null, usage, finishReason, durationMs, incomplete: true,
+            missingSourceIds: chunk.coreSourceIds, coverageValidatorVersion: COVERAGE_VALIDATOR_VERSION };
+          await input.checkpoints?.saveChunk(checkpoint);
+          completed.push(checkpoint);
+          await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
+            status: "incomplete", usage, finishReason, durationMs,
+            error: message, childChunkIds: [] });
+          return;
+        }
         if (!shouldSplitFailedChunk(error) || chunk.coreSourceIds.length < 2) {
           await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
             status: "failed", usage, finishReason, durationMs,
@@ -419,15 +596,16 @@ export class LlmStructureProvider implements StructureProvider {
           status: error instanceof StructureOutputTruncatedError ? "truncated" : "split",
           usage, finishReason, durationMs, error: error instanceof Error ? error.message : String(error),
           childChunkIds: children.map(child => child.chunkId) });
-        for (const child of children) await extractChunk(child);
+        for (const child of children) await extractChunk(child, rootId);
       }
     };
-    for (const chunk of plan.chunks) await extractChunk(chunk);
+    for (const chunk of plan.chunks) await extractChunk(chunk, chunk.chunkId);
     const modelAttempts = attempts.filter(row => row.status !== "checkpoint_reused");
     const usageRows = modelAttempts.map(row => row.usage).filter((row): row is NonNullable<typeof row> => !!row);
     const sum = (key: "inputTokens" | "outputTokens" | "totalTokens") =>
       usageRows.some(row => row[key] === null) ? null : usageRows.reduce((total, row) => total + row[key]!, 0);
-    const candidate = reconcileBoundaries(input.sourceMap, mergeCandidates(input.sourceMap, this.configuration, completed));
+    const candidate = reconcileBoundaries(input.sourceMap, repairStructuralDirectory(input.sourceMap,
+      mergeCandidates(input.sourceMap, this.configuration, completed)));
     return { candidate, rawResponse: { chunkPlan: plan, attempts,
       chunks: completed.map(row => ({ chunk: row.chunk,
       rawResponse: row.rawResponse, finishReason: row.finishReason })) },

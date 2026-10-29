@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import type { Pool } from "pg";
 
 const migrationFiles = ["001_foundation.sql", "002_durable_uploads.sql", "003_legal_structure.sql",
-  "004_workflow_jobs.sql", "005_structure_provider_runs.sql"] as const;
+  "004_workflow_jobs.sql", "005_structure_provider_runs.sql", "006_semantic_relations.sql"] as const;
 
 export interface MigrationClient {
   query(sql: string, params?: unknown[]): Promise<{ rows: unknown[] }>;

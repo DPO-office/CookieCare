@@ -111,8 +111,11 @@ export class KbJobStore {
   async enqueuePreparation(client: PoolClient, intakeJobId: string, sourceVersionId: string,
     checksum: string, parserVersion: string, configurationHash: string,
     structureProvider: StructureProviderConfig): Promise<void> {
+    const semanticMode = process.env.KB_SEMANTIC_MODE === "explicit" ? "explicit" : "off";
     const descriptor = { sourceVersionId, checksum, parser: "docling.rs", parserVersion,
-      configurationHash, structureProvider };
+      configurationHash, structureProvider, semanticMode,
+      semanticModel: semanticMode === "explicit" ?
+        process.env.KB_SEMANTIC_MODEL || structureProvider.model : null };
     const inputHash = hashRevision({ type: "prepare_source", sourceVersionIds: [sourceVersionId],
       publicationId: null, descriptor, dependencies: [intakeJobId] });
     const inserted = await client.query<{ id: string }>(`INSERT INTO kb_ingestion_jobs

@@ -5,6 +5,7 @@ export interface SourceSpan {
   start: number;
   end: number;
   itemRef: string;
+  parentRef?: string;
   page: number | null;
   provenance: unknown[];
   kind: "text" | "table_cell" | "item";
@@ -71,7 +72,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     if (!item) throw new Error(`Missing Docling item: ${ref}`);
     return item;
   };
-  const visit = (ref: string) => {
+  const visit = (ref: string, parentRef?: string) => {
     if (seen.has(ref)) return;
     seen.add(ref);
     const item = resolve(ref);
@@ -79,7 +80,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     const provenance = Array.isArray(item.prov) ? item.prov : [];
     const page = pageOf(provenance);
     if (typeof item.text === "string") {
-      append(item.text, { itemRef: ref, page, provenance, kind: "text",
+      append(item.text, { itemRef: ref, parentRef, page, provenance, kind: "text",
         blockType: typeof item.label === "string" ? item.label : "text", extractionWarnings: [] });
       if (item.text && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (Array.isArray(object(item.data)?.table_cells)) {
@@ -95,7 +96,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
         if (!Number.isInteger(row) || !Number.isInteger(column)) extractionWarnings.push("invalid_table_coordinates");
         const cellProvenance = Array.isArray(cell.prov) ? cell.prov : provenance;
         const cellPage = pageOf(cellProvenance) ?? page;
-        append(cell.text, { itemRef: ref, page: cellPage, provenance: cellProvenance,
+        append(cell.text, { itemRef: ref, parentRef, page: cellPage, provenance: cellProvenance,
           kind: "table_cell", blockType: "table_cell",
           row, column,
           rowSpan: Number.isInteger(endRow) && endRow > row ? endRow - row : 1,
@@ -105,7 +106,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
       }
       if (cells.length && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (typeof item.content === "string") {
-      append(item.content, { itemRef: ref, page, provenance, kind: "item",
+      append(item.content, { itemRef: ref, parentRef, page, provenance, kind: "item",
         blockType: typeof item.label === "string" ? item.label : "item", extractionWarnings: [] });
       if (item.content && page === null) warnings.push(`No unique physical page for ${ref}`);
     }
@@ -113,7 +114,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     if (Array.isArray(children)) for (const child of children) {
       const childRef = reference(child);
       if (!childRef) throw new Error(`Invalid child reference in ${ref}`);
-      visit(childRef);
+      visit(childRef, ref);
     }
   };
   visit("#/body");
@@ -124,6 +125,27 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     for (let i = 0; i < items.length; i++) {
       const ref = `#/${collection}/${i}`;
       if (!seen.has(ref)) { warnings.push(`Unreferenced Docling item retained: ${ref}`); visit(ref); }
+    }
+  }
+  // Docling may list a table caption outside the body traversal and without a
+  // parent. Preserve its original text position, but restore the explicit
+  // table -> caption association from the table's `captions` references.
+  const captionTables = new Map<string, Set<string>>();
+  if (Array.isArray(document.tables)) for (let index = 0; index < document.tables.length; index++) {
+    const table = object(document.tables[index]);
+    if (!Array.isArray(table?.captions)) continue;
+    for (const caption of table.captions) {
+      const captionRef = reference(caption);
+      if (!captionRef) continue;
+      const tables = captionTables.get(captionRef) ?? new Set<string>();
+      tables.add(`#/tables/${index}`);
+      captionTables.set(captionRef, tables);
+    }
+  }
+  for (const span of spans) {
+    const tables = captionTables.get(span.itemRef);
+    if (tables?.size === 1 && (!span.parentRef || span.parentRef === "#/body")) {
+      span.parentRef = [...tables][0];
     }
   }
   const rawPages = document.pages as JsonObject;

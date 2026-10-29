@@ -13,7 +13,7 @@ test("review decisions require source permission and the latest exact revision h
     await db.exec("CREATE TABLE users (id TEXT PRIMARY KEY, role TEXT, status TEXT)");
     await db.exec("INSERT INTO users VALUES ('alice','USER','APPROVED'),('bob','USER','APPROVED')");
     const query = async (sql: string, params?: unknown[]) => {
-      if (["-- Versioned KB schema", "CREATE TABLE kb_upload_intents", "-- Legal identity", "-- One durable queue"]
+      if (["-- Versioned KB schema", "CREATE TABLE kb_upload_intents", "-- Legal identity", "-- One durable queue", "-- Additive relation vocabulary"]
         .some(prefix => sql.startsWith(prefix))) { await db.exec(sql); return { rows: [], rowCount: 0 }; }
       const result = await db.query(sql, params);
       return { ...result, rowCount: result.rows.length || result.affectedRows };

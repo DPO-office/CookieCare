@@ -3,8 +3,8 @@ import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
 import type { StructureChunk, StructureChunkPlan } from "./structure-chunk-plan.js";
 
-export const STRUCTURE_PROMPT_VERSION = "legal-structure-v4";
-export const LLM_PROCESSING_STRATEGY = "docling_small_chunks_reconcile-v4";
+export const STRUCTURE_PROMPT_VERSION = "legal-structure-v6";
+export const LLM_PROCESSING_STRATEGY = "docling_small_chunks_reconcile-v6";
 // Safety limits on the source-preserving serialization, not model token counts.
 export const LLM_TARGET_INPUT_CHARACTERS = 12_000;
 export const LLM_MAX_INPUT_CHARACTERS = 24_000;
@@ -83,7 +83,7 @@ export interface StructureProviderUsage {
 export interface StructureExtractionAttempt {
   attemptId: string;
   chunk: StructureChunk;
-  status: "completed" | "truncated" | "failed" | "split" | "checkpoint_reused";
+  status: "completed" | "truncated" | "failed" | "incomplete" | "split" | "checkpoint_reused";
   usage: StructureProviderUsage | null;
   finishReason: string | null;
   durationMs: number;
@@ -114,6 +114,9 @@ export interface StructureChunkCheckpoint {
   usage: StructureProviderUsage | null;
   finishReason: string | null;
   durationMs: number;
+  coverageValidatorVersion?: string;
+  incomplete?: boolean;
+  missingSourceIds?: string[];
 }
 export interface StructureProviderCheckpoints {
   savePlan(plan: StructureChunkPlan): Promise<void>;

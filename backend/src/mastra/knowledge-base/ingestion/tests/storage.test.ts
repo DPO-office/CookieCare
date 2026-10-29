@@ -16,7 +16,7 @@ async function fixture() {
     ('pending', 'USER', 'PENDING_APPROVAL')`);
   const client = {
     query: async (sql: string, params?: unknown[]) => {
-      if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue")) {
+      if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || sql.startsWith("-- Additive relation vocabulary")) {
         await db.exec(sql);
         return { rows: [], rowCount: 0 };
       }
@@ -35,7 +35,8 @@ test("fresh migration, repeat migration, and immutable source revisions", async 
     await runMigrations(client);
     const applied = await db.query<{ version: string }>("SELECT version FROM kb_schema_migrations");
     assert.deepEqual(applied.rows.map(row => row.version), ["001_foundation.sql", "002_durable_uploads.sql",
-      "003_legal_structure.sql", "004_workflow_jobs.sql", "005_structure_provider_runs.sql"]);
+      "003_legal_structure.sql", "004_workflow_jobs.sql", "005_structure_provider_runs.sql",
+      "006_semantic_relations.sql"]);
 
     await store.createSource("alice", {
       schemaVersion: KB_SCHEMA_VERSION, id: "source-1", instrumentId: "gdpr", title: "GDPR",
@@ -132,7 +133,7 @@ test("migration failures roll back and changed migrations stop startup", async (
   const db = new PGlite({ extensions: { vector } });
   const client = {
     query: async (sql: string, params?: unknown[]) => {
-      if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue")) {
+      if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || sql.startsWith("-- Additive relation vocabulary")) {
         await db.exec(sql);
         return { rows: [] };
       }
