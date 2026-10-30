@@ -90,6 +90,16 @@ test("source directory repairs sec_9 parent across requests without absorbing ne
   assert.equal(fixed.segments[2]!.parent, null);
 });
 
+test("an already parented subsection extends a truncated section before the next section", () => {
+  const map = source(["9. (1) First duty.", "(2) Second duty.", "10. Next section."]);
+  const value = candidate(map);
+  value.segments[1]!.type = "subsection";
+  value.segments[1]!.parent = "s0";
+  const fixed = repairStructuralDirectory(map, value);
+  assert.equal(fixed.segments[0]!.span.end, map.spans[1]!.end);
+  assert.equal(fixed.segments[0]!.span.end < map.spans[2]!.start, true);
+});
+
 test("8. (1) is subsection 1 and bare section type follows observed document convention", () => {
   const map = source(["8. Duties", "8. (1) First duty.", "9. Other", "10. Other", "11. Other", "12. Other"]);
   const value = candidate(map);
@@ -128,6 +138,7 @@ test("table-row aliases produce one canonical row owner with references attached
   value.segments[1]!.type = "table-row"; value.segments[1]!.span.end = map.spans[3]!.end;
   const draft = reconstructSource(map, value, detectReferences(map, "test"));
   const rows = draft.provisions.filter(p => p.kind === "table_row");
+  assert.equal(draft.provisions.find(p => p.kind === "schedule")?.canonicalCitation, "The Schedule");
   assert.equal(rows.length, 1);
   assert.equal(draft.provisions.filter(p => p.start === rows[0]!.start && p.end === rows[0]!.end).length, 1);
   assert.equal(draft.relationships.find(r => r.exactMention.toLowerCase() === "section 8")?.sourceProvisionId, rows[0]!.id);
@@ -143,6 +154,49 @@ test("definitions classified as points link sibling uses within their scope", ()
   const links = draft.relationships.filter(r => r.relationType === "defined_term");
   assert.equal(links.length, 1);
   assert.equal(draft.provisions.find(p => p.id === links[0]!.sourceProvisionId)?.candidateSegmentId, "s2");
+});
+
+test("bare paragraph lists resolve to siblings in their own article", () => {
+  const map = source(["Article 9. Requirements.", "(1) First duty.", "(3) Third duty.",
+    "(4) Paragraphs (1) and (3) apply subject to conditions.", "Article 10. Next."]);
+  const value = candidate(map);
+  value.segments[0]!.type = "article";
+  value.segments[0]!.span.end = map.spans[3]!.end;
+  for (const index of [1, 2, 3]) {
+    value.segments[index]!.type = "paragraph";
+    value.segments[index]!.parent = "s0";
+  }
+  value.segments[4]!.type = "article";
+  const draft = reconstructSource(map, value, detectReferences(map, "test"));
+  const byId = new Map(draft.provisions.map(p => [p.id, p]));
+  const owner = draft.provisions.find(p => p.canonicalCitation === "Article 9(4)");
+  const links = draft.relationships.filter(r => r.sourceProvisionId === owner?.id &&
+    r.exactMention.toLowerCase() === "paragraphs (1) and (3)");
+  assert.deepEqual(links.map(r => byId.get(r.targetProvisionId!)?.canonicalCitation).sort(),
+    ["Article 9(1)", "Article 9(3)"]);
+  assert.ok(links.every(r => r.status === "proposed" && r.relationType === "explicit_relative_reference"));
+});
+
+test("numbered definitions keep document scope across a truncated section span", () => {
+  const map = source(["2. In this Act, unless the context otherwise requires,-",
+    "(f) 'child' means an individual under eighteen years;",
+    "(u) 'personal data breach' means unauthorised disclosure;",
+    "3. Application of Act.", "9. A child and a personal data breach are addressed here."]);
+  const value = candidate(map);
+  value.segments[1]!.type = "definition";
+  value.segments[2]!.type = "definition";
+  const draft = reconstructSource(map, value, detectReferences(map, "test"));
+  const byId = new Map(draft.provisions.map(p => [p.id, p]));
+  const definitions = collectDefinitions(draft.provisions);
+  assert.deepEqual(definitions.map(d => ({ term: d.term, scope: d.scopeStatus,
+    citation: byId.get(d.provisionId)?.canonicalCitation })), [
+    { term: "child", scope: "document", citation: "Section 2(f)" },
+    { term: "personal data breach", scope: "document", citation: "Section 2(u)" },
+  ]);
+  const use = draft.provisions.find(p => p.canonicalCitation === "Section 9");
+  assert.deepEqual(draft.relationships.filter(r => r.sourceProvisionId === use?.id &&
+    r.relationType === "defined_term").map(r => byId.get(r.targetProvisionId!)?.canonicalCitation).sort(),
+    ["Section 2(f)", "Section 2(u)"]);
 });
 
 test("semantic checks send full targets, retry individual failures and reuse input-bound decisions", async () => {
@@ -178,6 +232,23 @@ test("page checks retain first-line and physical-page evidence; explicit subtype
   assert.equal(referenceTypeCompatible("explicit_reference", "explicit_relative_reference"), true);
   assert.equal(referenceTypeCompatible("explicit_relative_reference", "explicit_reference"), false);
   assert.equal(referenceTypeCompatible("penalty_for", "explicit_reference"), false);
+  const relative: JudgeInput = { ...input, evidence: [{ ref: "graph#", value: {
+    relationships: [{ sourceLabel: "Section 8(8)", targetLabels: ["Section 8(7)(a)"],
+      referenceType: "explicit_relative_reference", relationType: "depends_on", status: "proposed",
+      exactMention: "clause ( a ) of sub-section ( 7" }] } }] };
+  assert.equal(deterministicGraphCheck(relative, "edge:Section 8(8) -> Section 8(7)(a)", {
+    from: "Section 8(8)", to: "Section 8(7)(a)", relation: "explicit_reference",
+    source_words: "clause (a) of sub-section (7)",
+    explanation: "A valid relative citation to the same provision.",
+  })?.verdict, "pass");
+  const contextual: JudgeInput = { ...input, evidence: [{ ref: "graph#", value: {
+    relationships: [{ sourceLabel: "Section 8(11)", targetLabels: ["Section 8"],
+      referenceType: "explicit_relative_reference", relationType: "defines", status: "proposed",
+      exactMention: "For the purposes of this section" }] } }] };
+  assert.equal(deterministicGraphCheck(contextual, "edge:Section 8(11) -> Section 8", {
+    from: "Section 8(11)", to: "Section 8", relation: "explicit_relative_reference",
+    source_words: "this section",
+  })?.verdict, "pass");
 });
 
 test("resume reuses partial grounded extraction and retries only its pending unit", async () => {

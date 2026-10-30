@@ -32,7 +32,7 @@ test("migration extends an existing KB without replacing uploaded source version
     `);
     await runMigrations({
       query: async (sql, params) => {
-        if (sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || sql.startsWith("-- Additive relation vocabulary")) {
+        if (sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || (sql.startsWith("-- Additive relation vocabulary") || sql.startsWith("-- Keep the persisted relation vocabulary"))) {
           await db.exec(sql);
           return { rows: [] };
         }
@@ -42,7 +42,7 @@ test("migration extends an existing KB without replacing uploaded source version
     assert.equal((await db.query<{ id: string }>("SELECT id FROM kb_source_versions WHERE id = 'existing-upload'"))
       .rows[0]?.id, "existing-upload");
     assert.equal((await db.query<{ version: string }>("SELECT version FROM kb_schema_migrations ORDER BY version"))
-      .rows.at(-1)?.version, "006_semantic_relations.sql");
+      .rows.at(-1)?.version, "007_relation_conditions.sql");
     assert.deepEqual((await db.query<{ job_type: string; source_version_id: string }>(`
       SELECT j.job_type, s.source_version_id FROM kb_ingestion_jobs j
       JOIN kb_job_sources s ON s.job_id = j.id WHERE j.id = 'existing-job'`)).rows,
@@ -59,7 +59,7 @@ test("legal structures retain cross-page tables, references and cross-document s
     await db.query("INSERT INTO users (id) VALUES ('reviewer')");
     await runMigrations({
       query: async (sql, params) => {
-        if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || sql.startsWith("-- Additive relation vocabulary")) {
+        if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") || sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || (sql.startsWith("-- Additive relation vocabulary") || sql.startsWith("-- Keep the persisted relation vocabulary"))) {
           await db.exec(sql);
           return { rows: [] };
         }

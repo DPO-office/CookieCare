@@ -263,6 +263,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     }),
   });
 
+
   const extractDocling = createStep({
     id: "extract-docling-source-v1",
     inputSchema: z.any(),
@@ -300,9 +301,11 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     execute: async ({ inputData }) => withStageFailure(inputData, "S2", "source_mapping", async () => {
       const started = Date.now();
       if (inputData.resumeFrom === "step-6") {
-        const sourceMap: SourceMap = JSON.parse(await readFile(path.join(inputData.outputDir, "source-map.json"), "utf8"));
+        const saved: SourceMap = JSON.parse(await readFile(path.join(inputData.outputDir, "source-map.json"), "utf8"));
+        const sourceMap = buildSourceMap(inputData.doclingDocument, inputData.pageCount);
+        if (sourceMap.textHash !== saved.textHash) throw new Error("Source text changed; start a new run instead of resuming");
         if (sourceMap.pages.length !== inputData.pageCount) throw new Error("Saved source map page count does not match the PDF");
-        process.stdout.write(`[3/8] Resume mode: loaded saved source map (${sourceMap.text.length.toLocaleString()} characters)\n`);
+        process.stdout.write(`[3/8] Resume mode: rebuilt source metadata with unchanged text offsets (${sourceMap.text.length.toLocaleString()} characters)\n`);
         return { ...inputData, sourceMap };
       }
       process.stdout.write(`[3/8] Building canonical source map and text offsets...\n`);
@@ -490,8 +493,8 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reference_detection", async () => {
       const started = Date.now();
       if (inputData.resumeFrom === "step-6") {
-        const references = JSON.parse(await readFile(path.join(inputData.outputDir, "references.json"), "utf8"));
         const sourceVersionId = `pdf-${inputData.pdfHash.slice(0, 16)}`;
+        const references = detectReferences(inputData.sourceMap, sourceVersionId);
         process.stdout.write(`[5/8] Resume mode: loaded ${references.references.length} saved references\n`);
         return { ...inputData, sourceVersionId, references };
       }
@@ -520,12 +523,13 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "reconstruction", async () => {
       const started = Date.now();
       if (inputData.resumeFrom === "step-6") {
-        const reconstruction = JSON.parse(await readFile(path.join(inputData.outputDir, "reconstruction.json"), "utf8"));
+        // Rebuild from immutable extraction, never enrich a previously enriched graph twice.
+        const reconstruction = reconstructSource(inputData.sourceMap, inputData.candidate, inputData.references);
         if (reconstruction.textHash !== inputData.sourceMap.textHash ||
             reconstruction.sourceVersionId !== inputData.sourceVersionId) {
           throw new Error("Saved reconstruction does not match the source map or source version");
         }
-        process.stdout.write(`[6/8] Resume mode: loaded saved reconstruction (${reconstruction.provisions.length} provisions, ${reconstruction.relationships.length} relationships)\n`);
+        process.stdout.write(`[6/8] Resume mode: rebuilt reconstruction from saved extraction (${reconstruction.provisions.length} provisions, ${reconstruction.relationships.length} relationships)\n`);
         return { ...inputData, reconstruction };
       }
       process.stdout.write(`[6/8] Reconstructing legal provisions and relationships...\n`);
@@ -597,11 +601,22 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
           save: async (key, decision) => { await writeFile(path.join(inputData.outputDir,
             `semantic-${key}.json`), JSON.stringify(decision)); },
         });
+      const documentModel = buildDocumentModel(inputData.sourceMap, draft);
+      const stageS3 = {
+        stage: "S3", stageName: "Document tree and relationships",
+        directoryCount: documentModel.directory.length, tableCount: documentModel.tables.length,
+        relationshipCount: draft.relationships.length, provisionCount: draft.provisions.length,
+        definitionScopeCount: documentModel.definitionScopes.length,
+        footnoteCount: documentModel.footnotes.length, reviewStatus: documentModel.reviewStatus,
+        directory: documentModel.directory,
+      };
       await Promise.all([
         writeFile(path.join(inputData.outputDir, "reconstruction.json"), `${JSON.stringify(draft, null, 2)}\n`),
         writeFile(path.join(inputData.outputDir, "semantic-relationships.json"), `${JSON.stringify(report, null, 2)}\n`),
+        writeFile(path.join(inputData.outputDir, "document-model.json"), `${JSON.stringify(documentModel, null, 2)}\n`),
+        writeFile(path.join(inputData.outputDir, "stage-s3.json"), `${JSON.stringify(stageS3, null, 2)}\n`),
       ]);
-      return { ...inputData, reconstruction: draft, semanticReport: report };
+      return { ...inputData, reconstruction: draft, documentModel, semanticReport: report };
     }),
   });
 

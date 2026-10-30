@@ -24,7 +24,7 @@ async function fixture() {
   await db.exec("INSERT INTO users VALUES ('alice', 'USER', 'APPROVED'), ('bob', 'USER', 'APPROVED')");
   const query = async (sql: string, params?: unknown[]) => {
     if (sql.startsWith("-- Versioned KB schema") || sql.startsWith("CREATE TABLE kb_upload_intents") ||
-        sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || sql.startsWith("-- Additive relation vocabulary")) {
+        sql.startsWith("-- Legal identity") || sql.startsWith("-- One durable queue") || (sql.startsWith("-- Additive relation vocabulary") || sql.startsWith("-- Keep the persisted relation vocabulary"))) {
       await db.exec(sql);
       return { rows: [], rowCount: 0 };
     }

@@ -9,6 +9,9 @@ export interface StructureSourceUnit {
   itemRef?: string;
   parentRef?: string;
   blockType?: string;
+  marker?: string;
+  enumerated?: boolean;
+  headingLevel?: number;
   physicalPage?: number | null;
   row?: number;
   column?: number;
@@ -50,7 +53,9 @@ export interface StructureChunkPlan {
 export function structureSourceUnits(map: SourceMap): StructureSourceUnit[] {
   return map.spans.map((span, index) => ({ id: `src:${index}`, start: span.start,
     end: span.end, text: map.text.slice(span.start, span.end), itemRef: span.itemRef,
-    parentRef: span.parentRef, blockType: span.blockType, physicalPage: span.page, row: span.row, column: span.column,
+    parentRef: span.parentRef, blockType: span.blockType, marker: span.marker,
+    enumerated: span.enumerated, headingLevel: span.headingLevel,
+    physicalPage: span.page, row: span.row, column: span.column,
     rowSpan: span.rowSpan, columnSpan: span.columnSpan, isHeader: span.isHeader }));
 }
 
@@ -60,7 +65,8 @@ export function structureChunkPrompt(map: SourceMap, chunk: Omit<StructureChunk,
   const before = new Set(chunk.contextBefore), after = new Set(chunk.contextAfter);
   return JSON.stringify({ textHash: map.textHash, chunk: { chunkId: chunk.chunkId,
     sourcePages: units.filter(unit => wanted.has(unit.id)).map(unit => ({ id: unit.id, physicalPage: unit.physicalPage,
-      blockType: unit.blockType })),
+      blockType: unit.blockType, marker: unit.marker, enumerated: unit.enumerated,
+      headingLevel: unit.headingLevel })),
     ...(chunk.headingContext ? { headingContext: chunk.headingContext } : {}),
     ...(units.some(unit => wanted.has(unit.id) &&
       (unit.row !== undefined || unit.parentRef?.startsWith("#/tables/"))) ? {

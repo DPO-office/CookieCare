@@ -3,8 +3,8 @@ import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
 import type { StructureChunk, StructureChunkPlan } from "./structure-chunk-plan.js";
 
-export const STRUCTURE_PROMPT_VERSION = "legal-structure-v6";
-export const LLM_PROCESSING_STRATEGY = "docling_small_chunks_reconcile-v6";
+export const STRUCTURE_PROMPT_VERSION = "legal-structure-v7";
+export const LLM_PROCESSING_STRATEGY = "docling_small_chunks_reconcile-v7";
 // Safety limits on the source-preserving serialization, not model token counts.
 export const LLM_TARGET_INPUT_CHARACTERS = 12_000;
 export const LLM_MAX_INPUT_CHARACTERS = 24_000;
@@ -52,6 +52,9 @@ export interface CandidateSegment {
   startsBeforeChunk?: boolean;
   continuesAfterChunk?: boolean;
   parentHint?: string | null;
+  originalType?: string | null;
+  /** Set by source-directory repair from printed numbering, never from a display label. */
+  identity?: { kind: "section" | "article" | "rule"; number: string; subpoints: string[] };
   reconciliation?: { basis: "matching_label_and_contiguous_source"; fragmentIds: string[] };
 }
 export interface CandidateReference {

@@ -34,9 +34,11 @@ for (const relation of draft.relationships as Record<string, any>[]) {
   if (!relation.sourceProvisionId || !nodeIds.has(relation.sourceProvisionId)) continue;
   const shared = { id: uid(relation.id), sourceId: uid(relation.sourceProvisionId),
     relationId: relation.id, mention: relation.exactMention, status: relation.status,
-    type: relation.relationType, role: relation.semanticRole ?? null };
+    type: relation.relationType, role: relation.semanticRole ?? null,
+    condition: relation.semanticCondition ?? null, semanticStatus: relation.semanticStatus ?? "not_analyzed",
+    semanticIssues: relation.semanticIssues ?? [] };
   const targetIds = [...new Set(relation.targetProvisionIds ?? [])].filter(id => nodeIds.has(id));
-  if (relation.status === "proposed" && targetIds.length === 1) {
+  if (relation.status === "proposed" && relation.semanticStatus !== "needs_review" && targetIds.length === 1) {
     resolved.push({ ...shared, targetId: uid(targetIds[0]) });
   } else if (targetIds.length) {
     targetIds.forEach(targetId => candidates.push({ ...shared, targetId: uid(targetId),
@@ -45,9 +47,12 @@ for (const relation of draft.relationships as Record<string, any>[]) {
     external: relation.externalTarget?.instrumentHint ?? null });
 }
 const semanticLinks = (semantic?.links ?? []).filter((link: Record<string, any>) =>
-  nodeIds.has(link.sourceProvisionId) && nodeIds.has(link.targetProvisionId))
+  nodeIds.has(link.sourceProvisionId) && nodeIds.has(link.targetProvisionId) &&
+  draft.relationships.some((r: Record<string, any>) => r.id === link.relationId &&
+    r.semanticStatus === "proposed" && r.relationType === link.kind && r.semanticRole === link.role))
   .map((link: Record<string, any>) => ({ id: uid(link.id), sourceId: uid(link.sourceProvisionId),
     targetId: uid(link.targetProvisionId), kind: link.kind, role: link.role,
+    condition: link.condition ?? null,
     evidence: link.evidenceQuote, evidenceStart: link.evidenceStart, evidenceEnd: link.evidenceEnd,
     status: link.status }));
 const cases = (evaluation?.cases ?? []).map((item: Record<string, any>) => ({
@@ -57,6 +62,8 @@ const cases = (evaluation?.cases ?? []).map((item: Record<string, any>) => ({
 const scope = cases.flatMap((item: { id: string; caseId: string }) =>
   (evaluationInput?.artifacts?.[item.caseId]?.provisions ?? [])
     .filter((provision: { id: string }) => nodeIds.has(provision.id))
+    .filter((provision: { id: string }) => !evaluationInput?.artifacts?.[item.caseId]?.selection?.scopeProvisionIds ||
+      evaluationInput.artifacts[item.caseId].selection.scopeProvisionIds.includes(provision.id))
     .map((provision: { id: string }) => ({ caseId: item.id, provisionId: uid(provision.id) })));
 
 const summary = { runId, provisions: nodes.length, resolvedReferences: resolved.length,

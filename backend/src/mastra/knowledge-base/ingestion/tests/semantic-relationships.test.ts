@@ -42,8 +42,10 @@ test("saved DPDPA Schedule rows preserve cells and row 6 roles", async () => {
     link.kind === "penalty_for" && link.role === "undertaking_basis" &&
     byId.get(link.targetProvisionId)?.canonicalCitation === "Section 32"));
   assert.equal(semantic.report.penalties.length, 7);
-  assert.ok(draft.relationships.some(relation => relation.sourceProvisionId === row6.id &&
-    relation.exactMention === "section 28" && relation.status === "unresolved"));
+  const penaltyBasis = semantic.report.links.find(link => link.sourceProvisionId === row6.id &&
+    link.kind === "depends_on" && link.role === "penalty_limit_basis");
+  assert.ok(penaltyBasis);
+  assert.equal(byId.get(penaltyBasis.targetProvisionId)?.canonicalCitation, "Section 28");
 });
 
 test("table planner keeps a complete penalty row in one core chunk", async () => {

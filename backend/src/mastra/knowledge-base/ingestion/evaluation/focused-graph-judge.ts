@@ -12,6 +12,7 @@ export interface FocusedJudgeCall {
   found?: boolean;
   reason: string;
   attempts: number;
+  failureCategory?: "evidence_too_large" | "missing_evidence" | "invalid_judge_response" | "judge_request_error";
   reused?: boolean;
   inputHash?: string;
 }
@@ -23,8 +24,30 @@ export interface FocusedGraphJudgeOptions {
 }
 
 const words = (value: unknown) => String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const mentionWords = (value: unknown) => words(value).replace(/^(?:the|a|an)\s+/u, "");
+const mentionCompatible = (actual: unknown, expected: unknown) => {
+  const found = mentionWords(actual), wanted = mentionWords(expected);
+  return Boolean(wanted) && (found === wanted || found.endsWith(` ${wanted}`));
+};
 const tokens = (value: unknown) => new Set(words(value).split(" ").filter(token => token.length > 2));
 const short = (value: unknown) => String(value).slice(0, 900);
+const failureCategory = (error: unknown): NonNullable<FocusedJudgeCall["failureCategory"]> => {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/evidence.*too large|exceeds.*limit/iu.test(message)) return "evidence_too_large";
+  if (/evidence missing|source.*missing/iu.test(message)) return "missing_evidence";
+  if (/omitted or renamed|invalid.*response|parse/iu.test(message)) return "invalid_judge_response";
+  return "judge_request_error";
+};
+const identity = (value: unknown) => words(value).replace(/^the /u, "");
+const matchesIdentity = (provision: RecordValue, label: string) =>
+  identity(provision.canonicalCitation ?? provision.label) === identity(label) ||
+  provision.kind === "schedule" && identity(label) === "schedule" &&
+    identity(provision.canonicalCitation ?? provision.label).endsWith(" schedule");
+const hasCompatibleKind = (expected: string, relation: RecordValue) =>
+  relation.semanticStatus !== "needs_review" &&
+  [relation.referenceType, relation.relationType].some(actual => typeof actual === "string" &&
+    referenceTypeCompatible(expected, actual));
+const graphNodes = (graph: RecordValue) => Array.isArray(graph.provisions) ? graph.provisions as RecordValue[] : [];
 
 export function referenceTypeCompatible(expected: string, actual: string): boolean {
   return expected === actual || expected === "explicit_reference" &&
@@ -33,12 +56,66 @@ export function referenceTypeCompatible(expected: string, actual: string): boole
 
 export function deterministicGraphCheck(input: JudgeInput, field: string, expected: any) {
   const graph = input.evidence[0]?.value as RecordValue | undefined;
-  if (!graph || !expected || typeof expected !== "object") return null;
+  if (!graph) return null;
+  const completeGraph = graph.selection?.completeGraph === true;
+  const nodesAll = graphNodes(graph);
+  if (completeGraph && ["act_section_count", "chapter_count"].includes(field) && typeof expected === "number") {
+    const found = new Set(nodesAll.filter(p => field === "chapter_count" ? p.kind === "chapter" :
+      ["section", "article", "rule"].includes(p.kind) && /^(Section|Article|Rule)\s+\w+$/u.test(p.canonicalCitation ?? ""))
+      .map(p => identity(p.canonicalCitation ?? p.label))).size;
+    return { field, verdict: found === expected ? "pass" as const : "fail" as const,
+      reason: `Complete graph contains ${found} distinct units; expected ${expected}.` };
+  }
+  if (!expected || typeof expected !== "object") return null;
+  if (completeGraph && Array.isArray(expected) && field === "lettered_points") {
+    const missing = expected.filter(label => !nodesAll.some(p => matchesIdentity(p, label)));
+    return { field, verdict: missing.length ? "fail" as const : "pass" as const,
+      reason: missing.length ? `Missing canonical nodes: ${missing.join(", ")}` : "Every required point exists in the complete graph." };
+  }
+  if (field === "boundary" && expected.provision && expected.nextProvision) {
+    const nodes = graphNodes(graph);
+    const subsection = nodes.find(node => matchesIdentity(node, expected.provision));
+    const next = nodes.find(node => matchesIdentity(node, expected.nextProvision));
+    if (subsection && next && Array.isArray(subsection.sourceRanges)) {
+      const pages = new Set(subsection.sourceRanges.map((range: RecordValue) => range.page));
+      const correct = pages.has(expected.startsOnPage) && pages.has(expected.continuesOnPage) &&
+        subsection.end <= next.start;
+      return { field, verdict: correct ? "pass" as const : "fail" as const,
+        reason: correct ? "The provision has the required pages and ends before the next provision." :
+          "The provision does not have the required page span or boundary." };
+    }
+  }
+  if (field === "illustrations_parent" && typeof expected.parent === "string") {
+    const nodes = graphNodes(graph);
+    const parent = nodes.find(node => matchesIdentity(node, expected.parent));
+    const next = nodes.find(node => matchesIdentity(node, expected.before));
+    if (parent && next) {
+      const illustrations = nodes.filter(node => node.kind === expected.kind &&
+        node.start >= parent.start && node.start < next.start);
+      const byId = new Map(nodes.map(node => [node.id, node]));
+      const attached = (node: RecordValue) => {
+        let cursor = node.parentId;
+        const seen = new Set<string>();
+        while (cursor && !seen.has(cursor)) {
+          if (cursor === parent.id) return true;
+          seen.add(cursor);
+          cursor = byId.get(cursor)?.parentId;
+        }
+        return false;
+      };
+      const correct = illustrations.length > 0 && illustrations.every(attached);
+      return { field, verdict: correct ? "pass" as const : "fail" as const,
+        reason: correct ? "Illustrations before the next subsection belong to the specified parent." :
+          "Illustrations before the next subsection are missing or attached to another parent." };
+    }
+  }
   if (field.startsWith("section-start:") && typeof expected.first_line_exact_text === "string" &&
       typeof expected.physical_page === "number" && Array.isArray(graph.provisions)) {
-    const normal = (text: string) => text.replace(/\s+/gu, " ").trim();
+    const normal = (text: string) => text.replace(/\s+/gu, " ")
+      .replace(/\(\s*/gu, "(").replace(/\s*\)/gu, ")").replace(/[\u2010-\u2015]/gu, "-").trim();
     const found = graph.provisions.filter((p: any) => ["section", "article", "rule"].includes(p.kind) &&
-      normal(String(p.text ?? "")).startsWith(normal(expected.first_line_exact_text)));
+      normal(`${p.sourceMarker && !String(p.text).trimStart().startsWith(p.sourceMarker) ? p.sourceMarker + " " : ""}${p.text ?? ""}`)
+        .startsWith(normal(expected.first_line_exact_text)));
     if (!found.length) return null; // Absence in a selected view is not proof of absence in the source.
     const pages = found.flatMap((p: any) => {
       const spans = p.sourceRanges ?? p.sourceSpans ?? [];
@@ -52,13 +129,48 @@ export function deterministicGraphCheck(input: JudgeInput, field: string, expect
       reason: "Exact first-line wording and physical page are present in saved graph evidence." };
   }
   if (field.startsWith("edge:") && typeof expected.relation === "string" &&
-      Object.keys(expected).every(key => ["from", "to", "relation", "source_words"].includes(key))) {
-    const edge = graph.relationships?.find((r: any) => r.sourceLabel === expected.from &&
-      r.targetLabels?.includes(expected.to) && ["proposed", "resolved"].includes(r.status) &&
-      (!expected.source_words || r.exactMention === expected.source_words) &&
-      referenceTypeCompatible(expected.relation, r.referenceType ?? r.relationType));
+      Object.keys(expected).every(key => ["from", "to", "relation", "source_words", "explanation"].includes(key))) {
+    const source = graphNodes(graph).find(node => matchesIdentity(node, expected.from));
+    const target = graphNodes(graph).find(node => matchesIdentity(node, expected.to));
+    const sourceMatches = graphNodes(graph).filter(node => matchesIdentity(node, expected.from));
+    const targetMatches = graphNodes(graph).filter(node => matchesIdentity(node, expected.to));
+    if (sourceMatches.length > 1 || targetMatches.length > 1) return { field, verdict: "needs_review" as const,
+      reason: "Ambiguous canonical identity: more than one node matches an endpoint." };
+    const edge = graph.relationships?.find((r: any) => (source ? r.sourceId === source.id :
+      identity(r.sourceLabel) === identity(expected.from)) &&
+      (target ? r.targetIds?.includes(target.id) : r.targetLabels?.some((label: string) =>
+        identity(label) === identity(expected.to))) && ["proposed", "resolved"].includes(r.status) &&
+      (!expected.source_words || mentionCompatible(r.exactMention, expected.source_words)) &&
+      hasCompatibleKind(expected.relation, r));
     if (edge) return { field, verdict: "pass" as const,
       reason: "Saved edge has matching source, target, mention and compatible reference subtype." };
+    // A broad semantic kind plus role/condition requires source-backed interpretation.
+    // Exact spelling of a fixture's semantic name is not a factual edge-existence check.
+    const structuralKind = ["explicit_reference", "explicit_relative_reference", "range_reference", "defined_term"].includes(expected.relation);
+    if (!structuralKind) return null;
+    if (completeGraph && (!source || !target)) return { field, verdict: "fail" as const,
+      reason: `Missing canonical ${!source ? "source" : "target"} node in the complete graph.` };
+    if (source && target) return { field, verdict: "fail" as const,
+      reason: "Source and target nodes exist, but no matching directed relationship is saved." };
+  }
+  if (field.startsWith("path:") && Array.isArray(expected.path) &&
+      expected.path.length === expected.relation_sequence?.length + 1) {
+    const nodes = expected.path.map((label: string) => graphNodes(graph).find(node => matchesIdentity(node, label)));
+    if (nodes.every(Boolean)) {
+      if (expected.relation_sequence.some((kind: string) => !["contains", "explicit_reference", "explicit_relative_reference", "range_reference", "defined_term"].includes(kind))) return null;
+      const complete = expected.relation_sequence.every((kind: string, index: number) => {
+        const from = nodes[index]!, to = nodes[index + 1]!;
+        if (kind === "contains") return to.parentId === from.id;
+        return graph.relationships?.some((relation: RecordValue) => relation.sourceId === from.id &&
+          relation.targetIds?.includes(to.id) && ["proposed", "resolved"].includes(relation.status) &&
+          hasCompatibleKind(kind, relation));
+      });
+      return { field, verdict: complete ? "pass" as const : "fail" as const,
+        reason: complete ? "Every directed edge and parent link in the saved path exists." :
+          "One or more directed edges or parent links in the saved path are absent." };
+    }
+    if (completeGraph && nodes.some((node: any) => !node)) return { field, verdict: "fail" as const,
+      reason: "At least one canonical node in the required path is absent from the complete graph." };
   }
   return null;
 }
@@ -109,16 +221,52 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
     ["act_section_count", "chapter_count", "schedule_presence"].includes(field);
   const ranked = [...provisions].map(provision => ({ provision, rank: score(provision, expected) }))
     .sort((a, b) => b.rank - a.rank);
-  const detailed = ranked.slice(0, 3).filter(row => row.rank > 0).map(row => row.provision);
+  const requirement = expected && typeof expected === "object" ? expected as RecordValue : {};
+  const named = field.startsWith("node:") ? [field.slice(5)] :
+    field.startsWith("edge:") ? [requirement.from, requirement.to] :
+      field.startsWith("path:") ? requirement.path ?? [] :
+        field === "boundary" && requirement.provision ? [requirement.provision, requirement.nextProvision] :
+          field === "illustrations_parent" ? [requirement.parent, requirement.before] :
+            field.startsWith("inherited-condition:") ? requirement.children ?? field.slice("inherited-condition:".length).split(",") :
+              field === "lettered_points" && Array.isArray(expected) ? expected : [];
+  if (!named.length && !structuralOverview) {
+    for (const key of Object.keys(input.expected)) if (/^node:(?:Section|Article|Rule)\s+\w+$/u.test(key)) named.push(key.slice(5));
+  }
+  const exact = provisions.filter(provision => named.some((label: string) => matchesIdentity(provision, label)));
+  const ancestorNodes = exact.flatMap(node => {
+    const ancestors: RecordValue[] = [], seen = new Set<string>();
+    let cursor = node.parentId;
+    while (cursor && !seen.has(cursor)) {
+      seen.add(cursor); const parent = provisions.find(p => p.id === cursor);
+      if (!parent) break; ancestors.push(parent); cursor = parent.parentId;
+    }
+    return ancestors;
+  });
+  const detailed = [...new Map([...exact, ...ancestorNodes, ...ranked.filter(row => row.rank > 0)
+    .slice(0, structuralOverview ? 1 : 3).map(row => row.provision)]
+    .map(provision => [provision.id, provision])).values()].slice(0, 5);
   const nearIds = new Set(detailed.map(provision => provision.id));
+  for (const provision of detailed) if (provision.parentId) nearIds.add(provision.parentId);
+  for (const provision of provisions) if (provision.parentId && nearIds.has(provision.parentId))
+    nearIds.add(provision.id);
   const relations: RecordValue[] = artifact.relationships;
-  const relationFacts = relations.map(relation => ({
+  const relevantRelations = relations.filter(relation => nearIds.has(relation.sourceId) ||
+    relation.targetIds?.some((id: string) => nearIds.has(id))).sort((a, b) => {
+      const priority = (r: RecordValue) => Number(exact.some(p => p.id === r.sourceId)) * 2 +
+        Number(r.targetIds?.some((id: string) => exact.some(p => p.id === id)));
+      return priority(b) - priority(a);
+    });
+  const relationFacts = relevantRelations.slice(0, 80).map(relation => ({
     sourceId: relation.sourceId,
     sourceLabel: relation.sourceLabel?.slice(0, 120),
     targetIds: relation.targetIds,
     targetLabels: relation.targetLabels?.map((label: string) => label?.slice(0, 120)),
     relationType: relation.relationType ?? relation.kind ?? relation.type ?? "explicit_reference",
     referenceType: relation.referenceType,
+    semanticRole: relation.semanticRole,
+    semanticCondition: relation.semanticCondition,
+    semanticStatus: relation.semanticStatus,
+    semanticIssues: relation.semanticIssues,
     exactMention: relation.exactMention,
     status: relation.status,
     range: relation.range,
@@ -127,6 +275,14 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
   const includeTables = !structuralOverview &&
     /schedule|table|row|penalty/i.test(field + " " + JSON.stringify(expected) + " " + forbidden.join(" "));
   const evidence = {
+    evaluationInstructions: "Check legal meaning using kind, role, condition and source evidence together. " +
+      "Generic refers_to is not proof of an exemption. parentId represents containment. " +
+      "Omitted text or relationships are not evidence of absence; use needs_review when the packet cannot establish a claim.",
+    graphFacts: { completeGraphAvailable: artifact.selection?.completeGraph === true,
+      totalProvisions: provisions.length, totalRelationships: relations.length,
+      requestedNodes: named.map((label: string) => ({ label,
+        matchingIds: provisions.filter(p => matchesIdentity(p, label)).map(p => p.id) })),
+      omittedRelevantRelationships: Math.max(0, relevantRelations.length - relationFacts.length) },
     selection: artifact.selection,
     sourcePageInventory: artifact.sourcePageInventory ?? null,
     inventory: (structuralOverview ? provisions.filter(provision =>
@@ -134,17 +290,24 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
         ["section", "article", "rule"].includes(provision.kind) &&
           /^\s*\d+\./u.test(String(provision.text ?? "")) :
         ["section", "article", "rule", "chapter", "schedule", "annex"].includes(provision.kind)) :
-      provisions).map(provision => ({ id: provision.id, kind: provision.kind,
+      (provisions.length <= 80 ? provisions : provisions.filter(provision => nearIds.has(provision.id))).slice(0, 80)).map(provision => ({ id: provision.id, kind: provision.kind,
       label: provision.label?.slice(0, 130), parentId: provision.parentId,
       parentLabel: provision.parentLabel?.slice(0, 130),
       textStart: provision.text?.slice(0, 80), boundaryStatus: provision.boundaryStatus,
-      canonicalCitation: provision.canonicalCitation, sourceRanges: provision.sourceRanges,
-      sourceSpans: provision.sourceSpans,
+      canonicalCitation: provision.canonicalCitation,
+      sourceRanges: provision.sourceRanges?.slice(0, structuralOverview ? 2 : 8),
       status: provision.status })),
-    detailedProvisions: detailed.map(provision => ({ ...provision,
-      ...(structuralOverview ? { text: String(provision.text ?? "").slice(0, 2_000) } : {}),
-      label: provision.label?.slice(0, 160), sourceRanges: provision.sourceRanges?.slice(0, 4) })),
-    detailSelection: { policy: "top lexical candidates plus complete compact inventory",
+    detailedProvisions: (() => {
+      let textBudget = 18_000;
+      return detailed.map(provision => {
+        const text = String(provision.text ?? "").slice(0, Math.min(textBudget,
+          structuralOverview ? 2_000 : 8_000));
+        textBudget -= text.length;
+        return { ...provision, text, textTruncated: text.length < String(provision.text ?? "").length,
+          label: provision.label?.slice(0, 160), sourceRanges: provision.sourceRanges?.slice(0, 4) };
+      });
+    })(),
+    detailSelection: { policy: "named nodes and nearby lexical candidates",
       candidateCount: detailed.length, totalCount: provisions.length,
       fullTextOmittedForOtherNodes: true },
     relationships: structuralOverview ? [] : relationFacts,
@@ -153,11 +316,17 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
       .map((path: RecordValue) => ({ target: path.target?.slice(0, 130), complete: path.complete,
         paths: path.paths?.slice(0, 12), unresolved: path.unresolved?.slice(0, 12),
         missing: path.missing?.slice(0, 12) })) : [],
-    tables: includeTables ? artifact.tables ?? [] : [],
+    tables: includeTables ? (artifact.tables ?? []).map((table: RecordValue) => ({
+      id: table.id, provisionId: table.provisionId, continuationStatus: table.continuationStatus,
+      cells: field.startsWith("schedule-row:") ? table.cells?.filter((cell: RecordValue) =>
+        cell.isHeader || cell.row === Number(field.slice("schedule-row:".length))) : table.cells,
+    })) : [],
   };
   const focused: JudgeInput = { ...input, expected: field ? { [field]: expected } : {}, forbidden,
     source: sourceForField(input, expected ?? forbidden.join(" ")),
     evidence: [{ ref: input.evidence[0]!.ref, value: evidence }] };
+  if (!structuralOverview && !detailed.length && !(forbidden.length && provisions.length <= 80))
+    throw new Error(`Graph evidence missing for ${input.caseId}/${field}: no relevant provision selected`);
   if (JSON.stringify(focused).length > 100_000)
     throw new Error(`Focused graph evidence remains too large for ${input.caseId}/${field}`);
   return focused;
@@ -216,7 +385,7 @@ export class FocusedGraphJudge implements EvaluationJudge {
   }
 
   async judge(input: JudgeInput): Promise<JudgeDecision> {
-    this.inputHash = hashRevision({ evaluator: "focused-graph-v4", model: this.model, input });
+    this.inputHash = hashRevision({ evaluator: "focused-graph-v7", model: this.model, input });
     this.completedCalls = 0;
     const fields: JudgeDecision["fields"] = [];
     const total = Object.keys(input.expected).length + input.forbidden.length;
@@ -254,10 +423,12 @@ export class FocusedGraphJudge implements EvaluationJudge {
         await this.save({ caseId: input.caseId, field, kind: "expected", inputCharacters: size,
           verdict: resolvedField.verdict, reason: resolvedField.reason, attempts });
       } catch (error) {
-        const reason = short(`Judge error after ${this.maxAttempts} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        const category = failureCategory(error);
+        const reason = short(`${category}: ${error instanceof Error ? error.message : String(error)}`);
         fields.push({ field, verdict: "needs_review", reason });
         await this.save({ caseId: input.caseId, field, kind: "expected", inputCharacters: size,
-          verdict: "needs_review", reason, attempts: this.maxAttempts });
+          verdict: "needs_review", reason, attempts: size ? this.maxAttempts : 0,
+          failureCategory: category });
       }
     }
     const forbidden: JudgeDecision["forbidden"] = [];
@@ -290,10 +461,12 @@ export class FocusedGraphJudge implements EvaluationJudge {
         await this.save({ caseId: input.caseId, field, kind: "forbidden", inputCharacters: size,
           verdict, found: found.found, reason: found.reason, attempts });
       } catch (error) {
-        const reason = short(`Judge error after ${this.maxAttempts} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        const category = failureCategory(error);
+        const reason = short(`${category}: ${error instanceof Error ? error.message : String(error)}`);
         forbidden.push({ claim, found: false, verdict: "needs_review", reason });
         await this.save({ caseId: input.caseId, field, kind: "forbidden", inputCharacters: size,
-          verdict: "needs_review", found: false, reason, attempts: this.maxAttempts });
+          verdict: "needs_review", found: false, reason, attempts: size ? this.maxAttempts : 0,
+          failureCategory: category });
       }
     }
     return { fields, forbidden };

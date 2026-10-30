@@ -10,6 +10,10 @@ export interface SourceSpan {
   provenance: unknown[];
   kind: "text" | "table_cell" | "item";
   blockType?: string;
+  /** Docling may keep printed numbering outside text. Never discard it or shift text offsets. */
+  marker?: string;
+  enumerated?: boolean;
+  headingLevel?: number;
   row?: number;
   column?: number;
   rowSpan?: number;
@@ -81,7 +85,11 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     const page = pageOf(provenance);
     if (typeof item.text === "string") {
       append(item.text, { itemRef: ref, parentRef, page, provenance, kind: "text",
-        blockType: typeof item.label === "string" ? item.label : "text", extractionWarnings: [] });
+        blockType: typeof item.label === "string" ? item.label : "text",
+        ...(typeof item.marker === "string" ? { marker: item.marker } : {}),
+        ...(typeof item.enumerated === "boolean" ? { enumerated: item.enumerated } : {}),
+        ...(typeof item.level === "number" ? { headingLevel: item.level } : {}),
+        extractionWarnings: [] });
       if (item.text && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (Array.isArray(object(item.data)?.table_cells)) {
       const cells = object(item.data)!.table_cells as unknown[];

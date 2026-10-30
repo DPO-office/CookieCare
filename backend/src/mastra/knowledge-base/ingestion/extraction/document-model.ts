@@ -2,6 +2,7 @@ import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
 import type { DraftProvision, DraftRelationship, ReconstructionDraft } from "./reconstruct.js";
 import { collectDefinitions } from "./definitions.js";
+import { ownSourceRanges, relationshipUsable } from "./graph-evidence.js";
 
 export interface DocumentDirectoryEntry {
   provisionId: string;
@@ -71,6 +72,8 @@ export interface ContextManifest {
   omitted: Array<{ provisionId: string; reason: "character_limit" | "cycle" }>;
   characterCount: number;
   complete: boolean;
+  parentConditionRanges?: Array<{ provisionId: string; start: number; end: number; text: string }>;
+  conditions?: Array<{ relationshipId: string; text: string; applicability: "requires_case_facts" }>;
 }
 
 export interface DocumentModel {
@@ -165,6 +168,8 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
   const unresolvedRelationshipIds: string[] = [], unavailableExternalRelationshipIds: string[] = [];
   const missingTargetIds: string[] = [], selectedPaths: ContextManifest["selectedPaths"] = [];
   const omitted: ContextManifest["omitted"] = [], visited = new Set<string>(), queued = new Set<string>();
+  const parentConditionRanges: NonNullable<ContextManifest["parentConditionRanges"]> = [];
+  const conditions: NonNullable<ContextManifest["conditions"]> = [];
   const queue: Array<{ id: string; reason: ContextManifest["selections"][number]["reason"]; path: string[] }> = [
     { id: target.id, reason: "target", path: [] },
     ...target.inheritedParentIds.map(id => ({ id, reason: "parent_condition" as const, path: [target.id] })),
@@ -174,19 +179,22 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
     const next = queue.shift()!;
     queued.delete(next.id);
     if (next.path.includes(next.id)) {
-      if (!visited.has(next.id)) omitted.push({ provisionId: next.id, reason: "cycle" });
       continue;
     }
     if (visited.has(next.id)) continue;
     visited.add(next.id);
     const provision = byId.get(next.id);
     if (!provision) { missingTargetIds.push(next.id); continue; }
-    if (characterCount + provision.text.length > maxCharacters) {
+    const ranges = next.reason === "parent_condition" ? ownSourceRanges(provision, provisions) : [];
+    const textSize = next.reason === "parent_condition" ? ranges.reduce((n, r) => n + r.end - r.start, 0) : provision.text.length;
+    if (characterCount + textSize > maxCharacters) {
       omitted.push({ provisionId: provision.id, reason: "character_limit" }); continue;
     }
     selected.push(provision); selections.push({ provisionId: provision.id, reason: next.reason });
     selectedPaths.push({ provisionId: provision.id, path: [...next.path, provision.id] });
-    characterCount += provision.text.length;
+    characterCount += textSize;
+    for (const range of ranges) parentConditionRanges.push({ provisionId: provision.id, ...range,
+      text: provision.text.slice(range.start - provision.start, range.end - provision.start) });
     // Expand selected targets, but not every sibling merely because an ancestor was
     // included to supply introductory wording. Child-owned table references matter.
     if (next.reason !== "parent_condition") for (const child of provisions.filter(p => p.parentId === provision.id)) {
@@ -197,18 +205,20 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
     }
     for (const relation of relationships.filter(item => item.sourceProvisionId === provision.id)) {
       if (relation.status === "external_unavailable") unavailableExternalRelationshipIds.push(relation.id);
-      else if (relation.status !== "proposed" || !relation.targetProvisionIds.length) unresolvedRelationshipIds.push(relation.id);
+      else if (!relationshipUsable(relation) || !relation.targetProvisionIds.length) unresolvedRelationshipIds.push(relation.id);
       else for (const targetId of relation.targetProvisionIds) {
         const pathToSource = [...next.path, provision.id];
         if (pathToSource.includes(targetId)) {
-          omitted.push({ provisionId: targetId, reason: "cycle" });
+          continue;
         } else if (!visited.has(targetId) && !queued.has(targetId)) {
           queue.push({ id: targetId, reason: "explicit_reference", path: pathToSource }); queued.add(targetId);
         }
       }
+      if (relationshipUsable(relation) && relation.semanticCondition) conditions.push({ relationshipId: relation.id,
+        text: relation.semanticCondition, applicability: "requires_case_facts" });
     }
     for (const relation of relationships.filter(item => item.targetProvisionId === provision.id &&
-      item.status === "proposed" && ["penalty_for", "exempts_from", "exception_to", "defines",
+      relationshipUsable(item) && ["penalty_for", "exempts_from", "exception_to", "defines",
         "interprets"].includes(item.relationType))) {
       const sourceId = relation.sourceProvisionId;
       if (sourceId && !visited.has(sourceId) && !queued.has(sourceId)) {
@@ -221,7 +231,8 @@ function buildManifest(target: DraftProvision, provisions: DraftProvision[], rel
     selections, unresolvedRelationshipIds: [...new Set(unresolvedRelationshipIds)],
     unavailableExternalRelationshipIds: [...new Set(unavailableExternalRelationshipIds)],
     missingTargetIds: [...new Set(missingTargetIds)], selectedPaths, omitted,
-    characterCount, complete: !unresolvedRelationshipIds.length && !unavailableExternalRelationshipIds.length &&
+    characterCount, parentConditionRanges, conditions,
+    complete: !unresolvedRelationshipIds.length && !unavailableExternalRelationshipIds.length &&
       !missingTargetIds.length && !omitted.length };
 }
 

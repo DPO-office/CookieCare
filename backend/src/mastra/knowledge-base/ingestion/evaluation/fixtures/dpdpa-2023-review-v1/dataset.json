@@ -181,7 +181,18 @@
         "exact_subsection_text": "(7) A Data Fiduciary shall, unless retention is necessary for compliance with any law\nfor the time being in force,—\n(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and\n(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.\nIllustrations.\n(I) X, an individual, registers herself on an online marketplace operated by Y, an\ne-commerce service provider. X gives her consent to Y for the processing of her personal\ndata for selling her used car. The online marketplace helps conclude the sale. Y shall no\nlonger retain her personal data.\n(II) X, an individual, decides to close her savings account with Y, a bank. Y is required\nby law applicable to banks to maintain the record of the identity of its clients for a period of\nten years beyond closing of accounts. Since retention is necessary for compliance with law,\nY shall retain X’s personal data for the said period.",
         "point_a_exact_text": "(a) erase personal data, upon the Data Principal withdrawing her consent or as\nsoon as it is reasonable to assume that the specified purpose is no longer being\nserved, whichever is earlier; and",
         "point_b_exact_text": "(b) cause its Data Processor to erase any personal data that was made available\nby the Data Fiduciary for processing to such Data Processor.",
-        "boundary": "Begins on page 7 and continues on page 8; ends immediately before Section 8(8).",
+        "boundary": {
+          "provision": "Section 8(7)",
+          "startsOnPage": 7,
+          "continuesOnPage": 8,
+          "nextProvision": "Section 8(8)",
+          "policy": "Check the Section 8(7) child, not its Section 8 parent."
+        },
+        "illustrations_parent": {
+          "parent": "Section 8(7)",
+          "before": "Section 8(8)",
+          "kind": "illustration"
+        },
         "condition": "The opening exception for retention necessary to comply with law governs both (a) and (b)."
       },
       "must_not": [

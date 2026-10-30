@@ -36,6 +36,7 @@ drafting-module-context.md
 /.pdfium/
 
 /test
+/backend/evaluation-runs
 # Diagnostic / debug scripts output
 backend/scripts/diag-*.ts
 backend/scripts/diagnose-*.ts

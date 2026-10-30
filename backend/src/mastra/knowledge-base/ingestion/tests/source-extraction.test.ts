@@ -139,7 +139,7 @@ test("prepare_source workflow stores raw Docling JSON and a replayable map", asy
     await db.exec("INSERT INTO users VALUES ('alice','USER','APPROVED')");
     const query = async (sql: string, params?: unknown[]) => {
       if (["-- Versioned KB schema", "CREATE TABLE kb_upload_intents", "-- Legal identity", "-- One durable queue",
-        "-- One immutable record", "-- Additive relation vocabulary"]
+        "-- One immutable record", "-- Additive relation vocabulary", "-- Keep the persisted relation vocabulary"]
         .some(prefix => sql.startsWith(prefix))) { await db.exec(sql); return { rows: [], rowCount: 0 }; }
       const result = await db.query(sql, params);
       return { ...result, rowCount: result.rows.length || result.affectedRows };

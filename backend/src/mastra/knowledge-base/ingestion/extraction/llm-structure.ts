@@ -294,6 +294,9 @@ and uncertainty. Extract only structures whose boundary anchors include a source
 neighboring context is interpretation support and must not be emitted on its own.
 Heading context is a navigation hint, not proof of legal scope. A request can contain only
 part of a paragraph across PDF pages. sourcePages identifies physical pages and page furniture;
+sourcePages also preserves Docling marker, enumerated and headingLevel metadata. A marker such
+as "18." can supply numbering even when it is absent from exactText. Use it for identity and
+hierarchy, but never prepend it to an exactQuote: quote only the supplied exactText.
 page changes are not provision boundaries. Do not include page headers or footers as legal wording.
 Use source wording such as "Section 9" for parentHint, never a temporary ID such as "sec_9".
 Keep each numbered subsection and list point separate, including bare openings like "9. (1)".

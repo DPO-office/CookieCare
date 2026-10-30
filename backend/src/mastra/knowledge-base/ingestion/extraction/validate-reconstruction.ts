@@ -117,7 +117,7 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
   for (const relation of draft.relationships) {
     const completeRange = relation.status === "proposed" && relation.rangeTarget?.complete === true &&
       relation.targetProvisionIds.length === relation.rangeTarget.to - relation.rangeTarget.from + 1;
-    if (relation.status !== "proposed" || !relation.sourceProvisionId ||
+    if (relation.status !== "proposed" || relation.semanticStatus === "needs_review" || !relation.sourceProvisionId ||
         (!relation.targetProvisionId && !completeRange)) {
       add("unresolved_reference", `Reference ${relation.exactMention} needs review`);
     }

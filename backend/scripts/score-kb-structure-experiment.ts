@@ -56,7 +56,7 @@ for (const row of selectedCases) {
   // The rubric selects an evaluation scope only; it never goes to the extractor.
   // Keep source text, IDs and explicit pending states. No expected fact is inserted.
   const seeds = draft.provisions.filter((p: any) =>
-    (p.sourceSpans.some((s: any) => pages.has(s.physicalPage)) || nearPage(p)) && p.text.length < 12_000);
+    (p.sourceSpans.some((s: any) => pages.has(s.physicalPage)) || nearPage(p)));
   const ids = new Set<string>(seeds.map((p: any) => p.id));
   let grew = true;
   while (grew) {
@@ -66,27 +66,31 @@ for (const row of selectedCases) {
     }
   }
   const byId = new Map<string, any>(draft.provisions.map((p: any) => [p.id, p]));
-  const selected = draft.provisions.filter((p: any) => ids.has(p.id));
+  const selected = draft.provisions;
   const label = (id: string) => byId.get(id)?.canonicalCitation ?? byId.get(id)?.label ?? id;
   const tables = model.tables.filter((t: any) => ids.has(t.provisionId) ||
     t.cells.some((cell: any) => cell.pages?.some((page: number) => pages.has(page))));
   artifacts[row.id] = {
     ...(row.stage === "S1" ? { sourcePageInventory: sourceMap.pages } : {}),
-    selection: { physicalPages: [...pages], policy: "page-scoped nodes, adjacent unpaged nodes, outgoing reference targets",
+    selection: { physicalPages: [...pages], completeGraph: true, scopeProvisionIds: seeds.map((p: any) => p.id),
+      policy: "complete graph for fact checks; page scope retained separately for context selection",
       includedUnpagedAdjacentNodeIds: seeds.filter((p: any) => nearPage(p)).map((p: any) => p.id),
-      excludedOversizedSeedNodes: draft.provisions.filter((p: any) => p.text.length >= 12_000 &&
-        p.sourceSpans.some((s: any) => pages.has(s.physicalPage))).map((p: any) => p.id) },
+      excludedOversizedSeedNodes: [] },
     provisions: selected.map((p: any) => ({ id: p.id, kind: p.kind, label: p.label, canonicalCitation: p.canonicalCitation, text: p.text,
       start: p.start, end: p.end,
       parentId: p.parentId, parentLabel: p.parentId ? label(p.parentId) : null,
       structuralPath: p.structuralPath, boundaryStatus: p.boundaryStatus, status: p.status,
+      numbering: p.identity,
+      sourceMarker: sourceMap.spans.find((s: any) => s.start === p.start)?.marker ?? null,
       sourceRanges: p.sourceSpans.map((s: any) => ({ page: s.physicalPage, start: s.start, end: s.end })) })),
-    relationships: draft.relationships.filter((r: any) => ids.has(r.sourceProvisionId)).map((r: any) => ({
+    relationships: draft.relationships.map((r: any) => ({
       sourceId: r.sourceProvisionId, sourceLabel: label(r.sourceProvisionId),
       targetIds: r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : []),
       targetLabels: (r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : [])).map(label),
       relationType: r.relationType ?? "explicit_reference",
-      referenceType: r.referenceType,
+      referenceType: r.referenceType, semanticRole: r.semanticRole,
+      semanticCondition: r.semanticCondition,
+      semanticStatus: r.semanticStatus, semanticIssues: r.semanticIssues,
       exactMention: r.exactMention, status: r.status, range: r.rangeTarget, external: r.externalTarget,
     })),
     contextPaths: model.contextManifests.filter((m: any) => ids.has(m.targetProvisionId)).map((m: any) => ({
@@ -133,7 +137,7 @@ const preview = selectedCases.map((row: any) => {
 await writeFile(path.join(values.run, "evaluation-focus-preview.json"), JSON.stringify(preview, null, 2));
 const judgeModel = values["judge-model"] ?? "glm-5.3";
 const evidenceHash = hashRevision({ datasetId: dataset.dataset_id, selectedCases,
-  artifacts: serializedArtifacts, sourcePackHash: hashRevision(pack), judgeModel, evaluatorVersion: "focused-graph-v3" });
+  artifacts: serializedArtifacts, sourcePackHash: hashRevision(pack), judgeModel, evaluatorVersion: "focused-graph-v7" });
 if (values["prepare-only"]) {
   console.log(JSON.stringify({ status: "prepared", cases: preview.length,
     fields: preview.reduce((n, row) => n + row.fieldCount, 0),

@@ -72,6 +72,7 @@ CRITICAL KEY NAME REQUIREMENT:
 CRITICAL GRAPH EDGE / RELATIONSHIP GRADING RULES:
 - For an edge check (key starting with "edge:"): An edge must ACTUALLY exist in the saved "evidence.relationships" array connecting the source provision ("sourceLabel" or "sourceId") to the target provision ("targetLabels" or "targetIds").
 - The relationship in "evidence.relationships" must also match the expected "relation" or "relationType" (such as "defined_term", "conditional_exemption", "exception_to_exemption", "notification_dependent_exemption", "explicit_reference", "explicit_relative_reference", "explicit_procedural_reference", "external_defined_term_reference", "penalty_for").
+- An expected generic "explicit_reference" is also satisfied by a matching "explicit_relative_reference" or "explicit_procedural_reference". Use "referenceType" when present, because "relationType" may describe the additional semantic role. Compare source words after harmless PDF spacing and punctuation normalization.
 - STRICT ANTI-FALSE-PASS RULE: Finding citation text, relative words (e.g. "clause (a) of sub-section (7)", "this section"), or defined terms (e.g. "personal data breach") merely mentioned in the provision text in "evidence.detailedProvisions" or "evidence.inventory" DOES NOT satisfy an edge test. If no corresponding directed edge exists in "evidence.relationships", the graph has an omission and you MUST grade it as "fail".
 
 CRITICAL NODE & TEXT COMPLETENESS RULES:

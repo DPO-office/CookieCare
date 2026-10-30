@@ -54,6 +54,8 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
       units.push({ id: span.end - span.start <= 2000 ? `src:${index}` : `src:${index}@${start}`,
         start, end, text: map.text.slice(start, end),
         itemRef: span.itemRef, parentRef: span.parentRef, blockType: span.blockType, physicalPage: span.page,
+        ...(start === span.start ? { marker: span.marker, enumerated: span.enumerated,
+          headingLevel: span.headingLevel } : {}),
         row: span.row, column: span.column, rowSpan: span.rowSpan,
         columnSpan: span.columnSpan, isHeader: span.isHeader,
         group: effectiveOwner === undefined ? "unmapped" : `native:${effectiveOwner}`,
