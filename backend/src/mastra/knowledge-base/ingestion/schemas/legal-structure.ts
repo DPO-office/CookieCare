@@ -33,6 +33,7 @@ export const StructuralKindSchema = z.enum([
   "article", "paragraph", "point", "table", "footnote", "annex", "definition",
   "rule", "schedule", "recital", "chapter", "section", "illustration", "unknown",
   "subsection", "subparagraph", "list_item", "table_row", "part", "title",
+  "explanation", "proviso", "chapeau", "shared_text",
 ]);
 export const SemanticPurposeSchema = z.enum(["obligation", "definition", "interpretation", "procedure", "context"]);
 

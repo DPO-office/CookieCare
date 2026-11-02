@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { assignLayoutZones, extractProvenanceBox, type LayoutZone } from "./layout-zones.js";
 
 type JsonObject = Record<string, unknown>;
 export interface SourceSpan {
@@ -20,6 +21,8 @@ export interface SourceSpan {
   columnSpan?: number;
   isHeader?: boolean;
   bbox?: unknown;
+  layoutZone?: LayoutZone;
+  columnIndex?: number;
   extractionWarnings?: string[];
 }
 export interface SourceMap {
@@ -83,12 +86,14 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     if (item.self_ref !== undefined && item.self_ref !== ref) throw new Error(`Docling reference mismatch: ${ref}`);
     const provenance = Array.isArray(item.prov) ? item.prov : [];
     const page = pageOf(provenance);
+    const itemBox = extractProvenanceBox(provenance, page, item.bbox);
     if (typeof item.text === "string") {
       append(item.text, { itemRef: ref, parentRef, page, provenance, kind: "text",
         blockType: typeof item.label === "string" ? item.label : "text",
         ...(typeof item.marker === "string" ? { marker: item.marker } : {}),
         ...(typeof item.enumerated === "boolean" ? { enumerated: item.enumerated } : {}),
         ...(typeof item.level === "number" ? { headingLevel: item.level } : {}),
+        ...(itemBox !== undefined ? { bbox: itemBox } : {}),
         extractionWarnings: [] });
       if (item.text && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (Array.isArray(object(item.data)?.table_cells)) {
@@ -115,7 +120,8 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
       if (cells.length && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (typeof item.content === "string") {
       append(item.content, { itemRef: ref, parentRef, page, provenance, kind: "item",
-        blockType: typeof item.label === "string" ? item.label : "item", extractionWarnings: [] });
+        blockType: typeof item.label === "string" ? item.label : "item",
+        ...(itemBox !== undefined ? { bbox: itemBox } : {}), extractionWarnings: [] });
       if (item.content && page === null) warnings.push(`No unique physical page for ${ref}`);
     }
     const children = item.children;
@@ -180,6 +186,7 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
   const text = parts.join("");
   if (!text) warnings.push("Docling extracted no text");
   for (const span of spans) if (!text.slice(span.start, span.end)) throw new Error("Empty source span");
+  assignLayoutZones(spans, pages, text);
   return { schemaVersion: 1, text, textHash: createHash("sha256").update(text).digest("hex"),
     spans, pages, warnings, status: warnings.length ? "needs_review" : "mapped" };
 }

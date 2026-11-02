@@ -1,0 +1,10 @@
+{
+  "status": "automatic_source_checks_passed_human_review_pending",
+  "pdf_sha256": "c31e525e2e191a549f42384e9e6108d357a7fdf4c957f1469fc8aa9ebe735f9b",
+  "case_count": 18,
+  "section_headings_located": 46,
+  "graph_nodes_source_anchored": 44,
+  "graph_edges_source_anchored": 6,
+  "all_source_refs_resolved": true,
+  "warning": "Human review must compare exact text and legal interpretation with the original visual PDF. S4-S7 cases cannot be scored from S1-S3 graph output."
+}

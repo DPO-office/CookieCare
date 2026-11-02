@@ -1,0 +1,1611 @@
+{
+  "schema_version": "ccpa-review-dataset/1.0",
+  "dataset_id": "ccpa-civ-title-1-81-5-2026-review-v1",
+  "source_family": "California-Civil-Code-Title-1.81.5",
+  "status": "draft_for_human_review",
+  "split": "development",
+  "source": {
+    "sha256": "c31e525e2e191a549f42384e9e6108d357a7fdf4c957f1469fc8aa9ebe735f9b",
+    "byte_size": 613621,
+    "page_count": 35,
+    "filename": "CCPA legal text.pdf",
+    "local_path": "C:\\Users\\abhinav.yadav_randst\\Downloads\\CCPA legal text.pdf",
+    "source_type": "California Legislative Information browser printout",
+    "edition_note": "Printed 20 August 2026. Per-section amendment and operative notes must be retained; this PDF alone is not a complete regulatory or historical record."
+  },
+  "stages": {
+    "S1": "Source identity and classification",
+    "S2": "Text extraction and complete boundaries",
+    "S3": "Document tree and relationships",
+    "S4": "Legal meaning",
+    "S5": "Generated module guidance",
+    "S6": "Retrieval and publication",
+    "S7": "Use in analysis, drafting and Q&A"
+  },
+  "coverage_policy": "Selected difficult passages are checked completely within stated scope. Section-heading inventory covers the displayed title; full text of every section is not gold-reviewed.",
+  "cases": [
+    {
+      "id": "CCPA-S1-01",
+      "stage": "S1",
+      "title": "Identify this California Civil Code printout and its edition boundary",
+      "scope": "source_native",
+      "challenge_type": "source_identity",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "heading:title",
+        "page:1",
+        "section:1798.106",
+        "section:1798.136"
+      ],
+      "physical_pages": [
+        1,
+        3,
+        9,
+        10
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Identify this California Civil Code printout and its edition boundary",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "code": "California Civil Code, Division 3, Part 4, Title 1.81.5",
+        "title_heading_exact_text": "TITLE 1.81.5. California Consumer Privacy Act of 2018 [1798.100 - 1798.199.100] ( Title 1.81.5 added by Stats. 2018,\nCh. 55, Sec. 3. )",
+        "printed_timestamp": "8/20/26, 4:30 PM",
+        "amendment_examples": [
+          "(Amended by Stats. 2024, Ch. 121, Sec. 1. (AB 3286) Effective January 1, 2025.)",
+          "(Added by Stats. 2025, Ch. 465, Sec. 2. (AB 566) Effective January 1, 2026. Operative January 1, 2027, by its own provisions.)"
+        ],
+        "source_limit": "The printout contains section-specific amendment and operative notes; the browser print time alone does not establish that each provision was operative on that date."
+      },
+      "must_not": [
+        "Treating the print timestamp as the effective date of every section.",
+        "Presenting this PDF as the complete California regulations or as a complete historical version record."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S1-02",
+      "stage": "S1",
+      "title": "Map every section heading and separate browser furniture from law",
+      "scope": "source_native",
+      "challenge_type": "document_map",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "page:1",
+        "page:35",
+        "section:1798.199.10",
+        "section:1798.199.100"
+      ],
+      "physical_pages": [
+        1,
+        30,
+        35
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Map every section heading and separate browser furniture from law",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "physical_page_inventory": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "section_starts": [
+          {
+            "section": "1798.100",
+            "physical_page": 1,
+            "first_line_exact_text": "1798.100. General Duties of Businesses that Collect Personal Information"
+          },
+          {
+            "section": "1798.105",
+            "physical_page": 2,
+            "first_line_exact_text": "1798.105. Consumers’ Right to Delete Personal Information"
+          },
+          {
+            "section": "1798.106",
+            "physical_page": 3,
+            "first_line_exact_text": "1798.106. Consumers’ Right to Correct Inaccurate Personal Information"
+          },
+          {
+            "section": "1798.110",
+            "physical_page": 3,
+            "first_line_exact_text": "1798.110. Consumers’ Right to Know What Personal Information is Being Collected. Right to Access Personal"
+          },
+          {
+            "section": "1798.115",
+            "physical_page": 3,
+            "first_line_exact_text": "1798.115. Consumers’ Right to Know What Personal Information is Sold or Shared and to Whom"
+          },
+          {
+            "section": "1798.120",
+            "physical_page": 4,
+            "first_line_exact_text": "1798.120. Consumers’ Right to Opt Out of Sale or Sharing of Personal Information"
+          },
+          {
+            "section": "1798.121",
+            "physical_page": 4,
+            "first_line_exact_text": "1798.121. Consumers’ Right to Limit Use and Disclosure of Sensitive Personal Information"
+          },
+          {
+            "section": "1798.125",
+            "physical_page": 5,
+            "first_line_exact_text": "1798.125. Consumers’ Right of No Retaliation Following Opt Out or Exercise of Other Rights"
+          },
+          {
+            "section": "1798.130",
+            "physical_page": 6,
+            "first_line_exact_text": "1798.130. Notice, Disclosure, Correction, and Deletion Requirements"
+          },
+          {
+            "section": "1798.135",
+            "physical_page": 8,
+            "first_line_exact_text": "1798.135. Methods of Limiting Sale, Sharing, and Use of Personal Information and Use of Sensitive Personal"
+          },
+          {
+            "section": "1798.136",
+            "physical_page": 9,
+            "first_line_exact_text": "1798.136. (a) (1) A business shall not develop or maintain a browser that does not include functionality configurable"
+          },
+          {
+            "section": "1798.140",
+            "physical_page": 10,
+            "first_line_exact_text": "1798.140. Definitions"
+          },
+          {
+            "section": "1798.145",
+            "physical_page": 16,
+            "first_line_exact_text": "1798.145. Exemptions"
+          },
+          {
+            "section": "1798.146",
+            "physical_page": 22,
+            "first_line_exact_text": "1798.146. (a) This title shall not apply to any of the following:"
+          },
+          {
+            "section": "1798.148",
+            "physical_page": 23,
+            "first_line_exact_text": "1798.148. (a) A business or other person shall not reidentify, or attempt to reidentify, information that has met the"
+          },
+          {
+            "section": "1798.150",
+            "physical_page": 24,
+            "first_line_exact_text": "1798.150. Personal Information Security Breaches"
+          },
+          {
+            "section": "1798.155",
+            "physical_page": 24,
+            "first_line_exact_text": "1798.155. Administrative Enforcement"
+          },
+          {
+            "section": "1798.160",
+            "physical_page": 24,
+            "first_line_exact_text": "1798.160. Consumer Privacy Fund"
+          },
+          {
+            "section": "1798.175",
+            "physical_page": 25,
+            "first_line_exact_text": "1798.175. Conflicting Provisions"
+          },
+          {
+            "section": "1798.180",
+            "physical_page": 26,
+            "first_line_exact_text": "1798.180. Preemption"
+          },
+          {
+            "section": "1798.185",
+            "physical_page": 26,
+            "first_line_exact_text": "1798.185. Regulations"
+          },
+          {
+            "section": "1798.190",
+            "physical_page": 29,
+            "first_line_exact_text": "1798.190. Anti-Avoidance"
+          },
+          {
+            "section": "1798.192",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.192. Waiver"
+          },
+          {
+            "section": "1798.194",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.194. This title shall be liberally construed to effectuate its purposes."
+          },
+          {
+            "section": "1798.196",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.196. This title is intended to supplement federal and state law, if permissible, but shall not apply if such"
+          },
+          {
+            "section": "1798.198",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.198. (a) Subject to limitation provided in subdivision (b), and in Section 1798.199, this title shall be operative"
+          },
+          {
+            "section": "1798.199",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.199. Notwithstanding Section 1798.198, Section 1798.180 shall be operative on the effective date of the act"
+          },
+          {
+            "section": "1798.199.10",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.199.10. (a) There is hereby established in state government the California Privacy Protection Agency, which is"
+          },
+          {
+            "section": "1798.199.15",
+            "physical_page": 30,
+            "first_line_exact_text": "1798.199.15. Members of the agency board shall:"
+          },
+          {
+            "section": "1798.199.20",
+            "physical_page": 31,
+            "first_line_exact_text": "1798.199.20. Members of the agency board, including the chairperson, shall serve at the pleasure of their appointing"
+          },
+          {
+            "section": "1798.199.25",
+            "physical_page": 31,
+            "first_line_exact_text": "1798.199.25. For each day on which they engage in official duties, members of the agency board shall be"
+          },
+          {
+            "section": "1798.199.30",
+            "physical_page": 31,
+            "first_line_exact_text": "1798.199.30. The agency board shall appoint an executive director who shall act in accordance with agency policies"
+          },
+          {
+            "section": "1798.199.35",
+            "physical_page": 31,
+            "first_line_exact_text": "1798.199.35. The agency board may delegate authority to the chairperson or the executive director to act in the"
+          },
+          {
+            "section": "1798.199.40",
+            "physical_page": 31,
+            "first_line_exact_text": "1798.199.40. The agency shall perform the following functions:"
+          },
+          {
+            "section": "1798.199.45",
+            "physical_page": 32,
+            "first_line_exact_text": "1798.199.45. (a) Upon the sworn complaint of any person or on its own initiative, the agency may investigate"
+          },
+          {
+            "section": "1798.199.50",
+            "physical_page": 32,
+            "first_line_exact_text": "1798.199.50. No finding of probable cause to believe this title has been violated shall be made by the agency unless,"
+          },
+          {
+            "section": "1798.199.55",
+            "physical_page": 32,
+            "first_line_exact_text": "1798.199.55. (a) When the agency determines there is probable cause for believing this title has been violated, it"
+          },
+          {
+            "section": "1798.199.60",
+            "physical_page": 32,
+            "first_line_exact_text": "1798.199.60. Whenever the agency rejects the decision of an administrative law judge made pursuant to Section"
+          },
+          {
+            "section": "1798.199.65",
+            "physical_page": 33,
+            "first_line_exact_text": "1798.199.65. The agency may subpoena witnesses, compel their attendance and testimony, administer oaths and"
+          },
+          {
+            "section": "1798.199.70",
+            "physical_page": 33,
+            "first_line_exact_text": "1798.199.70. No administrative action brought pursuant to this title alleging a violation of any of the provisions of"
+          },
+          {
+            "section": "1798.199.75",
+            "physical_page": 33,
+            "first_line_exact_text": "1798.199.75. (a) In addition to any other available remedies, the agency may bring a civil action and obtain a"
+          },
+          {
+            "section": "1798.199.80",
+            "physical_page": 33,
+            "first_line_exact_text": "1798.199.80. (a) If the time for judicial review of a final agency order or decision has lapsed, or if all means of"
+          },
+          {
+            "section": "1798.199.85",
+            "physical_page": 34,
+            "first_line_exact_text": "1798.199.85. Any decision of the agency with respect to a complaint or administrative fine shall be subject to"
+          },
+          {
+            "section": "1798.199.90",
+            "physical_page": 34,
+            "first_line_exact_text": "1798.199.90. (a) Any business, service provider, contractor, or other person that violates this title shall be subject to"
+          },
+          {
+            "section": "1798.199.95",
+            "physical_page": 34,
+            "first_line_exact_text": "1798.199.95. (a) There is hereby appropriated from the General Fund of the state to the agency the sum of five"
+          },
+          {
+            "section": "1798.199.100",
+            "physical_page": 35,
+            "first_line_exact_text": "1798.199.100. The agency and any court, as applicable, shall consider the good faith cooperation of the business,"
+          }
+        ],
+        "browser_furniture": [
+          "8/20/26, 4:30 PM Codes Display Text",
+          "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml"
+        ],
+        "nested_decimal_examples": [
+          "1798.199.10",
+          "1798.199.100"
+        ]
+      },
+      "must_not": [
+        "Treating the 1/35 through 35/35 footer as provisions.",
+        "Collapsing 1798.199.10 and 1798.199.100 into the same section."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S2-01",
+      "stage": "S2",
+      "title": "Join Section 1798.100(d) across pages 1 and 2 without the print footer",
+      "scope": "source_native",
+      "challenge_type": "cross_page_boundary",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.100",
+        "page:1",
+        "page:2"
+      ],
+      "physical_pages": [
+        1,
+        2
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Join Section 1798.100(d) across pages 1 and 2 without the print footer",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "exact_clause_text": "(d) A business that collects a consumer’s personal information and that sells that personal information to, or shares\nit with, a third party or that discloses it to a service provider or contractor for a business purpose shall enter into an\nagreement with the third party, service provider, or contractor, that:\n(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.\n(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.\n(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.\n(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.\n(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information.",
+        "children": [
+          "(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.",
+          "(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.",
+          "(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.",
+          "(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.",
+          "(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information."
+        ],
+        "boundary": "Paragraphs (1)-(3) are on physical page 1; paragraphs (4)-(5) continue on page 2 under 1798.100(d)."
+      },
+      "must_not": [
+        "Ending 1798.100(d) at the page-1 URL footer.",
+        "Attaching paragraph (4) to Section 1798.105."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S2-02",
+      "stage": "S2",
+      "title": "Keep the research deletion exception whole across pages 2 and 3",
+      "scope": "source_native",
+      "challenge_type": "cross_page_boundary",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.105",
+        "page:2",
+        "page:3"
+      ],
+      "physical_pages": [
+        2,
+        3
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Keep the research deletion exception whole across pages 2 and 3",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "exact_clause_text": "(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent.",
+        "continuation_start": "impossible or seriously impair the ability to complete such research, if the consumer has provided informed consent.",
+        "parent": "Section 1798.105(d)",
+        "closing_condition": "Consumer provided informed consent."
+      },
+      "must_not": [
+        "Stopping the research exception at page 2.",
+        "Treating the page-3 continuation as a new standalone duty."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S2-03",
+      "stage": "S2",
+      "title": "Preserve long definition across the page 10 to 11 break",
+      "scope": "source_native",
+      "challenge_type": "definition_boundary",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.140",
+        "page:10",
+        "page:11"
+      ],
+      "physical_pages": [
+        10,
+        11
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Preserve long definition across the page 10 to 11 break",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "definition_exact_text": "(d) “Business” means:\n(1) A sole proprietorship, partnership, limited liability company, corporation, association, or other legal entity that\nis organized or operated for the profit or financial benefit of its shareholders or other owners, that collects\nconsumers’ personal information, or on the behalf of which such information is collected and that alone, or jointly\nwith others, determines the purposes and means of the processing of consumers’ personal information, that does\nbusiness in the State of California, and that satisfies one or more of the following thresholds:\n(A) As of January 1 of the calendar year, had annual gross revenues in excess of twenty-five million dollars\n($25,000,000) in the preceding calendar year, as adjusted pursuant to subdivision (d) of Section 1798.199.95.\n(B) Alone or in combination, annually buys, sells, or shares the personal information of 100,000 or more\nconsumers or households.\n(C) Derives 50 percent or more of its annual revenues from selling or sharing consumers’ personal\ninformation.\n(2) Any entity that controls or is controlled by a business, as defined in paragraph (1), and that shares common\nbranding with the business and with whom the business shares consumers’ personal information. “Control” or\n“controlled” means ownership of, or the power to vote, more than 50 percent of the outstanding shares of any\nclass of voting security of a business; control in any manner over the election of a majority of the directors, or of\nindividuals exercising similar functions; or the power to exercise a controlling influence over the management of a\ncompany. “Common branding” means a shared name, servicemark, or trademark that the average consumer\nwould understand that two or more entities are commonly owned.\n(3) A joint venture or partnership composed of businesses in which each business has at least a 40 percent\ninterest. For purposes of this title, the joint venture or partnership and each business that composes the joint\nventure or partnership shall separately be considered a single business, except that personal information in the\npossession of each business and disclosed to the joint venture or partnership shall not be shared with the other\nbusiness.\n(4) A person that does business in California, that is not covered by paragraph (1), (2), or (3), and that\nvoluntarily certifies to the California Privacy Protection Agency that it is in compliance with, and agrees to be\nbound by, this title.",
+        "cross_page_paragraph": "(3) A joint venture or partnership composed of businesses in which each business has at least a 40 percent\ninterest. For purposes of this title, the joint venture or partnership and each business that composes the joint\nventure or partnership shall separately be considered a single business, except that personal information in the\npossession of each business and disclosed to the joint venture or partnership shall not be shared with the other\nbusiness.",
+        "scope_text": "For purposes of this title:",
+        "term": "Business"
+      },
+      "must_not": [
+        "Ending the joint-venture definition at page 10.",
+        "Treating the continued paragraph (3) as paragraph (4)."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S3-01",
+      "stage": "S3",
+      "title": "Build complete 1798.100 hierarchy and contract subgraph",
+      "scope": "source_native",
+      "challenge_type": "complete_subgraph",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.100"
+      ],
+      "physical_pages": [
+        1,
+        2
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Build complete 1798.100 hierarchy and contract subgraph",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 1798.100",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.100. General Duties of Businesses that Collect Personal Information\n(a) A business that controls the collection of a consumer’s personal information shall, at or before the point of\ncollection, inform consumers of the following:\n(1) The categories of personal information to be collected and the purposes for which the categories of personal\ninformation are collected or used and whether that information is sold or shared. A business shall not collect\nadditional categories of personal information or use personal information collected for additional purposes that\nare incompatible with the disclosed purpose for which the personal information was collected without providing\nthe consumer with notice consistent with this section.\n(2) If the business collects sensitive personal information, the categories of sensitive personal information to be\ncollected and the purposes for which the categories of sensitive personal information are collected or used, and\nwhether that information is sold or shared. A business shall not collect additional categories of sensitive personal\ninformation or use sensitive personal information collected for additional purposes that are incompatible with the\ndisclosed purpose for which the sensitive personal information was collected without providing the consumer with\nnotice consistent with this section.\n(3) The length of time the business intends to retain each category of personal information, including sensitive\npersonal information, or if that is not possible, the criteria used to determine that period provided that a business\nshall not retain a consumer’s personal information or sensitive personal information for each disclosed purpose\nfor which the personal information was collected for longer than is reasonably necessary for that disclosed\npurpose.\n(b) A business that, acting as a third party, controls the collection of personal information about a consumer may\nsatisfy its obligation under subdivision (a) by providing the required information prominently and conspicuously on\nthe homepage of its internet website. In addition, if a business acting as a third party controls the collection of\npersonal information about a consumer on its premises, including in a vehicle, then the business shall, at or before\nthe point of collection, inform consumers as to the categories of personal information to be collected and the\npurposes for which the categories of personal information are used, and whether that personal information is sold,\nin a clear and conspicuous manner at the location.\n(c) A business’ collection, use, retention, and sharing of a consumer’s personal information shall be reasonably\nnecessary and proportionate to achieve the purposes for which the personal information was collected or processed,\nor for another disclosed purpose that is compatible with the context in which the personal information was\ncollected, and not further processed in a manner that is incompatible with those purposes.\n(d) A business that collects a consumer’s personal information and that sells that personal information to, or shares\nit with, a third party or that discloses it to a service provider or contractor for a business purpose shall enter into an\nagreement with the third party, service provider, or contractor, that:\n(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.\n(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.\n(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.\n(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.\n(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information.\n(e) A business that collects a consumer’s personal information shall implement reasonable security procedures and\npractices appropriate to the nature of the personal information to protect the personal information from\nunauthorized or illegal access, destruction, use, modification, or disclosure in accordance with Section 1798.81.5.\n(f) Nothing in this section shall require a business to disclose trade secrets, as specified in regulations adopted\npursuant to paragraph (3) of subdivision (a) of Section 1798.185."
+            },
+            {
+              "id": "Section 1798.100(a)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(a) A business that controls the collection of a consumer’s personal information shall, at or before the point of\ncollection, inform consumers of the following:\n(1) The categories of personal information to be collected and the purposes for which the categories of personal\ninformation are collected or used and whether that information is sold or shared. A business shall not collect\nadditional categories of personal information or use personal information collected for additional purposes that\nare incompatible with the disclosed purpose for which the personal information was collected without providing\nthe consumer with notice consistent with this section.\n(2) If the business collects sensitive personal information, the categories of sensitive personal information to be\ncollected and the purposes for which the categories of sensitive personal information are collected or used, and\nwhether that information is sold or shared. A business shall not collect additional categories of sensitive personal\ninformation or use sensitive personal information collected for additional purposes that are incompatible with the\ndisclosed purpose for which the sensitive personal information was collected without providing the consumer with\nnotice consistent with this section.\n(3) The length of time the business intends to retain each category of personal information, including sensitive\npersonal information, or if that is not possible, the criteria used to determine that period provided that a business\nshall not retain a consumer’s personal information or sensitive personal information for each disclosed purpose\nfor which the personal information was collected for longer than is reasonably necessary for that disclosed\npurpose."
+            },
+            {
+              "id": "Section 1798.100(a)(1)",
+              "parent": "Section 1798.100(a)",
+              "kind": "paragraph",
+              "exact_source_text": "(1) The categories of personal information to be collected and the purposes for which the categories of personal\ninformation are collected or used and whether that information is sold or shared. A business shall not collect\nadditional categories of personal information or use personal information collected for additional purposes that\nare incompatible with the disclosed purpose for which the personal information was collected without providing\nthe consumer with notice consistent with this section."
+            },
+            {
+              "id": "Section 1798.100(a)(2)",
+              "parent": "Section 1798.100(a)",
+              "kind": "paragraph",
+              "exact_source_text": "(2) If the business collects sensitive personal information, the categories of sensitive personal information to be\ncollected and the purposes for which the categories of sensitive personal information are collected or used, and\nwhether that information is sold or shared. A business shall not collect additional categories of sensitive personal\ninformation or use sensitive personal information collected for additional purposes that are incompatible with the\ndisclosed purpose for which the sensitive personal information was collected without providing the consumer with\nnotice consistent with this section."
+            },
+            {
+              "id": "Section 1798.100(a)(3)",
+              "parent": "Section 1798.100(a)",
+              "kind": "paragraph",
+              "exact_source_text": "(3) The length of time the business intends to retain each category of personal information, including sensitive\npersonal information, or if that is not possible, the criteria used to determine that period provided that a business\nshall not retain a consumer’s personal information or sensitive personal information for each disclosed purpose\nfor which the personal information was collected for longer than is reasonably necessary for that disclosed\npurpose."
+            },
+            {
+              "id": "Section 1798.100(b)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(b) A business that, acting as a third party, controls the collection of personal information about a consumer may\nsatisfy its obligation under subdivision (a) by providing the required information prominently and conspicuously on\nthe homepage of its internet website. In addition, if a business acting as a third party controls the collection of\npersonal information about a consumer on its premises, including in a vehicle, then the business shall, at or before\nthe point of collection, inform consumers as to the categories of personal information to be collected and the\npurposes for which the categories of personal information are used, and whether that personal information is sold,\nin a clear and conspicuous manner at the location."
+            },
+            {
+              "id": "Section 1798.100(c)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(c) A business’ collection, use, retention, and sharing of a consumer’s personal information shall be reasonably\nnecessary and proportionate to achieve the purposes for which the personal information was collected or processed,\nor for another disclosed purpose that is compatible with the context in which the personal information was\ncollected, and not further processed in a manner that is incompatible with those purposes."
+            },
+            {
+              "id": "Section 1798.100(d)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(d) A business that collects a consumer’s personal information and that sells that personal information to, or shares\nit with, a third party or that discloses it to a service provider or contractor for a business purpose shall enter into an\nagreement with the third party, service provider, or contractor, that:\n(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.\n(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.\n(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.\n(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.\n(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information."
+            },
+            {
+              "id": "Section 1798.100(d)(1)",
+              "parent": "Section 1798.100(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes."
+            },
+            {
+              "id": "Section 1798.100(d)(2)",
+              "parent": "Section 1798.100(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title."
+            },
+            {
+              "id": "Section 1798.100(d)(3)",
+              "parent": "Section 1798.100(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title."
+            },
+            {
+              "id": "Section 1798.100(d)(4)",
+              "parent": "Section 1798.100(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title."
+            },
+            {
+              "id": "Section 1798.100(d)(5)",
+              "parent": "Section 1798.100(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information."
+            },
+            {
+              "id": "Section 1798.100(e)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(e) A business that collects a consumer’s personal information shall implement reasonable security procedures and\npractices appropriate to the nature of the personal information to protect the personal information from\nunauthorized or illegal access, destruction, use, modification, or disclosure in accordance with Section 1798.81.5."
+            },
+            {
+              "id": "Section 1798.100(f)",
+              "parent": "Section 1798.100",
+              "kind": "subdivision",
+              "exact_source_text": "(f) Nothing in this section shall require a business to disclose trade secrets, as specified in regulations adopted\npursuant to paragraph (3) of subdivision (a) of Section 1798.185."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 1798.100(e)",
+            "to": "Section 1798.81.5",
+            "relation": "explicit_external_reference",
+            "source_words": "Section 1798.81.5"
+          },
+          {
+            "from": "Section 1798.100(f)",
+            "to": "Section 1798.185(a)(3)",
+            "relation": "explicit_reference",
+            "source_words": "paragraph (3) of subdivision (a) of Section 1798.185"
+          }
+        ],
+        "contract_children_count": 5,
+        "contract_parties": [
+          "third party",
+          "service provider",
+          "contractor"
+        ]
+      },
+      "must_not": [
+        "Five contract requirements treated as five independent sections.",
+        "Parent Section 1798.100(d) ending before page-2 paragraphs (4) and (5).",
+        "Mapping external Section 1798.81.5 to Section 1798.100."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S3-02",
+      "stage": "S3",
+      "title": "Build deletion duty with all nested exceptions",
+      "scope": "source_native",
+      "challenge_type": "complete_subgraph",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.105",
+        "section:1798.130"
+      ],
+      "physical_pages": [
+        2,
+        3
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Build deletion duty with all nested exceptions",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 1798.105",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.105. Consumers’ Right to Delete Personal Information\n(a) A consumer shall have the right to request that a business delete any personal information about the consumer\nwhich the business has collected from the consumer.\n(b) A business that collects personal information about consumers shall disclose, pursuant to Section 1798.130, the\nconsumer’s rights to request the deletion of the consumer’s personal information.\n(c) (1) A business that receives a verifiable consumer request from a consumer to delete the consumer’s personal\ninformation pursuant to subdivision (a) of this section shall delete the consumer’s personal information from its\nrecords, notify any service providers or contractors to delete the consumer’s personal information from their\nrecords, and notify all third parties to whom the business has sold or shared the personal information to delete the\nconsumer’s personal information unless this proves impossible or involves disproportionate effort.\n(2) The business may maintain a confidential record of deletion requests solely for the purpose of preventing the\npersonal information of a consumer who has submitted a deletion request from being sold, for compliance with\nlaws or for other purposes, solely to the extent permissible under this title.\n(3) A service provider or contractor shall cooperate with the business in responding to a verifiable consumer\nrequest, and at the direction of the business, shall delete, or enable the business to delete and shall notify any of\nits own service providers or contractors to delete personal information about the consumer collected, used,\nprocessed, or retained by the service provider or the contractor. The service provider or contractor shall notify\nany service providers, contractors, or third parties who may have accessed personal information from or through\nthe service provider or contractor, unless the information was accessed at the direction of the business, to delete\nthe consumer’s personal information unless this proves impossible or involves disproportionate effort. A service\nprovider or contractor shall not be required to comply with a deletion request submitted by the consumer directly\nto the service provider or contractor to the extent that the service provider or contractor has collected, used,\nprocessed, or retained the consumer’s personal information in its role as a service provider or contractor to the\nbusiness.\n(d) A business, or a service provider or contractor acting pursuant to its contract with the business, another service\nprovider, or another contractor, shall not be required to comply with a consumer’s request to delete the consumer’s\npersonal information if it is reasonably necessary for the business, service provider, or contractor to maintain the\nconsumer’s personal information in order to:\n(1) Complete the transaction for which the personal information was collected, fulfill the terms of a written\nwarranty or product recall conducted in accordance with federal law, provide a good or service requested by the\nconsumer, or reasonably anticipated by the consumer within the context of a business’ ongoing business\nrelationship with the consumer, or otherwise perform a contract between the business and the consumer.\n(2) Help to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for those purposes.\n(3) Debug to identify and repair errors that impair existing intended functionality.\n(4) Exercise free speech, ensure the right of another consumer to exercise that consumer’s right of free speech,\nor exercise another right provided for by law.\n(5) Comply with the California Electronic Communications Privacy Act pursuant to Chapter 3.6 (commencing with\nSection 1546) of Title 12 of Part 2 of the Penal Code.\n(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent.\n(7) To enable solely internal uses that are reasonably aligned with the expectations of the consumer based on the\nconsumer’s relationship with the business and compatible with the context in which the consumer provided the\ninformation.\n(8) Comply with a legal obligation."
+            },
+            {
+              "id": "Section 1798.105(a)",
+              "parent": "Section 1798.105",
+              "kind": "subdivision",
+              "exact_source_text": "(a) A consumer shall have the right to request that a business delete any personal information about the consumer\nwhich the business has collected from the consumer."
+            },
+            {
+              "id": "Section 1798.105(b)",
+              "parent": "Section 1798.105",
+              "kind": "subdivision",
+              "exact_source_text": "(b) A business that collects personal information about consumers shall disclose, pursuant to Section 1798.130, the\nconsumer’s rights to request the deletion of the consumer’s personal information."
+            },
+            {
+              "id": "Section 1798.105(c)",
+              "parent": "Section 1798.105",
+              "kind": "subdivision",
+              "exact_source_text": "(c) (1) A business that receives a verifiable consumer request from a consumer to delete the consumer’s personal\ninformation pursuant to subdivision (a) of this section shall delete the consumer’s personal information from its\nrecords, notify any service providers or contractors to delete the consumer’s personal information from their\nrecords, and notify all third parties to whom the business has sold or shared the personal information to delete the\nconsumer’s personal information unless this proves impossible or involves disproportionate effort.\n(2) The business may maintain a confidential record of deletion requests solely for the purpose of preventing the\npersonal information of a consumer who has submitted a deletion request from being sold, for compliance with\nlaws or for other purposes, solely to the extent permissible under this title.\n(3) A service provider or contractor shall cooperate with the business in responding to a verifiable consumer\nrequest, and at the direction of the business, shall delete, or enable the business to delete and shall notify any of\nits own service providers or contractors to delete personal information about the consumer collected, used,\nprocessed, or retained by the service provider or the contractor. The service provider or contractor shall notify\nany service providers, contractors, or third parties who may have accessed personal information from or through\nthe service provider or contractor, unless the information was accessed at the direction of the business, to delete\nthe consumer’s personal information unless this proves impossible or involves disproportionate effort. A service\nprovider or contractor shall not be required to comply with a deletion request submitted by the consumer directly\nto the service provider or contractor to the extent that the service provider or contractor has collected, used,\nprocessed, or retained the consumer’s personal information in its role as a service provider or contractor to the\nbusiness."
+            },
+            {
+              "id": "Section 1798.105(c)(1)",
+              "parent": "Section 1798.105(c)",
+              "kind": "paragraph",
+              "exact_source_text": "(1) A business that receives a verifiable consumer request from a consumer to delete the consumer’s personal\ninformation pursuant to subdivision (a) of this section shall delete the consumer’s personal information from its\nrecords, notify any service providers or contractors to delete the consumer’s personal information from their\nrecords, and notify all third parties to whom the business has sold or shared the personal information to delete the\nconsumer’s personal information unless this proves impossible or involves disproportionate effort."
+            },
+            {
+              "id": "Section 1798.105(c)(2)",
+              "parent": "Section 1798.105(c)",
+              "kind": "paragraph",
+              "exact_source_text": "(2) The business may maintain a confidential record of deletion requests solely for the purpose of preventing the\npersonal information of a consumer who has submitted a deletion request from being sold, for compliance with\nlaws or for other purposes, solely to the extent permissible under this title."
+            },
+            {
+              "id": "Section 1798.105(c)(3)",
+              "parent": "Section 1798.105(c)",
+              "kind": "paragraph",
+              "exact_source_text": "(3) A service provider or contractor shall cooperate with the business in responding to a verifiable consumer\nrequest, and at the direction of the business, shall delete, or enable the business to delete and shall notify any of\nits own service providers or contractors to delete personal information about the consumer collected, used,\nprocessed, or retained by the service provider or the contractor. The service provider or contractor shall notify\nany service providers, contractors, or third parties who may have accessed personal information from or through\nthe service provider or contractor, unless the information was accessed at the direction of the business, to delete\nthe consumer’s personal information unless this proves impossible or involves disproportionate effort. A service\nprovider or contractor shall not be required to comply with a deletion request submitted by the consumer directly\nto the service provider or contractor to the extent that the service provider or contractor has collected, used,\nprocessed, or retained the consumer’s personal information in its role as a service provider or contractor to the\nbusiness."
+            },
+            {
+              "id": "Section 1798.105(d)",
+              "parent": "Section 1798.105",
+              "kind": "subdivision",
+              "exact_source_text": "(d) A business, or a service provider or contractor acting pursuant to its contract with the business, another service\nprovider, or another contractor, shall not be required to comply with a consumer’s request to delete the consumer’s\npersonal information if it is reasonably necessary for the business, service provider, or contractor to maintain the\nconsumer’s personal information in order to:\n(1) Complete the transaction for which the personal information was collected, fulfill the terms of a written\nwarranty or product recall conducted in accordance with federal law, provide a good or service requested by the\nconsumer, or reasonably anticipated by the consumer within the context of a business’ ongoing business\nrelationship with the consumer, or otherwise perform a contract between the business and the consumer.\n(2) Help to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for those purposes.\n(3) Debug to identify and repair errors that impair existing intended functionality.\n(4) Exercise free speech, ensure the right of another consumer to exercise that consumer’s right of free speech,\nor exercise another right provided for by law.\n(5) Comply with the California Electronic Communications Privacy Act pursuant to Chapter 3.6 (commencing with\nSection 1546) of Title 12 of Part 2 of the Penal Code.\n(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent.\n(7) To enable solely internal uses that are reasonably aligned with the expectations of the consumer based on the\nconsumer’s relationship with the business and compatible with the context in which the consumer provided the\ninformation.\n(8) Comply with a legal obligation."
+            },
+            {
+              "id": "Section 1798.105(d)(1)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(1) Complete the transaction for which the personal information was collected, fulfill the terms of a written\nwarranty or product recall conducted in accordance with federal law, provide a good or service requested by the\nconsumer, or reasonably anticipated by the consumer within the context of a business’ ongoing business\nrelationship with the consumer, or otherwise perform a contract between the business and the consumer."
+            },
+            {
+              "id": "Section 1798.105(d)(2)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(2) Help to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for those purposes."
+            },
+            {
+              "id": "Section 1798.105(d)(3)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(3) Debug to identify and repair errors that impair existing intended functionality."
+            },
+            {
+              "id": "Section 1798.105(d)(4)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(4) Exercise free speech, ensure the right of another consumer to exercise that consumer’s right of free speech,\nor exercise another right provided for by law."
+            },
+            {
+              "id": "Section 1798.105(d)(5)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(5) Comply with the California Electronic Communications Privacy Act pursuant to Chapter 3.6 (commencing with\nSection 1546) of Title 12 of Part 2 of the Penal Code."
+            },
+            {
+              "id": "Section 1798.105(d)(6)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent."
+            },
+            {
+              "id": "Section 1798.105(d)(7)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(7) To enable solely internal uses that are reasonably aligned with the expectations of the consumer based on the\nconsumer’s relationship with the business and compatible with the context in which the consumer provided the\ninformation."
+            },
+            {
+              "id": "Section 1798.105(d)(8)",
+              "parent": "Section 1798.105(d)",
+              "kind": "paragraph",
+              "exact_source_text": "(8) Comply with a legal obligation."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 1798.105(b)",
+            "to": "Section 1798.130",
+            "relation": "explicit_reference",
+            "source_words": "Section 1798.130"
+          }
+        ],
+        "deletion_exception_count": 8,
+        "research_exception": "(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent."
+      },
+      "must_not": [
+        "Deletion exception (6) stops at the page break.",
+        "Converting the eight alternatives in (d) into eight simultaneous requirements."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S3-03",
+      "stage": "S3",
+      "title": "Preserve nested emergency conditions and exception to exemption",
+      "scope": "source_native",
+      "challenge_type": "deep_nesting_and_exception",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.145",
+        "page:17"
+      ],
+      "physical_pages": [
+        16,
+        17
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Preserve nested emergency conditions and exception to exemption",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 1798.145(a)(1)(D)",
+              "parent": "Section 1798.145(a)(1)",
+              "kind": "subparagraph",
+              "exact_source_text": "(D) (i) Cooperate with a government agency request for emergency access to a consumer’s personal\ninformation if a natural person is at risk or danger of death or serious physical injury provided that:\n(I) The request is approved by a high-ranking agency officer for emergency access to a consumer’s\npersonal information.\n(II) The request is based on the agency’s good faith determination that it has a lawful basis to access\nthe information on a nonemergency basis.\n(III) The agency agrees to petition a court for an appropriate order within three days and to destroy the\ninformation if that order is not granted.\n(ii) For purposes of this subparagraph, a consumer accessing, procuring, or searching for services regarding\ncontraception, pregnancy care, and perinatal care, including, but not limited to, abortion services, shall not\nconstitute a natural person being at risk or danger of death or serious physical injury."
+            },
+            {
+              "id": "Section 1798.145(a)(1)(D)(i)",
+              "parent": "Section 1798.145(a)(1)(D)",
+              "kind": "clause",
+              "exact_source_text": "(D) (i) Cooperate with a government agency request for emergency access to a consumer’s personal\ninformation if a natural person is at risk or danger of death or serious physical injury provided that:\n(I) The request is approved by a high-ranking agency officer for emergency access to a consumer’s\npersonal information.\n(II) The request is based on the agency’s good faith determination that it has a lawful basis to access\nthe information on a nonemergency basis.\n(III) The agency agrees to petition a court for an appropriate order within three days and to destroy the\ninformation if that order is not granted."
+            },
+            {
+              "id": "Section 1798.145(a)(1)(D)(ii)",
+              "parent": "Section 1798.145(a)(1)(D)",
+              "kind": "clause",
+              "exact_source_text": "(ii) For purposes of this subparagraph, a consumer accessing, procuring, or searching for services regarding\ncontraception, pregnancy care, and perinatal care, including, but not limited to, abortion services, shall not\nconstitute a natural person being at risk or danger of death or serious physical injury."
+            },
+            {
+              "id": "Section 1798.145(a)(1)(D)(i)(I)",
+              "parent": "Section 1798.145(a)(1)(D)(i)",
+              "kind": "subclause",
+              "exact_source_text": "(I) The request is approved by a high-ranking agency officer for emergency access to a consumer’s\npersonal information."
+            },
+            {
+              "id": "Section 1798.145(a)(1)(D)(i)(II)",
+              "parent": "Section 1798.145(a)(1)(D)(i)",
+              "kind": "subclause",
+              "exact_source_text": "(II) The request is based on the agency’s good faith determination that it has a lawful basis to access\nthe information on a nonemergency basis."
+            },
+            {
+              "id": "Section 1798.145(a)(1)(D)(i)(III)",
+              "parent": "Section 1798.145(a)(1)(D)(i)",
+              "kind": "subclause",
+              "exact_source_text": "(III) The agency agrees to petition a court for an appropriate order within three days and to destroy the\ninformation if that order is not granted."
+            }
+          ]
+        },
+        "exception_to_exemption_exact_text": "(2) (A) This subdivision shall not apply if the consumer’s personal information contains information related to\naccessing, procuring, or searching for services regarding contraception, pregnancy care, and perinatal care,\nincluding, but not limited to, abortion services.\n(B) This paragraph does not alter the use of aggregated or deidentified personal information consistent with a\nbusiness purpose as defined in paragraphs (1), (2), (3), (4), (5), (7), or (8) of subdivision (e) of Section\n1798.140, provided that the personal information is only retained in aggregated and deidentified form and is\nnot sold or shared.\n(C) This paragraph does not alter the duty of a business to preserve or retain evidence pursuant to California\nor federal law in an ongoing civil proceeding.",
+        "emergency_conditions_are_conjunctive": true
+      },
+      "must_not": [
+        "Treating the three emergency conditions as OR alternatives.",
+        "Dropping the (a)(2)(A) exception that limits subdivision (a)."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S3-04",
+      "stage": "S3",
+      "title": "Keep decimal section IDs distinct and retain operative date",
+      "scope": "source_native",
+      "challenge_type": "decimal_numbering_and_version",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.136",
+        "section:1798.140",
+        "section:1798.199",
+        "section:1798.199.10"
+      ],
+      "physical_pages": [
+        9,
+        10,
+        30
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Keep decimal section IDs distinct and retain operative date",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 1798.136",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.136. (a) (1) A business shall not develop or maintain a browser that does not include functionality configurable\nby a consumer that enables the browser to send an opt-out preference signal to businesses with which the\nconsumer interacts through the browser.\n(2) The functionality required by paragraph (1) shall be easy for a reasonable person to locate and configure.\n(b) A business that develops or maintains a browser shall make clear to a consumer in its public disclosures how\nthe opt-out preference signal works and the intended effect of the opt-out preference signal.\n(c) The California Privacy Protection Agency may adopt regulations as necessary to implement and administer this\nsection.\n(d) A business that develops or maintains a browser that includes a functionality that enables the browser to send\nan opt-out preference signal pursuant to this section shall not be liable for a violation of this title by a business that\nreceives the opt-out preference signal.\n(e) As used in this section:\n(1) “Browser” means an interactive software application that is used by consumers to locate, access, and\nnavigate internet websites.\n(2) “Opt-out preference signal” means a signal that complies with this title and that communicates the\nconsumer’s choice to opt out of the sale and sharing of the consumer’s personal information.\n(f) This section shall become operative on January 1, 2027."
+            },
+            {
+              "id": "Section 1798.140",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.140. Definitions\nFor purposes of this title:\n(a) “Advertising and marketing” means a communication by a business or a person acting on the business’ behalf in\nany medium intended to induce a consumer to obtain goods, services, or employment.\n(b) “Aggregate consumer information” means information that relates to a group or category of consumers, from\nwhich individual consumer identities have been removed, that is not linked or reasonably linkable to any consumer\nor household, including via a device. “Aggregate consumer information” does not mean one or more individual\nconsumer records that have been deidentified.\n(c) “Biometric information” means an individual’s physiological, biological, or behavioral characteristics, including\ninformation pertaining to an individual’s deoxyribonucleic acid (DNA), that is used or is intended to be used singly\nor in combination with each other or with other identifying data, to establish individual identity. Biometric\ninformation includes, but is not limited to, imagery of the iris, retina, fingerprint, face, hand, palm, vein patterns,\nand voice recordings, from which an identifier template, such as a faceprint, a minutiae template, or a voiceprint,\ncan be extracted, and keystroke patterns or rhythms, gait patterns or rhythms, and sleep, health, or exercise data\nthat contain identifying information.\n(d) “Business” means:\n(1) A sole proprietorship, partnership, limited liability company, corporation, association, or other legal entity that\nis organized or operated for the profit or financial benefit of its shareholders or other owners, that collects\nconsumers’ personal information, or on the behalf of which such information is collected and that alone, or jointly\nwith others, determines the purposes and means of the processing of consumers’ personal information, that does\nbusiness in the State of California, and that satisfies one or more of the following thresholds:\n(A) As of January 1 of the calendar year, had annual gross revenues in excess of twenty-five million dollars\n($25,000,000) in the preceding calendar year, as adjusted pursuant to subdivision (d) of Section 1798.199.95.\n(B) Alone or in combination, annually buys, sells, or shares the personal information of 100,000 or more\nconsumers or households.\n(C) Derives 50 percent or more of its annual revenues from selling or sharing consumers’ personal\ninformation.\n(2) Any entity that controls or is controlled by a business, as defined in paragraph (1), and that shares common\nbranding with the business and with whom the business shares consumers’ personal information. “Control” or\n“controlled” means ownership of, or the power to vote, more than 50 percent of the outstanding shares of any\nclass of voting security of a business; control in any manner over the election of a majority of the directors, or of\nindividuals exercising similar functions; or the power to exercise a controlling influence over the management of a\ncompany. “Common branding” means a shared name, servicemark, or trademark that the average consumer\nwould understand that two or more entities are commonly owned.\n(3) A joint venture or partnership composed of businesses in which each business has at least a 40 percent\ninterest. For purposes of this title, the joint venture or partnership and each business that composes the joint\nventure or partnership shall separately be considered a single business, except that personal information in the\npossession of each business and disclosed to the joint venture or partnership shall not be shared with the other\nbusiness.\n(4) A person that does business in California, that is not covered by paragraph (1), (2), or (3), and that\nvoluntarily certifies to the California Privacy Protection Agency that it is in compliance with, and agrees to be\nbound by, this title.\n(e) “Business purpose” means the use of personal information for the business’ operational purposes, or other\nnotified purposes, or for the service provider or contractor’s operational purposes, as defined by regulations\nadopted pursuant to paragraph (10) of subdivision (a) of Section 1798.185, provided that the use of personal\ninformation shall be reasonably necessary and proportionate to achieve the purpose for which the personal\ninformation was collected or processed or for another purpose that is compatible with the context in which the\npersonal information was collected. Business purposes are:\n(1) Auditing related to counting ad impressions to unique visitors, verifying positioning and quality of ad\nimpressions, and auditing compliance with this specification and other standards.\n(2) Helping to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for these purposes.\n(3) Debugging to identify and repair errors that impair existing intended functionality.\n(4) Short-term, transient use, including, but not limited to, nonpersonalized advertising shown as part of a\nconsumer’s current interaction with the business, provided that the consumer’s personal information is not\ndisclosed to another third party and is not used to build a profile about the consumer or otherwise alter the\nconsumer’s experience outside the current interaction with the business.\n(5) Performing services on behalf of the business, including maintaining or servicing accounts, providing customer\nservice, processing or fulfilling orders and transactions, verifying customer information, processing payments,\nproviding financing, providing analytic services, providing storage, or providing similar services on behalf of the\nbusiness.\n(6) Providing advertising and marketing services, except for cross-context behavioral advertising, to the\nconsumer provided that, for the purpose of advertising and marketing, a service provider or contractor shall not\ncombine the personal information of opted-out consumers that the service provider or contractor receives from,\nor on behalf of, the business with personal information that the service provider or contractor receives from, or\non behalf of, another person or persons or collects from its own interaction with consumers.\n(7) Undertaking internal research for technological development and demonstration.\n(8) Undertaking activities to verify or maintain the quality or safety of a service or device that is owned,\nmanufactured, manufactured for, or controlled by the business, and to improve, upgrade, or enhance the service\nor device that is owned, manufactured, manufactured for, or controlled by the business.\n(f) “Collects,” “collected,” or “collection” means buying, renting, gathering, obtaining, receiving, or accessing any\npersonal information pertaining to a consumer by any means. This includes receiving information from the\nconsumer, either actively or passively, or by observing the consumer’s behavior.\n(g) “Commercial purposes” means to advance a person’s commercial or economic interests, such as by inducing\nanother person to buy, rent, lease, join, subscribe to, provide, or exchange products, goods, property, information,\nor services, or enabling or effecting, directly or indirectly, a commercial transaction.\n(h) “Consent” means any freely given, specific, informed, and unambiguous indication of the consumer’s wishes by\nwhich the consumer, or the consumer’s legal guardian, a person who has power of attorney, or a person acting as a\nconservator for the consumer, including by a statement or by a clear affirmative action, signifies agreement to the\nprocessing of personal information relating to the consumer for a narrowly defined particular purpose. Acceptance\nof a general or broad terms of use, or similar document, that contains descriptions of personal information\nprocessing along with other, unrelated information, does not constitute consent. Hovering over, muting, pausing, or\nclosing a given piece of content does not constitute consent. Likewise, agreement obtained through use of dark\npatterns does not constitute consent.\n(i) “Consumer” means a natural person who is a California resident, as defined in Section 17014 of Title 18 of the\nCalifornia Code of Regulations, as that section read on September 1, 2017, however identified, including by any\nunique identifier.\n(j) (1) “Contractor” means a person to whom the business makes available a consumer’s personal information for a\nbusiness purpose, pursuant to a written contract with the business, provided that the contract:\n(A) Prohibits the contractor from:\n(i) Selling or sharing the personal information.\n(ii) Retaining, using, or disclosing the personal information for any purpose other than for the business\npurposes specified in the contract, including retaining, using, or disclosing the personal information for a\ncommercial purpose other than the business purposes specified in the contract, or as otherwise permitted\nby this title.\n(iii) Retaining, using, or disclosing the information outside of the direct business relationship between the\ncontractor and the business.\n(iv) Combining the personal information that the contractor receives pursuant to a written contract with the\nbusiness with personal information that it receives from or on behalf of another person or persons, or\ncollects from its own interaction with the consumer, provided that the contractor may combine personal\ninformation to perform any business purpose as defined in regulations adopted pursuant to paragraph (9)\nof subdivision (a) of Section 1798.185, except as provided for in paragraph (6) of subdivision (e) and in\nregulations adopted by the California Privacy Protection Agency.\n(B) Includes a certification made by the contractor that the contractor understands the restrictions in\nsubparagraph (A) and will comply with them.\n(C) Permits, subject to agreement with the contractor, the business to monitor the contractor’s compliance\nwith the contract through measures, including, but not limited to, ongoing manual reviews and automated\nscans and regular assessments, audits, or other technical and operational testing at least once every 12\nmonths.\n(2) If a contractor engages any other person to assist it in processing personal information for a business purpose\non behalf of the business, or if any other person engaged by the contractor engages another person to assist in\nprocessing personal information for that business purpose, it shall notify the business of that engagement, and\nthe engagement shall be pursuant to a written contract binding the other person to observe all the requirements\nset forth in paragraph (1).\n(k) “Cross-context behavioral advertising” means the targeting of advertising to a consumer based on the\nconsumer’s personal information obtained from the consumer’s activity across businesses, distinctly branded\ninternet websites, applications, or services, other than the business, distinctly branded internet website,\napplication, or service with which the consumer intentionally interacts.\n(l) “Dark pattern” means a user interface designed or manipulated with the substantial effect of subverting or\nimpairing user autonomy, decisionmaking, or choice, as further defined by regulation.\n(m) “Deidentified” means information that cannot reasonably be used to infer information about, or otherwise be\nlinked to, a particular consumer provided that the business that possesses the information:\n(1) Takes reasonable measures to ensure that the information cannot be associated with a consumer or\nhousehold.\n(2) Publicly commits to maintain and use the information in deidentified form and not to attempt to reidentify the\ninformation, except that the business may attempt to reidentify the information solely for the purpose of\ndetermining whether its deidentification processes satisfy the requirements of this subdivision.\n(3) Contractually obligates any recipients of the information to comply with all provisions of this subdivision.\n(n) “Designated methods for submitting requests” means a mailing address, email address, internet web page,\ninternet web portal, toll-free telephone number, or other applicable contact information, whereby consumers may\nsubmit a request or direction under this title, and any new, consumer-friendly means of contacting a business, as\napproved by the Attorney General pursuant to Section 1798.185.\n(o) “Device” means any physical object that is capable of connecting to the internet, directly or indirectly, or to\nanother device.\n(p) “Homepage” means the introductory page of an internet website and any internet web page where personal\ninformation is collected. In the case of an online service, such as a mobile application, homepage means the\napplication’s platform page or download page, a link within the application, such as from the application\nconfiguration, “About,” “Information,’’ or settings page, and any other location that allows consumers to review the\nnotices required by this title, including, but not limited to, before downloading the application.\n(q) “Household” means a group, however identified, of consumers who cohabitate with one another at the same\nresidential address and share use of common devices or services.\n(r) “Infer” or “inference” means the derivation of information, data, assumptions, or conclusions from facts,\nevidence, or another source of information or data.\n(s) “Intentionally interacts” means when the consumer intends to interact with a person, or disclose personal\ninformation to a person, via one or more deliberate interactions, including visiting the person’s internet website or\npurchasing a good or service from the person. Hovering over, muting, pausing, or closing a given piece of content\ndoes not constitute a consumer’s intent to interact with a person.\n(t) “Nonpersonalized advertising” means advertising and marketing that is based solely on a consumer’s personal\ninformation derived from the consumer’s current interaction with the business with the exception of the consumer’s\nprecise geolocation.\n(u) “Person” means an individual, proprietorship, firm, partnership, joint venture, syndicate, business trust,\ncompany, corporation, limited liability company, association, committee, and any other organization or group of\npersons acting in concert.\n(v) (1) “Personal information” means information that identifies, relates to, describes, is reasonably capable of\nbeing associated with, or could reasonably be linked, directly or indirectly, with a particular consumer or household.\nPersonal information includes, but is not limited to, the following if it identifies, relates to, describes, is reasonably\ncapable of being associated with, or could be reasonably linked, directly or indirectly, with a particular consumer or\nhousehold:\n(A) Identifiers such as a real name, alias, postal address, unique personal identifier, online identifier, Internet\nProtocol address, email address, account name, social security number, driver’s license number, passport\nnumber, or other similar identifiers.\n(B) Any personal information described in subdivision (e) of Section 1798.80.\n(C) Characteristics of protected classifications under California or federal law.\n(D) Commercial information, including records of personal property, products or services purchased, obtained,\nor considered, or other purchasing or consuming histories or tendencies.\n(E) Biometric information.\n(F) Internet or other electronic network activity information, including, but not limited to, browsing history,\nsearch history, and information regarding a consumer’s interaction with an internet website application, or\nadvertisement.\n(G) Geolocation data.\n(H) Audio, electronic, visual, thermal, olfactory, or similar information.\n(I) Professional or employment-related information.\n(J) Education information, defined as information that is not publicly available personally identifiable\ninformation as defined in the Family Educational Rights and Privacy Act (20 U.S.C. Sec. 1232g; 34 C.F.R. Part\n99).\n(K) Inferences drawn from any of the information identified in this subdivision to create a profile about a\nconsumer reflecting the consumer’s preferences, characteristics, psychological trends, predispositions,\nbehavior, attitudes, intelligence, abilities, and aptitudes.\n(L) Sensitive personal information.\n(2) (A) “Personal information” does not include publicly available information or lawfully obtained, truthful\ninformation that is a matter of public concern.\n(B) (i) For purposes of this paragraph, “publicly available” means any of the following:\n(I) Information that is lawfully made available from federal, state, or local government records.\n(II) Information that a business has a reasonable basis to believe is lawfully made available to the\ngeneral public by the consumer or from widely distributed media.\n(III) Information made available by a person to whom the consumer has disclosed the information if the\nconsumer has not restricted the information to a specific audience.\n(ii) “Publicly available” does not mean biometric information collected by a business about a consumer\nwithout the consumer’s knowledge.\n(3) “Personal information” does not include consumer information that is deidentified or aggregate consumer\ninformation.\n(4) “Personal information” can exist in various formats, including, but not limited to, all of the following:\n(A) Physical formats, including paper documents, printed images, vinyl records, or video tapes.\n(B) Digital formats, including text, image, audio, or video files.\n(C) Abstract digital formats, including compressed or encrypted files, metadata, or artificial intelligence\nsystems that are capable of outputting personal information.\n(w) “Precise geolocation” means any data that is derived from a device and that is used or intended to be used to\nlocate a consumer within a geographic area that is equal to or less than the area of a circle with a radius of 1,850\nfeet, except as prescribed by regulations.\n(x) “Probabilistic identifier” means the identification of a consumer or a consumer’s device to a degree of certainty\nof more probable than not based on any categories of personal information included in, or similar to, the categories\nenumerated in the definition of personal information.\n(y) “Processing” means any operation or set of operations that are performed on personal information or on sets of\npersonal information, whether or not by automated means.\n(z) “Profiling” means any form of automated processing of personal information, as further defined by regulations\npursuant to paragraph (15) of subdivision (a) of Section 1798.185, to evaluate certain personal aspects relating to\na natural person and in particular to analyze or predict aspects concerning that natural person’s performance at\nwork, economic situation, health, personal preferences, interests, reliability, behavior, location, or movements.\n(aa) “Pseudonymize” or “pseudonymization” means the processing of personal information in a manner that\nrenders the personal information no longer attributable to a specific consumer without the use of additional\ninformation, provided that the additional information is kept separately and is subject to technical and\norganizational measures to ensure that the personal information is not attributed to an identified or identifiable\nconsumer.\n(ab) “Research” means scientific analysis, systematic study, and observation, including basic research or applied\nresearch that is designed to develop or contribute to public or scientific knowledge and that adheres or otherwise\nconforms to all other applicable ethics and privacy laws, including, but not limited to, studies conducted in the\npublic interest in the area of public health. Research with personal information that may have been collected from a\nconsumer in the course of the consumer’s interactions with a business’ service or device for other purposes shall\nbe:\n(1) Compatible with the business purpose for which the personal information was collected.\n(2) Subsequently pseudonymized and deidentified, or deidentified and in the aggregate, such that the information\ncannot reasonably identify, relate to, describe, be capable of being associated with, or be linked, directly or\nindirectly, to a particular consumer, by a business.\n(3) Made subject to technical safeguards that prohibit reidentification of the consumer to whom the information\nmay pertain, other than as needed to support the research.\n(4) Subject to business processes that specifically prohibit reidentification of the information, other than as\nneeded to support the research.\n(5) Made subject to business processes to prevent inadvertent release of deidentified information.\n(6) Protected from any reidentification attempts.\n(7) Used solely for research purposes that are compatible with the context in which the personal information was\ncollected.\n(8) Subjected by the business conducting the research to additional security controls that limit access to the\nresearch data to only those individuals as are necessary to carry out the research purpose.\n(ac) “Security and integrity” means the ability of:\n(1) Networks or information systems to detect security incidents that compromise the availability, authenticity,\nintegrity, and confidentiality of stored or transmitted personal information.\n(2) Businesses to detect security incidents, resist malicious, deceptive, fraudulent, or illegal actions and to help\nprosecute those responsible for those actions.\n(3) Businesses to ensure the physical safety of natural persons.\n(ad) (1) “Sell,” “selling,” “sale,” or “sold,’’ means selling, renting, releasing, disclosing, disseminating, making\navailable, transferring, or otherwise communicating orally, in writing, or by electronic or other means, a consumer’s\npersonal information by the business to a third party for monetary or other valuable consideration.\n(2) For purposes of this title, a business does not sell personal information when:\n(A) A consumer uses or directs the business to intentionally:\n(i) Disclose personal information.\n(ii) Interact with one or more third parties.\n(B) The business uses or shares an identifier for a consumer who has opted out of the sale of the consumer’s\npersonal information or limited the use of the consumer’s sensitive personal information for the purposes of\nalerting persons that the consumer has opted out of the sale of the consumer’s personal information or limited\nthe use of the consumer’s sensitive personal information.\n(C) The business transfers to a third party the personal information of a consumer as an asset that is part of a\nmerger, acquisition, bankruptcy, or other transaction in which the third party assumes control of all or part of\nthe business, provided that information is used or shared consistently with this title. If a third party materially\nalters how it uses or shares the personal information of a consumer in a manner that is materially inconsistent\nwith the promises made at the time of collection, it shall provide prior notice of the new or changed practice to\nthe consumer. The notice shall be sufficiently prominent and robust to ensure that existing consumers can\neasily exercise their choices consistently with this title. This subparagraph does not authorize a business to\nmake material, retroactive privacy policy changes or make other changes in their privacy policy in a manner\nthat would violate the Unfair and Deceptive Practices Act (Chapter 5 (commencing with Section 17200) of Part\n2 of Division 7 of the Business and Professions Code).\n(ae) “Sensitive personal information” means:\n(1) Personal information that reveals:\n(A) A consumer’s social security, driver’s license, state identification card, or passport number.\n(B) A consumer’s account log-in, financial account, debit card, or credit card number in combination with any\nrequired security or access code, password, or credentials allowing access to an account.\n(C) A consumer’s precise geolocation.\n(D) A consumer’s racial or ethnic origin, citizenship or immigration status, religious or philosophical beliefs, or\nunion membership.\n(E) The contents of a consumer’s mail, email, and text messages unless the business is the intended recipient\nof the communication.\n(F) A consumer’s genetic data.\n(G) (i) A consumer’s neural data.\n(ii) “Neural data” means information that is generated by measuring the activity of a consumer’s central or\nperipheral nervous system, and that is not inferred from nonneural information.\n(2) (A) The processing of biometric information for the purpose of uniquely identifying a consumer.\n(B) Personal information collected and analyzed concerning a consumer’s health.\n(C) Personal information collected and analyzed concerning a consumer’s sex life or sexual orientation.\n(3) Sensitive personal information that is “publicly available” pursuant to paragraph (2) of subdivision (v) shall\nnot be considered sensitive personal information or personal information.\n(af) “Service” or “services” means work, labor, and services, including services furnished in connection with the sale\nor repair of goods.\n(ag) (1) “Service provider” means a person that processes personal information on behalf of a business and that\nreceives from or on behalf of the business consumer’s personal information for a business purpose pursuant to a\nwritten contract, provided that the contract prohibits the person from:\n(A) Selling or sharing the personal information.\n(B) Retaining, using, or disclosing the personal information for any purpose other than for the business\npurposes specified in the contract for the business, including retaining, using, or disclosing the personal\ninformation for a commercial purpose other than the business purposes specified in the contract with the\nbusiness, or as otherwise permitted by this title.\n(C) Retaining, using, or disclosing the information outside of the direct business relationship between the\nservice provider and the business.\n(D) Combining the personal information that the service provider receives from, or on behalf of, the business\nwith personal information that it receives from, or on behalf of, another person or persons, or collects from its\nown interaction with the consumer, provided that the service provider may combine personal information to\nperform any business purpose as defined in regulations adopted pursuant to paragraph (9) of subdivision (a)\nof Section 1798.185, except as provided for in paragraph (6) of subdivision (e) of this section and in\nregulations adopted by the California Privacy Protection Agency. The contract may, subject to agreement with\nthe service provider, permit the business to monitor the service provider’s compliance with the contract\nthrough measures, including, but not limited to, ongoing manual reviews and automated scans and regular\nassessments, audits, or other technical and operational testing at least once every 12 months.\n(2) If a service provider engages any other person to assist it in processing personal information for a business\npurpose on behalf of the business, or if any other person engaged by the service provider engages another\nperson to assist in processing personal information for that business purpose, it shall notify the business of that\nengagement, and the engagement shall be pursuant to a written contract binding the other person to observe all\nthe requirements set forth in paragraph (1).\n(ah) (1) “Share,” “shared,” or “sharing” means sharing, renting, releasing, disclosing, disseminating, making\navailable, transferring, or otherwise communicating orally, in writing, or by electronic or other means, a consumer’s\npersonal information by the business to a third party for cross-context behavioral advertising, whether or not for\nmonetary or other valuable consideration, including transactions between a business and a third party for cross-\ncontext behavioral advertising for the benefit of a business in which no money is exchanged.\n(2) For purposes of this title, a business does not share personal information when:\n(A) A consumer uses or directs the business to intentionally disclose personal information or intentionally\ninteract with one or more third parties.\n(B) The business uses or shares an identifier for a consumer who has opted out of the sharing of the\nconsumer’s personal information or limited the use of the consumer’s sensitive personal information for the\npurposes of alerting persons that the consumer has opted out of the sharing of the consumer’s personal\ninformation or limited the use of the consumer’s sensitive personal information.\n(C) The business transfers to a third party the personal information of a consumer as an asset that is part of a\nmerger, acquisition, bankruptcy, or other transaction in which the third party assumes control of all or part of\nthe business, provided that information is used or shared consistently with this title. If a third party materially\nalters how it uses or shares the personal information of a consumer in a manner that is materially inconsistent\nwith the promises made at the time of collection, it shall provide prior notice of the new or changed practice to\nthe consumer. The notice shall be sufficiently prominent and robust to ensure that existing consumers can\neasily exercise their choices consistently with this title. This subparagraph does not authorize a business to\nmake material, retroactive privacy policy changes or make other changes in their privacy policy in a manner\nthat would violate the Unfair and Deceptive Practices Act (Chapter 5 (commencing with Section 17200) of Part\n2 of Division 7 of the Business and Professions Code).\n(ai) “Third party” means a person who is not any of the following:\n(1) The business with whom the consumer intentionally interacts and that collects personal information from the\nconsumer as part of the consumer’s current interaction with the business under this title.\n(2) A service provider to the business.\n(3) A contractor.\n(aj) “Unique identifier” or “unique personal identifier” means a persistent identifier that can be used to recognize a\nconsumer, a family, or a device that is linked to a consumer or family, over time and across different services,\nincluding, but not limited to, a device identifier; an Internet Protocol address; cookies, beacons, pixel tags, mobile\nad identifiers, or similar technology; customer number, unique pseudonym, or user alias; telephone numbers, or\nother forms of persistent or probabilistic identifiers that can be used to identify a particular consumer or device that\nis linked to a consumer or family. For purposes of this subdivision, “family” means a custodial parent or guardian\nand any children under 18 years of age over which the parent or guardian has custody.\n(ak) “Verifiable consumer request” means a request that is made by a consumer, by a consumer on behalf of the\nconsumer’s minor child, by a natural person or a person registered with the Secretary of State, authorized by the\nconsumer to act on the consumer’s behalf, or by a person who has power of attorney or is acting as a conservator\nfor the consumer, and that the business can verify, using commercially reasonable methods, pursuant to regulations\nadopted by the Attorney General pursuant to paragraph (6) of subdivision (a) of Section 1798.185 to be the\nconsumer about whom the business has collected personal information. A business is not obligated to provide\ninformation to the consumer pursuant to Sections 1798.110 and 1798.115, to delete personal information pursuant\nto Section 1798.105, or to correct inaccurate personal information pursuant to Section 1798.106, if the business\ncannot verify, pursuant to this subdivision and regulations adopted by the Attorney General pursuant to paragraph\n(6) of subdivision (a) of Section 1798.185, that the consumer making the request is the consumer about whom the\nbusiness has collected information or is a person authorized by the consumer to act on such consumer’s behalf."
+            },
+            {
+              "id": "Section 1798.199",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.199. Notwithstanding Section 1798.198, Section 1798.180 shall be operative on the effective date of the act\nadding this section."
+            },
+            {
+              "id": "Section 1798.199.10",
+              "parent": "Title 1.81.5",
+              "kind": "section",
+              "exact_source_text": "1798.199.10. (a) There is hereby established in state government the California Privacy Protection Agency, which is\nvested with full administrative power, authority, and jurisdiction to implement and enforce the California Consumer\nPrivacy Act of 2018. The agency shall be governed by a five-member board, including the chairperson. The\nchairperson and one member of the board shall be appointed by the Governor. The Attorney General, Senate Rules\nCommittee, and Speaker of the Assembly shall each appoint one member. These appointments should be made\nfrom among Californians with expertise in the areas of privacy, technology, and consumer rights.\n(b) The initial appointments to the agency shall be made within 90 days of the effective date of the act adding this\nsection."
+            }
+          ]
+        },
+        "operative_date_exact_text": "(f) This section shall become operative on January 1, 2027."
+      },
+      "must_not": [
+        "Treating Section 1798.199 as the parent of Section 1798.199.10.",
+        "Treating the 1798.136 operative date as a date for every section."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S3-05",
+      "stage": "S3",
+      "title": "Follow breach remedy references without confusing monetary caps",
+      "scope": "source_native",
+      "challenge_type": "multi_hop_and_external_law",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.150",
+        "section:1798.155",
+        "section:1798.199.95"
+      ],
+      "physical_pages": [
+        24,
+        34,
+        35
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Follow breach remedy references without confusing monetary caps",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "reference_tree": {
+          "nodes": [
+            {
+              "id": "Section 1798.150(a)(1)",
+              "parent": "Section 1798.150(a)",
+              "kind": "paragraph",
+              "exact_source_text": "(a) (1) Any consumer whose nonencrypted and nonredacted personal information, as defined in subparagraph (A)\nof paragraph (1) of subdivision (d) of Section 1798.81.5, or whose email address in combination with a password or\nsecurity question and answer that would permit access to the account is subject to an unauthorized access and\nexfiltration, theft, or disclosure as a result of the business’ violation of the duty to implement and maintain\nreasonable security procedures and practices appropriate to the nature of the information to protect the personal\ninformation may institute a civil action for any of the following:\n(A) To recover damages in an amount not less than one hundred dollars ($100) and not greater than seven\nhundred and fifty ($750) per consumer per incident or actual damages, whichever is greater. The amounts in\nthis subdivision shall be adjusted pursuant to subdivision (d) of Section 1798.199.95.\n(B) Injunctive or declaratory relief.\n(C) Any other relief the court deems proper."
+            },
+            {
+              "id": "Section 1798.150(a)(1)(A)",
+              "parent": "Section 1798.150(a)(1)",
+              "kind": "subparagraph",
+              "exact_source_text": "(A) To recover damages in an amount not less than one hundred dollars ($100) and not greater than seven\nhundred and fifty ($750) per consumer per incident or actual damages, whichever is greater. The amounts in\nthis subdivision shall be adjusted pursuant to subdivision (d) of Section 1798.199.95."
+            },
+            {
+              "id": "Section 1798.199.95(d)",
+              "parent": "Section 1798.199.95",
+              "kind": "subdivision",
+              "exact_source_text": "(d) (1) On January 1, 2025, and on January 1 of any odd-numbered year thereafter, the California Privacy\nProtection Agency shall adjust the monetary thresholds in subparagraph (A) of paragraph (1) of subdivision (d) of\nSection 1798.140, subparagraph (A) of paragraph (1) of subdivision (a) of Section 1798.150, subdivision (a) of\nSection 1798.155, Section 1798.199.25, and subdivision (a) of Section 1798.199.90 to reflect any increase in the\nConsumer Price Index.\n(2) The agency shall use the Consumer Price Index (CPI) - California, All Items, All Urban Consumers percentage\nchange from the previous two years’ reports, published by the Department of Industrial Relations, Office of the\nDirector–Research. The agency shall apply the percentage change in the CPI for the August-to-August point in\ntime of the prior two years. The increase in the thresholds shall be rounded to the nearest whole dollar.\n(3) The agency shall post the adjusted monetary thresholds on its internet website no later than January 15 of\nthe year in which the adjustment becomes effective.\n(4) Notwithstanding any other law, adjustments to monetary thresholds and their publication on the agency’s\ninternet website pursuant to this subdivision are not subject to the rulemaking provisions of the Administrative\nProcedure Act (Chapter 3.5 (commencing with Section 11340) of Part 1 of Division 3 of Title 2 of the Government\nCode)."
+            }
+          ]
+        },
+        "reference_edges": [
+          {
+            "from": "Section 1798.150(a)(1)",
+            "to": "Section 1798.81.5(d)(1)(A)",
+            "relation": "explicit_external_reference",
+            "source_words": "subparagraph (A) of paragraph (1) of subdivision (d) of Section 1798.81.5"
+          },
+          {
+            "from": "Section 1798.150(a)(1)(A)",
+            "to": "Section 1798.199.95(d)",
+            "relation": "explicit_reference",
+            "source_words": "subdivision (d) of Section 1798.199.95"
+          },
+          {
+            "from": "Section 1798.155(a)",
+            "to": "Section 1798.199.95(d)",
+            "relation": "explicit_reference",
+            "source_words": "subdivision (d) of Section 1798.199.95"
+          }
+        ],
+        "multi_hop_paths": [
+          {
+            "path": [
+              "Section 1798.150(a)(1)",
+              "Section 1798.150(a)(1)(A)",
+              "Section 1798.199.95(d)"
+            ],
+            "relation_sequence": [
+              "contains",
+              "explicit_reference"
+            ]
+          }
+        ],
+        "private_action_source": "(a) (1) Any consumer whose nonencrypted and nonredacted personal information, as defined in subparagraph (A)\nof paragraph (1) of subdivision (d) of Section 1798.81.5, or whose email address in combination with a password or\nsecurity question and answer that would permit access to the account is subject to an unauthorized access and\nexfiltration, theft, or disclosure as a result of the business’ violation of the duty to implement and maintain\nreasonable security procedures and practices appropriate to the nature of the information to protect the personal\ninformation may institute a civil action for any of the following:\n(A) To recover damages in an amount not less than one hundred dollars ($100) and not greater than seven\nhundred and fifty ($750) per consumer per incident or actual damages, whichever is greater. The amounts in\nthis subdivision shall be adjusted pursuant to subdivision (d) of Section 1798.199.95.\n(B) Injunctive or declaratory relief.\n(C) Any other relief the court deems proper.",
+        "administrative_fine_source": "(a) Any business, service provider, contractor, or other person that violates this title shall be liable for an\nadministrative fine of not more than two thousand five hundred dollars ($2,500) for each violation or seven\nthousand five hundred dollars ($7,500) for each intentional violation or violations involving the personal information\nof consumers whom the business, service provider, contractor, or other person has actual knowledge are under 16\nyears of age, as adjusted pursuant to subdivision (d) of Section 1798.199.95, in an administrative enforcement\naction brought by the California Privacy Protection Agency."
+      },
+      "must_not": [
+        "Treating $750 private statutory damages and $7,500 administrative fine as the same remedy.",
+        "Inventing a local Section 1798.81.5 inside Title 1.81.5."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S4-01",
+      "stage": "S4",
+      "title": "Interpret deletion duty and its eight separate exceptions",
+      "scope": "source_native",
+      "challenge_type": "legal_meaning",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.105"
+      ],
+      "physical_pages": [
+        2,
+        3
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Interpret deletion duty and its eight separate exceptions",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "actor": "business receiving a verifiable deletion request",
+        "duties": [
+          "delete from its records",
+          "notify service providers or contractors",
+          "notify third parties to whom information was sold or shared unless impossible or disproportionate effort"
+        ],
+        "exceptions_source": "(d) A business, or a service provider or contractor acting pursuant to its contract with the business, another service\nprovider, or another contractor, shall not be required to comply with a consumer’s request to delete the consumer’s\npersonal information if it is reasonably necessary for the business, service provider, or contractor to maintain the\nconsumer’s personal information in order to:\n(1) Complete the transaction for which the personal information was collected, fulfill the terms of a written\nwarranty or product recall conducted in accordance with federal law, provide a good or service requested by the\nconsumer, or reasonably anticipated by the consumer within the context of a business’ ongoing business\nrelationship with the consumer, or otherwise perform a contract between the business and the consumer.\n(2) Help to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for those purposes.\n(3) Debug to identify and repair errors that impair existing intended functionality.\n(4) Exercise free speech, ensure the right of another consumer to exercise that consumer’s right of free speech,\nor exercise another right provided for by law.\n(5) Comply with the California Electronic Communications Privacy Act pursuant to Chapter 3.6 (commencing with\nSection 1546) of Title 12 of Part 2 of the Penal Code.\n(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent.\n(7) To enable solely internal uses that are reasonably aligned with the expectations of the consumer based on the\nconsumer’s relationship with the business and compatible with the context in which the consumer provided the\ninformation.\n(8) Comply with a legal obligation.",
+        "exception_logic": "The eight 1798.105(d) grounds are alternatives subject to their own conditions."
+      },
+      "must_not": [
+        "Claiming every deletion request must be refused if any exception could apply."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S4-02",
+      "stage": "S4",
+      "title": "Interpret breach remedy versus administrative enforcement",
+      "scope": "source_native",
+      "challenge_type": "legal_meaning",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.150",
+        "section:1798.155"
+      ],
+      "physical_pages": [
+        24
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Interpret breach remedy versus administrative enforcement",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "private_action_scope": "(c) The cause of action established by this section shall apply only to violations as defined in subdivision (a) and\nshall not be based on violations of any other section of this title. Nothing in this title shall be interpreted to serve as\nthe basis for a private right of action under any other law. This shall not be construed to relieve any party from any\nduties or obligations imposed under other law or the United States or California Constitution.",
+        "damages_range_source": "(A) To recover damages in an amount not less than one hundred dollars ($100) and not greater than seven\nhundred and fifty ($750) per consumer per incident or actual damages, whichever is greater. The amounts in\nthis subdivision shall be adjusted pursuant to subdivision (d) of Section 1798.199.95.",
+        "administrative_fine_source": "(a) Any business, service provider, contractor, or other person that violates this title shall be liable for an\nadministrative fine of not more than two thousand five hundred dollars ($2,500) for each violation or seven\nthousand five hundred dollars ($7,500) for each intentional violation or violations involving the personal information\nof consumers whom the business, service provider, contractor, or other person has actual knowledge are under 16\nyears of age, as adjusted pursuant to subdivision (d) of Section 1798.199.95, in an administrative enforcement\naction brought by the California Privacy Protection Agency."
+      },
+      "must_not": [
+        "Treating any CCPA violation as giving a private right of action under 1798.150.",
+        "Calling statutory damages a fixed fine without the statutory conditions."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S5-01",
+      "stage": "S5",
+      "title": "Generate analysis evidence guidance for third-party contracts",
+      "scope": "source_native",
+      "challenge_type": "analysis_guidance",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.100"
+      ],
+      "physical_pages": [
+        1,
+        2
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Generate analysis evidence guidance for third-party contracts",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "mandatory_from_source": "(d) A business that collects a consumer’s personal information and that sells that personal information to, or shares\nit with, a third party or that discloses it to a service provider or contractor for a business purpose shall enter into an\nagreement with the third party, service provider, or contractor, that:\n(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.\n(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.\n(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.\n(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.\n(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information.",
+        "evidence_queries": [
+          "agreement with third party, service provider, or contractor",
+          "limited and specified purposes",
+          "same level of privacy protection",
+          "notification if obligations can no longer be met",
+          "right to stop and remediate unauthorized use"
+        ],
+        "proof_standard": "Check the actual agreement and its parties; absence of supplied evidence is not proof of a real-world breach."
+      },
+      "must_not": [
+        "Marking compliance solely because a contract exists without checking the five terms."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S5-02",
+      "stage": "S5",
+      "title": "Generate drafting guidance with accurate deletion and exception treatment",
+      "scope": "source_native",
+      "challenge_type": "drafting_guidance",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.105",
+        "section:1798.130"
+      ],
+      "physical_pages": [
+        2,
+        3,
+        6
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Generate drafting guidance with accurate deletion and exception treatment",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "legal_source": [
+          "(a) A consumer shall have the right to request that a business delete any personal information about the consumer\nwhich the business has collected from the consumer.",
+          "(c) (1) A business that receives a verifiable consumer request from a consumer to delete the consumer’s personal\ninformation pursuant to subdivision (a) of this section shall delete the consumer’s personal information from its\nrecords, notify any service providers or contractors to delete the consumer’s personal information from their\nrecords, and notify all third parties to whom the business has sold or shared the personal information to delete the\nconsumer’s personal information unless this proves impossible or involves disproportionate effort.\n(2) The business may maintain a confidential record of deletion requests solely for the purpose of preventing the\npersonal information of a consumer who has submitted a deletion request from being sold, for compliance with\nlaws or for other purposes, solely to the extent permissible under this title.\n(3) A service provider or contractor shall cooperate with the business in responding to a verifiable consumer\nrequest, and at the direction of the business, shall delete, or enable the business to delete and shall notify any of\nits own service providers or contractors to delete personal information about the consumer collected, used,\nprocessed, or retained by the service provider or the contractor. The service provider or contractor shall notify\nany service providers, contractors, or third parties who may have accessed personal information from or through\nthe service provider or contractor, unless the information was accessed at the direction of the business, to delete\nthe consumer’s personal information unless this proves impossible or involves disproportionate effort. A service\nprovider or contractor shall not be required to comply with a deletion request submitted by the consumer directly\nto the service provider or contractor to the extent that the service provider or contractor has collected, used,\nprocessed, or retained the consumer’s personal information in its role as a service provider or contractor to the\nbusiness.",
+          "(d) A business, or a service provider or contractor acting pursuant to its contract with the business, another service\nprovider, or another contractor, shall not be required to comply with a consumer’s request to delete the consumer’s\npersonal information if it is reasonably necessary for the business, service provider, or contractor to maintain the\nconsumer’s personal information in order to:\n(1) Complete the transaction for which the personal information was collected, fulfill the terms of a written\nwarranty or product recall conducted in accordance with federal law, provide a good or service requested by the\nconsumer, or reasonably anticipated by the consumer within the context of a business’ ongoing business\nrelationship with the consumer, or otherwise perform a contract between the business and the consumer.\n(2) Help to ensure security and integrity to the extent the use of the consumer’s personal information is\nreasonably necessary and proportionate for those purposes.\n(3) Debug to identify and repair errors that impair existing intended functionality.\n(4) Exercise free speech, ensure the right of another consumer to exercise that consumer’s right of free speech,\nor exercise another right provided for by law.\n(5) Comply with the California Electronic Communications Privacy Act pursuant to Chapter 3.6 (commencing with\nSection 1546) of Title 12 of Part 2 of the Penal Code.\n(6) Engage in public or peer-reviewed scientific, historical, or statistical research that conforms or adheres to all\nother applicable ethics and privacy laws, when the business’ deletion of the information is likely to render\nimpossible or seriously impair the ability to complete such research, if the consumer has provided informed\nconsent.\n(7) To enable solely internal uses that are reasonably aligned with the expectations of the consumer based on the\nconsumer’s relationship with the business and compatible with the context in which the consumer provided the\ninformation.\n(8) Comply with a legal obligation."
+        ],
+        "drafting_guidance": [
+          "describe consumer deletion request",
+          "describe processor and third-party notices",
+          "identify applicable exceptions conditionally"
+        ]
+      },
+      "must_not": [
+        "Drafting an unconditional promise to delete even where a source exception applies."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S6-01",
+      "stage": "S6",
+      "title": "Retrieve contract duty with continuation and source links",
+      "scope": "source_native",
+      "challenge_type": "retrieval_context",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.100",
+        "section:1798.140"
+      ],
+      "physical_pages": [
+        1,
+        2,
+        10,
+        11
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Retrieve contract duty with continuation and source links",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "query": "What must the business contract with a service provider include?",
+        "required_passages": [
+          "(d) A business that collects a consumer’s personal information and that sells that personal information to, or shares\nit with, a third party or that discloses it to a service provider or contractor for a business purpose shall enter into an\nagreement with the third party, service provider, or contractor, that:\n(1) Specifies that the personal information is sold or disclosed by the business only for limited and specified\npurposes.\n(2) Obligates the third party, service provider, or contractor to comply with applicable obligations under this title\nand obligate those persons to provide the same level of privacy protection as is required by this title.\n(3) Grants the business rights to take reasonable and appropriate steps to help ensure that the third party,\nservice provider, or contractor uses the personal information transferred in a manner consistent with the\nbusiness’ obligations under this title.\n(4) Requires the third party, service provider, or contractor to notify the business if it makes a determination that\nit can no longer meet its obligations under this title.\n(5) Grants the business the right, upon notice, including under paragraph (4), to take reasonable and appropriate\nsteps to stop and remediate unauthorized use of personal information.",
+          "(ag) (1) “Service provider” means a person that processes personal information on behalf of a business and that\nreceives from or on behalf of the business consumer’s personal information for a business purpose pursuant to a\nwritten contract, provided that the contract prohibits the person from:\n(A) Selling or sharing the personal information.\n(B) Retaining, using, or disclosing the personal information for any purpose other than for the business\npurposes specified in the contract for the business, including retaining, using, or disclosing the personal\ninformation for a commercial purpose other than the business purposes specified in the contract with the\nbusiness, or as otherwise permitted by this title.\n(C) Retaining, using, or disclosing the information outside of the direct business relationship between the\nservice provider and the business.\n(D) Combining the personal information that the service provider receives from, or on behalf of, the business\nwith personal information that it receives from, or on behalf of, another person or persons, or collects from its\nown interaction with the consumer, provided that the service provider may combine personal information to\nperform any business purpose as defined in regulations adopted pursuant to paragraph (9) of subdivision (a)\nof Section 1798.185, except as provided for in paragraph (6) of subdivision (e) of this section and in\nregulations adopted by the California Privacy Protection Agency. The contract may, subject to agreement with\nthe service provider, permit the business to monitor the service provider’s compliance with the contract\nthrough measures, including, but not limited to, ongoing manual reviews and automated scans and regular\nassessments, audits, or other technical and operational testing at least once every 12 months.\n(2) If a service provider engages any other person to assist it in processing personal information for a business\npurpose on behalf of the business, or if any other person engaged by the service provider engages another\nperson to assist in processing personal information for that business purpose, it shall notify the business of that\nengagement, and the engagement shall be pursuant to a written contract binding the other person to observe all\nthe requirements set forth in paragraph (1)."
+        ],
+        "context_action": "Return all five 1798.100(d) terms and relevant provider definition with source citations."
+      },
+      "must_not": [
+        "Returning only the first three contract terms from page 1."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S6-02",
+      "stage": "S6",
+      "title": "Retrieve breach remedy with correct external and adjustment links",
+      "scope": "source_native",
+      "challenge_type": "retrieval_context",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.150",
+        "section:1798.155",
+        "section:1798.199.95"
+      ],
+      "physical_pages": [
+        24,
+        34,
+        35
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Retrieve breach remedy with correct external and adjustment links",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "query": "What are the private and administrative remedies for a data breach?",
+        "required_passages": [
+          "1798.150. Personal Information Security Breaches\n(a) (1) Any consumer whose nonencrypted and nonredacted personal information, as defined in subparagraph (A)\nof paragraph (1) of subdivision (d) of Section 1798.81.5, or whose email address in combination with a password or\nsecurity question and answer that would permit access to the account is subject to an unauthorized access and\nexfiltration, theft, or disclosure as a result of the business’ violation of the duty to implement and maintain\nreasonable security procedures and practices appropriate to the nature of the information to protect the personal\ninformation may institute a civil action for any of the following:\n(A) To recover damages in an amount not less than one hundred dollars ($100) and not greater than seven\nhundred and fifty ($750) per consumer per incident or actual damages, whichever is greater. The amounts in\nthis subdivision shall be adjusted pursuant to subdivision (d) of Section 1798.199.95.\n(B) Injunctive or declaratory relief.\n(C) Any other relief the court deems proper.\n(2) In assessing the amount of statutory damages, the court shall consider any one or more of the relevant\ncircumstances presented by any of the parties to the case, including, but not limited to, the nature and\nseriousness of the misconduct, the number of violations, the persistence of the misconduct, the length of time\nover which the misconduct occurred, the willfulness of the defendant’s misconduct, and the defendant’s assets,\nliabilities, and net worth.\n(b) Actions pursuant to this section may be brought by a consumer if, prior to initiating any action against a\nbusiness for statutory damages on an individual or class-wide basis, a consumer provides a business 30 days’\nwritten notice identifying the specific provisions of this title the consumer alleges have been or are being violated.\nIn the event a cure is possible, if within the 30 days the business actually cures the noticed violation and provides\nthe consumer an express written statement that the violations have been cured and that no further violations shall\noccur, no action for individual statutory damages or class-wide statutory damages may be initiated against the\nbusiness. The implementation and maintenance of reasonable security procedures and practices pursuant to\nSection 1798.81.5 following a breach does not constitute a cure with respect to that breach. No notice shall be\nrequired prior to an individual consumer initiating an action solely for actual pecuniary damages suffered as a result\nof the alleged violations of this title. If a business continues to violate this title in breach of the express written\nstatement provided to the consumer under this section, the consumer may initiate an action against the business to\nenforce the written statement and may pursue statutory damages for each breach of the express written\nstatement, as well as any other violation of the title that postdates the written statement.\n(c) The cause of action established by this section shall apply only to violations as defined in subdivision (a) and\nshall not be based on violations of any other section of this title. Nothing in this title shall be interpreted to serve as\nthe basis for a private right of action under any other law. This shall not be construed to relieve any party from any\nduties or obligations imposed under other law or the United States or California Constitution.\n(Amended by Stats. 2024, Ch. 121, Sec. 6. (AB 3286) Effective January 1, 2025.)",
+          "1798.155. Administrative Enforcement\n(a) Any business, service provider, contractor, or other person that violates this title shall be liable for an\nadministrative fine of not more than two thousand five hundred dollars ($2,500) for each violation or seven\nthousand five hundred dollars ($7,500) for each intentional violation or violations involving the personal information\nof consumers whom the business, service provider, contractor, or other person has actual knowledge are under 16\nyears of age, as adjusted pursuant to subdivision (d) of Section 1798.199.95, in an administrative enforcement\naction brought by the California Privacy Protection Agency.\n(b) (1) Ninety-five percent of any administrative fine assessed for a violation of this title, and of the proceeds of\nany settlement of an action brought pursuant to subdivision (a), shall be deposited into the Consumer Privacy\nSubfund created within the Consumer Privacy Fund pursuant to subdivision (b) of Section 1798.160, and shall be\nused exclusively by the California Privacy Protection Agency in carrying out its duties under this title.\n(2) Five percent of any administrative fine assessed for a violation of this title, and of the proceeds of any\nsettlement of an action brought pursuant to subdivision (a), shall be deposited into the Consumer Privacy Grant\nSubfund created within the Consumer Privacy Fund pursuant to subdivision (d) of Section 1798.160.\n(Amended by Stats. 2025, Ch. 20, Sec. 1. (AB 137) Effective June 30, 2025.)",
+          "1798.199.95. (a) There is hereby appropriated from the General Fund of the state to the agency the sum of five\nmillion dollars ($5,000,000) during the fiscal year 2020–21, and the sum of ten million dollars ($10,000,000)\nadjusted for cost-of-living changes, during each fiscal year thereafter, for expenditure to support the operations of\nthe agency pursuant to this title. The expenditure of funds under this appropriation shall be subject to the normal\nadministrative review given to other state appropriations. The Legislature shall appropriate those additional\namounts to the commission and other agencies as may be necessary to carry out the provisions of this title.\n(b) The Department of Finance, in preparing the state budget and the Budget Act bill submitted to the Legislature,\nshall include an item for the support of this title that shall indicate all of the following:\n(1) The amounts to be appropriated to other agencies to carry out their duties under this title, which amounts\nshall be in augmentation of the support items of those agencies.\n(2) The additional amounts required to be appropriated by the Legislature to the agency to carry out the\npurposes of this title, as provided for in this section.\n(3) In parentheses, for informational purposes, the continuing appropriation during each fiscal year of ten million\ndollars ($10,000,000), adjusted for cost-of-living changes made pursuant to this section.\n(c) The Attorney General shall provide staff support to the agency until the agency has hired its own staff. The\nAttorney General shall be reimbursed by the agency for these services.\n(d) (1) On January 1, 2025, and on January 1 of any odd-numbered year thereafter, the California Privacy\nProtection Agency shall adjust the monetary thresholds in subparagraph (A) of paragraph (1) of subdivision (d) of\nSection 1798.140, subparagraph (A) of paragraph (1) of subdivision (a) of Section 1798.150, subdivision (a) of\nSection 1798.155, Section 1798.199.25, and subdivision (a) of Section 1798.199.90 to reflect any increase in the\nConsumer Price Index.\n(2) The agency shall use the Consumer Price Index (CPI) - California, All Items, All Urban Consumers percentage\nchange from the previous two years’ reports, published by the Department of Industrial Relations, Office of the\nDirector–Research. The agency shall apply the percentage change in the CPI for the August-to-August point in\ntime of the prior two years. The increase in the thresholds shall be rounded to the nearest whole dollar.\n(3) The agency shall post the adjusted monetary thresholds on its internet website no later than January 15 of\nthe year in which the adjustment becomes effective.\n(4) Notwithstanding any other law, adjustments to monetary thresholds and their publication on the agency’s\ninternet website pursuant to this subdivision are not subject to the rulemaking provisions of the Administrative\nProcedure Act (Chapter 3.5 (commencing with Section 11340) of Part 1 of Division 3 of Title 2 of the Government\nCode).\n(Amended by Stats. 2024, Ch. 121, Sec. 14. (AB 3286) Effective January 1, 2025.)"
+        ],
+        "external_reference_status": "1798.81.5 is cited but is outside this PDF's displayed Title 1.81.5."
+      },
+      "must_not": [
+        "Answering from a bare $750 figure without the qualifying breach and notice conditions."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S7-01",
+      "stage": "S7",
+      "title": "Answer a business request about deletion without losing exceptions",
+      "scope": "source_native",
+      "challenge_type": "legal_qa",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.105",
+        "section:1798.130"
+      ],
+      "physical_pages": [
+        2,
+        3,
+        6
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Answer a business request about deletion without losing exceptions",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "question": "A customer asked us to delete their data. Must we always erase everything?",
+        "answer_requirements": [
+          "cite 1798.105(c) duty and downstream notices",
+          "explain 1798.105(d) conditional grounds separately",
+          "state that this PDF does not establish the facts of the customer's case"
+        ]
+      },
+      "must_not": [
+        "Saying deletion is always mandatory or always optional."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    },
+    {
+      "id": "CCPA-S7-02",
+      "stage": "S7",
+      "title": "Review a processor agreement against all five source terms",
+      "scope": "source_native",
+      "challenge_type": "analysis_use",
+      "split": "development",
+      "severity": "critical",
+      "source_refs": [
+        "section:1798.100"
+      ],
+      "physical_pages": [
+        1,
+        2
+      ],
+      "input": {
+        "mode": "inspect_frozen_ingestion_run",
+        "task": "Review a processor agreement against all five source terms",
+        "source_boundary": "The ingestion model receives only the PDF and workflow instructions; expected answers and forbidden claims are evaluator-only."
+      },
+      "expected": {
+        "scenario": "A contract is supplied with purpose and privacy terms, but no notification if the processor cannot comply and no stop/remediate right.",
+        "expected_conclusion": [
+          "test all five 1798.100(d) terms",
+          "identify missing terms (4) and (5)",
+          "cite the exact clause and distinguish missing contract evidence from real-world violation"
+        ]
+      },
+      "must_not": [
+        "Passing the agreement because the first three terms are present."
+      ],
+      "grading": {
+        "method": "source_backed_comparison",
+        "match_policy": "Match complete legal facts and source wording after harmless line-wrap normalization. Check each named node, its kind, parent and complete text; require actual stored edges for graph claims. Keep actors, numbers, AND/OR, exceptions, limitations and dates. Internal IDs and prose style may differ. Do not infer a passing graph from a larger ancestor text alone.",
+        "outcomes": [
+          "pass",
+          "fail",
+          "not_run",
+          "blocked_by_upstream",
+          "needs_review"
+        ],
+        "can_be_release_gate_now": false
+      },
+      "expectation_basis": "source_facts_and_authored_product_rubric",
+      "evaluation_scope": "Only listed expectations are scored. Passing does not certify the whole title or current legal status.",
+      "human_review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "notes": ""
+      }
+    }
+  ]
+}

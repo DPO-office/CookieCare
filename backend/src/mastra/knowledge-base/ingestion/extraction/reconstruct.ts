@@ -1,9 +1,10 @@
 import { hashRevision } from "../schemas/common.js";
 import type { SourceMap } from "./source-map.js";
+import { attachMarginalNotes, isRangePurelyNonSubstantive, isSubstantiveZone } from "./layout-zones.js";
 import { sourceLocations, type CandidateStructure, type CandidateSegment, type SourceLocation } from "./structure-provider.js";
 import type { DetectedReference, ReferenceDetection } from "./reference-detection.js";
 import { repairStructuralDirectory } from "./structural-directory.js";
-import { collectDefinitions, definitionApplies } from "./definitions.js";
+import { collectDefinitions, definitionApplies, termInflections } from "./definitions.js";
 import { parseCitationExpression, citationKey, externalInstrumentForMention } from "./citation-expression.js";
 
 export type RelationshipType =
@@ -15,6 +16,9 @@ export type RelationshipType =
   | "range_reference"
   | "exception_to_exemption"
   | "exception_to"
+  | "conditional_exemption"
+  | "notification_dependent_exemption"
+  | "external_defined_term_reference"
   | "penalty_for"
   | "depends_on"
   | "exempts_from"
@@ -40,6 +44,7 @@ export interface DraftProvision {
   structuralPath: string[];
   inheritedParentIds: string[];
   tableItemRef?: string;
+  marginalNotes?: string[];
   boundaryStatus: "complete" | "cross_chunk" | "uncertain";
   status: "candidate" | "needs_review";
 }
@@ -80,9 +85,17 @@ export interface ReconstructionDraft {
 
 const KINDS = new Set(["article", "paragraph", "point", "table", "footnote", "annex",
   "definition", "rule", "schedule", "recital", "chapter", "section", "illustration",
-  "subsection", "subparagraph", "list_item", "table_row", "part", "title"]);
+  "subsection", "subparagraph", "list_item", "table_row", "part", "title", "division",
+  "explanation", "proviso", "chapeau", "shared_text"]);
 
 function labelOf(segment: CandidateSegment, text: string): string | null {
+  if (segment.code && segment.title && ["chapter", "part", "title", "division"].includes(segment.type ?? "")) {
+    const codeText = text.slice(segment.code.start, segment.code.end).trim();
+    const titleText = text.slice(segment.title.start, segment.title.end).trim();
+    if (codeText && titleText && codeText.toLowerCase() !== titleText.toLowerCase()) {
+      return `${codeText} — ${titleText}`;
+    }
+  }
   const range = segment.code ?? segment.title;
   return range ? text.slice(range.start, range.end).trim() || null : null;
 }
@@ -103,7 +116,7 @@ function uncoveredText(text: string, intervals: Array<{ start: number; end: numb
 }
 
 export interface CitationPath {
-  kind: "article" | "rule" | "section" | "schedule";
+  kind: "article" | "rule" | "section" | "schedule" | "chapter" | "part" | "title" | "division" | "annex";
   number: string;
   subpoints: string[];
 }
@@ -167,8 +180,8 @@ export function provisionIdentity(provision: DraftProvision, byId?: Map<string, 
   }
 
   if (["section", "article", "rule"].includes(kind)) {
-    const named = /^(?:the\s+)?(?:article|rule|section)\s+(\d+[a-z]?|[ivxlcdm]+|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b((?:\s*\([a-z0-9ivxlcdm]+\))*)/iu.exec(leadingText);
-    const numbered = /^(\d+[a-z]?)[\s.)]/iu.exec(leadingText);
+    const named = /^(?:the\s+)?(?:article|rule|section)\s+(\d+(?:\.\d+)*[a-z]?|[ivxlcdm]+|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b((?:\s*\([a-z0-9ivxlcdm]+\))*)/iu.exec(leadingText);
+    const numbered = /^(\d+(?:\.\d+)*[a-z]?)[\s.)]/iu.exec(leadingText);
     const match = named ?? numbered;
     if (match) {
       const rawNumber = match[1]!.toLocaleLowerCase("en");
@@ -189,10 +202,11 @@ export function provisionIdentity(provision: DraftProvision, byId?: Map<string, 
       if (container) {
         const parentId = provisionIdentity(container, byId);
         if (parentId) {
-          const combined = /^(\d+[a-z]?)\.\s*\(([a-z0-9ivxlcdm]+)\)/iu.exec(normalized)
-            ?? /^(\d+[a-z]?)\.\s*\(([a-z0-9ivxlcdm]+)\)/iu.exec(leadingText);
+          const combined = /^(\d+(?:\.\d+)*[a-z]?)\.\s*\(([a-z0-9ivxlcdm]+)\)/iu.exec(normalized)
+            ?? /^(\d+(?:\.\d+)*[a-z]?)\.\s*\(([a-z0-9ivxlcdm]+)\)/iu.exec(leadingText);
           const subMatch = /^\(\s*(\d+[a-z]?|[a-z]|[ivxlcdm]+)\s*\)(?:\s|$)/iu.exec(leadingText)
-            ?? /^(\d+[a-z]?|[a-z]|[ivxlcdm]+)[)](?:\s|$)/iu.exec(leadingText);
+            ?? /^(\d+[a-z]?|[a-z]|[ivxlcdm]+)[)](?:\s|$)/iu.exec(leadingText)
+            ?? (parentId.kind === "article" && parentId.subpoints.length === 0 ? /^(\d+)\.\s+/u.exec(leadingText) : null);
           const thisSubpoint = combined && combined[1] === parentId.number
             ? combined[2]!.toLowerCase() : subMatch ? subMatch[1]!.toLowerCase() : null;
           if (!thisSubpoint) return null;
@@ -216,8 +230,17 @@ export function provisionIdentity(provision: DraftProvision, byId?: Map<string, 
     }
   }
 
-  if (["chapter", "part", "title"].includes(kind)) {
-    return null;
+  if (["chapter", "part", "title", "division", "annex"].includes(kind)) {
+    const named = new RegExp(`^(?:the\\s+)?(?:${kind})\\s+([ivxlcdm]+|\\d+[a-z]?|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\\b`, "iu").exec(normalized)
+      ?? new RegExp(`^(?:the\\s+)?(?:${kind})\\s+([ivxlcdm]+|\\d+[a-z]?|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\\b`, "iu").exec(leadingText);
+    if (named) {
+      const raw = named[1]!.toLowerCase();
+      return {
+        kind: kind as CitationPath["kind"],
+        number: ORDINALS[raw] ?? raw,
+        subpoints: [],
+      };
+    }
   }
 
   return null;
@@ -241,6 +264,12 @@ export function computeCanonicalCitation(
         return `${capOrdinal} Schedule`;
       }
       return `The Schedule`;
+    }
+    if (["chapter", "part", "title", "division", "annex"].includes(identity.kind)) {
+      const numDisplay = /^[ivxlcdm]+$/iu.test(identity.number)
+        ? identity.number.toUpperCase()
+        : identity.number;
+      return `${kindCapitalized} ${numDisplay}`;
     }
     const sub = identity.subpoints.length
       ? `(${identity.subpoints.join(")(")})`
@@ -497,10 +526,6 @@ function determineRelationType(
   isRelative: boolean,
   isDefinedTerm: boolean
 ): RelationshipType {
-  if (isExternal) return "external_reference";
-  if (isRange) return "range_reference";
-  if (isDefinedTerm) return "defined_term";
-
   const ownerText = (owner?.text ?? "").toLowerCase();
   const ownerLabel = (owner?.canonicalCitation ?? owner?.label ?? "").toLowerCase();
   const mentionText = mention.toLowerCase();
@@ -510,15 +535,34 @@ function determineRelationType(
     ? ownerText.slice(Math.max(0, mentionIndex - 80), Math.min(ownerText.length, mentionIndex + mentionText.length + 80))
     : ownerText;
 
+  if (isExternal) {
+    if (ownerLabel.includes("explanation") && (surroundingContext.includes("section 3") || surroundingContext.includes("means") || surroundingContext.includes("clause"))) {
+      return "external_defined_term_reference";
+    }
+    return "external_reference";
+  }
+  if (isRange) return "range_reference";
+  if (isDefinedTerm) return "defined_term";
+
   if (surroundingContext.includes("in accordance with") || surroundingContext.includes("manner referred to")) {
     return "explicit_procedural_reference";
   }
 
-  if (surroundingContext.includes("except") || surroundingContext.includes("exception")) {
+  const precedingText = owner && mentionIndex >= 0 ? ownerText.slice(Math.max(0, mentionIndex - 50), mentionIndex) : "";
+  const isExceptionObject = /(?:except|other than|save as provided in|with the exception of)(?:\s+(?:the\s+)?provisions?\s+of)?\s*$/iu.test(precedingText);
+
+  if (isExceptionObject) {
     if (ownerLabel.includes("17") || ownerText.includes("shall not apply") || ownerText.includes("exempt")) {
       return "exception_to_exemption";
     }
     return "exception_to";
+  }
+
+  if (ownerText.includes("shall not apply") || ownerText.includes("exempt")) {
+    if (/notif(?:y|ied|ication)\b/iu.test(surroundingContext) || /notif(?:y|ied|ication)\b/iu.test(ownerText)) {
+      return "notification_dependent_exemption";
+    }
+    return "conditional_exemption";
   }
 
   if (isRelative) return "explicit_relative_reference";
@@ -553,16 +597,20 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
   const scheduleCaptions = map.spans.filter(span => span.parentRef &&
     tableRanges.some(table => table.itemRef === span.parentRef) &&
     /\bschedule\b/iu.test(map.text.slice(span.start, span.end)));
-  const structuralSegments = candidate.segments.filter(segment => !tableRanges.some(table =>
-    segment.span.start >= table.start && segment.span.end <= table.end &&
-    /^(?:table|table[-_]?row|table[-_]?header[-_]?row|penalty[-_]?table[-_]?row|list_point|point|unknown)$/iu.test(segment.type ?? "")) &&
-    !scheduleCaptions.some(caption => /^(?:schedule|annex|schedule[-_]?heading)$/iu.test(segment.type ?? "") &&
-      segment.span.start <= caption.start && segment.span.end >= caption.end));
+  const structuralSegments = candidate.segments.filter(segment => {
+    if (segment.type === "reference" || segment.type === "statute_citation_fragment" || segment.originalType === "reference") return false;
+    if (tableRanges.some(table =>
+      segment.span.start >= table.start && segment.span.end <= table.end &&
+      /^(?:table|table[-_]?row|table[-_]?header[-_]?row|penalty[-_]?table[-_]?row|list_point|point|unknown)$/iu.test(segment.type ?? ""))) return false;
+    if (scheduleCaptions.some(caption => /^(?:schedule|annex|schedule[-_]?heading)$/iu.test(segment.type ?? "") &&
+      segment.span.start <= caption.start && segment.span.end >= caption.end)) return false;
+    return true;
+  });
   const bySegment = new Map(structuralSegments.map(segment => [segment.id,
-    hashRevision({ sourceVersionId, textHash: map.textHash, kind: segment.kind,
-      type: segment.type, category: segment.category, start: segment.span.start, end: segment.span.end })]));
+    hashRevision({ sourceVersionId, textHash: map.textHash, kind: segment.kind ?? "unit",
+      type: segment.type ?? "unknown", category: segment.category ?? null, start: segment.span.start, end: segment.span.end })]));
   const provisions: DraftProvision[] = structuralSegments.map(segment => {
-    const sourceSpans = segment.sourceSpans;
+    const sourceSpans = segment.sourceSpans ?? sourceLocations(map, segment.span);
     const hasLocation = sourceSpans.length > 0 && sourceSpans.every(location => location.physicalPage !== null);
     const rawKind = (segment.type ?? "").toLowerCase();
     let kind = KINDS.has(rawKind) ? rawKind : "unknown";
@@ -571,7 +619,11 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
       else if (rawKind.includes("table") || rawKind.includes("header")) kind = "table";
       else if (rawKind.includes("clause") || rawKind.includes("point") || rawKind.includes("list")) kind = "point";
       else if (rawKind.includes("sub-section") || rawKind.includes("subsection")) kind = "subsection";
-      else if (rawKind.includes("explanation") || rawKind.includes("para")) kind = "paragraph";
+      else if (rawKind.includes("explanation")) kind = "explanation";
+      else if (rawKind.includes("proviso")) kind = "proviso";
+      else if (rawKind.includes("shared_text") || rawKind.includes("sharedtext") || rawKind.includes("shared_consequence") || rawKind.includes("shared_condition")) kind = "shared_text";
+      else if (rawKind.includes("chapeau")) kind = "chapeau";
+      else if (rawKind.includes("para")) kind = "paragraph";
       else if (rawKind.includes("sec")) kind = "section";
       else if (rawKind.includes("illus")) kind = "illustration";
     }
@@ -654,7 +706,33 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
 
   // Attach orphan provisions with parentId: null (illustrations, footnotes, points, etc.)
   for (const provision of provisions) {
-    if (provision.parentId === null && ["illustration", "footnote", "point", "list_item", "subparagraph", "subsection", "table_row"].includes(provision.kind)) {
+    if (provision.parentId === null && ["illustration", "footnote", "point", "list_item", "subparagraph", "subsection", "table_row", "explanation", "proviso", "shared_text", "chapeau"].includes(provision.kind)) {
+      if (provision.kind === "explanation" || /^\s*explanation\b/iu.test(provision.text)) {
+        if (/\bfor the purposes? of this (?:clause|point|sub-?clause)\b/iu.test(provision.text)) {
+          const sibling = provisions
+            .filter(p => p.id !== provision.id && p.start < provision.start && ["point", "subparagraph", "list_item"].includes(p.kind))
+            .sort((a, b) => b.start - a.start)[0];
+          if (sibling) { provision.parentId = sibling.id; continue; }
+        }
+        if (/\bfor the purpose[s]? of this sub-?section\b/iu.test(provision.text)) {
+          const sub = provisions
+            .filter(p => p.id !== provision.id && p.start <= provision.start && p.end >= provision.end && ["subsection", "paragraph"].includes(p.kind))
+            .sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
+          if (sub) { provision.parentId = sub.id; continue; }
+        }
+      }
+      if (provision.kind === "illustration") {
+        const precedingExplanation = provisions
+          .filter(p => p.id !== provision.id && p.end <= provision.start && p.start >= provision.start - 400 && (p.kind === "explanation" || /^\s*explanation\b/iu.test(p.text)))
+          .sort((a, b) => b.end - a.end)[0];
+        if (precedingExplanation?.parentId && !/^\s*(?:illustrations?\.?\s*)?\(\s*[ivxlcdm\d]+\s*\)/iu.test(provision.text)) {
+          const clauseParent = provisions.find(p => p.id === precedingExplanation.parentId);
+          if (clauseParent && ["point", "subparagraph", "list_item"].includes(clauseParent.kind)) {
+            provision.parentId = clauseParent.id;
+            continue;
+          }
+        }
+      }
       const container = containingProvision(provision.start, provision.end, provisions.filter(p => p.id !== provision.id));
       if (container) {
         provision.parentId = container.id;
@@ -704,21 +782,45 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
   for (const provision of provisions) {
     const parent = provision.parentId ? byId.get(provision.parentId) : null;
     if (parent && !provisionIdentity(provision, byId)) {
-      if (/^\s*explanation\b/iu.test(provision.text)) provision.canonicalCitation = `${parent.canonicalCitation} explanation`;
+      if (provision.kind === "explanation" || /^\s*explanation\b/iu.test(provision.text)) {
+        const num = /^\s*explanation\s*(\d+|[ivxlcdm]+)\b/iu.exec(provision.text)?.[1];
+        provision.canonicalCitation = `${parent.canonicalCitation} explanation${num ? ` ${num.toLowerCase()}` : ""}`;
+      }
+      if (provision.kind === "proviso" || /^\s*provided\b/iu.test(provision.text)) {
+        const num = /^\s*provided\s+(?:further|also)\b/iu.test(provision.text) ? " 2" : "";
+        provision.canonicalCitation = `${parent.canonicalCitation} proviso${num}`;
+      }
       if (provision.kind === "illustration") {
-        const marker = /^\s*\(\s*([IVXLCDM]+)\s*\)/u.exec(provision.text)?.[1];
+        const marker = /^\s*(?:illustrations?\.?\s*)?\(\s*([IVXLCDM]+|\d+)\s*\)/iu.exec(provision.text)?.[1];
         provision.canonicalCitation = `${parent.canonicalCitation} illustration${marker ? ` ${marker}` : ""}`;
+      }
+      if (provision.kind === "shared_text") {
+        if (/consequence|accuracy|ensure|penalty|liable/iu.test(provision.text)) {
+          provision.canonicalCitation = `${parent.canonicalCitation} shared consequence`;
+        } else if (/time|period|prescribed|date|within/iu.test(provision.text)) {
+          provision.canonicalCitation = `${parent.canonicalCitation} shared time condition`;
+        } else {
+          provision.canonicalCitation = `${parent.canonicalCitation} shared text`;
+        }
       }
     }
   }
   structuralPaths(provisions);
+  attachMarginalNotes(map, provisions);
 
-  const unresolvedText = uncoveredText(map.text, provisions.map(provision => ({ start: provision.start, end: provision.end })));
+  const nonSubstantiveIntervals = map.spans
+    .filter(span => !isSubstantiveZone(span.layoutZone))
+    .map(span => ({ start: span.start, end: span.end }));
+  const unresolvedText = uncoveredText(map.text, [
+    ...provisions.map(provision => ({ start: provision.start, end: provision.end })),
+    ...nonSubstantiveIntervals,
+  ]);
   for (const gap of unresolvedText) warnings.push(`Unclassified source text at ${gap.start}-${gap.end}`);
   const relationships: DraftRelationship[] = [];
   const addRelationship = (occurrence: { id: string; start: number; end: number; exactMention: string;
     targetHint?: string | null; externalInstrumentHint?: string | null }, detectedBy: "model" | "source_detector",
     directTargetIds: string[] = [], resolutionStatus?: string, address?: CitationPath) => {
+    if (isRangePurelyNonSubstantive(map, occurrence.start, occurrence.end)) return;
     const owner = containingProvision(occurrence.start, occurrence.end, provisions);
     if (owner && occurrence.start === owner.start && /^(?:section|article|rule)\s+\w+$/iu.test(occurrence.exactMention.trim()) &&
       citationKey(occurrence.exactMention) === citationKey(owner.canonicalCitation ?? "")) return;
@@ -831,8 +933,11 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
     const terms = [...new Set(definitions.map(definition => definition.term))]
       .sort((a, b) => b.length - a.length);
     for (const term of terms) {
-      const escaped = term.split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+");
-      const regex = new RegExp(`\\b${escaped}\\b`, "giu");
+      const allVariants = termInflections(term);
+      const escapedVariants = allVariants.map(v =>
+        v.split(/\s+/).map(w => w.replace(/[.*+?^$\{}()|[\]\\]/g, "\\$&")).join("\\s+")
+      );
+      const regex = new RegExp(`\\b(?:${escapedVariants.join("|")})\\b`, "giu");
       for (const provision of provisions) {
         for (const match of provision.text.matchAll(regex)) {
           const start = provision.start + match.index!;
@@ -841,7 +946,11 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
           if (!owner || owner.id !== provision.id || definitions.some(d => start >= d.start && start < d.end)) continue;
           const occupied = occupiedByOwner.get(owner.id) ?? [];
           if (occupied.some(span => span.start < end && start < span.end)) continue;
-          let matches = definitions.filter(d => d.provisionId !== owner.id && d.term.toLowerCase() === term.toLowerCase() && definitionApplies(d, owner, byId));
+          let matches = definitions.filter(d =>
+            d.provisionId !== owner.id &&
+            allVariants.some(v => v.toLowerCase() === d.term.toLowerCase()) &&
+            definitionApplies(d, owner, byId)
+          );
           // Prefer the narrowest applicable scope, retaining ties as ambiguity.
           const scopeSize = (d: typeof definitions[number]) => d.scopeProvisionId ?
             (byId.get(d.scopeProvisionId)!.end - byId.get(d.scopeProvisionId)!.start) : Infinity;

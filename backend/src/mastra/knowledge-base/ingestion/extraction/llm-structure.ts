@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { projectDoclingChunks, type NativeChunk } from "./docling-chunk-plan.js";
 import { reconcileBoundaries } from "./reconcile-boundaries.js";
+import { computeAncestorBreadcrumbAt } from "./document-grammar.js";
 import { repairStructuralDirectory } from "./structural-directory.js";
 import type { SourceMap } from "./source-map.js";
 import { LLM_MAX_INPUT_CHARACTERS, LLM_TARGET_INPUT_CHARACTERS, STRUCTURE_PROMPT_VERSION, assertProviderInput,
@@ -80,7 +81,7 @@ export class StructureGroundingError extends Error {
   constructor(message: string) { super(message); this.name = "StructureGroundingError"; }
 }
 
-class StructureMalformedOutputError extends Error {
+export class StructureMalformedOutputError extends Error {
   constructor(message: string) { super(message); this.name = "StructureMalformedOutputError"; }
 }
 
@@ -92,6 +93,7 @@ class StructureCoverageError extends Error {
 }
 
 function isPublicationFurniture(unit: SourceUnit): boolean {
+  if (unit.layoutZone && unit.layoutZone !== "main") return true;
   return unit.blockType === "page_header" || unit.blockType === "page_footer" ||
     /^xxxGID[HE]xxx\b/iu.test(unit.text.trimStart()) ||
     /Separate paging is given to this Part in order that it may be filed as a separate compilation/iu
@@ -313,6 +315,7 @@ schedules, annexes, tables, footnotes, exceptions and explanatory material. If a
 fit a known legal type, return its observed type or unknown and preserve it for review; never force it
 into a familiar category. Preserve parent relationships because child wording may inherit conditions.
 Report every explicit reference mention, including relative references and references to external laws.
+When chunk.headingContext is present, use its active ancestor breadcrumb (e.g. Chapter > Section > Subsection) and Grammar profile to assign the exact structural type (subsection, paragraph, point, subparagraph) and parentHint for numbered items whose parent started before this chunk.
 Use startsBeforeChunk, continuesAfterChunk, parentHint, targetHint and resolutionStatus when a
 structure or reference crosses the supplied core range. Unknown or later targets are valid pending results.
 Record unclassified material in unresolvedItems. The output must follow the supplied JSON schema.`;
@@ -327,7 +330,7 @@ function shouldSplitFailedChunk(error: unknown): boolean {
     error instanceof z.ZodError) return true;
   if (!(error instanceof Error)) return false;
   return error.name === "TimeoutError" ||
-    /timed?\s*out|timeout|HTTP\s+(408|413)|context length|too many tokens|request.{0,20}too large/i.test(error.message);
+    /invalid JSON|JSON|timed?\s*out|timeout|HTTP\s+(408|413)|context length|too many tokens|request.{0,20}too large/i.test(error.message);
 }
 
 function mergeCandidates(map: SourceMap, configuration: StructureProviderConfig,
@@ -454,11 +457,12 @@ export class LlmStructureProvider implements StructureProvider {
             durationMs: 0, error: null, childChunkIds: [] });
           return;
         }
-        if (cached?.incomplete && chunk.coreSourceIds.length > 1 && cached.candidate.segments.length &&
+        if (cached?.incomplete && chunk.coreSourceIds.length > 1 &&
             cached.sourceTextHash === input.textHash && cached.chunk.inputHash === chunk.inputHash &&
             cached.configurationHash === this.configuration.configurationHash &&
             cached.coverageValidatorVersion === COVERAGE_VALIDATOR_VERSION) {
-          throw new StructureCoverageError(uncoveredCoreUnits(input.sourceMap, chunk, cached.candidate), cached.candidate);
+          const missing = cached.missingSourceIds?.length ? cached.missingSourceIds : uncoveredCoreUnits(input.sourceMap, chunk, cached.candidate);
+          if (missing.length) throw new StructureCoverageError(missing, cached.candidate);
         }
         const coreUnits = (chunk.sourceUnits ?? structureSourceUnits(input.sourceMap))
           .filter(unit => chunk.coreSourceIds.includes(unit.id));
@@ -531,10 +535,14 @@ export class LlmStructureProvider implements StructureProvider {
             const unit = units.find(value => value.id === id)!;
             const ordered = [...units].sort((a, b) => a.start - b.start);
             const position = ordered.findIndex(value => value.id === id);
-            const make = (before: typeof units, after: typeof units) => materialize(input.sourceMap,
-              `${chunk.chunkId}u${index + 1}`, [unit], before, after, fixedInputCharacters, chunk.headingContext, true);
+            const unitCrumbs = computeAncestorBreadcrumbAt(input.sourceMap, unit.start);
+            const retryHeadingContext = [...new Set([...(chunk.headingContext ?? []), ...unitCrumbs])];
+            const effectiveHeadingCtx = retryHeadingContext.length ? retryHeadingContext : chunk.headingContext;
+            const make = (before: typeof units, after: typeof units, hCtx = effectiveHeadingCtx) => materialize(input.sourceMap,
+              `${chunk.chunkId}u${index + 1}`, [unit], before, after, fixedInputCharacters, hCtx, true);
             let child = make(position > 0 ? [ordered[position - 1]!] : [], ordered[position + 1] ? [ordered[position + 1]!] : []);
             if (child.assembledInputCharacters > LLM_MAX_INPUT_CHARACTERS) child = make([], []);
+            if (child.assembledInputCharacters > LLM_MAX_INPUT_CHARACTERS) child = make([], [], undefined);
             return child;
           });
           await saveAttempt({ attemptId: `${chunk.chunkId}:partial:${attempts.length + 1}`, chunk,

@@ -1,5 +1,23 @@
 import { DigitalOceanInferenceClient } from "../../../../llm/provider/digitalocean-client.js";
-import { type LlmStructureClient, type LlmStructureCompletion } from "./llm-structure.js";
+import { type LlmStructureClient, type LlmStructureCompletion, StructureMalformedOutputError } from "./llm-structure.js";
+
+function parseJsonOutput(text: string): unknown {
+  const trimmed = text.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    if (fenceMatch) {
+      try { return JSON.parse(fenceMatch[1]!.trim()); } catch { /* continue */ }
+    }
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start !== -1 && end > start) {
+      try { return JSON.parse(trimmed.slice(start, end + 1)); } catch { /* continue */ }
+    }
+    throw new StructureMalformedOutputError("DigitalOcean returned invalid JSON for structure extraction");
+  }
+}
 
 export class DigitalOceanStructureClient implements LlmStructureClient {
   constructor(private readonly client = new DigitalOceanInferenceClient()) {}
@@ -18,9 +36,7 @@ export class DigitalOceanStructureClient implements LlmStructureClient {
       return { output: null, rawResponse: response.rawResponse, usage: response.usage,
         finishReason: response.finishReason };
     }
-    let output: unknown;
-    try { output = JSON.parse(response.text); }
-    catch { throw new Error("DigitalOcean returned invalid JSON for structure extraction"); }
+    const output = parseJsonOutput(response.text);
     return { output, rawResponse: response.rawResponse, usage: response.usage,
       finishReason: response.finishReason };
   }

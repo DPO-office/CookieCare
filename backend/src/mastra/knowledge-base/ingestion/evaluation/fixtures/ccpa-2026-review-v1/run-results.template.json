@@ -1,0 +1,176 @@
+{
+  "dataset_id": "ccpa-civ-title-1-81-5-2026-review-v1",
+  "source_sha256": "c31e525e2e191a549f42384e9e6108d357a7fdf4c957f1469fc8aa9ebe735f9b",
+  "run_id": null,
+  "provider": null,
+  "model": null,
+  "prompt_version": null,
+  "pipeline_version": null,
+  "reasoning_setting": null,
+  "model_assignments": [],
+  "artifacts": {},
+  "results": [
+    {
+      "case_id": "CCPA-S1-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S1-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S2-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S2-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S2-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S3-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S3-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S3-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S3-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S3-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S4-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S4-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S5-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S5-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S6-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S6-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S7-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "CCPA-S7-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    }
+  ]
+}

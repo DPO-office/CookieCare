@@ -1,5 +1,5 @@
 export interface CitationAddress {
-  kind: "article" | "rule" | "section" | "schedule";
+  kind: "article" | "rule" | "section" | "schedule" | "chapter" | "part" | "title" | "division" | "annex";
   number: string;
   subpoints: string[];
 }
@@ -13,20 +13,24 @@ export function parseCitationExpression(value: string): CitationAddress[] {
   const text = citationKey(value), result: CitationAddress[] = [];
   const schedule = /\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|the) schedule\b/u.exec(text);
   if (schedule) result.push({ kind: "schedule", number: ordinals[schedule[1]!] ?? "1", subpoints: [] });
-  const nested = /\b(?:clauses?|points?|subparagraphs?)\s+(\([a-z0-9]+\)(?:\s*(?:,|and|or)\s*\([a-z0-9]+\))*)\s+of\s+(?:sub-?section|paragraph)\s*\(([a-z0-9]+)\)\s+of\s+(section|article|rule)\s+(\d+[a-z]?)/u.exec(text);
+  const nested = /\b(?:clauses?|points?|subparagraphs?)\s+(\([a-z0-9]+\)(?:\s*(?:,|and|or)\s*\([a-z0-9]+\))*)\s+of\s+(?:sub-?section|paragraph)\s*\(([a-z0-9]+)\)\s+of\s+(section|article|rule)\s+(\d+(?:\.\d+)*[a-z]?)/u.exec(text);
   if (nested) return [...nested[1]!.matchAll(/\(([a-z0-9]+)\)/gu)].map(m => ({
     kind: nested[3] as CitationAddress["kind"], number: nested[4]!, subpoints: [nested[2]!, m[1]!] }));
-  const compound = /\b(?:sub-?sections?|clauses?|paragraphs?|points?)\s+(\([a-z0-9]+\)(?:\s*(?:,|and|or)\s*\([a-z0-9]+\))*)\s+of\s+(section|article|rule)s?\s+(\d+[a-z]?)/u.exec(text);
+  const compound = /\b(?:sub-?sections?|clauses?|paragraphs?|points?)\s+(\([a-z0-9]+\)(?:\s*(?:,|and|or)\s*\([a-z0-9]+\))*)\s+of\s+(section|article|rule)s?\s+(\d+(?:\.\d+)*[a-z]?)/u.exec(text);
   if (compound) return [...compound[1]!.matchAll(/\(([a-z0-9]+)\)/gu)].map(m => ({
     kind: compound[2] as CitationAddress["kind"], number: compound[3]!, subpoints: [m[1]!] }));
-  const number = "(?:\\d+[a-z]?|[ivxlcdm]+|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)";
+  const number = "(?:\\d+(?:\\.\\d+)*[a-z]?|[ivxlcdm]+|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)";
   const address = `${number}\\b(?:\\s*\\([a-z0-9]+\\))*`;
-  const expression = new RegExp(`(?<!sub-)\\b(article|rule|section|schedule)s?\\s+(${address}(?:\\s*(?:,|and|or)\\s*${address})*)`, "gu");
+  const expression = new RegExp(`(?<!sub-)\\b(article|rule|section|schedule|chapter|part|title|division|annex)s?\\s+(${address}(?:\\s*(?:,|and|or)\\s*${address})*)`, "giu");
   for (const match of text.matchAll(expression)) {
+    const rawKind = match[1]!.toLowerCase() as CitationAddress["kind"];
     for (const part of match[2]!.split(/\s*(?:,|\band\b|\bor\b)\s*/u)) {
-      const first = new RegExp(`^(${number})\\b`, "u").exec(part.trim());
-      if (first) result.push({ kind: match[1] as CitationAddress["kind"],
-        number: ordinals[first[1]!] ?? first[1]!, subpoints: [...part.matchAll(/\(([a-z0-9]+)\)/gu)].map(m => m[1]!) });
+      const first = new RegExp(`^(${number})\\b`, "iu").exec(part.trim());
+      if (first) {
+        const rawNum = first[1]!.toLowerCase();
+        result.push({ kind: rawKind,
+          number: ordinals[rawNum] ?? rawNum, subpoints: [...part.matchAll(/\(([a-z0-9]+)\)/gu)].map(m => m[1]!.toLowerCase()) });
+      }
     }
   }
   return [...new Map(result.map(item => [JSON.stringify(item), item])).values()];

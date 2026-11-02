@@ -23,7 +23,8 @@ const evaluateCaseStep = createStep({
   outputSchema: reviewCaseOutputSchema,
   execute: async ({ inputData }) => {
     const dpdpa = inputData.caseId.startsWith("DPDPA-");
-    const fixture = dpdpa ? "dpdpa-2023-review-v1" : "gdpr-review-v1";
+    const ccpa = inputData.caseId.startsWith("CCPA-");
+    const fixture = ccpa ? "ccpa-2026-review-v1" : dpdpa ? "dpdpa-2023-review-v1" : "gdpr-review-v1";
     const backendRoot = [process.env.COOKIECARE_BACKEND_ROOT, process.cwd(), join(process.cwd(), "backend"),
       fileURLToPath(new URL("../../", import.meta.url)),
       fileURLToPath(new URL("../../../../../", import.meta.url))].filter((value): value is string => !!value).find(candidate =>
@@ -36,7 +37,7 @@ const evaluateCaseStep = createStep({
     if (!row) throw new Error(`Unknown ${fixture} evaluation case: ${inputData.caseId}`);
     if (inputData.sourcePdfSha256 && inputData.sourcePdfSha256 !== dataset.source.sha256)
       throw new Error("Case source PDF identity differs from the frozen dataset");
-    const runPath = process.env.KB_EVAL_RUN_PATH ?? (dpdpa ? join(base, "run-results.template.json") :
+    const runPath = process.env.KB_EVAL_RUN_PATH ?? (dpdpa || ccpa ? join(base, "run-results.template.json") :
       join(backendRoot, "evaluation-runs", "gdpr-oj-2016-en-review-v1",
         "docling-1.41.0", "run-results.source-stage.json"));
     const pdfPath = process.env.KB_EVAL_PDF_PATH ?? dataset.source.local_path;
@@ -63,4 +64,8 @@ export const reviewCaseWorkflow = createWorkflow({
 
 export const reviewDpdpaCaseWorkflow = createWorkflow({
   id: "kb-dpdpa-review-case-v1", inputSchema: reviewCaseInputSchema, outputSchema: reviewCaseOutputSchema,
+}).then(evaluateCaseStep).commit();
+
+export const reviewCcpaCaseWorkflow = createWorkflow({
+  id: "kb-ccpa-review-case-v1", inputSchema: reviewCaseInputSchema, outputSchema: reviewCaseOutputSchema,
 }).then(evaluateCaseStep).commit();

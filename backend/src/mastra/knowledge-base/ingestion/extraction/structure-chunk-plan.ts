@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 import type { SourceMap } from "./source-map.js";
+import type { LayoutZone } from "./layout-zones.js";
+import { computeAncestorBreadcrumbAt, discoverContainerSkeleton, inferDocumentGrammar } from "./document-grammar.js";
 
 export interface StructureSourceUnit {
   id: string;
@@ -18,6 +20,8 @@ export interface StructureSourceUnit {
   rowSpan?: number;
   columnSpan?: number;
   isHeader?: boolean;
+  layoutZone?: LayoutZone;
+  columnIndex?: number;
   fragmentOf?: string;
   continuesBefore?: boolean;
   continuesAfter?: boolean;
@@ -56,7 +60,8 @@ export function structureSourceUnits(map: SourceMap): StructureSourceUnit[] {
     parentRef: span.parentRef, blockType: span.blockType, marker: span.marker,
     enumerated: span.enumerated, headingLevel: span.headingLevel,
     physicalPage: span.page, row: span.row, column: span.column,
-    rowSpan: span.rowSpan, columnSpan: span.columnSpan, isHeader: span.isHeader }));
+    rowSpan: span.rowSpan, columnSpan: span.columnSpan, isHeader: span.isHeader,
+    layoutZone: span.layoutZone, columnIndex: span.columnIndex }));
 }
 
 export function structureChunkPrompt(map: SourceMap, chunk: Omit<StructureChunk,
@@ -110,7 +115,7 @@ function boundaryScore(current: StructureSourceUnit, next: StructureSourceUnit |
   const beginning = next.text.trimStart().slice(0, 120);
   if (/^(CHAPTER|TITLE|PART)\b/i.test(beginning)) return 550;
   if (/^(SECTION|ANNEX|SCHEDULE)\b(?:\s+(?:\d+[a-z]?|[IVXLC]+|FIRST|SECOND|THIRD|FOURTH|FIFTH))?/i
-      .test(beginning)) return 500;
+      .test(beginning) || /^\d+(?:\.\d+)+\.\s/.test(beginning)) return 500;
   if (/^(?:Article|Rule)\s+\d+[a-z]?\b/i.test(beginning)) return 450;
   if (/^\(\d+\)\s/.test(beginning)) return 400;
   if (/^(Whereas|Having regard|HAS ADOPTED)\b/i.test(beginning)) return 350;
@@ -124,13 +129,23 @@ export function planStructureChunks(map: SourceMap, options: { targetInputCharac
   if (target < 1 || hard < target || fixed >= target) throw new Error("Invalid structure chunk character budget");
   const units = structureSourceUnits(map);
   if (!units.length) throw new Error("Cannot plan structure extraction for an empty source map");
+  const outline = discoverContainerSkeleton(map);
+  const grammar = inferDocumentGrammar(map);
+  const crumbsFor = (offset: number): string[] | undefined => {
+    const crumbs = computeAncestorBreadcrumbAt(map, offset, { outline, grammar });
+    return crumbs.length ? crumbs : undefined;
+  };
   const cores: StructureSourceUnit[][] = [];
   for (let cursor = 0; cursor < units.length;) {
     const candidates: Array<{ end: number; characters: number; score: number }> = [];
     let lastWithinHard = cursor;
+    let headingCtx = crumbsFor(units[cursor]!.start);
+    if (headingCtx && materialize(map, "chunk_001", [units[cursor]!], [], [], fixed, headingCtx).assembledInputCharacters > hard) {
+      headingCtx = undefined;
+    }
     for (let end = cursor + 1; end <= units.length; end++) {
       const candidate = materialize(map, `chunk_${String(cores.length + 1).padStart(3, "0")}`,
-        units.slice(cursor, end), [], [], fixed);
+        units.slice(cursor, end), [], [], fixed, headingCtx);
       if (candidate.assembledInputCharacters > hard) break;
       lastWithinHard = end;
       if (candidate.assembledInputCharacters >= target || end === units.length) candidates.push({ end,
@@ -149,18 +164,22 @@ export function planStructureChunks(map: SourceMap, options: { targetInputCharac
   }
   const chunks = cores.map((core, index) => {
     const chunkId = `chunk_${String(index + 1).padStart(3, "0")}`;
+    let headingCtx = crumbsFor(core[0]!.start);
+    if (headingCtx && materialize(map, chunkId, core, [], [], fixed, headingCtx).assembledInputCharacters > hard) {
+      headingCtx = undefined;
+    }
     let before: StructureSourceUnit[] = [], after: StructureSourceUnit[] = [];
     const previous = index ? cores[index - 1]!.at(-1)! : null;
     const next = index + 1 < cores.length ? cores[index + 1]![0]! : null;
     if (previous) {
-      const candidate = materialize(map, chunkId, core, [previous], [], fixed);
+      const candidate = materialize(map, chunkId, core, [previous], [], fixed, headingCtx);
       if (candidate.assembledInputCharacters <= hard) before = [previous];
     }
     if (next) {
-      const candidate = materialize(map, chunkId, core, before, [next], fixed);
+      const candidate = materialize(map, chunkId, core, before, [next], fixed, headingCtx);
       if (candidate.assembledInputCharacters <= hard) after = [next];
     }
-    const chunk = materialize(map, chunkId, core, before, after, fixed);
+    const chunk = materialize(map, chunkId, core, before, after, fixed, headingCtx);
     if (chunk.assembledInputCharacters > hard) throw new Error(`Chunk ${chunkId} exceeds the hard input ceiling`);
     return chunk;
   });
@@ -184,16 +203,25 @@ export function splitStructureChunk(map: SourceMap, chunk: StructureChunk,
     }
   }
   const leftCore = core.slice(0, middle), rightCore = core.slice(middle);
+  const mergeHeadingCtx = (offset: number): string[] | undefined => {
+    const dynamic = computeAncestorBreadcrumbAt(map, offset);
+    const merged = [...new Set([...(chunk.headingContext ?? []), ...dynamic])];
+    return merged.length ? merged : undefined;
+  };
   const fit = (id: string, owned: StructureSourceUnit[], before: StructureSourceUnit[],
     after: StructureSourceUnit[]) => {
-    const make = (b: StructureSourceUnit[], a: StructureSourceUnit[]) => materialize(map, id,
-      owned, b, a, fixedInputCharacters, chunk.headingContext, !!chunk.sourceUnits);
+    const ctx = mergeHeadingCtx(owned[0]!.start);
+    const make = (b: StructureSourceUnit[], a: StructureSourceUnit[], h: string[] | undefined = ctx) => materialize(map, id,
+      owned, b, a, fixedInputCharacters, h, !!chunk.sourceUnits);
     let result = make(before, after);
     if (result.assembledInputCharacters > hardInputCharacters && after.length) {
       result = make(before, []);
     }
     if (result.assembledInputCharacters > hardInputCharacters && before.length) {
       result = make([], []);
+    }
+    if (result.assembledInputCharacters > hardInputCharacters && ctx) {
+      result = make([], [], undefined);
     }
     if (result.assembledInputCharacters > hardInputCharacters) {
       throw new Error(`Split chunk ${id} exceeds the hard input ceiling`);

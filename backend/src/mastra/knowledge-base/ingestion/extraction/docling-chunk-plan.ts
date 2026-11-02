@@ -3,6 +3,8 @@ import path from "node:path";
 import { chunkWithDoclingService, doclingServiceConfigured } from "../../../../services/docling-client.js";
 import type { SourceMap } from "./source-map.js";
 import { materialize, type StructureChunkPlan, type StructureSourceUnit } from "./structure-chunk-plan.js";
+import { computeAncestorBreadcrumbAt, discoverContainerSkeleton, inferDocumentGrammar } from "./document-grammar.js";
+import { isSubstantiveZone } from "./layout-zones.js";
 import { LLM_MAX_INPUT_CHARACTERS, LLM_TARGET_INPUT_CHARACTERS } from "./structure-provider.js";
 
 export interface NativeChunk { text: string; docItems: string[]; headings?: string[] }
@@ -58,6 +60,7 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
           headingLevel: span.headingLevel } : {}),
         row: span.row, column: span.column, rowSpan: span.rowSpan,
         columnSpan: span.columnSpan, isHeader: span.isHeader,
+        layoutZone: span.layoutZone, columnIndex: span.columnIndex,
         group: effectiveOwner === undefined ? "unmapped" : `native:${effectiveOwner}`,
         ...(span.end - span.start > 2000 ? { fragmentOf: `src:${index}`,
           continuesBefore: start > span.start, continuesAfter: end < span.end } : {}),
@@ -65,10 +68,14 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
       start = end;
     }
   });
+  const outline = discoverContainerSkeleton(map);
+  const grammar = inferDocumentGrammar(map);
   const chunks: StructureChunkPlan["chunks"] = [];
   for (let cursor = 0; cursor < units.length;) {
     const start = cursor, group = units[start]!.group;
-    const headings = units[start]!.headings;
+    const crumbs = computeAncestorBreadcrumbAt(map, units[start]!.start, { outline, grammar });
+    const mergedHeadings = [...new Set([...units[start]!.headings, ...crumbs])];
+    const headings = mergedHeadings.length ? mergedHeadings : units[start]!.headings;
     const id = `chunk_${String(chunks.length + 1).padStart(3, "0")}`;
     const make = (end: number, before: StructureSourceUnit[] = [], after: StructureSourceUnit[] = []) =>
       materialize(map, id, units.slice(start, end), before, after, fixed, headings, true);
@@ -93,7 +100,7 @@ export function projectDoclingChunks(map: SourceMap, native: NativeChunk[], fixe
       span.start < units[cursor - 1]!.end && span.end > units[start]!.start).map(span => span.itemRef));
     const headerSpans = map.spans.filter(span => span.isHeader && tableRefs.has(span.itemRef));
     const headers = units.filter(unit => headerSpans.some(span => unit.start >= span.start && unit.end <= span.end));
-    const substantive = (unit: StructureSourceUnit) => !["page_header", "page_footer"].includes(unit.blockType ?? "");
+    const substantive = (unit: StructureSourceUnit) => isSubstantiveZone(unit.layoutZone) && !["page_header", "page_footer"].includes(unit.blockType ?? "");
     const preceding = units.slice(0, start).filter(substantive).slice(-2);
     const following = units.slice(cursor).filter(substantive).slice(0, 2);
     const before = [...new Map([...preceding, ...(start ? [units[start - 1]!] : []), ...headers]

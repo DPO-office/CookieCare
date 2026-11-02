@@ -1,4 +1,5 @@
 import type { SourceMap } from "./source-map.js";
+import { isSubstantiveZone } from "./layout-zones.js";
 import type { ReconstructionDraft } from "./reconstruct.js";
 import type { DocumentModel } from "./document-model.js";
 
@@ -46,7 +47,7 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     if (existing && existing !== provision.id) add("duplicate_citation", `${citation}: ${existing}, ${provision.id}`);
     else citations.set(citation, provision.id);
   }
-  for (const span of map.spans.filter(s => s.kind === "text" && !["page_header", "page_footer"].includes(s.blockType ?? ""))) {
+  for (const span of map.spans.filter(s => s.kind === "text" && isSubstantiveZone(s.layoutZone) && !["page_header", "page_footer"].includes(s.blockType ?? ""))) {
     for (const marker of map.text.slice(span.start, span.end).matchAll(/(?:^|\n)[ \t]*(?:\d+[a-z]?\.[ \t]+|\((?:\d+[a-z]?|[a-z]|[ivxlcdm]+)\)[ \t]+)/giu)) {
       const start = span.start + marker.index! + marker[0].search(/\S/u);
       if (!draft.provisions.some(p => p.start === start)) add("missing_numbered_boundary", `Numbered source opening at ${start} has no distinct provision`);
@@ -99,6 +100,7 @@ export function validateReconstruction(sourceVersionId: string, map: SourceMap,
     if (gap.text.trim()) add("unclassified_text", `Source text ${gap.start}-${gap.end} is unclassified`);
   }
   for (const span of map.spans) {
+    if (!isSubstantiveZone(span.layoutZone)) continue;
     if (!map.text.slice(span.start, span.end).trim()) continue;
     const intervals = draft.provisions.filter(provision =>
       provision.start < span.end && provision.end > span.start)

@@ -1,5 +1,6 @@
 import { hashRevision } from "../schemas/common.js";
 import type { SourceMap } from "./source-map.js";
+import { isRangePurelyNonSubstantive } from "./layout-zones.js";
 import { sourceLocations, type SourceLocation } from "./structure-provider.js";
 
 export interface DetectedReference {
@@ -7,7 +8,7 @@ export interface DetectedReference {
   start: number;
   end: number;
   exactMention: string;
-  kind: "rule" | "section" | "article" | "schedule" | "relative" | "external";
+  kind: "rule" | "section" | "article" | "schedule" | "relative" | "external" | "chapter" | "part" | "title" | "division" | "annex";
   targetHint: string;
   externalInstrumentHint: string | null;
   sourceSpans: SourceLocation[];
@@ -24,7 +25,10 @@ export interface ReferenceDetection {
 
 const ORDINAL = "(?:First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)";
 const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> = [
-  { kind: "section", expression: /\b(?:clauses?|points?)\s+\(\s*[a-z0-9]+\s*\)\s+of\s+sub-?section\s+\(\s*\d+[a-z]?\s*\)\s+of\s+section\s+\d+[a-z]?/giu },
+  { kind: "chapter", expression: /\bchapters?\s+([IVXLCDM]+|\d+[a-z]?)(?:\s*(?:,|and|or)\s*(?:chapters?\s+)?([IVXLCDM]+|\d+[a-z]?))*/giu },
+  { kind: "part", expression: /\bparts?\s+([IVXLCDM]+|\d+[a-z]?)(?:\s*(?:,|and|or)\s*(?:parts?\s+)?([IVXLCDM]+|\d+[a-z]?))*/giu },
+  { kind: "title", expression: /\btitles?\s+([IVXLCDM]+|\d+[a-z]?)(?:\s*(?:,|and|or)\s*(?:titles?\s+)?([IVXLCDM]+|\d+[a-z]?))*/giu },
+  { kind: "section", expression: /\b(?:clauses?|points?)\s+\(\s*[a-z0-9]+\s*\)\s+of\s+sub-?section\s+\(\s*\d+(?:\.\d+)*[a-z]?\s*\)\s+of\s+section\s+\d+(?:\.\d+)*[a-z]?/giu },
   { kind: "section", expression: /\bsections?\s+\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*(?:\s*(?:,|and|or)\s*\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*)+/giu },
   { kind: "article", expression: /\barticles?\s+\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*(?:\s*(?:,|and|or)\s*\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*)+/giu },
   { kind: "rule", expression: /\brules?\s+\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*(?:\s*(?:,|and|or)\s*\d+[a-z]?(?:\s*\(\s*[a-z0-9]+\s*\))*)+/giu },
@@ -34,8 +38,8 @@ const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> =
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
-  { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
-  { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*[-–—]\s*\d+[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
+  { kind: "section", expression: /\bsections?\s+\d+(?:\.\d+)*[A-Za-z]?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
+  { kind: "article", expression: /\barticles?\s+\d+(?:\.\d+)*[A-Za-z]?(?:\s*[-–—]\s*\d+(?:\.\d+)*[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
   { kind: "relative", expression: /\b(?:clauses?|paragraphs?|points?)\s+\(?\s*[A-Za-z0-9]+\s*\)?\s+of\s+(?:sub-?sections?|paragraphs?)\s+\(?\s*\d+[A-Za-z]?\s*\)?\b/giu },
   { kind: "relative", expression: /\b(?:paragraph|subparagraph|point|sub-section|clause)\s+\(?[A-Za-z0-9]+\)?\s+of\s+this\s+(?:article|rule|section)\b/giu },
   { kind: "relative", expression: /\b(?:sub-?sections?|paragraphs?|clauses?|points?|subparagraphs?)\s+(?:\(\s*[A-Za-z0-9]+\s*\)|\d+[A-Za-z]?)(?:\s*(?:,|and|or)\s*(?:\(\s*[A-Za-z0-9]+\s*\)|\d+[A-Za-z]?))*/giu },
@@ -52,6 +56,7 @@ export function detectReferences(map: SourceMap, sourceVersionId: string): Refer
     for (const match of map.text.matchAll(expression)) {
       const start = match.index;
       const end = start + match[0].length;
+      if (isRangePurelyNonSubstantive(map, start, end)) continue;
       if (kind === "relative" && !/\bof\b/iu.test(match[0]) &&
         /^\s+of\s+(?:(?:this|the)\s+)?(?:section|article|rule)\b/iu.test(map.text.slice(end, end + 48))) {
         continue; // The longer absolute citation is handled by its own detector.

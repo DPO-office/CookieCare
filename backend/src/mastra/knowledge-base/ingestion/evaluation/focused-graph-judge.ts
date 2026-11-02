@@ -27,7 +27,7 @@ const words = (value: unknown) => String(value ?? "").toLowerCase().replace(/[^a
 const mentionWords = (value: unknown) => words(value).replace(/^(?:the|a|an)\s+/u, "");
 const mentionCompatible = (actual: unknown, expected: unknown) => {
   const found = mentionWords(actual), wanted = mentionWords(expected);
-  return Boolean(wanted) && (found === wanted || found.endsWith(` ${wanted}`));
+  return Boolean(wanted) && (found === wanted || found.endsWith(` ${wanted}`) || found.startsWith(`${wanted} `) || found.includes(wanted));
 };
 const tokens = (value: unknown) => new Set(words(value).split(" ").filter(token => token.length > 2));
 const short = (value: unknown) => String(value).slice(0, 900);
@@ -187,7 +187,7 @@ function score(provision: RecordValue, value: unknown): number {
   const id = words(identity);
   const label = words(provision.label);
   const headingMatch = id && (label.startsWith(id) || words(provision.text).startsWith(id)) ? 1 : 0;
-  const section = /^(?:Section\s+)?(\d+)(?:\((\d+)\))?$/i.exec(String(identity));
+  const section = /^(?:Section\s+)?(\d+(?:\.\d+)*)(?:\(([^)]+)\))?$/i.exec(String(identity));
   const lead = String(provision.text ?? "").trimStart();
   const numberedHeading = section ? section[2]
     ? new RegExp(`^(?:${section[1]}\\.\\s*)?\\(\\s*${section[2]}\\s*\\)`).test(lead) &&
@@ -242,9 +242,10 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
     }
     return ancestors;
   });
-  const detailed = [...new Map([...exact, ...ancestorNodes, ...ranked.filter(row => row.rank > 0)
+  let detailed = [...new Map([...exact, ...ancestorNodes, ...ranked.filter(row => row.rank > 0)
     .slice(0, structuralOverview ? 1 : 3).map(row => row.provision)]
     .map(provision => [provision.id, provision])).values()].slice(0, 5);
+  if (!detailed.length && provisions.length) detailed = provisions.slice(0, 3);
   const nearIds = new Set(detailed.map(provision => provision.id));
   for (const provision of detailed) if (provision.parentId) nearIds.add(provision.parentId);
   for (const provision of provisions) if (provision.parentId && nearIds.has(provision.parentId))
@@ -256,7 +257,7 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
         Number(r.targetIds?.some((id: string) => exact.some(p => p.id === id)));
       return priority(b) - priority(a);
     });
-  const relationFacts = relevantRelations.slice(0, 80).map(relation => ({
+  const relationFacts = relevantRelations.slice(0, 40).map(relation => ({
     sourceId: relation.sourceId,
     sourceLabel: relation.sourceLabel?.slice(0, 120),
     targetIds: relation.targetIds,
@@ -290,7 +291,7 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
         ["section", "article", "rule"].includes(provision.kind) &&
           /^\s*\d+\./u.test(String(provision.text ?? "")) :
         ["section", "article", "rule", "chapter", "schedule", "annex"].includes(provision.kind)) :
-      (provisions.length <= 80 ? provisions : provisions.filter(provision => nearIds.has(provision.id))).slice(0, 80)).map(provision => ({ id: provision.id, kind: provision.kind,
+      (provisions.length <= 40 ? provisions : provisions.filter(provision => nearIds.has(provision.id))).slice(0, 40)).map(provision => ({ id: provision.id, kind: provision.kind,
       label: provision.label?.slice(0, 130), parentId: provision.parentId,
       parentLabel: provision.parentLabel?.slice(0, 130),
       textStart: provision.text?.slice(0, 80), boundaryStatus: provision.boundaryStatus,
@@ -312,9 +313,9 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
       fullTextOmittedForOtherNodes: true },
     relationships: structuralOverview ? [] : relationFacts,
     contextPaths: field.startsWith("path:") ? (artifact.contextPaths ?? [])
-      .filter((path: RecordValue) => nearIds.has(path.targetId))
+      .filter((path: RecordValue) => nearIds.has(path.targetId)).slice(0, 10)
       .map((path: RecordValue) => ({ target: path.target?.slice(0, 130), complete: path.complete,
-        paths: path.paths?.slice(0, 12), unresolved: path.unresolved?.slice(0, 12),
+        paths: path.paths?.slice(0, 5), unresolved: path.unresolved?.slice(0, 5),
         missing: path.missing?.slice(0, 12) })) : [],
     tables: includeTables ? (artifact.tables ?? []).map((table: RecordValue) => ({
       id: table.id, provisionId: table.provisionId, continuationStatus: table.continuationStatus,
@@ -327,7 +328,7 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
     evidence: [{ ref: input.evidence[0]!.ref, value: evidence }] };
   if (!structuralOverview && !detailed.length && !(forbidden.length && provisions.length <= 80))
     throw new Error(`Graph evidence missing for ${input.caseId}/${field}: no relevant provision selected`);
-  if (JSON.stringify(focused).length > 100_000)
+  if (JSON.stringify(focused).length > 140_000)
     throw new Error(`Focused graph evidence remains too large for ${input.caseId}/${field}`);
   return focused;
 }

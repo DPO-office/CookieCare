@@ -9,6 +9,36 @@ export interface DefinedTerm {
   scopeStatus: "document" | "structural_parent" | "unresolved";
 }
 
+/** General English inflection generator for singular/plural legal defined terms. */
+export function termInflections(term: string): string[] {
+  const words = term.trim().split(/\s+/);
+  if (!words.length) return [term];
+  const last = words[words.length - 1]!;
+  const prefix = words.slice(0, -1).join(" ");
+  const withPrefix = (w: string) => prefix ? `${prefix} ${w}` : w;
+  const variants = new Set<string>([term]);
+  const lower = last.toLowerCase();
+
+  if (lower === "child") variants.add(withPrefix("children"));
+  else if (lower === "children") variants.add(withPrefix("child"));
+  else if (lower === "person") { variants.add(withPrefix("persons")); variants.add(withPrefix("people")); }
+  else if (lower === "persons" || lower === "people") variants.add(withPrefix("person"));
+  else if (/[bcdfghjklmnpqrstvwxyz]y$/iu.test(last)) {
+    variants.add(withPrefix(last.slice(0, -1) + "ies"));
+  } else if (last.toLowerCase().endsWith("ies") && last.length > 3) {
+    variants.add(withPrefix(last.slice(0, -3) + "y"));
+  } else if (/(?:[sxz]|ch|sh)$/iu.test(last)) {
+    variants.add(withPrefix(last + "es"));
+  } else if (last.toLowerCase().endsWith("es") && /(?:[sxz]|ch|sh)es$/iu.test(last)) {
+    variants.add(withPrefix(last.slice(0, -2)));
+  } else if (last.toLowerCase().endsWith("s") && !last.toLowerCase().endsWith("ss")) {
+    variants.add(withPrefix(last.slice(0, -1)));
+  } else {
+    variants.add(withPrefix(last + "s"));
+  }
+  return [...variants];
+}
+
 /** Definitions are source facts independent of the model's structural type. */
 export function collectDefinitions(provisions: DraftProvision[]): DefinedTerm[] {
   const byId = new Map(provisions.map(p => [p.id, p]));
@@ -35,7 +65,12 @@ export function collectDefinitions(provisions: DraftProvision[]): DefinedTerm[] 
       // Only inspect introductions before the definition, not later scope wording.
       const introduction = contexts.map(p => p.text.slice(0, Math.min(500, Math.max(0, start - p.start)))).join("\n");
       const local = /(?:for the purposes of|in|under)\s+this\s+(section|article|rule|chapter|part)\b/iu.exec(introduction);
-      const documentScope = !local && /(?:for the purposes of|in|under)\s+(?:this|these)\s+(?:act|regulation|rules|agreement|document)\b/iu.test(introduction);
+      const isStandaloneDefSection = contexts.some(p =>
+        ["section", "article", "rule"].includes(p.kind) &&
+        /\bdefinitions\b/iu.test(p.label ?? p.text.slice(0, 100))
+      );
+      const documentScope = (!local && /(?:for the purposes of|in|under)\s+(?:this|these)\s+(?:act|regulation|rules|agreement|document)\b/iu.test(introduction)) ||
+        (!local && isStandaloneDefSection);
       const scope = local ? contexts.find(p => p.kind === local[1]!.toLowerCase()) :
         contexts.find(p => ["section", "article", "rule", "chapter", "part"].includes(p.kind));
       occurrences.set(key, { term: match[1]!.replace(/\s+/gu, " ").trim(), provisionId: provision.id,
