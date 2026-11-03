@@ -12,7 +12,7 @@ config({ path: "backend/.env", quiet: true });
 config({ path: ".env", quiet: true });
 config({ path: "../.env", quiet: true });
 const { values } = parseArgs({ options: { run: { type: "string" }, source: { type: "string" },
-  fixture: { type: "string" }, "judge-model": { type: "string" },
+  fixture: { type: "string" }, "judge-model": { type: "string" }, "fast-judge-model": { type: "string" },
   "prepare-only": { type: "boolean" }, "case": { type: "string" },
   stage: { type: "string" } }, strict: true });
 if (!values.run || !values.source || !values.fixture) throw new Error("--run --source --fixture are required");
@@ -135,9 +135,10 @@ const preview = selectedCases.map((row: any) => {
     }) };
 });
 await writeFile(path.join(values.run, "evaluation-focus-preview.json"), JSON.stringify(preview, null, 2));
-const judgeModel = values["judge-model"] ?? "glm-5.3";
+const judgeModel = values["judge-model"] ?? (process.env.DO_LLM_REASONING_MODEL || "glm-5.3");
+const fastJudgeModel = values["fast-judge-model"] ?? (process.env.DO_LLM_FAST_MODEL || "deepseek-4-flash");
 const evidenceHash = hashRevision({ datasetId: dataset.dataset_id, selectedCases,
-  artifacts: serializedArtifacts, sourcePackHash: hashRevision(pack), judgeModel, evaluatorVersion: "focused-graph-v7" });
+  artifacts: serializedArtifacts, sourcePackHash: hashRevision(pack), judgeModel, fastJudgeModel, evaluatorVersion: "focused-graph-v8" });
 if (values["prepare-only"]) {
   console.log(JSON.stringify({ status: "prepared", cases: preview.length,
     fields: preview.reduce((n, row) => n + row.fieldCount, 0),
@@ -146,7 +147,7 @@ if (values["prepare-only"]) {
   process.exit(0);
 }
 const focusedCallCount = preview.reduce((sum, row) => sum + row.fieldCount + row.forbiddenCount, 0);
-process.stdout.write(`Prepared ${selectedCases.length} case(s), ${focusedCallCount} focused judge calls. Starting judge requests...\n`);
+process.stdout.write(`Prepared ${selectedCases.length} case(s), ${focusedCallCount} focused judge calls (Reasoning: ${judgeModel}, Fast: ${fastJudgeModel}). Starting judge requests...\n`);
 const stageLabel = targetStage === "ALL" || !targetStage ? (values.case ?? "all-cases") : (values.case ?? targetStage);
 const suffix = `${stageLabel}.${judgeModel}`.replace(/[^a-zA-Z0-9._-]/g, "_");
 const checkpointPath = path.join(values.run, `evaluation-judge-checkpoint.${suffix}.json`);
@@ -164,7 +165,7 @@ if (existsSync(checkpointPath)) {
 if (!previousCalls.length) await writeFile(rawAttemptsPath, "");
 const baseJudge = new DigitalOceanEvaluationJudge(judgeModel, undefined, async attempt => {
   await appendFile(rawAttemptsPath, `${JSON.stringify(attempt)}\n`);
-});
+}, fastJudgeModel);
 const judge = new FocusedGraphJudge(baseJudge, { previousCalls, maxAttempts: 2,
   onProgress: async calls => {
     await writeFile(checkpointPath, JSON.stringify({ schemaVersion: "focused-graph-checkpoint/3.0",

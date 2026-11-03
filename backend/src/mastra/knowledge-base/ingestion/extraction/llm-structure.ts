@@ -440,6 +440,7 @@ export class LlmStructureProvider implements StructureProvider {
       const attemptStarted = Date.now();
       let receivedUsage: StructureExtractionAttempt["usage"] = null;
       let receivedFinishReason: string | null = null;
+      let calledModel: string | null = null;
       try {
         const cached = await input.checkpoints?.loadChunk(chunk);
         const cacheMatches = cached?.checkpointSchemaVersion === 1 &&
@@ -485,20 +486,101 @@ export class LlmStructureProvider implements StructureProvider {
             error: null, childChunkIds: [] });
           return;
         }
+        const fastModel = this.configuration.fastModel?.trim() ||
+          process.env.KB_STRUCTURE_FAST_MODEL?.trim() ||
+          process.env.DO_LLM_FAST_MODEL?.trim() ||
+          "deepseek-4-flash";
+        const reasoningModel = this.configuration.reasoningModel?.trim() ||
+          this.configuration.model?.trim() ||
+          process.env.DO_LLM_REASONING_MODEL?.trim() ||
+          "glm-5.3";
+        const strategy = this.configuration.tieringStrategy ??
+          (this.configuration.fastModel || process.env.DO_LLM_FAST_MODEL ? "tiered" : "reasoning_only");
+
+        const isSingleUnit = chunk.coreSourceIds.length === 1;
+
+        let targetModel: string;
+        let escalationModel: string | null = null;
+
+        if (strategy === "tiered") {
+          if (isSingleUnit) {
+            targetModel = fastModel;
+            escalationModel = fastModel !== reasoningModel ? reasoningModel : null;
+          } else {
+            targetModel = reasoningModel;
+            escalationModel = null;
+          }
+        } else if (strategy === "cascade") {
+          targetModel = fastModel;
+          escalationModel = fastModel !== reasoningModel ? reasoningModel : null;
+        } else if (strategy === "fast_only") {
+          targetModel = fastModel;
+          escalationModel = null;
+        } else {
+          targetModel = reasoningModel;
+          escalationModel = null;
+        }
+
+        let calledModel = targetModel;
         const chunkStarted = Date.now();
-        process.stdout.write(`      → Calling model for chunk ${chunk.chunkId} (${chunk.assembledInputCharacters.toLocaleString()} chars)... (waiting for LLM response)\n`);
-        const response = await this.client.generate({ model: this.configuration.model,
-          systemInstruction: LLM_STRUCTURE_SYSTEM_PROMPT, prompt,
-          responseSchema: LLM_STRUCTURE_RESPONSE_SCHEMA, signal: input.signal });
+        const tierLabel = calledModel.includes("flash") ? "Fast" : "Reasoning";
+        process.stdout.write(`      → Calling [${tierLabel}] model (${calledModel}) for chunk ${chunk.chunkId} (${chunk.assembledInputCharacters.toLocaleString()} chars)... (waiting for LLM response)\n`);
+
+        const invokeModel = async (modelToUse: string): Promise<LlmStructureCompletion> => {
+          const resp = await this.client.generate({
+            model: modelToUse,
+            systemInstruction: LLM_STRUCTURE_SYSTEM_PROMPT,
+            prompt,
+            responseSchema: LLM_STRUCTURE_RESPONSE_SCHEMA,
+            signal: input.signal,
+          });
+          if (resp.finishReason?.toLowerCase() === "length") {
+            const truncated = new StructureOutputTruncatedError();
+            Object.assign(truncated, { usage: resp.usage, finishReason: resp.finishReason });
+            throw truncated;
+          }
+          return resp;
+        };
+
+        let response = await invokeModel(targetModel);
+        let candidate: CandidateStructure;
+        let missing: string[] = [];
+
+        try {
+          candidate = normalize(response.output, input.sourceMap, this.configuration, chunk);
+          missing = uncoveredCoreUnits(input.sourceMap, chunk, candidate);
+        } catch (normError) {
+          if (escalationModel && escalationModel !== calledModel &&
+              (normError instanceof StructureGroundingError ||
+               normError instanceof StructureMalformedOutputError ||
+               normError instanceof z.ZodError)) {
+            process.stdout.write(`      ⚠ Fast model error on ${chunk.chunkId} (${normError.message}); escalating to reasoning model (${escalationModel})...\n`);
+            calledModel = escalationModel;
+            response = await invokeModel(escalationModel);
+            candidate = normalize(response.output, input.sourceMap, this.configuration, chunk);
+            missing = uncoveredCoreUnits(input.sourceMap, chunk, candidate);
+          } else {
+            throw normError;
+          }
+        }
+
+        if (missing.length > 0 && escalationModel && escalationModel !== calledModel) {
+          process.stdout.write(`      ⚠ Fast model left ${missing.length} uncovered unit(s) in ${chunk.chunkId}; escalating to reasoning model (${escalationModel})...\n`);
+          calledModel = escalationModel;
+          try {
+            const escResponse = await invokeModel(escalationModel);
+            const escCandidate = normalize(escResponse.output, input.sourceMap, this.configuration, chunk);
+            const escMissing = uncoveredCoreUnits(input.sourceMap, chunk, escCandidate);
+            response = escResponse;
+            candidate = escCandidate;
+            missing = escMissing;
+          } catch (escError) {
+            throw escError;
+          }
+        }
+
         receivedUsage = response.usage;
         receivedFinishReason = response.finishReason ?? null;
-        if (response.finishReason?.toLowerCase() === "length") {
-          const truncated = new StructureOutputTruncatedError();
-          Object.assign(truncated, { usage: response.usage, finishReason: response.finishReason });
-          throw truncated;
-        }
-        const candidate = normalize(response.output, input.sourceMap, this.configuration, chunk);
-        const missing = uncoveredCoreUnits(input.sourceMap, chunk, candidate);
         if (missing.length) throw new StructureCoverageError(missing, candidate);
         const checkpoint: StructureChunkCheckpoint = { checkpointSchemaVersion: 1,
           sourceTextHash: input.textHash, configurationHash: this.configuration.configurationHash,
@@ -511,8 +593,8 @@ export class LlmStructureProvider implements StructureProvider {
         completed.push(checkpoint);
         await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
           status: "completed", usage: response.usage, finishReason: response.finishReason ?? null,
-          durationMs: checkpoint.durationMs, error: null, childChunkIds: [] });
-        process.stdout.write(`      ✓ Chunk ${chunk.chunkId} completed in ${((Date.now() - chunkStarted) / 1000).toFixed(1)}s\n`);
+          durationMs: checkpoint.durationMs, error: null, childChunkIds: [], model: calledModel });
+        process.stdout.write(`      ✓ Chunk ${chunk.chunkId} completed with ${calledModel} in ${((Date.now() - chunkStarted) / 1000).toFixed(1)}s\n`);
       } catch (error) {
         input.signal?.throwIfAborted();
         const durationMs = Date.now() - attemptStarted;
@@ -547,7 +629,7 @@ export class LlmStructureProvider implements StructureProvider {
           });
           await saveAttempt({ attemptId: `${chunk.chunkId}:partial:${attempts.length + 1}`, chunk,
             status: "incomplete", usage, finishReason, durationMs, error: error.message,
-            childChunkIds: children.map(child => child.chunkId) });
+            childChunkIds: children.map(child => child.chunkId), model: calledModel });
           for (const child of children) await extractChunk(child, rootId);
           return;
         }
@@ -566,7 +648,7 @@ export class LlmStructureProvider implements StructureProvider {
           completed.push(checkpoint);
           await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
             status: "incomplete", usage, finishReason, durationMs,
-            error: error.message, childChunkIds: [] });
+            error: error.message, childChunkIds: [], model: calledModel });
           return;
         }
         if (shouldSplitFailedChunk(error) && chunk.coreSourceIds.length < 2) {
@@ -588,13 +670,13 @@ export class LlmStructureProvider implements StructureProvider {
           completed.push(checkpoint);
           await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
             status: "incomplete", usage, finishReason, durationMs,
-            error: message, childChunkIds: [] });
+            error: message, childChunkIds: [], model: calledModel });
           return;
         }
         if (!shouldSplitFailedChunk(error) || chunk.coreSourceIds.length < 2) {
           await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
             status: "failed", usage, finishReason, durationMs,
-            error: error instanceof Error ? error.message : String(error), childChunkIds: [] });
+            error: error instanceof Error ? error.message : String(error), childChunkIds: [], model: calledModel });
           throw error;
         }
         const reason = error instanceof StructureOutputTruncatedError ? "output truncated" :
@@ -606,7 +688,7 @@ export class LlmStructureProvider implements StructureProvider {
         await saveAttempt({ attemptId: `${chunk.chunkId}:call:${attempts.length + 1}`, chunk,
           status: error instanceof StructureOutputTruncatedError ? "truncated" : "split",
           usage, finishReason, durationMs, error: error instanceof Error ? error.message : String(error),
-          childChunkIds: children.map(child => child.chunkId) });
+          childChunkIds: children.map(child => child.chunkId), model: calledModel });
         for (const child of children) await extractChunk(child, rootId);
       }
     };

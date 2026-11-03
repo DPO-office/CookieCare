@@ -50,7 +50,7 @@ export enum LLMProvider {
   OPENROUTER = "OPENROUTER",
 }
 
-export const DO_FAST_MODEL = process.env.DO_LLM_FAST_MODEL?.trim() || "glm-5.3-flash";
+export const DO_FAST_MODEL = process.env.DO_LLM_FAST_MODEL?.trim() || "deepseek-4-flash";
 export const DO_REASONING_MODEL = process.env.DO_LLM_REASONING_MODEL?.trim() || "glm-5.3";
 
 export type GeminiThinkingLevel = "minimal" | "low" | "medium" | "high";

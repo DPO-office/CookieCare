@@ -534,7 +534,7 @@ export function computeAncestorBreadcrumbAt(
     const explicit = explicitUnitRe.exec(raw);
     const marker = markerUnitRe.exec(span.marker?.trim() ?? "");
     const bare = grammar.primaryUnitKind !== "article" ? bareUnitRe.exec(raw) : null;
-    const num = explicit?.[2] ?? marker?.[1] ?? bare?.[1];
+    const num = explicit?.[2] ?? (marker && bare ? `${marker[1]}.${bare[1]}` : (marker?.[1] ?? bare?.[1]));
     const kind = explicit?.[1]?.toLowerCase() ?? (num ? grammar.primaryUnitKind : null);
     if (num && kind) {
       activeSection = { kind, number: num, start: span.start };

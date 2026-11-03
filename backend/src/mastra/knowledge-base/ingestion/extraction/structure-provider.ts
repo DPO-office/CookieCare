@@ -15,6 +15,9 @@ export type StructureProviderName = z.infer<typeof StructureProviderNameSchema>;
 export const StructureProviderConfigSchema = z.strictObject({
   provider: StructureProviderNameSchema,
   model: z.string().trim().min(1),
+  fastModel: z.string().trim().min(1).optional(),
+  reasoningModel: z.string().trim().min(1).optional(),
+  tieringStrategy: z.enum(["tiered", "cascade", "reasoning_only", "fast_only"]).optional(),
   promptVersion: z.string().trim().min(1).nullable(),
   processingStrategy: z.string().trim().min(1),
   configurationVersion: z.string().trim().min(1),
@@ -92,6 +95,7 @@ export interface StructureExtractionAttempt {
   durationMs: number;
   error: string | null;
   childChunkIds: string[];
+  model?: string | null;
 }
 export interface StructureProviderResult {
   candidate: CandidateStructure;
@@ -161,10 +165,15 @@ export function structureConfigurationHash(value: Omit<StructureProviderConfig, 
 
 export function resolveStructureProviderConfig(env: NodeJS.ProcessEnv = process.env): StructureProviderConfig {
   const provider = StructureProviderNameSchema.parse((env.KB_STRUCTURE_PROVIDER ?? "kanon").trim());
+  const fastModel = env.KB_STRUCTURE_FAST_MODEL?.trim() || env.DO_LLM_FAST_MODEL?.trim();
+  const reasoningModel = (env.KB_STRUCTURE_LLM_MODEL ?? env.DO_LLM_REASONING_MODEL ?? "glm-5.3").trim();
+  const tieringStrategy = (env.KB_STRUCTURE_TIERING as "tiered" | "cascade" | "reasoning_only" | "fast_only" | undefined) ??
+    (fastModel ? "tiered" : undefined);
   const base = provider === "kanon"
     ? { provider, model: "kanon-2-enricher", promptVersion: null,
       processingStrategy: "provider_chunk-v1", configurationVersion: "kanon-v1" }
-    : { provider, model: (env.KB_STRUCTURE_LLM_MODEL ?? env.DO_LLM_REASONING_MODEL ?? "glm-5.3").trim(),
+    : { provider, model: reasoningModel,
+      ...(fastModel ? { fastModel, reasoningModel, tieringStrategy } : {}),
       promptVersion: STRUCTURE_PROMPT_VERSION,
       processingStrategy: LLM_PROCESSING_STRATEGY, configurationVersion: "llm-digitalocean-v3" };
   if (!base.model) throw new Error("KB_STRUCTURE_LLM_MODEL or DO_LLM_REASONING_MODEL is required when KB_STRUCTURE_PROVIDER=llm");

@@ -37,6 +37,7 @@ drafting-module-context.md
 
 /test
 /backend/evaluation-runs
+/evaluation-runs
 # Diagnostic / debug scripts output
 backend/scripts/diag-*.ts
 backend/scripts/diagnose-*.ts

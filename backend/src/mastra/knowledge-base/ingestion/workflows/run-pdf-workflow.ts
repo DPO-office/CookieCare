@@ -37,6 +37,8 @@ export const RunPdfInputSchema = z.object({
   pdfPath: z.string().min(1),
   provider: StructureProviderNameSchema.default("llm"),
   model: z.string().trim().min(1).optional(),
+  fastModel: z.string().trim().min(1).optional(),
+  tieringStrategy: z.enum(["tiered", "cascade", "reasoning_only", "fast_only"]).optional(),
   semanticMode: z.enum(["explicit", "off"]).optional(),
   semanticModel: z.string().trim().min(1).optional(),
   replayFrom: z.string().min(1).optional(),
@@ -61,7 +63,19 @@ export const RunPdfOutputSchema = z.object({
 });
 export type RunPdfOutput = z.infer<typeof RunPdfOutputSchema>;
 
-export function buildStructureConfig(provider: StructureProviderName, model?: string): StructureProviderConfig {
+export function buildStructureConfig(
+  provider: StructureProviderName,
+  model?: string,
+  fastModel?: string,
+  tieringStrategy?: "tiered" | "cascade" | "reasoning_only" | "fast_only"
+): StructureProviderConfig {
+  const resolvedReasoning = model || process.env.KB_STRUCTURE_LLM_MODEL?.trim() ||
+    process.env.DO_LLM_REASONING_MODEL?.trim() || "glm-5.3";
+  const resolvedFast = fastModel || process.env.KB_STRUCTURE_FAST_MODEL?.trim() ||
+    process.env.DO_LLM_FAST_MODEL?.trim() || "deepseek-4-flash";
+  const resolvedStrategy = tieringStrategy ??
+    (process.env.KB_STRUCTURE_TIERING as "tiered" | "cascade" | "reasoning_only" | "fast_only" | undefined) ??
+    "tiered";
   const base = provider === "kanon"
     ? {
         provider: "kanon" as const,
@@ -72,8 +86,10 @@ export function buildStructureConfig(provider: StructureProviderName, model?: st
       }
     : {
         provider: "llm" as const,
-        model: model || process.env.KB_STRUCTURE_LLM_MODEL?.trim() ||
-          process.env.DO_LLM_REASONING_MODEL?.trim() || "glm-5.3",
+        model: resolvedReasoning,
+        fastModel: resolvedFast,
+        reasoningModel: resolvedReasoning,
+        tieringStrategy: resolvedStrategy,
         promptVersion: STRUCTURE_PROMPT_VERSION,
         processingStrategy: LLM_PROCESSING_STRATEGY,
         configurationVersion: "llm-digitalocean-v3",
@@ -189,7 +205,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
         throw new Error("Replay output must use a new run directory");
       }
       const provider = inputData.provider ?? "llm";
-      const configuration = buildStructureConfig(provider, inputData.model);
+      const configuration = buildStructureConfig(provider, inputData.model, inputData.fastModel, inputData.tieringStrategy);
       const model = configuration.model;
 
       process.stdout.write(`[1/8] Verifying PDF: ${pdfFileName} (${(bytes.length / 1024 / 1024).toFixed(2)} MB, ${inspection.pageCount} pages)...\n`);
@@ -352,7 +368,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
           readFile(path.join(inputData.outputDir, "structure-response.json"), "utf8").then(JSON.parse),
           readFile(path.join(inputData.outputDir, "chunk-plan.json"), "utf8").then(JSON.parse),
         ]);
-        const configuration = buildStructureConfig(inputData.provider, inputData.model);
+        const configuration = buildStructureConfig(inputData.provider, inputData.model, inputData.fastModel, inputData.tieringStrategy);
         if (candidate.textHash !== inputData.sourceMap.textHash) throw new Error("Saved structure candidate does not match the source map");
         if (candidate.provider !== configuration.provider || candidate.model !== configuration.model ||
             candidate.promptVersion !== configuration.promptVersion ||
@@ -367,7 +383,7 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
       process.stdout.write(`[4/8] Extracting legal structure (${inputData.provider} / ${inputData.model})...\n`);
       const { providerFactory = createAuthorizedProductionStructureProvider } = resolveServices();
       const sourceMap: SourceMap = inputData.sourceMap;
-      const configuration = buildStructureConfig(inputData.provider, inputData.model);
+      const configuration = buildStructureConfig(inputData.provider, inputData.model, inputData.fastModel, inputData.tieringStrategy);
       const providerInstance = providerFactory(configuration);
 
       let chunkPlan: StructureChunkPlan | { schemaVersion: 1; strategy: "provider_managed";
@@ -590,7 +606,10 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
     inputSchema: z.any(), outputSchema: z.any(),
     execute: async ({ inputData }) => withStageFailure(inputData, "S3", "semantic_relationships", async () => {
       if (inputData.semanticMode !== "explicit") return inputData;
-      const model = inputData.semanticModel ?? inputData.model;
+      const model = inputData.semanticModel ??
+        process.env.KB_SEMANTIC_LLM_MODEL?.trim() ??
+        process.env.DO_LLM_FAST_MODEL?.trim() ??
+        "glm-5.3-flash";
       const { semanticFactory = (name: string) => new DigitalOceanSemanticClient(name) } = resolveServices();
       const { draft, report } = await enrichSemanticRelationships(inputData.sourceMap,
         inputData.reconstruction, semanticFactory(model), Number.MAX_SAFE_INTEGER, {

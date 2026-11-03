@@ -18,6 +18,8 @@ async function main() {
       pdf: { type: "string" },
       provider: { type: "string", default: "llm" },
       model: { type: "string" },
+      "fast-model": { type: "string" },
+      tiering: { type: "string" },
       "semantic-mode": { type: "string", default: "explicit" },
       "semantic-model": { type: "string" },
       "replay-from": { type: "string" },
@@ -48,8 +50,13 @@ async function main() {
 
   const provider = values.provider === "kanon" ? "kanon" : "llm";
   const model = typeof values.model === "string" ? values.model.trim() : undefined;
+  const fastModel = typeof values["fast-model"] === "string" ? values["fast-model"].trim() :
+    (process.env.KB_STRUCTURE_FAST_MODEL || process.env.DO_LLM_FAST_MODEL || "deepseek-4-flash");
+  const tieringStrategy = (typeof values.tiering === "string" ? values.tiering.trim() :
+    process.env.KB_STRUCTURE_TIERING || "tiered") as "tiered" | "cascade" | "reasoning_only" | "fast_only";
   const semanticMode = values["semantic-mode"] === "off" ? "off" : "explicit";
-  const semanticModel = typeof values["semantic-model"] === "string" ? values["semantic-model"].trim() : undefined;
+  const semanticModel = typeof values["semantic-model"] === "string" ? values["semantic-model"].trim() :
+    (process.env.KB_SEMANTIC_LLM_MODEL || process.env.DO_LLM_FAST_MODEL || "glm-5.3-flash");
   const datasetId = typeof values["dataset-id"] === "string" ? values["dataset-id"].trim() : undefined;
   const displayedModel = model || (provider === "kanon" ? "kanon-2-enricher" :
     process.env.KB_STRUCTURE_LLM_MODEL || process.env.DO_LLM_REASONING_MODEL || "glm-5.3");
@@ -67,14 +74,17 @@ async function main() {
     process.stdout.write(`\n============================================================\n`);
     process.stdout.write(`Knowledge Base Generic PDF Ingestion Pipeline (kb-run-pdf-v1)\n`);
     process.stdout.write(`============================================================\n`);
-    process.stdout.write(`PDF File : ${pdfPath}\n`);
-    process.stdout.write(`Provider : ${provider}\n`);
-    process.stdout.write(`Model    : ${displayedModel}\n`);
+    process.stdout.write(`PDF File        : ${pdfPath}\n`);
+    process.stdout.write(`Provider        : ${provider}\n`);
+    process.stdout.write(`Structure Model : ${displayedModel} (Reasoning Tier)\n`);
+    process.stdout.write(`Fast Model      : ${fastModel} (Fast Tier)\n`);
+    process.stdout.write(`Tiering Strategy: ${tieringStrategy}\n`);
+    process.stdout.write(`Semantic Model  : ${semanticModel}\n`);
     if (process.env.DO_INFERENCE_TIMEOUT_MS) {
-      process.stdout.write(`Timeout  : ${process.env.DO_INFERENCE_TIMEOUT_MS} ms\n`);
+      process.stdout.write(`Timeout         : ${process.env.DO_INFERENCE_TIMEOUT_MS} ms\n`);
     }
     if (process.env.KB_STRUCTURE_REASONING_EFFORT) {
-      process.stdout.write(`Reasoning: ${process.env.KB_STRUCTURE_REASONING_EFFORT}\n`);
+      process.stdout.write(`Reasoning       : ${process.env.KB_STRUCTURE_REASONING_EFFORT}\n`);
     }
     process.stdout.write(`------------------------------------------------------------\n`);
   }
@@ -85,6 +95,8 @@ async function main() {
       pdfPath,
       provider,
       ...(model ? { model } : {}),
+      ...(fastModel ? { fastModel } : {}),
+      ...(tieringStrategy ? { tieringStrategy } : {}),
       semanticMode,
       ...(semanticModel ? { semanticModel } : {}),
       ...(replayFrom ? { replayFrom } : {}),

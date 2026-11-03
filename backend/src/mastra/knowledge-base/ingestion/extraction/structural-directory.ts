@@ -177,7 +177,7 @@ export function repairStructuralDirectory(map: SourceMap, input: CandidateStruct
       const explicit = heading.exec(raw.trimStart());
       const marker = new RegExp(`^(${SECTION_NUMBER_TOKEN_SOURCE})\\.$`, "iu").exec(span.marker?.trim() ?? "");
       const bare = new RegExp(`^(${SECTION_NUMBER_TOKEN_SOURCE})\\.\\s+`, "iu").exec(raw.trimStart());
-      const number = explicit?.[2] ?? marker?.[1] ?? bare?.[1];
+      const number = explicit?.[2] ?? (marker && bare ? `${marker[1]}.${bare[1]}` : (marker?.[1] ?? bare?.[1]));
       const same = segments.find(s => s.span.start === span.start && ["section", "article", "rule"].includes(s.type ?? ""));
       const kind = explicit?.[1].toLowerCase()
         ?? convention

@@ -168,7 +168,9 @@ export function assignLayoutZones(
       continue;
     }
     if (/^xxxGID[HE]xxx\b/iu.test(raw) ||
-        /Separate paging is given to this Part in order that it may be filed as a separate compilation/iu.test(raw)) {
+        /Separate paging is given to this Part in order that it may be filed as a separate compilation/iu.test(raw) ||
+        /California Law\s+Publications\s+Other Resources/iu.test(raw) ||
+        /^\s*Code:\s+Select Code\s+Section:\s+Search\s*$/iu.test(raw)) {
       span.layoutZone = "running_header";
     }
   }

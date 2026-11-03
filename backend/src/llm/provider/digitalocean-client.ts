@@ -44,7 +44,7 @@ export class DigitalOceanInferenceClient {
           schema: input.responseSchema } } }),
     };
     const defaultTimeout = process.env.DO_INFERENCE_TIMEOUT_MS ? Number(process.env.DO_INFERENCE_TIMEOUT_MS) : 600_000;
-    const maxRetries = 3;
+    const maxRetries = process.env.DO_INFERENCE_MAX_RETRIES ? Number(process.env.DO_INFERENCE_MAX_RETRIES) : 6;
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -64,7 +64,7 @@ export class DigitalOceanInferenceClient {
 
         if (!response.ok) {
           if ([429, 502, 503, 504].includes(response.status) && attempt < maxRetries) {
-            const delayMs = attempt * 2000;
+            const delayMs = Math.min(attempt * 3000, 30000);
             process.stdout.write(`      ⚠ DigitalOcean returned HTTP ${response.status}; retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
             await new Promise(resolve => setTimeout(resolve, delayMs));
             continue;
@@ -118,7 +118,7 @@ export class DigitalOceanInferenceClient {
           ));
 
         if (isNetworkOrTransient && attempt < maxRetries) {
-          const delayMs = attempt * 3000;
+          const delayMs = Math.min(attempt * 4000, 30000);
           const detail = (err as { cause?: { message?: string } })?.cause?.message ?? (err instanceof Error ? err.message : String(err));
           process.stdout.write(`      ⚠ DigitalOcean request transient error (${detail}); retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
           await new Promise(resolve => setTimeout(resolve, delayMs));
