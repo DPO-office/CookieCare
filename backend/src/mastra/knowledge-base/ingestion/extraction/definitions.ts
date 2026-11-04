@@ -73,7 +73,15 @@ export function collectDefinitions(provisions: DraftProvision[]): DefinedTerm[] 
         (!local && isStandaloneDefSection);
       const scope = local ? contexts.find(p => p.kind === local[1]!.toLowerCase()) :
         contexts.find(p => ["section", "article", "rule", "chapter", "part"].includes(p.kind));
-      occurrences.set(key, { term: match[1]!.replace(/\s+/gu, " ").trim(), provisionId: provision.id,
+      // Resolve the canonical statutory clause for this definition:
+      // If the matched provision is a bare definition fragment, prefer its enclosing clause (e.g. Section 2(f) or 1798.140(d))
+      const isStatutory = (p: DraftProvision) => /^(?:Section|Article|Rule)\s+\w+/u.test(p.canonicalCitation ?? "");
+      let defProvisionId = provision.id;
+      if (!isStatutory(provision)) {
+        const statutoryClause = ancestors.find(p => isStatutory(p) && !["chapter", "part", "title"].includes(p.kind));
+        if (statutoryClause) defProvisionId = statutoryClause.id;
+      }
+      occurrences.set(key, { term: match[1]!.replace(/\s+/gu, " ").trim(), provisionId: defProvisionId,
         start, end: start + match[0].length, scopeProvisionId: documentScope ? null : scope?.id ?? null,
         scopeStatus: documentScope ? "document" : scope ? "structural_parent" : "unresolved" });
     }

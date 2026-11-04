@@ -63,9 +63,12 @@ export class DigitalOceanInferenceClient {
         });
 
         if (!response.ok) {
-          if ([429, 502, 503, 504].includes(response.status) && attempt < maxRetries) {
-            const delayMs = Math.min(attempt * 3000, 30000);
-            process.stdout.write(`      ⚠ DigitalOcean returned HTTP ${response.status}; retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
+          if ([429, 500, 502, 503, 504, 529].includes(response.status) && attempt < maxRetries) {
+            const retryAfter = Number(response.headers.get("retry-after"));
+            const delayMs = !isNaN(retryAfter) && retryAfter > 0
+              ? Math.min(retryAfter * 1000, 60000)
+              : Math.min(attempt * 4000, 30000);
+            process.stdout.write(`      ⚠ DigitalOcean returned HTTP ${response.status} (overload/transient); retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
             await new Promise(resolve => setTimeout(resolve, delayMs));
             continue;
           }

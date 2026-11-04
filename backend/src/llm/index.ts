@@ -70,6 +70,7 @@ async function executeWithRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 
         errMsg.includes("503") ||
         errMsg.includes("502") ||
         errMsg.includes("504") ||
+        errMsg.includes("529") ||
         errMsg.toLowerCase().includes("unavailable") ||
         errMsg.toLowerCase().includes("high demand") ||
         errMsg.toLowerCase().includes("spikes in demand") ||

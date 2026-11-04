@@ -11,6 +11,15 @@ export function normalizeStructureType(type: string | null): string | null {
   if (/^(?:penalty_)?table_?row(?:_|$)/u.test(normalized)) return "table_row";
   if (/^(?:penalty_)?table(?:_|$)/u.test(normalized)) return "table";
   if (/^(?:legal_provision_)?(?:list_)?(?:point|item)$/u.test(normalized)) return "point";
+  if (/^sub(?:_|\s*)?section(?:[_\s(].*)?$/iu.test(normalized) || /^subdivision(?:[_\s(].*)?$/iu.test(normalized)) return "subsection";
+  if (/^sub(?:_|\s*)?paragraph(?:[_\s(].*)?$/iu.test(normalized)) return "point";
+  if (/^paragraph(?:[_\s(].*)?$/iu.test(normalized)) return "paragraph";
+  if (/^clause(?:[_\s(].*)?$/iu.test(normalized)) return "point";
+  if (/^sub(?:_|\s*)?clause(?:[_\s(].*)?$/iu.test(normalized)) return "point";
+  if (/^illustration(?:s)?(?:[_\s(].*)?$/iu.test(normalized)) return "illustration";
+  if (/^explanation(?:s)?(?:[_\s(].*)?$/iu.test(normalized)) return "explanation";
+  if (/^proviso(?:s)?(?:[_\s(].*)?$/iu.test(normalized)) return "proviso";
+  if (/^definition(?:s)?(?:[_\s(].*)?$/iu.test(normalized)) return "definition";
   return ({ tablerow: "table_row", sub_section: "subsection", list_point: "point",
     definitions: "definition", preamble: "recital", long_title: "recital", enacting_formula: "recital",
     explanations: "explanation", provisos: "proviso", illustrations: "illustration" } as Record<string, string>)[normalized] ?? normalized;
@@ -275,16 +284,27 @@ export function repairStructuralDirectory(map: SourceMap, input: CandidateStruct
       if (enclosingOutline) sec.parent = enclosingOutline.id;
     }
   }
-  // A recovered subsequent heading also bounds an earlier over-broad section.
-  // Repeated headings of the same identity may be continuations, not new sections.
+  // A recovered subsequent heading also bounds an earlier over-broad section,
+  // or extends an under-broad section that has child clauses before the next section/chapter.
   for (const parent of containers.filter(p => ["section", "article", "rule"].includes(p.type ?? ""))) {
     if (!key(parent)) continue;
-    const next = containers.find(other => other.span.start > parent.span.start && other.type === parent.type &&
+    const next = containers.find(other => other.span.start > parent.span.start &&
+      (other.type === parent.type || ["chapter", "part", "schedule", "annex", "title"].includes(other.type ?? "")) &&
       key(other) && key(other) !== key(parent) && !other.startsBeforeChunk);
-    if (next && parent.span.end > next.span.start) {
-      parent.span = { start: parent.span.start, end: next.span.start };
-      parent.sourceSpans = sourceLocations(map, parent.span);
-      warnings.push(`container_boundary_repaired:${parent.id}:before:${next.id}`);
+    if (next) {
+      if (parent.span.end > next.span.start) {
+        parent.span = { start: parent.span.start, end: next.span.start };
+        parent.sourceSpans = sourceLocations(map, parent.span);
+        warnings.push(`container_boundary_repaired:${parent.id}:before:${next.id}`);
+      } else if (parent.span.end < next.span.start) {
+        const trailingChildren = segments.filter(s => s.span.start >= parent.span.end && s.span.end <= next.span.start &&
+          !["section", "article", "rule", "chapter", "part", "schedule", "annex", "title"].includes(s.type ?? ""));
+        if (trailingChildren.length > 0) {
+          parent.span = { start: parent.span.start, end: next.span.start };
+          parent.sourceSpans = sourceLocations(map, parent.span);
+          warnings.push(`container_boundary_extended:${parent.id}:to:${next.id}`);
+        }
+      }
     }
   }
   // Reattach source-numbered units within their actual section using the document's inferred hierarchy order.

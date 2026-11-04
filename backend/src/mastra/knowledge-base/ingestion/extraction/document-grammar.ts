@@ -472,6 +472,12 @@ export function inferDocumentGrammar(
     hierarchyOrder = ["bare_num", "lower_alpha", "lower_roman", "upper_alpha"];
   }
 
+  const hasUpperRoman = [...transitionCounts.keys()].some(k => k.endsWith("->upper_roman")) ||
+    (firstChildCounts.get("upper_roman") ?? 0) > 0;
+  if (hasUpperRoman && !hierarchyOrder.includes("upper_roman")) {
+    hierarchyOrder.push("upper_roman");
+  }
+
   return {
     primaryUnitKind: dominantKind,
     supportsDecimalNumbers: decimalSectionCount >= 1,

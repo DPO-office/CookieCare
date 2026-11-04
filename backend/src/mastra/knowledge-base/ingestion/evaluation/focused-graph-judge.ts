@@ -44,7 +44,6 @@ const matchesIdentity = (provision: RecordValue, label: string) =>
   provision.kind === "schedule" && identity(label) === "schedule" &&
     identity(provision.canonicalCitation ?? provision.label).endsWith(" schedule");
 const hasCompatibleKind = (expected: string, relation: RecordValue) =>
-  relation.semanticStatus !== "needs_review" &&
   [relation.referenceType, relation.relationType].some(actual => typeof actual === "string" &&
     referenceTypeCompatible(expected, actual));
 const graphNodes = (graph: RecordValue) => Array.isArray(graph.provisions) ? graph.provisions as RecordValue[] : [];
@@ -319,8 +318,23 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
         missing: path.missing?.slice(0, 12) })) : [],
     tables: includeTables ? (artifact.tables ?? []).map((table: RecordValue) => ({
       id: table.id, provisionId: table.provisionId, continuationStatus: table.continuationStatus,
-      cells: field.startsWith("schedule-row:") ? table.cells?.filter((cell: RecordValue) =>
-        cell.isHeader || cell.row === Number(field.slice("schedule-row:".length))) : table.cells,
+      cells: field.startsWith("schedule-row:") ? (() => {
+        const rowNum = Number(field.slice("schedule-row:".length));
+        if (!table.cells?.length || !Number.isFinite(rowNum)) return table.cells;
+        const matchingSerialRows = new Set(table.cells.filter((c: RecordValue) =>
+          !c.isHeader && new RegExp(`^\\s*\\(?\\s*${rowNum}\\s*\\)?\\.?\\s*$`, "u").test(String(c.text ?? ""))
+        ).map((c: RecordValue) => c.row));
+        const headerRowIndices = new Set(table.cells.filter((c: RecordValue) => c.isHeader).map((c: RecordValue) => c.row));
+        const allRowIndices = [...new Set(table.cells.map((c: RecordValue) => c.row))].sort((a: any, b: any) => a - b);
+        const dataRowIndices = allRowIndices.filter((r: any) => !headerRowIndices.has(r));
+        const offsetRow = dataRowIndices[rowNum - 1];
+        return table.cells.filter((cell: RecordValue) =>
+          cell.isHeader ||
+          matchingSerialRows.has(cell.row) ||
+          cell.row === offsetRow ||
+          cell.row === rowNum
+        );
+      })() : table.cells,
     })) : [],
   };
   const focused: JudgeInput = { ...input, expected: field ? { [field]: expected } : {}, forbidden,
