@@ -46,7 +46,7 @@ async function fetchRelevantHeaders(url: string): Promise<Record<string, string>
       method: "HEAD",
       redirect: "follow",
       signal: AbortSignal.timeout(8000),
-      headers: { "User-Agent": "LORA-Scanner/1.0" },
+      headers: { "User-Agent": "ControlCentre-Scanner/1.0" },
     });
 
     for (const name of RELEVANT_HEADERS) {
@@ -60,7 +60,7 @@ async function fetchRelevantHeaders(url: string): Promise<Record<string, string>
         method: "GET",
         redirect: "follow",
         signal: AbortSignal.timeout(8000),
-        headers: { "User-Agent": "LORA-Scanner/1.0" },
+        headers: { "User-Agent": "ControlCentre-Scanner/1.0" },
       });
 
       for (const name of RELEVANT_HEADERS) {

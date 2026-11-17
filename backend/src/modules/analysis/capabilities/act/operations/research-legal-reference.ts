@@ -59,7 +59,7 @@ export async function webAssistedReference(
   try {
     raw = await executeJsonCompletion(
       [
-        "The user named a legal standard that is NOT in LORA's authored skill/rule registry.",
+        "The user named a legal standard that is NOT in Control Centre's authored skill/rule registry.",
         "Produce ONE clearly-unverified research note. Do not claim the document complies.",
         "Do not invent quotes from the document. If you mention the excerpt, paraphrase only.",
         "Prefer official primary sources: eur-lex.europa.eu, legislation.gov.uk, *.gov regulator sites.",
@@ -104,7 +104,7 @@ export async function webAssistedReference(
     kind: "compliance",
     category: "other_known_risk",
     status: "insufficient_evidence",
-    claim: `[Unverified — not an authored LORA rule] ${raw.claim}`,
+    claim: `[Unverified — not an authored Control Centre rule] ${raw.claim}`,
     evidence: [],
     severity: raw.severity,
     taxonomyVersion: RISK_TAXONOMY_VERSION,

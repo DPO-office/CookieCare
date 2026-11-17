@@ -35,7 +35,7 @@ async function fetchSitemapUrls(
   try {
     const resp = await fetch(sitemapUrl, {
       signal: AbortSignal.timeout(5000),
-      headers: { "User-Agent": "LORA-Scanner/1.0" },
+      headers: { "User-Agent": "ControlCentre-Scanner/1.0" },
     });
 
     if (!resp.ok) return { urls: [], found: false };

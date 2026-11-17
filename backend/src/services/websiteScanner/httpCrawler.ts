@@ -22,7 +22,7 @@ import { logger } from "../../utils/logger.js";
 
 const TAG = "[HttpCrawler]";
 
-const DEFAULT_UA = "LORA-Scanner/1.0";
+const DEFAULT_UA = "ControlCentre-Scanner/1.0";
 const FETCH_TIMEOUT_MS = 20_000;
 
 // ─── Internal HTML utilities ─────────────────────────────────────────────────

@@ -36,7 +36,7 @@ async function probePage(
         method,
         redirect: "follow",
         signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
-        headers: { "User-Agent": "LORA-Scanner/1.0" },
+        headers: { "User-Agent": "ControlCentre-Scanner/1.0" },
       });
 
       const reachable = resp.status >= 200 && resp.status < 400;
