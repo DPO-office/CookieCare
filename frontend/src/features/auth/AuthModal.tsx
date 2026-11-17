@@ -161,7 +161,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
         <div className="hidden w-[44%] flex-col justify-between border-r border-[#F0F0F2] bg-[#F7F8FB] px-12 py-11 lg:flex">
           <div>
             <div className="mb-8">
-              <BrandLogo size="lg" tagline="Legal Operations & Risk Assistant" />
+              <BrandLogo size="lg" tagline="One view . Every Risk" />
             </div>
             <h1 className="mb-3 max-w-[380px] text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-[#1a1a1a]">
               Enterprise AI for privacy, security & legal compliance
@@ -174,7 +174,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
 
           <div className="my-8">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
-              Why LORA
+              Why Control Centre
             </p>
             <ul className="mb-8 space-y-2.5">
               {FEATURES.map((f) => (
@@ -254,8 +254,8 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                 </h2>
                 <p className="mb-8 text-[14px] text-[#667085]">
                   {isLogin
-                    ? "Sign in to continue to your LORA workspace."
-                    : "Get started with LORA in seconds."}
+                    ? "Sign in to continue to your Control Centre workspace."
+                    : "Get started with Control Centre in seconds."}
                 </p>
 
                 {isGoogleAuthConfigured && (

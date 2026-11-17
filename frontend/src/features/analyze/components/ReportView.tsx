@@ -413,7 +413,7 @@ const ReportMessageList = memo(function ReportMessageList({
                 <LiveStreamHeader store={streamingStore} progressMessage={progressMessage} />
               ) : (
                 <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
-                  LORA
+                  Control Centre
                 </p>
               )}
             </div>

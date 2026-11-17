@@ -111,7 +111,7 @@ export default function InteractAnalyze() {
       return;
     }
     if (!hasPrompt) {
-      setValidationMessage("Tell LORA what you want to know, or pick a suggestion below.");
+      setValidationMessage("Tell Control Centre what you want to know, or pick a suggestion below.");
       return;
     }
     setValidationMessage("");
@@ -270,7 +270,7 @@ export default function InteractAnalyze() {
             What would you like to analyze?
           </h1>
           <p className="pcl-rise-1 mt-2 max-w-lg text-center text-[14px] leading-relaxed text-dark-200">
-            Attach an agreement, pick a prompt, or describe the review you want LORA to run.
+            Attach an agreement, pick a prompt, or describe the review you want Control Centre to run.
           </p>
 
           <div className="pcl-rise-2 w-full mt-8 flex flex-col items-center" style={{ maxWidth: 720 }}>

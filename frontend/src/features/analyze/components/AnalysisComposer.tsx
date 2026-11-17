@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Paperclip,
   CornerDownLeft,
@@ -169,7 +169,7 @@ export function AnalysisComposer({
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); if (value.trim() && !submitBlocked) onAnalyze(); }
   };
 
-  const placeholder = "Ask a question or describe the analysis you want LORA to perform\u2026";
+  const placeholder = "Ask a question or describe the analysis you want Control Centre to perform\u2026";
 
   if (isLanding) {
     return (

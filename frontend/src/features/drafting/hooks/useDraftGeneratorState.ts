@@ -23,8 +23,8 @@ export function useDraftGeneratorState() {
   const [s4Open, setS4Open] = useState(false);
 
   // Folder expansion states
-  const [expandedFolder, setExpandedFolder] = useState<string | null>("LORA Templates");
-  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("LORA Clause Library");
+  const [expandedFolder, setExpandedFolder] = useState<string | null>("Control Centre Templates");
+  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("Control Centre Clause Library");
 
   // Search filters
   const [searchTemplateQuery, setSearchTemplateQuery] = useState("");

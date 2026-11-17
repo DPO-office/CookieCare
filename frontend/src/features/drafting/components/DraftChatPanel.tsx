@@ -49,7 +49,7 @@ export function LoraAvatar({
       )}
       <img
         src={LORA_MARK}
-        alt="LORA"
+        alt="Control Centre"
         width={size}
         height={size}
         className={`relative rounded-[7px] object-cover shadow-sm transition-transform duration-200 ${
@@ -1129,7 +1129,7 @@ function AskQuestionCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
-              LORA
+              Control Centre
             </p>
             {resolved ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
@@ -1336,7 +1336,7 @@ function FollowUpCard({
   isProgress?: boolean;
   children: ReactNode;
 }) {
-  const isLora = isAi || author === "LORA";
+  const isLora = isAi || author === "Control Centre" || author === "LORA";
 
   return (
     <article className={`draft-followup-card${isAi ? " is-ai" : ""}${isProgress ? " is-progress" : ""}`}>
@@ -1438,7 +1438,7 @@ export default function DraftChatPanel({
             <div className="flex h-full flex-col items-center justify-center px-4 text-center">
               <img
                 src={LORA_MARK}
-                alt="LORA"
+                alt="Control Centre"
                 width={36}
                 height={36}
                 className="mb-3 h-9 w-9 shrink-0 rounded-[10px] object-cover shadow-[0_1px_3px_rgba(16,24,40,0.08)]"
@@ -1486,7 +1486,7 @@ export default function DraftChatPanel({
 
             if (msg.kind === "example") {
               return (
-                <FollowUpCard key={msg.id} author="LORA" isAi>
+                <FollowUpCard key={msg.id} author="Control Centre" isAi>
                   {msg.content}
                 </FollowUpCard>
               );
@@ -1495,7 +1495,7 @@ export default function DraftChatPanel({
             return (
               <FollowUpCard
                 key={msg.id}
-                author="LORA"
+                author="Control Centre"
                 isAi
                 isProgress={msg.kind === "progress"}
               >
@@ -1505,7 +1505,7 @@ export default function DraftChatPanel({
           })}
 
           {isLoading && !hasActiveProgressMsg && messages.length > 0 && (
-            <FollowUpCard author="LORA" isAi isProgress>
+            <FollowUpCard author="Control Centre" isAi isProgress>
               <span className="draft-status-shimmer">
                 {progressMessage || "Thinking…"}
               </span>

@@ -220,7 +220,7 @@ export interface ClarificationRequest {
 }
 
 export const LEGAL_ADVICE_DECLINE_MESSAGE =
-  "LORA analyzes documents (risks, compliance, extraction, comparison). " +
+  "Control Centre analyzes documents (risks, compliance, extraction, comparison). " +
   "It does not provide legal advice on whether you should sign, litigate, or predict dispute outcomes. " +
   "Please rephrase as a document-analysis question.";
 

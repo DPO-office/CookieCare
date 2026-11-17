@@ -622,7 +622,7 @@ async function setupDb() {
       INSERT INTO users (id, email, name, password_hash, status, role, approved_at)
       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
       ON CONFLICT (email) DO NOTHING;
-    `, ["supreme_admin_id", seedAdminEmail, "LORA Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
+    `, ["supreme_admin_id", seedAdminEmail, "Control Centre Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
     // RLS Policy Setup
     const rlsTables = [

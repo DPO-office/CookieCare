@@ -1,4 +1,4 @@
-﻿import { SEVERITY_BADGE_CLASSES } from "./constants";
+import { SEVERITY_BADGE_CLASSES } from "./constants";
 
 export function severityBadgeClass(severity: string): string {
   return SEVERITY_BADGE_CLASSES[severity] ?? SEVERITY_BADGE_CLASSES.LOW;
@@ -30,5 +30,5 @@ export function buildReportContentString(result: {
 
 export function buildDownloadFilename(url: string, ext: string): string {
   const clean = url.replace(/https?:\/\/|www\./gi, "").replace(/[./\s]/gi, "_");
-  return `LORA_Cookie_${clean}.${ext}`;
+  return `ControlCentre_Cookie_${clean}.${ext}`;
 }

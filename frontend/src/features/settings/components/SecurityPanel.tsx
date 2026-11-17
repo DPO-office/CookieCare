@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Lock, Key, Activity, Eye, EyeOff, RefreshCw, Smartphone } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, Select, ToggleRow } from "./SettingsPrimitives";
 
@@ -45,7 +45,7 @@ export default function SecurityPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Key} title="API credentials" desc="Secret key used for programmatic access to the LORA API." />
+        <CardHeader icon={Key} title="API credentials" desc="Secret key used for programmatic access to the Control Centre API." />
         <CardBody>
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 font-mono text-[12px] text-gray-700 truncate">

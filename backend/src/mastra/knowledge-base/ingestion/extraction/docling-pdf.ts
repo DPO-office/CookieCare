@@ -31,7 +31,7 @@ async function fallbackExtractDoclingDocument(bytes: Uint8Array): Promise<unknow
 
   if (!pageList.length) {
     try {
-      // @ts-expect-error pdf-parse-fork does not include TypeScript type definitions
+      // @ts-ignore pdf-parse-fork type definitions fallback
       const pdfParseModule = await import("pdf-parse-fork");
       const pdfParse = pdfParseModule.default ?? pdfParseModule;
       const parsed = await pdfParse(Buffer.from(bytes));

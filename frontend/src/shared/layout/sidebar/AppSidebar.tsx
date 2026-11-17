@@ -346,8 +346,8 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
         <BrandLogo
           size={collapsed ? "sm" : "md"}
           iconOnly={collapsed}
-          tagline={collapsed ? undefined : "Legal Operations & Risk Assistant"}
-          className={collapsed ? "" : "mt-[6px] ml-[6px]"}
+          tagline={collapsed ? undefined : "One view . Every Risk"}
+          className={collapsed ? "" : "ml-0.5"}
         />
       </div>
       {!collapsed && (
